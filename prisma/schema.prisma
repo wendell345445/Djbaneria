@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  PROFESSIONAL
+  STUDIO
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum BannerStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum BannerFormat {
+  POST_FEED
+  STORY
+  SQUARE
+  FLYER
+}
+
+enum BannerStylePreset {
+  NEON_CLUB
+  PREMIUM_BLACK
+  SUMMER_VIBES
+  MINIMAL_TECHNO
+  LUXURY_GOLD
+}
+
+enum UsageEventType {
+  BANNER_GENERATION
+  BANNER_VARIATION
+  BANNER_EDIT
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String?
+  name         String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  workspaces   Workspace[]
+}
+
+model Workspace {
+  id           String        @id @default(cuid())
+  userId       String
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription?
+  banners      Banner[]
+  assets       Asset[]
+  usageEvents  UsageEvent[]
+}
+
+model Subscription {
+  id                     String             @id @default(cuid())
+  workspaceId            String             @unique
+  plan                   SubscriptionPlan   @default(FREE)
+  status                 SubscriptionStatus @default(TRIALING)
+  provider               String?            @default("stripe")
+  providerCustomerId     String?
+  providerSubscriptionId String?
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  cancelAtPeriodEnd      Boolean            @default(false)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  workspace              Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Banner {
+  id                String            @id @default(cuid())
+  workspaceId       String
+  title             String
+  djName            String?
+  eventName         String?
+  eventDate         String?
+  eventLocation     String?
+  city              String?
+  stylePreset       BannerStylePreset
+  format            BannerFormat
+  prompt            String
+  revisedPrompt     String?
+  modelName         String
+  status            BannerStatus      @default(PENDING)
+  referenceImageUrl String?
+  outputImageUrl    String?
+  width             Int?
+  height            Int?
+  generationSeconds Int?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  workspace         Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model Asset {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  url             String
+  originalName    String
+  storageProvider String
+  storageKey      String?
+  mimeType        String?
+  sizeBytes       Int?
+  width           Int?
+  height          Int?
+  createdAt       DateTime  @default(now())
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model UsageEvent {
+  id          String         @id @default(cuid())
+  workspaceId String
+  type        UsageEventType
+  units       Int            @default(1)
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+}
