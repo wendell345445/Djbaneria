@@ -1,9 +1,9 @@
 import { SettingsPasswordForm } from "@/components/settings-password-form";
 import { SettingsProfileForm } from "@/components/settings-profile-form";
-import { getOrCreateDemoWorkspace } from "@/lib/workspace";
+import { requireCurrentWorkspace } from "@/lib/workspace";
 
 export default async function SettingsPage() {
-  const workspace = await getOrCreateDemoWorkspace();
+  const workspace = await requireCurrentWorkspace();
 
   return (
     <main className="mx-auto max-w-[1180px] px-5 py-7">

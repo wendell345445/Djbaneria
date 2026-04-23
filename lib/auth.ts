@@ -45,7 +45,6 @@ export async function getCurrentUser() {
       email: true,
       role: true,
       isActive: true,
-      avatarUrl: true,
       createdAt: true,
       updatedAt: true,
       workspaces: {
@@ -64,7 +63,7 @@ export async function getCurrentUser() {
     },
   });
 
-  if (!user || !user.isActive) {
+  if (!user || user.isActive === false) {
     return null;
   }
 

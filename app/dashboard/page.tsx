@@ -8,10 +8,10 @@ import {
 import { isAdminEmail } from "@/lib/admin";
 import { buildBillingSummary } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateDemoWorkspace } from "@/lib/workspace";
+import { requireCurrentWorkspace } from "@/lib/workspace";
 
 export default async function DashboardPage() {
-  const workspace = await getOrCreateDemoWorkspace();
+  const workspace = await requireCurrentWorkspace();
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -85,21 +85,9 @@ export default async function DashboardPage() {
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
-              <QuickStep
-                number="1"
-                title="Preencha os dados"
-                description="Título, nome do DJ, data e local do evento."
-              />
-              <QuickStep
-                number="2"
-                title="Gere o preview"
-                description="A IA monta o banner no formato escolhido."
-              />
-              <QuickStep
-                number="3"
-                title="Baixe ou ajuste"
-                description="Faça alterações e baixe a versão final."
-              />
+              <QuickStep number="1" title="Preencha os dados" description="Título, nome do DJ, data e local do evento." />
+              <QuickStep number="2" title="Gere o preview" description="A IA monta o banner no formato escolhido." />
+              <QuickStep number="3" title="Baixe ou ajuste" description="Faça alterações e baixe a versão final." />
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -122,16 +110,8 @@ export default async function DashboardPage() {
 
         <div className="grid gap-4">
           <InfoCard title="Banners gerados" value={String(bannerCount)} helper="Total criado no workspace" />
-          <InfoCard
-            title="Créditos do mês"
-            value={usageLabel}
-            helper={isAdmin ? "Conta admin com uso liberado" : "Consumo no período atual"}
-          />
-          <InfoCard
-            title="Restantes"
-            value={remainingLabel}
-            helper="Créditos disponíveis para novas gerações e alterações"
-          />
+          <InfoCard title="Créditos do mês" value={usageLabel} helper={isAdmin ? "Conta admin com uso liberado" : "Consumo no período atual"} />
+          <InfoCard title="Restantes" value={remainingLabel} helper="Créditos disponíveis para novas gerações e alterações" />
         </div>
       </section>
 
@@ -149,67 +129,29 @@ export default async function DashboardPage() {
   );
 }
 
-function CompactMetric({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
+function CompactMetric({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div
-      className={`min-w-[132px] rounded-2xl border px-4 py-3 ${
-        highlight
-          ? "border-sky-300/20 bg-sky-300/[0.08]"
-          : "border-white/10 bg-white/[0.04]"
-      }`}
-    >
-      <p className="m-0 text-[10px] uppercase tracking-[0.18em] text-white/45">
-        {label}
-      </p>
-      <div className="mt-1.5 text-[15px] font-semibold leading-none text-white">
-        {value}
-      </div>
+    <div className={`min-w-[132px] rounded-2xl border px-4 py-3 ${highlight ? "border-sky-300/20 bg-sky-300/[0.08]" : "border-white/10 bg-white/[0.04]"}`}>
+      <p className="m-0 text-[10px] uppercase tracking-[0.18em] text-white/45">{label}</p>
+      <div className="mt-1.5 text-[15px] font-semibold leading-none text-white">{value}</div>
     </div>
   );
 }
 
-function QuickStep({
-  number,
-  title,
-  description,
-}: {
-  number: string;
-  title: string;
-  description: string;
-}) {
+function QuickStep({ number, title, description }: { number: string; title: string; description: string }) {
   return (
     <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
-      <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold text-white">
-        {number}
-      </div>
+      <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold text-white">{number}</div>
       <h3 className="text-sm font-semibold text-white">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-white/60">{description}</p>
     </div>
   );
 }
 
-function InfoCard({
-  title,
-  value,
-  helper,
-}: {
-  title: string;
-  value: string;
-  helper: string;
-}) {
+function InfoCard({ title, value, helper }: { title: string; value: string; helper: string }) {
   return (
     <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,14,28,0.96),rgba(5,10,20,0.94))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">
-        {title}
-      </p>
+      <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">{title}</p>
       <h3 className="mt-2 text-2xl font-semibold text-white">{value}</h3>
       <p className="mt-2 text-sm leading-6 text-white/60">{helper}</p>
     </div>

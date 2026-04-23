@@ -48,7 +48,10 @@ export async function verifySessionToken(token: string) {
   }
 }
 
-export async function setSessionCookie(token: string) {
+export async function setSessionCookie(
+  token: string,
+  rememberSession = true,
+) {
   const cookieStore = await cookies();
 
   cookieStore.set(SESSION_COOKIE_NAME, token, {
@@ -56,7 +59,7 @@ export async function setSessionCookie(token: string) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: rememberSession ? 60 * 60 * 24 * 30 : undefined,
   });
 }
 

@@ -77,9 +77,11 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   email: 'email',
   passwordHash: 'passwordHash',
-  name: 'name',
+  role: 'role',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -89,8 +91,10 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const WorkspaceScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
   name: 'name',
+  slug: 'slug',
+  userId: 'userId',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -15,22 +15,14 @@ import { buildBannerPrompt, generateBannerImage } from "@/lib/openai-image";
 import { buildBillingSummary } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { uploadBannerBuffer } from "@/lib/storage";
-import { getOrCreateDemoWorkspace } from "@/lib/workspace";
+import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
-
-const TEST_PREVIEW_ONLY = process.env.BANNER_TEST_PREVIEW_ONLY === "true";
 
 const referenceImageField = z
   .union([
     z.string().trim().url("A URL da imagem de referência precisa ser válida."),
-    z
-      .string()
-      .trim()
-      .regex(
-        /^data:image\/[a-zA-Z0-9.+-]+;base64,/,
-        "A imagem enviada precisa ser uma data URL válida.",
-      ),
+    z.string().trim().regex(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "A imagem enviada precisa ser uma data URL válida."),
     z.null(),
     z.undefined(),
   ])
@@ -46,13 +38,7 @@ const schema = z.object({
   secondaryText: z.string().trim().optional().default(""),
   eventDate: z.string().trim().min(2, "Informe a data do evento."),
   eventLocation: z.string().trim().min(2, "Informe o local do evento."),
-  stylePreset: z.enum([
-    "NEON_CLUB",
-    "PREMIUM_BLACK",
-    "SUMMER_VIBES",
-    "MINIMAL_TECHNO",
-    "LUXURY_GOLD",
-  ]),
+  stylePreset: z.enum(["NEON_CLUB", "PREMIUM_BLACK", "SUMMER_VIBES", "MINIMAL_TECHNO", "LUXURY_GOLD"]),
   format: z.enum(["POST_FEED", "STORY", "SQUARE", "FLYER"]),
   referenceImageUrl: referenceImageField,
 });
@@ -83,40 +69,31 @@ function sanitizeForFileName(value: string) {
     .toLowerCase();
 }
 
-function getCreditsUsedThisMonth(workspaceId: string, monthStart: Date) {
-  return prisma.usageEvent.aggregate({
-    where: {
-      workspaceId,
-      createdAt: { gte: monthStart },
-      type: {
-        in: [
-          UsageEventType.BANNER_GENERATION,
-          UsageEventType.BANNER_EDIT,
-          UsageEventType.BANNER_VARIATION,
-        ],
-      },
-    },
-    _sum: { units: true },
-  });
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Dados inválidos." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: parsed.error.issues[0]?.message || "Dados inválidos." }, { status: 400 });
     }
 
-    const workspace = await getOrCreateDemoWorkspace();
+    const workspace = await getCurrentWorkspace();
+
+    if (!workspace) {
+      return NextResponse.json({ error: "Usuário não autenticado." }, { status: 401 });
+    }
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const usedThisMonthResult = await getCreditsUsedThisMonth(workspace.id, monthStart);
+    const usedThisMonthResult = await prisma.usageEvent.aggregate({
+      where: {
+        workspaceId: workspace.id,
+        createdAt: { gte: monthStart },
+        type: UsageEventType.BANNER_GENERATION,
+      },
+      _sum: { units: true },
+    });
 
     const summary = buildBillingSummary({
       plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
@@ -127,10 +104,7 @@ export async function POST(request: Request) {
     const isAdmin = isAdminEmail(workspace.user?.email);
 
     if (!summary.canGenerateBanner && !isAdmin) {
-      return NextResponse.json(
-        { error: "Você usou todos os seus créditos deste mês." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Você usou todos os seus créditos deste mês." }, { status: 403 });
     }
 
     const payload = parsed.data;
@@ -153,31 +127,14 @@ export async function POST(request: Request) {
     });
 
     if (!generated.imageBase64) {
-      return NextResponse.json(
-        { error: "A OpenAI não retornou a imagem do banner." },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "A OpenAI não retornou a imagem do banner." }, { status: 500 });
     }
 
     const imageBuffer = Buffer.from(generated.imageBase64, "base64");
     const finalPng = await sharp(imageBuffer).png().toBuffer();
     const meta = await sharp(finalPng).metadata();
-    const previewImageUrl = `data:image/png;base64,${finalPng.toString("base64")}`;
 
-    if (TEST_PREVIEW_ONLY) {
-      return NextResponse.json({
-        success: true,
-        saved: false,
-        previewImageUrl,
-        remainingCredits: isAdmin ? 999999 : Math.max(summary.remainingCredits - 1, 0),
-        isAdminUnlimited: isAdmin,
-        generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
-      });
-    }
-
-    const filenameBase =
-      sanitizeForFileName(`${payload.djName}-${payload.mainText}`) ||
-      `banner-${Date.now()}`;
+    const filenameBase = sanitizeForFileName(`${payload.djName}-${payload.mainText}`) || `banner-${Date.now()}`;
     const key = `workspaces/${workspace.id}/generated-banners/${Date.now()}-${filenameBase}.png`;
     const uploaded = await uploadBannerBuffer({
       key,
@@ -243,10 +200,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      saved: true,
       bannerId: banner.id,
       imageUrl: banner.outputImageUrl,
-      previewImageUrl,
       bannerUrl: `/dashboard/banners/${banner.id}`,
       remainingCredits: isAdmin ? 999999 : Math.max(summary.remainingCredits - 1, 0),
       isAdminUnlimited: isAdmin,
@@ -254,12 +209,8 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Erro ao gerar banner:", error);
 
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Erro interno ao gerar banner.",
-      },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      error: error instanceof Error ? error.message : "Erro interno ao gerar banner.",
+    }, { status: 500 });
   }
 }

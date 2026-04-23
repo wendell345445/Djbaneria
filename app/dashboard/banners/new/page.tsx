@@ -8,10 +8,10 @@ import { isAdminEmail } from "@/lib/admin";
 import { NewBannerForm } from "@/components/new-banner-form";
 import { buildBillingSummary } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateDemoWorkspace } from "@/lib/workspace";
+import { requireCurrentWorkspace } from "@/lib/workspace";
 
 export default async function NewBannerPage() {
-  const workspace = await getOrCreateDemoWorkspace();
+  const workspace = await requireCurrentWorkspace();
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -32,9 +32,7 @@ export default async function NewBannerPage() {
 
   const isAdmin = isAdminEmail(workspace.user?.email);
   const planLabel = isAdmin ? `${summary.plan} (Admin)` : summary.plan;
-  const usageLabel = isAdmin
-    ? `${summary.usedThisMonth} / ∞`
-    : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
+  const usageLabel = isAdmin ? `${summary.usedThisMonth} / ∞` : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
   const remainingLabel = isAdmin ? "Ilimitado" : String(summary.remainingCredits);
 
   return (
@@ -72,29 +70,11 @@ export default async function NewBannerPage() {
   );
 }
 
-function CompactMetric({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
+function CompactMetric({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div
-      className={`min-w-[132px] rounded-2xl border px-4 py-3 backdrop-blur-sm ${
-        highlight
-          ? "border-sky-300/20 bg-sky-300/[0.08]"
-          : "border-white/10 bg-white/[0.04]"
-      }`}
-    >
-      <p className="m-0 text-[10px] uppercase tracking-[0.18em] text-white/45">
-        {label}
-      </p>
-      <div className="mt-1.5 text-[15px] font-semibold leading-none text-white">
-        {value}
-      </div>
+    <div className={`min-w-[132px] rounded-2xl border px-4 py-3 backdrop-blur-sm ${highlight ? "border-sky-300/20 bg-sky-300/[0.08]" : "border-white/10 bg-white/[0.04]"}`}>
+      <p className="m-0 text-[10px] uppercase tracking-[0.18em] text-white/45">{label}</p>
+      <div className="mt-1.5 text-[15px] font-semibold leading-none text-white">{value}</div>
     </div>
   );
 }

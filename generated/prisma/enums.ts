@@ -67,3 +67,12 @@ export const UsageEventType = {
 } as const
 
 export type UsageEventType = (typeof UsageEventType)[keyof typeof UsageEventType]
+
+
+export const UserRole = {
+  USER: 'USER',
+  OWNER: 'OWNER',
+  SUPER_ADMIN: 'SUPER_ADMIN'
+} as const
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
