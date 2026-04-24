@@ -10,24 +10,54 @@ import {
   UsageEventType,
 } from "@/generated/prisma/enums";
 
+import { isAdminEmail } from "@/lib/admin";
 import { buildBannerPrompt, generateBannerImage } from "@/lib/openai-image";
 import { buildBillingSummary } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import {
+  buildRateLimitHeaders,
+  consumeRateLimit,
+  getClientIp,
+} from "@/lib/rate-limit";
+import { validateMutationOrigin } from "@/lib/request-security";
 import { uploadBannerBuffer } from "@/lib/storage";
-import { getOrCreateDemoWorkspace } from "@/lib/workspace";
+import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
 
+const referenceImageField = z
+  .union([
+    z.string().trim().url("A URL da imagem de referência precisa ser válida."),
+    z.string()
+      .trim()
+      .regex(
+        /^data:image\/[a-zA-Z0-9.+-]+;base64,/,
+        "A imagem enviada precisa ser uma data URL válida.",
+      ),
+    z.null(),
+    z.undefined(),
+  ])
+  .transform((value) => {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  });
+
 const schema = z.object({
+  mainText: z.string().trim().min(2, "Informe o texto principal do banner."),
   djName: z.string().trim().min(2, "Informe o nome do DJ."),
-  headline: z.string().trim().min(2, "Informe o título principal."),
-  eventName: z.string().trim().min(2, "Informe o nome do evento."),
+  secondaryText: z.string().trim().optional().default(""),
   eventDate: z.string().trim().min(2, "Informe a data do evento."),
   eventLocation: z.string().trim().min(2, "Informe o local do evento."),
-  city: z.string().trim().optional().default(""),
-  stylePreset: z.enum(["NEON_CLUB", "PREMIUM_BLACK", "SUMMER_VIBES", "MINIMAL_TECHNO", "LUXURY_GOLD"]),
+  stylePreset: z.enum([
+    "NEON_CLUB",
+    "PREMIUM_BLACK",
+    "SUMMER_VIBES",
+    "MINIMAL_TECHNO",
+    "LUXURY_GOLD",
+  ]),
   format: z.enum(["POST_FEED", "STORY", "SQUARE", "FLYER"]),
-  referenceImageUrl: z.string().trim().url("A URL da imagem de referência precisa ser válida.").nullish(),
+  referenceImageUrl: referenceImageField,
 });
 
 type GeneratePayload = z.infer<typeof schema>;
@@ -57,6 +87,27 @@ function sanitizeForFileName(value: string) {
 }
 
 export async function POST(request: Request) {
+  const originError = validateMutationOrigin(request);
+  if (originError) {
+    return originError;
+  }
+
+  const ip = getClientIp(request);
+  const rateLimit = consumeRateLimit(`banners:generate:${ip}`, {
+    limit: 12,
+    windowMs: 10 * 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Muitas gerações em sequência. Aguarde um pouco e tente novamente." },
+      {
+        status: 429,
+        headers: buildRateLimitHeaders(rateLimit),
+      },
+    );
+  }
+
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);
@@ -64,11 +115,24 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message || "Dados inválidos." },
-        { status: 400 },
+        {
+          status: 400,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
       );
     }
 
-    const workspace = await getOrCreateDemoWorkspace();
+    const workspace = await getCurrentWorkspace();
+
+    if (!workspace) {
+      return NextResponse.json(
+        { error: "Usuário não autenticado." },
+        {
+          status: 401,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
+    }
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -87,21 +151,26 @@ export async function POST(request: Request) {
       usedThisMonth: usedThisMonthResult._sum.units || 0,
     });
 
-    if (!summary.canGenerateBanner) {
+    const isAdmin = isAdminEmail(workspace.user?.email);
+
+    if (!summary.canGenerateBanner && !isAdmin) {
       return NextResponse.json(
         { error: "Você usou todos os seus créditos deste mês." },
-        { status: 403 },
+        {
+          status: 403,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
       );
     }
 
     const payload = parsed.data;
     const size = getSizeForFormat(payload.format);
     const prompt = buildBannerPrompt({
+      mainText: payload.mainText,
       djName: payload.djName,
-      eventName: payload.eventName,
+      secondaryText: payload.secondaryText || "",
       eventDate: payload.eventDate,
       eventLocation: payload.eventLocation,
-      city: payload.city,
       stylePreset: payload.stylePreset,
       format: payload.format,
     });
@@ -110,13 +179,16 @@ export async function POST(request: Request) {
     const generated = await generateBannerImage({
       prompt,
       size,
-      referenceImageUrl: payload.referenceImageUrl || null,
+      referenceImageUrl: payload.referenceImageUrl,
     });
 
     if (!generated.imageBase64) {
       return NextResponse.json(
         { error: "A OpenAI não retornou a imagem do banner." },
-        { status: 500 },
+        {
+          status: 500,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
       );
     }
 
@@ -124,7 +196,9 @@ export async function POST(request: Request) {
     const finalPng = await sharp(imageBuffer).png().toBuffer();
     const meta = await sharp(finalPng).metadata();
 
-    const filenameBase = sanitizeForFileName(`${payload.djName}-${payload.eventName}`) || `banner-${Date.now()}`;
+    const filenameBase =
+      sanitizeForFileName(`${payload.djName}-${payload.mainText}`) ||
+      `banner-${Date.now()}`;
     const key = `workspaces/${workspace.id}/generated-banners/${Date.now()}-${filenameBase}.png`;
     const uploaded = await uploadBannerBuffer({
       key,
@@ -135,19 +209,19 @@ export async function POST(request: Request) {
     const banner = await prisma.banner.create({
       data: {
         workspaceId: workspace.id,
-        title: payload.headline || payload.eventName,
+        title: payload.mainText,
         djName: payload.djName,
-        eventName: payload.eventName,
+        eventName: payload.secondaryText || null,
         eventDate: payload.eventDate,
         eventLocation: payload.eventLocation,
-        city: payload.city || null,
+        city: null,
         stylePreset: payload.stylePreset as BannerStylePreset,
         format: payload.format as BannerFormat,
         prompt,
         revisedPrompt: generated.revisedPrompt || null,
         modelName: generated.modelName,
         status: BannerStatus.COMPLETED,
-        referenceImageUrl: payload.referenceImageUrl || null,
+        referenceImageUrl: payload.referenceImageUrl,
         outputImageUrl: uploaded.url,
         width: meta.width || null,
         height: meta.height || null,
@@ -183,23 +257,36 @@ export async function POST(request: Request) {
           stylePreset: payload.stylePreset,
           format: payload.format,
           bannerId: banner.id,
+          isAdminBypass: isAdmin,
         },
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      bannerId: banner.id,
-      imageUrl: banner.outputImageUrl,
-      bannerUrl: `/dashboard/banners/${banner.id}`,
-      remainingCredits: Math.max(summary.remainingCredits - 1, 0),
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        bannerId: banner.id,
+        imageUrl: banner.outputImageUrl,
+        bannerUrl: `/dashboard/banners/${banner.id}`,
+        remainingCredits: isAdmin ? 999999 : Math.max(summary.remainingCredits - 1, 0),
+        isAdminUnlimited: isAdmin,
+      },
+      {
+        headers: buildRateLimitHeaders(rateLimit),
+      },
+    );
   } catch (error) {
     console.error("Erro ao gerar banner:", error);
 
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Erro interno ao gerar banner." },
-      { status: 500 },
+      {
+        error:
+          error instanceof Error ? error.message : "Erro interno ao gerar banner.",
+      },
+      {
+        status: 500,
+        headers: buildRateLimitHeaders(rateLimit),
+      },
     );
   }
 }
