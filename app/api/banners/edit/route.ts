@@ -14,33 +14,52 @@ import { isAdminEmail } from "@/lib/admin";
 import { buildBannerEditPrompt, editBannerImage } from "@/lib/openai-image";
 import { buildBillingSummary } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import {
+  buildRateLimitHeaders,
+  consumeRateLimit,
+  getClientIp,
+} from "@/lib/rate-limit";
+import { validateMutationOrigin } from "@/lib/request-security";
 import { uploadBannerBuffer } from "@/lib/storage";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
 
-const TEST_PREVIEW_ONLY = process.env.BANNER_TEST_PREVIEW_ONLY === "true";
-
-const sourceImageField = z
-  .string()
-  .trim()
-  .min(1, "Não foi possível localizar a imagem atual do banner.")
-  .refine(
-    (value) => value.startsWith("data:image/") || /^https?:\/\//.test(value),
-    "A imagem atual do banner é inválida para edição.",
-  );
+const referenceImageField = z
+  .union([
+    z.string().trim().url("A URL da imagem de referência precisa ser válida."),
+    z.string()
+      .trim()
+      .regex(
+        /^data:image\/[a-zA-Z0-9.+-]+;base64,/,
+        "A imagem enviada precisa ser uma data URL válida.",
+      ),
+    z.null(),
+    z.undefined(),
+  ])
+  .transform((value) => {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  });
 
 const schema = z.object({
-  bannerId: z.string().trim().optional().nullable(),
-  sourceImageUrl: sourceImageField,
-  instructions: z.string().trim().min(4, "Descreva a alteração desejada com um pouco mais de detalhe."),
+  bannerId: z.string().trim().min(1, "Informe o banner que será alterado."),
   mainText: z.string().trim().min(2, "Informe o texto principal do banner."),
   djName: z.string().trim().min(2, "Informe o nome do DJ."),
   secondaryText: z.string().trim().optional().default(""),
   eventDate: z.string().trim().min(2, "Informe a data do evento."),
   eventLocation: z.string().trim().min(2, "Informe o local do evento."),
-  stylePreset: z.enum(["NEON_CLUB", "PREMIUM_BLACK", "SUMMER_VIBES", "MINIMAL_TECHNO", "LUXURY_GOLD"]),
+  stylePreset: z.enum([
+    "NEON_CLUB",
+    "PREMIUM_BLACK",
+    "SUMMER_VIBES",
+    "MINIMAL_TECHNO",
+    "LUXURY_GOLD",
+  ]),
   format: z.enum(["POST_FEED", "STORY", "SQUARE", "FLYER"]),
+  instructions: z.string().trim().min(2, "Descreva o ajuste desejado."),
+  sourceImageUrl: referenceImageField,
 });
 
 type EditPayload = z.infer<typeof schema>;
@@ -69,19 +88,131 @@ function sanitizeForFileName(value: string) {
     .toLowerCase();
 }
 
+function getAllowedStorageBaseUrl() {
+  const value = process.env.R2_PUBLIC_BASE_URL?.trim();
+  return value ? value.replace(/\/+$/, "") : null;
+}
+
+function isAllowedSourceUrl(value: string, bannerOutputUrl?: string | null) {
+  if (value.startsWith("data:image/")) {
+    return true;
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return false;
+  }
+
+  if (parsed.protocol !== "https:") {
+    return false;
+  }
+
+  const allowedBaseUrl = getAllowedStorageBaseUrl();
+  if (allowedBaseUrl && value.startsWith(`${allowedBaseUrl}/`)) {
+    return true;
+  }
+
+  if (bannerOutputUrl && value === bannerOutputUrl) {
+    return true;
+  }
+
+  return false;
+}
+
 export async function POST(request: Request) {
+  const originError = validateMutationOrigin(request);
+  if (originError) {
+    return originError;
+  }
+
+  const ip = getClientIp(request);
+  const rateLimit = consumeRateLimit(`banners:edit:${ip}`, {
+    limit: 20,
+    windowMs: 10 * 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Muitas edições em sequência. Aguarde um pouco e tente novamente." },
+      {
+        status: 429,
+        headers: buildRateLimitHeaders(rateLimit),
+      },
+    );
+  }
+
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.issues[0]?.message || "Dados inválidos." }, { status: 400 });
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message || "Dados inválidos." },
+        {
+          status: 400,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
     }
 
     const workspace = await getCurrentWorkspace();
 
     if (!workspace) {
-      return NextResponse.json({ error: "Usuário não autenticado." }, { status: 401 });
+      return NextResponse.json(
+        { error: "Usuário não autenticado." },
+        {
+          status: 401,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
+    }
+
+    const payload = parsed.data;
+
+    const sourceBanner = await prisma.banner.findFirst({
+      where: {
+        id: payload.bannerId,
+        workspaceId: workspace.id,
+      },
+      select: {
+        id: true,
+        outputImageUrl: true,
+      },
+    });
+
+    if (!sourceBanner) {
+      return NextResponse.json(
+        { error: "Banner não encontrado." },
+        {
+          status: 404,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
+    }
+
+    const effectiveSourceImageUrl =
+      payload.sourceImageUrl || sourceBanner.outputImageUrl || null;
+
+    if (!effectiveSourceImageUrl) {
+      return NextResponse.json(
+        { error: "Imagem base do banner não encontrada." },
+        {
+          status: 400,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
+    }
+
+    if (!isAllowedSourceUrl(effectiveSourceImageUrl, sourceBanner.outputImageUrl)) {
+      return NextResponse.json(
+        { error: "A imagem base informada não é permitida." },
+        {
+          status: 400,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
     }
 
     const now = new Date();
@@ -104,10 +235,15 @@ export async function POST(request: Request) {
     const isAdmin = isAdminEmail(workspace.user?.email);
 
     if (!summary.canGenerateBanner && !isAdmin) {
-      return NextResponse.json({ error: "Você usou todos os seus créditos deste mês." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Você usou todos os seus créditos deste mês." },
+        {
+          status: 403,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
     }
 
-    const payload = parsed.data;
     const size = getSizeForFormat(payload.format);
     const prompt = buildBannerEditPrompt({
       mainText: payload.mainText,
@@ -124,30 +260,26 @@ export async function POST(request: Request) {
     const generated = await editBannerImage({
       prompt,
       size,
-      sourceImageUrl: payload.sourceImageUrl,
+      sourceImageUrl: effectiveSourceImageUrl,
     });
 
     if (!generated.imageBase64) {
-      return NextResponse.json({ error: "A OpenAI não retornou a nova imagem do banner." }, { status: 500 });
+      return NextResponse.json(
+        { error: "A OpenAI não retornou a nova imagem do banner." },
+        {
+          status: 500,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
     }
 
     const imageBuffer = Buffer.from(generated.imageBase64, "base64");
     const finalPng = await sharp(imageBuffer).png().toBuffer();
     const meta = await sharp(finalPng).metadata();
 
-    if (TEST_PREVIEW_ONLY) {
-      const previewBase64 = finalPng.toString("base64");
-
-      return NextResponse.json({
-        success: true,
-        saved: false,
-        previewImageUrl: `data:image/png;base64,${previewBase64}`,
-        remainingCredits: isAdmin ? 999999 : Math.max(summary.remainingCredits - 1, 0),
-        isAdminUnlimited: isAdmin,
-      });
-    }
-
-    const filenameBase = sanitizeForFileName(`${payload.djName}-${payload.mainText}-edit`) || `banner-edit-${Date.now()}`;
+    const filenameBase =
+      sanitizeForFileName(`${payload.djName}-${payload.mainText}-edit`) ||
+      `banner-edit-${Date.now()}`;
     const key = `workspaces/${workspace.id}/generated-banners/${Date.now()}-${filenameBase}.png`;
     const uploaded = await uploadBannerBuffer({
       key,
@@ -170,13 +302,11 @@ export async function POST(request: Request) {
         revisedPrompt: generated.revisedPrompt || null,
         modelName: generated.modelName,
         status: BannerStatus.COMPLETED,
-        referenceImageUrl: payload.sourceImageUrl,
+        referenceImageUrl: effectiveSourceImageUrl,
         outputImageUrl: uploaded.url,
         width: meta.width || null,
         height: meta.height || null,
         generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
-        sourceBannerId: payload.bannerId || null,
-        rootBannerId: payload.bannerId || null,
       },
       select: {
         id: true,
@@ -208,25 +338,37 @@ export async function POST(request: Request) {
           stylePreset: payload.stylePreset,
           format: payload.format,
           bannerId: banner.id,
-          sourceBannerId: payload.bannerId || null,
+          sourceBannerId: payload.bannerId,
           isAdminBypass: isAdmin,
         },
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      bannerId: banner.id,
-      imageUrl: banner.outputImageUrl,
-      bannerUrl: `/dashboard/banners/${banner.id}`,
-      remainingCredits: isAdmin ? 999999 : Math.max(summary.remainingCredits - 1, 0),
-      isAdminUnlimited: isAdmin,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        bannerId: banner.id,
+        imageUrl: banner.outputImageUrl,
+        bannerUrl: `/dashboard/banners/${banner.id}`,
+        remainingCredits: isAdmin ? 999999 : Math.max(summary.remainingCredits - 1, 0),
+        isAdminUnlimited: isAdmin,
+      },
+      {
+        headers: buildRateLimitHeaders(rateLimit),
+      },
+    );
   } catch (error) {
     console.error("Erro ao editar banner:", error);
 
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : "Erro interno ao editar banner.",
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error ? error.message : "Erro interno ao editar banner.",
+      },
+      {
+        status: 500,
+        headers: buildRateLimitHeaders(rateLimit),
+      },
+    );
   }
 }
