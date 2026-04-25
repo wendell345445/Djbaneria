@@ -1,7 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
-import type { Prisma as PrismaTypes } from "@prisma/client";
 import { z } from "zod";
 import {
   BannerFormat,
@@ -26,6 +25,8 @@ import { uploadBannerBuffer } from "@/lib/storage";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
+
+const SERIALIZABLE_ISOLATION_LEVEL = "Serializable" as never;
 
 const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
@@ -191,8 +192,7 @@ async function reserveEditCredit(params: {
           };
         },
         {
-          isolationLevel:
-            "Serializable" as PrismaTypes.TransactionIsolationLevel,
+          isolationLevel: SERIALIZABLE_ISOLATION_LEVEL,
         },
       );
     } catch (error) {

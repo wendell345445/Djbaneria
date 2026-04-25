@@ -1,7 +1,5 @@
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
-import type { Prisma as PrismaTypes } from "@prisma/client";
 import { z } from "zod";
 import {
   BannerFormat,
@@ -26,6 +24,8 @@ import { uploadBannerBuffer } from "@/lib/storage";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
+
+const SERIALIZABLE_ISOLATION_LEVEL = "Serializable" as never;
 
 const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
@@ -165,8 +165,7 @@ async function reserveGenerationCredit(params: {
           };
         },
         {
-          isolationLevel:
-            "Serializable" as PrismaTypes.TransactionIsolationLevel,
+          isolationLevel: SERIALIZABLE_ISOLATION_LEVEL,
         },
       );
     } catch (error) {
@@ -317,11 +316,6 @@ export async function POST(request: Request) {
       });
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
-    revalidatePath("/dashboard/banners/new");
-    revalidatePath("/dashboard/banners");
-
     return NextResponse.json(
       {
         success: true,
@@ -334,26 +328,12 @@ export async function POST(request: Request) {
       { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
-    const creditExhausted =
-      error instanceof Error &&
-      error.message === "Você usou todos os seus créditos deste mês.";
-
     if (reservedUsageEventId) {
       try {
         await prisma.usageEvent.delete({ where: { id: reservedUsageEventId } });
       } catch (rollbackError) {
         console.error("Erro ao estornar crédito reservado na geração:", rollbackError);
       }
-    }
-
-    if (creditExhausted) {
-      return NextResponse.json(
-        { error: error.message },
-        {
-          status: 403,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
-      );
     }
 
     console.error("Erro ao gerar banner:", error);
@@ -363,7 +343,11 @@ export async function POST(request: Request) {
         error: error instanceof Error ? error.message : "Erro interno ao gerar banner.",
       },
       {
-        status: 500,
+        status:
+          error instanceof Error &&
+          error.message === "Você usou todos os seus créditos deste mês."
+            ? 403
+            : 500,
         headers: buildRateLimitHeaders(rateLimit),
       },
     );
