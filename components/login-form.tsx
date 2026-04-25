@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export function LoginForm() {
   const [rememberSession, setRememberSession] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,15 +81,26 @@ export function LoginForm() {
         </Field>
 
         <Field label="Senha">
-          <input
-            type="password"
-            className={inputClassName}
-            placeholder="Digite sua senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              className={`${inputClassName} pr-12`}
+              placeholder="Digite sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/45 transition hover:text-white/80"
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </Field>
 
         <label className="flex items-center gap-3 text-sm text-white/70">
@@ -117,13 +130,6 @@ export function LoginForm() {
           className="text-sm font-medium text-sky-200 transition hover:text-sky-100"
         >
           Ainda não tem conta? Criar cadastro
-        </Link>
-
-        <Link
-          href="/owner/login"
-          className="w-fit text-sm text-white/50 transition hover:text-white/70"
-        >
-          Acesso owner
         </Link>
       </div>
     </div>

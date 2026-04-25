@@ -64,7 +64,7 @@ export function SettingsPasswordForm() {
 
   if (!open) {
     return (
-      <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+      <section className="">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
             <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">

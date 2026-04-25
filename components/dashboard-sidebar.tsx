@@ -26,7 +26,12 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: Grid2X2 },
-  { label: "Novo banner", href: "/dashboard/banners/new", icon: ImagePlus, badgeType: "ai" },
+  {
+    label: "Novo banner",
+    href: "/dashboard/banners/new",
+    icon: ImagePlus,
+    badgeType: "ai",
+  },
   { label: "Meus banners", href: "/dashboard/banners", icon: Images },
   { label: "Assinatura", href: "/dashboard/billing", icon: CreditCard },
   { label: "Configurações", href: "/dashboard/settings", icon: Settings },
@@ -57,11 +62,7 @@ function getPageLabel(pathname: string) {
   return match?.label ?? "Painel";
 }
 
-export function DashboardSidebar({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function DashboardSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -188,13 +189,13 @@ export function DashboardSidebar({
             <div className="mt-6 border-t border-white/10 pt-4">
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-white/40">
-                  Acesso rápido
+                  Informação
                 </p>
                 <p className="mt-2 text-sm font-medium text-white/90">
                   Novo banner em poucos passos
                 </p>
                 <p className="mt-1 text-xs leading-5 text-white/50">
-                  Ideal para criar, revisar e baixar a arte sem complicação.
+                  Para criar seu primeiro baner basta clicar em novo baner
                 </p>
               </div>
 
@@ -264,7 +265,7 @@ function SidebarLink({
 
 function BrandBlock() {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
+    <div className=" p-4">
       <div className="flex items-center gap-3">
         <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-violet-300 to-amber-200 text-slate-950">
           <Sparkles className="h-5 w-5" />

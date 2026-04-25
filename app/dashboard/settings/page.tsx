@@ -14,8 +14,10 @@ export default async function SettingsPage() {
         <h1 className="text-3xl font-semibold leading-tight text-white xl:text-[40px]">
           Conta e workspace
         </h1>
-        <p className="max-w-2xl text-sm leading-6 text-white/60">
-          Atualize as informações principais da conta e do seu workspace. O e-mail fica visível para consulta, e agora você também pode alterar sua senha com segurança.
+        <p className="max-w-2xl text-sm leading-5 text-white/60">
+          Atualize as informações principais da conta e do seu workspace. O
+          e-mail fica visível para consulta, e agora você também pode alterar
+          sua senha com segurança.
         </p>
       </div>
 

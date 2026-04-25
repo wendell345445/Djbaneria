@@ -23,7 +23,13 @@ export default async function DashboardPage() {
       where: {
         workspaceId: workspace.id,
         createdAt: { gte: monthStart },
-        type: UsageEventType.BANNER_GENERATION,
+        type: {
+          in: [
+            UsageEventType.BANNER_GENERATION,
+            UsageEventType.BANNER_EDIT,
+            UsageEventType.BANNER_VARIATION,
+          ],
+        },
       },
       _sum: { units: true },
     }),
@@ -40,7 +46,9 @@ export default async function DashboardPage() {
   const usageLabel = isAdmin
     ? `${summary.usedThisMonth} / ∞`
     : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
-  const remainingLabel = isAdmin ? "Ilimitado" : String(summary.remainingCredits);
+  const remainingLabel = isAdmin
+    ? "Ilimitado"
+    : String(summary.remainingCredits);
 
   return (
     <main className="mx-auto max-w-[1320px] px-5 py-7">
@@ -52,12 +60,13 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-semibold leading-tight text-white xl:text-[40px]">
             Painel de criação
           </h1>
-          <p className="mt-2 text-sm leading-6 text-white/60">
-            Gere banners, acompanhe seus créditos e acesse rapidamente a criação de novas artes.
+          <p className="mt-2 text-sm leading-6 text-white/60 leading-[18px]">
+            Gere banners, acompanhe seus créditos e acesse rapidamente a criação
+            de novas artes.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 xl:justify-end">
+        <div className="flex flex-wrap justify-center gap-4 xl:justify-end text-center rounded-2xl border-1  border-white/10 bg-gradient-to-br from-sky-400/8 to-violet-400/10">
           <CompactMetric label="Plano" value={planLabel} />
           <CompactMetric label="Uso" value={usageLabel} />
           <CompactMetric label="Restantes" value={remainingLabel} highlight />
@@ -75,19 +84,32 @@ export default async function DashboardPage() {
                 Ação rápida
               </span>
 
-              <h2 className="mt-4 text-[28px] font-semibold leading-tight text-white md:text-[34px]">
+              <h2 className="mt-4 text-[28px] font-semibold leading-tight text-white leading-[18px]">
                 Crie um banner profissional em poucos passos
               </h2>
 
-              <p className="mt-3 max-w-xl text-sm leading-7 text-white/70">
-                Ideal para usuários mais leigos: preencha o briefing, gere o preview com IA e baixe a arte pronta sem complicação.
+              <p className="mt-3 text-[12px] leading-7 text-white/70 leading-[18px]">
+                Preencha o briefing, gere o preview com IA e baixe a arte pronta
+                sem complicação.
               </p>
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
-              <QuickStep number="1" title="Preencha os dados" description="Título, nome do DJ, data e local do evento." />
-              <QuickStep number="2" title="Gere o preview" description="A IA monta o banner no formato escolhido." />
-              <QuickStep number="3" title="Baixe ou ajuste" description="Faça alterações e baixe a versão final." />
+              <QuickStep
+                number="1"
+                title="Preencha os dados"
+                description="Título, nome do DJ, data e local do evento."
+              />
+              <QuickStep
+                number="2"
+                title="Gere o preview"
+                description="A IA monta o banner no formato escolhido."
+              />
+              <QuickStep
+                number="3"
+                title="Baixe ou ajuste"
+                description="Faça alterações e baixe a versão final."
+              />
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -109,9 +131,25 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid gap-4">
-          <InfoCard title="Banners gerados" value={String(bannerCount)} helper="Total criado no workspace" />
-          <InfoCard title="Créditos do mês" value={usageLabel} helper={isAdmin ? "Conta admin com uso liberado" : "Consumo no período atual"} />
-          <InfoCard title="Restantes" value={remainingLabel} helper="Créditos disponíveis para novas gerações e alterações" />
+          <InfoCard
+            title="Banners gerados"
+            value={String(bannerCount)}
+            helper="Total criado no workspace"
+          />
+          <InfoCard
+            title="Créditos do mês"
+            value={usageLabel}
+            helper={
+              isAdmin
+                ? "Conta admin com uso liberado"
+                : "Consumo no período atual"
+            }
+          />
+          <InfoCard
+            title="Restantes"
+            value={remainingLabel}
+            helper="Créditos disponíveis para novas gerações e alterações"
+          />
         </div>
       </section>
 
@@ -121,7 +159,8 @@ export default async function DashboardPage() {
             Modo teste admin
           </p>
           <p className="mt-2 text-sm leading-7 text-white/80">
-            Esta conta está liberada para gerar banners sem limite de créditos durante os testes.
+            Esta conta está liberada para gerar banners sem limite de créditos
+            durante os testes.
           </p>
         </section>
       ) : null}
@@ -129,29 +168,63 @@ export default async function DashboardPage() {
   );
 }
 
-function CompactMetric({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
+function CompactMetric({
+  label,
+  value,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className={`min-w-[132px] rounded-2xl border px-4 py-3 ${highlight ? "border-sky-300/20 bg-sky-300/[0.08]" : "border-white/10 bg-white/[0.04]"}`}>
-      <p className="m-0 text-[10px] uppercase tracking-[0.18em] text-white/45">{label}</p>
-      <div className="mt-1.5 text-[15px] font-semibold leading-none text-white">{value}</div>
+    <div
+      className={`min-w-[12px]  px-4 py-3 ${highlight ? "brder-sky-300/20" : ""}`}
+    >
+      <p className="m-0 text-[10px] uppercase tracking-[0.18em] text-white/45">
+        {label}
+      </p>
+      <div className="mt-1.5 text-[15px] font-semibold leading-none text-white">
+        {value}
+      </div>
     </div>
   );
 }
 
-function QuickStep({ number, title, description }: { number: string; title: string; description: string }) {
+function QuickStep({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
   return (
     <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
-      <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold text-white">{number}</div>
+      <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold text-white">
+        {number}
+      </div>
       <h3 className="text-sm font-semibold text-white">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-white/60">{description}</p>
     </div>
   );
 }
 
-function InfoCard({ title, value, helper }: { title: string; value: string; helper: string }) {
+function InfoCard({
+  title,
+  value,
+  helper,
+}: {
+  title: string;
+  value: string;
+  helper: string;
+}) {
   return (
     <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,14,28,0.96),rgba(5,10,20,0.94))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">{title}</p>
+      <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">
+        {title}
+      </p>
       <h3 className="mt-2 text-2xl font-semibold text-white">{value}</h3>
       <p className="mt-2 text-sm leading-6 text-white/60">{helper}</p>
     </div>

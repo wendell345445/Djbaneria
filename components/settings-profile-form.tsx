@@ -10,9 +10,7 @@ type SettingsProfileFormProps = {
   };
 };
 
-export function SettingsProfileForm({
-  initialData,
-}: SettingsProfileFormProps) {
+export function SettingsProfileForm({ initialData }: SettingsProfileFormProps) {
   const [workspaceName, setWorkspaceName] = useState(initialData.workspaceName);
   const [userName, setUserName] = useState(initialData.userName);
   const [email] = useState(initialData.email);
@@ -41,7 +39,9 @@ export function SettingsProfileForm({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível salvar as configurações.");
+        throw new Error(
+          data.error || "Não foi possível salvar as configurações.",
+        );
       }
 
       setSuccess("Informações atualizadas com sucesso.");
@@ -89,7 +89,7 @@ export function SettingsProfileForm({
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+        <section className=" p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="mb-5">
             <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">
               Workspace
@@ -165,13 +165,7 @@ function Field({
   );
 }
 
-function InfoCard({
-  title,
-  items,
-}: {
-  title: string;
-  items: string[];
-}) {
+function InfoCard({ title, items }: { title: string; items: string[] }) {
   return (
     <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,14,28,0.96),rgba(5,10,20,0.94))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
       <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">

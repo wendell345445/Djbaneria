@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 
 const stylePresets = [
@@ -100,7 +101,8 @@ function buildLoadingTexts(mode: "generate" | "edit" | null) {
       title: "A IA está aplicando sua alteração",
       badge: "Alterando",
       chip: "Edit IA",
-      helper: "A imagem atual está sendo usada como base para criar uma nova versão.",
+      helper:
+        "A imagem atual está sendo usada como base para criar uma nova versão.",
     };
   }
 
@@ -113,6 +115,7 @@ function buildLoadingTexts(mode: "generate" | "edit" | null) {
 }
 
 export function NewBannerForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [error, setError] = useState("");
@@ -248,6 +251,8 @@ export function NewBannerForm() {
         bannerUrl: data.bannerUrl || null,
         saved: data.saved !== false,
       });
+
+      router.refresh();
     } catch (err) {
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
@@ -265,7 +270,9 @@ export function NewBannerForm() {
     if (!result?.imageUrl) return;
 
     if (editPrompt.trim().length < 4) {
-      setEditError("Descreva a alteração desejada com um pouco mais de detalhe.");
+      setEditError(
+        "Descreva a alteração desejada com um pouco mais de detalhe.",
+      );
       return;
     }
 
@@ -334,18 +341,28 @@ export function NewBannerForm() {
         saved: data.saved !== false,
       });
 
-      setRemainingCredits(
-        typeof data.remainingCredits === "number"
-          ? data.remainingCredits
-          : remainingCredits,
-      );
+      setRemainingCredits((currentCredits) => {
+        if (typeof data.remainingCredits === "number") {
+          return data.remainingCredits;
+        }
+
+        if (typeof currentCredits === "number") {
+          return Math.max(currentCredits - 1, 0);
+        }
+
+        return currentCredits;
+      });
       setEditSuccess("Alteração aplicada com sucesso.");
       setEditPrompt("");
+
+      router.refresh();
     } catch (err) {
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
-      setEditError(err instanceof Error ? err.message : "Erro ao editar a arte.");
+      setEditError(
+        err instanceof Error ? err.message : "Erro ao editar a arte.",
+      );
       setStatusText("");
       setActiveStep(0);
     } finally {
@@ -358,27 +375,29 @@ export function NewBannerForm() {
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
       <form
         onSubmit={handleSubmit}
-        className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,14,28,0.96),rgba(5,10,20,0.94))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
+        className="rounded-[28px]  border-white/10 "
       >
         <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
+            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50 Briefing criativo">
               Briefing criativo
             </p>
-            <h2 className="text-[26px] font-semibold leading-tight text-white">
+            <h2 className="text-[23px] font-semibold leading-tight text-white ">
               Preencha os dados do banner
             </h2>
-            <p className="mt-3 text-sm leading-6 text-white/70">
+            <p className="mt-3 text-[13px] leading-6 text-gray-200">
               Uma estrutura clara para gerar flyers premium sem confusão entre
               texto principal, nome do DJ e informações do evento.
             </p>
           </div>
 
-          <div className="px-1 py-1 text-left text-white md:min-w-[112px] md:text-right">
-            <span className="block text-[10px] uppercase tracking-[0.18em] text-white/40">
+          <div className="px-1 py-1 text-left text-blue-400 md:min-w-[112px] md:text-right">
+            <span className="block text-[10px] uppercase tracking-[0.18em] text-white/40 text-center">
               Briefing
             </span>
-            <strong className="mt-1 block text-xl font-semibold">{completion}%</strong>
+            <strong className="mt-1 block text-xl font-semibold text-center">
+              {completion}%
+            </strong>
           </div>
         </div>
 
@@ -492,7 +511,9 @@ export function NewBannerForm() {
               onChange={(e) => setReferenceFile(e.target.files?.[0] || null)}
             />
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
-              <span>Envie uma imagem para a IA usar como referência visual.</span>
+              <span>
+                Envie uma imagem para a IA usar como referência visual.
+              </span>
               <strong className="text-white/85">
                 {referenceFile
                   ? referenceFile.name
@@ -526,7 +547,11 @@ export function NewBannerForm() {
           disabled={displayLoading}
           className="mt-5 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-80"
         >
-          {loading ? "Gerando preview..." : editLoading ? "Aplicando alteração..." : "Gerar banner premium"}
+          {loading
+            ? "Gerando preview..."
+            : editLoading
+              ? "Aplicando alteração..."
+              : "Gerar banner premium"}
         </button>
 
         {statusText ? (
@@ -563,7 +588,11 @@ export function NewBannerForm() {
                 : "border-white/10 bg-white/5 text-white/80"
             }`}
           >
-            {displayLoading ? loadingTexts.badge : result ? "Concluído" : "Aguardando"}
+            {displayLoading
+              ? loadingTexts.badge
+              : result
+                ? "Concluído"
+                : "Aguardando"}
           </div>
         </div>
 
@@ -602,8 +631,16 @@ export function NewBannerForm() {
 
               <div className="absolute bottom-20 left-1/2 w-[68%] -translate-x-1/2">
                 <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-white/45">
-                  <span>{loadingMode === "edit" ? "Aplicando alterações" : "Compondo camadas"}</span>
-                  <span>{loadingMode === "edit" ? "Gerando nova versão" : "Processando visual"}</span>
+                  <span>
+                    {loadingMode === "edit"
+                      ? "Aplicando alterações"
+                      : "Compondo camadas"}
+                  </span>
+                  <span>
+                    {loadingMode === "edit"
+                      ? "Gerando nova versão"
+                      : "Processando visual"}
+                  </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-white/10">
                   <div
@@ -706,7 +743,8 @@ export function NewBannerForm() {
                     Solicitar alteração da arte
                   </p>
                   <p className="mt-1 text-xs leading-5 text-white/60">
-                    Descreva a mudança desejada. Cada alteração consome 1 crédito.
+                    Descreva a mudança desejada. Cada alteração consome 1
+                    crédito.
                   </p>
                 </div>
                 <span className="shrink-0 rounded-full border border-amber-300/15 bg-amber-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-amber-100">
@@ -723,7 +761,8 @@ export function NewBannerForm() {
 
               <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs text-white/55">
-                  A IA usará a imagem atual como base e criará uma nova versão da arte.
+                  A IA usará a imagem atual como base e criará uma nova versão
+                  da arte.
                 </p>
 
                 <button
@@ -763,8 +802,7 @@ export function NewBannerForm() {
                     Preview inteligente
                   </p>
                   <p className="max-w-sm text-sm leading-6 text-white/70">
-                    Esta área se ajusta automaticamente ao formato selecionado
-                    para o banner.
+                    Seu baner será gerado aqui.
                   </p>
                   <div className="mx-auto grid w-full max-w-[220px] gap-2">
                     <span className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -795,13 +833,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <label className="text-sm font-medium leading-[1.35] text-white/90">

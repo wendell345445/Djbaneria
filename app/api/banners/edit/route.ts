@@ -1,5 +1,7 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import sharp from "sharp";
+import type { Prisma as PrismaTypes } from "@prisma/client";
 import { z } from "zod";
 import {
   BannerFormat,
@@ -24,6 +26,12 @@ import { uploadBannerBuffer } from "@/lib/storage";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
+
+const CREDIT_EVENT_TYPES = [
+  UsageEventType.BANNER_GENERATION,
+  UsageEventType.BANNER_EDIT,
+  UsageEventType.BANNER_VARIATION,
+] as const;
 
 const referenceImageField = z
   .union([
@@ -94,9 +102,7 @@ function getAllowedStorageBaseUrl() {
 }
 
 function isAllowedSourceUrl(value: string, bannerOutputUrl?: string | null) {
-  if (value.startsWith("data:image/")) {
-    return true;
-  }
+  if (value.startsWith("data:image/")) return true;
 
   let parsed: URL;
   try {
@@ -105,27 +111,102 @@ function isAllowedSourceUrl(value: string, bannerOutputUrl?: string | null) {
     return false;
   }
 
-  if (parsed.protocol !== "https:") {
-    return false;
-  }
+  if (parsed.protocol !== "https:") return false;
 
   const allowedBaseUrl = getAllowedStorageBaseUrl();
-  if (allowedBaseUrl && value.startsWith(`${allowedBaseUrl}/`)) {
-    return true;
-  }
-
-  if (bannerOutputUrl && value === bannerOutputUrl) {
-    return true;
-  }
+  if (allowedBaseUrl && value.startsWith(`${allowedBaseUrl}/`)) return true;
+  if (bannerOutputUrl && value === bannerOutputUrl) return true;
 
   return false;
 }
 
+function hasPrismaCode(error: unknown, code: string) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === code
+  );
+}
+
+async function reserveEditCredit(params: {
+  workspaceId: string;
+  plan: SubscriptionPlan;
+  status: SubscriptionStatus;
+  isAdmin: boolean;
+}) {
+  const { workspaceId, plan, status, isAdmin } = params;
+
+  if (isAdmin) {
+    return {
+      usageEventId: null as string | null,
+      remainingCreditsAfterReserve: 999999,
+      isAdminUnlimited: true,
+    };
+  }
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await prisma.$transaction(
+        async (tx) => {
+          const usedThisMonthResult = await tx.usageEvent.aggregate({
+            where: {
+              workspaceId,
+              createdAt: { gte: monthStart },
+              type: { in: [...CREDIT_EVENT_TYPES] },
+            },
+            _sum: { units: true },
+          });
+
+          const summary = buildBillingSummary({
+            plan,
+            status,
+            usedThisMonth: usedThisMonthResult._sum.units || 0,
+          });
+
+          if (!summary.canGenerateBanner) {
+            throw new Error("Você usou todos os seus créditos deste mês.");
+          }
+
+          const usageEvent = await tx.usageEvent.create({
+            data: {
+              workspaceId,
+              type: UsageEventType.BANNER_EDIT,
+              units: 1,
+              metadata: {
+                status: "reserved",
+                reservedAt: new Date().toISOString(),
+              },
+            },
+            select: { id: true },
+          });
+
+          return {
+            usageEventId: usageEvent.id,
+            remainingCreditsAfterReserve: Math.max(summary.remainingCredits - 1, 0),
+            isAdminUnlimited: false,
+          };
+        },
+        {
+          isolationLevel:
+            "Serializable" as PrismaTypes.TransactionIsolationLevel,
+        },
+      );
+    } catch (error) {
+      if (hasPrismaCode(error, "P2034") && attempt < 2) continue;
+      throw error;
+    }
+  }
+
+  throw new Error("Não foi possível reservar crédito no momento.");
+}
+
 export async function POST(request: Request) {
   const originError = validateMutationOrigin(request);
-  if (originError) {
-    return originError;
-  }
+  if (originError) return originError;
 
   const ip = getClientIp(request);
   const rateLimit = consumeRateLimit(`banners:edit:${ip}`, {
@@ -136,12 +217,11 @@ export async function POST(request: Request) {
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "Muitas edições em sequência. Aguarde um pouco e tente novamente." },
-      {
-        status: 429,
-        headers: buildRateLimitHeaders(rateLimit),
-      },
+      { status: 429, headers: buildRateLimitHeaders(rateLimit) },
     );
   }
+
+  let reservedUsageEventId: string | null = null;
 
   try {
     const body = await request.json();
@@ -150,10 +230,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message || "Dados inválidos." },
-        {
-          status: 400,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
+        { status: 400, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
 
@@ -162,10 +239,7 @@ export async function POST(request: Request) {
     if (!workspace) {
       return NextResponse.json(
         { error: "Usuário não autenticado." },
-        {
-          status: 401,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
+        { status: 401, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
 
@@ -185,63 +259,27 @@ export async function POST(request: Request) {
     if (!sourceBanner) {
       return NextResponse.json(
         { error: "Banner não encontrado." },
-        {
-          status: 404,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
+        { status: 404, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
+
+    const isAdmin = isAdminEmail(workspace.user?.email);
+
+    const reservation = await reserveEditCredit({
+      workspaceId: workspace.id,
+      plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
+      status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
+      isAdmin,
+    });
+
+    reservedUsageEventId = reservation.usageEventId;
 
     const effectiveSourceImageUrl =
       payload.sourceImageUrl || sourceBanner.outputImageUrl || null;
 
-    if (!effectiveSourceImageUrl) {
-      return NextResponse.json(
-        { error: "Imagem base do banner não encontrada." },
-        {
-          status: 400,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
-      );
-    }
-
+    if (!effectiveSourceImageUrl) throw new Error("Imagem base do banner não encontrada.");
     if (!isAllowedSourceUrl(effectiveSourceImageUrl, sourceBanner.outputImageUrl)) {
-      return NextResponse.json(
-        { error: "A imagem base informada não é permitida." },
-        {
-          status: 400,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
-      );
-    }
-
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const usedThisMonthResult = await prisma.usageEvent.aggregate({
-      where: {
-        workspaceId: workspace.id,
-        createdAt: { gte: monthStart },
-        type: UsageEventType.BANNER_EDIT,
-      },
-      _sum: { units: true },
-    });
-
-    const summary = buildBillingSummary({
-      plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
-      status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
-      usedThisMonth: usedThisMonthResult._sum.units || 0,
-    });
-
-    const isAdmin = isAdminEmail(workspace.user?.email);
-
-    if (!summary.canGenerateBanner && !isAdmin) {
-      return NextResponse.json(
-        { error: "Você usou todos os seus créditos deste mês." },
-        {
-          status: 403,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
-      );
+      throw new Error("A imagem base informada não é permitida.");
     }
 
     const size = getSizeForFormat(payload.format);
@@ -264,13 +302,7 @@ export async function POST(request: Request) {
     });
 
     if (!generated.imageBase64) {
-      return NextResponse.json(
-        { error: "A OpenAI não retornou a nova imagem do banner." },
-        {
-          status: 500,
-          headers: buildRateLimitHeaders(rateLimit),
-        },
-      );
+      throw new Error("A OpenAI não retornou a nova imagem do banner.");
     }
 
     const imageBuffer = Buffer.from(generated.imageBase64, "base64");
@@ -308,10 +340,7 @@ export async function POST(request: Request) {
         height: meta.height || null,
         generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
       },
-      select: {
-        id: true,
-        outputImageUrl: true,
-      },
+      select: { id: true, outputImageUrl: true },
     });
 
     await prisma.asset.create({
@@ -328,21 +357,28 @@ export async function POST(request: Request) {
       },
     });
 
-    await prisma.usageEvent.create({
-      data: {
-        workspaceId: workspace.id,
-        type: UsageEventType.BANNER_EDIT,
-        units: 1,
-        metadata: {
-          model: generated.modelName,
-          stylePreset: payload.stylePreset,
-          format: payload.format,
-          bannerId: banner.id,
-          sourceBannerId: payload.bannerId,
-          isAdminBypass: isAdmin,
+    if (reservedUsageEventId) {
+      await prisma.usageEvent.update({
+        where: { id: reservedUsageEventId },
+        data: {
+          metadata: {
+            status: "confirmed",
+            confirmedAt: new Date().toISOString(),
+            model: generated.modelName,
+            stylePreset: payload.stylePreset,
+            format: payload.format,
+            bannerId: banner.id,
+            sourceBannerId: payload.bannerId,
+            isAdminBypass: isAdmin,
+          },
         },
-      },
-    });
+      });
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/billing");
+    revalidatePath("/dashboard/banners/new");
+    revalidatePath("/dashboard/banners");
 
     return NextResponse.json(
       {
@@ -350,20 +386,39 @@ export async function POST(request: Request) {
         bannerId: banner.id,
         imageUrl: banner.outputImageUrl,
         bannerUrl: `/dashboard/banners/${banner.id}`,
-        remainingCredits: isAdmin ? 999999 : Math.max(summary.remainingCredits - 1, 0),
-        isAdminUnlimited: isAdmin,
+        remainingCredits: reservation.remainingCreditsAfterReserve,
+        isAdminUnlimited: reservation.isAdminUnlimited,
       },
-      {
-        headers: buildRateLimitHeaders(rateLimit),
-      },
+      { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
+    const creditExhausted =
+      error instanceof Error &&
+      error.message === "Você usou todos os seus créditos deste mês.";
+
+    if (reservedUsageEventId) {
+      try {
+        await prisma.usageEvent.delete({ where: { id: reservedUsageEventId } });
+      } catch (rollbackError) {
+        console.error("Erro ao estornar crédito reservado na edição:", rollbackError);
+      }
+    }
+
+    if (creditExhausted) {
+      return NextResponse.json(
+        { error: error.message },
+        {
+          status: 403,
+          headers: buildRateLimitHeaders(rateLimit),
+        },
+      );
+    }
+
     console.error("Erro ao editar banner:", error);
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error ? error.message : "Erro interno ao editar banner.",
+        error: error instanceof Error ? error.message : "Erro interno ao editar banner.",
       },
       {
         status: 500,

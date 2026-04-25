@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 type RegisterFormData = {
   name: string;
@@ -21,6 +22,7 @@ export function RegisterForm() {
     password: "",
     confirmPassword: "",
   });
+  const [showPasswords, setShowPasswords] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -65,9 +67,7 @@ export function RegisterForm() {
       };
 
       if (!response.ok) {
-        throw new Error(
-          data?.error || "Não foi possível criar sua conta.",
-        );
+        throw new Error(data?.error || "Não foi possível criar sua conta.");
       }
 
       router.push(data.redirectTo ?? "/dashboard");
@@ -136,27 +136,51 @@ export function RegisterForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Senha">
-            <input
-              type="password"
-              className={inputClassName}
-              placeholder="Mínimo de 6 caracteres"
-              value={form.password}
-              onChange={(e) => updateField("password", e.target.value)}
-              autoComplete="new-password"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPasswords ? "text" : "password"}
+                className={`${inputClassName} pr-12`}
+                placeholder="Mínimo de 6 caracteres"
+                value={form.password}
+                onChange={(e) => updateField("password", e.target.value)}
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasswords((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/45 transition hover:text-white/80"
+                aria-label={showPasswords ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </Field>
 
           <Field label="Confirmar senha">
-            <input
-              type="password"
-              className={inputClassName}
-              placeholder="Repita a senha"
-              value={form.confirmPassword}
-              onChange={(e) => updateField("confirmPassword", e.target.value)}
-              autoComplete="new-password"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPasswords ? "text" : "password"}
+                className={`${inputClassName} pr-12`}
+                placeholder="Repita a senha"
+                value={form.confirmPassword}
+                onChange={(e) => updateField("confirmPassword", e.target.value)}
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasswords((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/45 transition hover:text-white/80"
+                aria-label={
+                  showPasswords
+                    ? "Ocultar confirmação de senha"
+                    : "Mostrar confirmação de senha"
+                }
+              >
+                {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </Field>
         </div>
 
