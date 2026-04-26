@@ -4,6 +4,16 @@ type TurnstileValidationResult = {
   errorCodes?: string[];
 };
 
+type TurnstileValidationInput =
+  | string
+  | null
+  | undefined
+  | {
+      token?: string | null;
+      ip?: string | null;
+      remoteIp?: string | null;
+    };
+
 type CloudflareTurnstileResponse = {
   success: boolean;
   "error-codes"?: string[];
@@ -13,13 +23,33 @@ type CloudflareTurnstileResponse = {
   cdata?: string;
 };
 
-export async function validateTurnstileToken(
-  token: string | null | undefined,
-  remoteIp?: string | null,
-): Promise<TurnstileValidationResult> {
-  const trimmedToken = typeof token === "string" ? token.trim() : "";
+function resolveInput(input: TurnstileValidationInput) {
+  if (typeof input === "object" && input !== null) {
+    return {
+      token: typeof input.token === "string" ? input.token.trim() : "",
+      remoteIp:
+        typeof input.ip === "string"
+          ? input.ip
+          : typeof input.remoteIp === "string"
+            ? input.remoteIp
+            : null,
+    };
+  }
 
-  if (!trimmedToken) {
+  return {
+    token: typeof input === "string" ? input.trim() : "",
+    remoteIp: null,
+  };
+}
+
+export async function validateTurnstileToken(
+  input: TurnstileValidationInput,
+  legacyRemoteIp?: string | null,
+): Promise<TurnstileValidationResult> {
+  const { token, remoteIp } = resolveInput(input);
+  const effectiveRemoteIp = legacyRemoteIp || remoteIp;
+
+  if (!token) {
     return {
       success: false,
       error: "Confirme que você não é um robô para continuar.",
@@ -47,10 +77,10 @@ export async function validateTurnstileToken(
 
   const formData = new FormData();
   formData.append("secret", secretKey);
-  formData.append("response", trimmedToken);
+  formData.append("response", token);
 
-  if (remoteIp) {
-    formData.append("remoteip", remoteIp);
+  if (effectiveRemoteIp) {
+    formData.append("remoteip", effectiveRemoteIp);
   }
 
   try {
