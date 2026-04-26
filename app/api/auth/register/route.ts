@@ -9,6 +9,7 @@ import {
   normalizeEmail,
 } from "@/lib/email-verification";
 import { sendVerificationCodeEmail } from "@/lib/email";
+import { validateSignupEmailDomain } from "@/lib/disposable-email";
 import { prisma } from "@/lib/prisma";
 import {
   buildRateLimitHeaders,
@@ -16,12 +17,14 @@ import {
   getClientIp,
 } from "@/lib/rate-limit";
 import { validateMutationOrigin } from "@/lib/request-security";
+import { validateTurnstileToken } from "@/lib/turnstile";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Informe seu nome."),
   email: z.string().trim().email("Informe um e-mail válido."),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres."),
   artistName: z.string().trim().optional(),
+  turnstileToken: z.string().trim().optional().default(""),
 });
 
 export async function POST(request: Request) {
@@ -53,8 +56,33 @@ export async function POST(request: Request) {
       );
     }
 
+    const turnstileResult = await validateTurnstileToken({
+      token: parsed.data.turnstileToken,
+      ip,
+    });
+
+    if (!turnstileResult.success) {
+      return NextResponse.json(
+        {
+          error:
+            turnstileResult.error ||
+            "Confirme que você não é um robô para continuar.",
+        },
+        { status: 400, headers: buildRateLimitHeaders(rateLimit) },
+      );
+    }
+
     const { name, password, artistName } = parsed.data;
     const email = normalizeEmail(parsed.data.email);
+
+    const emailDomainValidation = validateSignupEmailDomain(email);
+
+    if (!emailDomainValidation.allowed) {
+      return NextResponse.json(
+        { error: emailDomainValidation.error },
+        { status: 400, headers: buildRateLimitHeaders(rateLimit) },
+      );
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: { email },

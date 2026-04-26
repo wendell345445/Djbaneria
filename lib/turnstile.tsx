@@ -59,20 +59,25 @@ export function RegisterForm() {
     if (!turnstileRef.current || !window.turnstile) return;
     if (turnstileWidgetIdRef.current) return;
 
-    turnstileWidgetIdRef.current = window.turnstile.render(turnstileRef.current, {
-      sitekey: turnstileSiteKey!,
-      theme: "dark",
-      callback: (token) => {
-        setTurnstileToken(token);
+    turnstileWidgetIdRef.current = window.turnstile.render(
+      turnstileRef.current,
+      {
+        sitekey: turnstileSiteKey!,
+        theme: "dark",
+        callback: (token) => {
+          setTurnstileToken(token);
+        },
+        "expired-callback": () => {
+          setTurnstileToken("");
+        },
+        "error-callback": () => {
+          setTurnstileToken("");
+          setError(
+            "Não foi possível carregar a proteção anti-robô. Recarregue a página e tente novamente.",
+          );
+        },
       },
-      "expired-callback": () => {
-        setTurnstileToken("");
-      },
-      "error-callback": () => {
-        setTurnstileToken("");
-        setError("Não foi possível carregar a proteção anti-robô. Recarregue a página e tente novamente.");
-      },
-    });
+    );
 
     return () => {
       if (turnstileWidgetIdRef.current && window.turnstile) {
