@@ -80,7 +80,7 @@ export default async function NewBannerPage() {
           canGenerateBanner={isAdmin || summary.canGenerateBanner}
           initialRemainingCredits={isAdmin ? null : summary.remainingCredits}
         />
-      )
+      )}
 
       {isAdmin ? (
         <section className="mt-5 rounded-3xl border border-sky-300/15 bg-gradient-to-br from-sky-400/10 via-white/[0.03] to-violet-400/10 p-5 shadow-[0_24px_80px_rgba(56,189,248,0.08)]">
