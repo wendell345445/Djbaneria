@@ -6,37 +6,19 @@ import {
 
 import { isAdminEmail } from "@/lib/admin";
 import { NewBannerForm } from "@/components/new-banner-form";
-import {
-  buildBillingSummary,
-  getBillingPeriodRange,
-  hasCreditCyclePaymentConfirmation,
-  requiresCreditCyclePaymentConfirmation,
-} from "@/lib/plans";
+import { buildBillingSummary } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
 export default async function NewBannerPage() {
   const workspace = await requireCurrentWorkspace();
   const now = new Date();
-  const billingPeriod = getBillingPeriodRange({
-    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
-    currentPeriodStart: workspace.subscription?.currentPeriodStart,
-    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
-    now,
-  });
-
-  const currentPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
-  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
-    plan: currentPlan,
-    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
-    currentPeriodStart: workspace.subscription?.currentPeriodStart,
-    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
-  });
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   const usageEvents = await prisma.usageEvent.findMany({
     where: {
       workspaceId: workspace.id,
-      createdAt: { gte: billingPeriod.start, lt: billingPeriod.end },
+      createdAt: { gte: monthStart },
       type: {
         in: [
           UsageEventType.BANNER_GENERATION,
@@ -53,11 +35,9 @@ export default async function NewBannerPage() {
   });
 
   const summary = buildBillingSummary({
-    plan: currentPlan,
+    plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
     status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
     usageEvents,
-    requiresPaymentConfirmation,
-    creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
   });
 
   const isAdmin = isAdminEmail(workspace.user?.email);
@@ -91,12 +71,16 @@ export default async function NewBannerPage() {
         />
       </div>
 
-      <NewBannerForm
-        currentPlan={summary.plan}
-        isAdmin={isAdmin}
-        canGenerateBanner={isAdmin || summary.canGenerateBanner}
-        initialRemainingCredits={isAdmin ? null : summary.remainingCredits}
-      />
+      {!isAdmin && !workspace.user?.emailVerifiedAt ? (
+        <EmailVerificationRequiredCard email={workspace.user?.email || ""} />
+      ) : (
+        <NewBannerForm
+          currentPlan={summary.plan}
+          isAdmin={isAdmin}
+          canGenerateBanner={isAdmin || summary.canGenerateBanner}
+          initialRemainingCredits={isAdmin ? null : summary.remainingCredits}
+        />
+      )
 
       {isAdmin ? (
         <section className="mt-5 rounded-3xl border border-sky-300/15 bg-gradient-to-br from-sky-400/10 via-white/[0.03] to-violet-400/10 p-5 shadow-[0_24px_80px_rgba(56,189,248,0.08)]">
@@ -196,7 +180,7 @@ function PlanUsageCard({
 
       <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
         <div className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
-          <span>{isAdmin ? "Uso ilimitado para testes" : "Consumo do período"}</span>
+          <span>{isAdmin ? "Uso ilimitado para testes" : "Consumo mensal"}</span>
           <strong className="text-white/85">
             {isAdmin ? "∞" : `${usagePercent}%`}
           </strong>
@@ -236,5 +220,31 @@ function PlanMetric({
         {value}
       </div>
     </div>
+  );
+}
+
+
+function EmailVerificationRequiredCard({ email }: { email: string }) {
+  return (
+    <section className="relative overflow-hidden rounded-[30px] border border-amber-200/20 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.14),transparent_34%),linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
+      <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-amber-300/10 blur-3xl" />
+      <div className="relative z-10 max-w-2xl">
+        <span className="inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-amber-100">
+          Verificação pendente
+        </span>
+        <h2 className="mt-4 text-2xl font-semibold leading-tight text-white">
+          Confirme seu e-mail para liberar a geração
+        </h2>
+        <p className="mt-3 text-sm leading-7 text-white/70">
+          Para proteger os créditos grátis contra abuso, confirme o código enviado para <strong className="text-white">{email}</strong>. Depois disso, você poderá gerar seus banners normalmente.
+        </p>
+        <a
+          href={`/verify-email?email=${encodeURIComponent(email)}`}
+          className="mt-5 inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
+        >
+          Confirmar e-mail
+        </a>
+      </div>
+    </section>
   );
 }

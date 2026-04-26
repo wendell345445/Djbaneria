@@ -15,10 +15,7 @@ import { isAdminEmail } from "@/lib/admin";
 import { buildBannerPrompt, generateBannerImage } from "@/lib/openai-image";
 import {
   buildBillingSummary,
-  getBillingPeriodRange,
   getDefaultBannerQuality,
-  hasCreditCyclePaymentConfirmation,
-  requiresCreditCyclePaymentConfirmation,
   isBannerQualityAllowed,
   type BannerImageQuality,
 } from "@/lib/plans";
@@ -125,20 +122,9 @@ async function reserveGenerationCredit(params: {
   workspaceId: string;
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
-  billingPeriodStart: Date;
-  billingPeriodEnd: Date;
-  requiresPaymentConfirmation: boolean;
   isAdmin: boolean;
 }) {
-  const {
-    workspaceId,
-    plan,
-    status,
-    billingPeriodStart,
-    billingPeriodEnd,
-    requiresPaymentConfirmation,
-    isAdmin,
-  } = params;
+  const { workspaceId, plan, status, isAdmin } = params;
 
   if (isAdmin) {
     return {
@@ -148,40 +134,30 @@ async function reserveGenerationCredit(params: {
     };
   }
 
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
       return await prisma.$transaction(
         async (tx) => {
-          const usageEvents = await tx.usageEvent.findMany({
+          const usedThisMonthResult = await tx.usageEvent.aggregate({
             where: {
               workspaceId,
-              createdAt: { gte: billingPeriodStart, lt: billingPeriodEnd },
+              createdAt: { gte: monthStart },
               type: { in: [...CREDIT_EVENT_TYPES] },
             },
-            select: {
-              units: true,
-              createdAt: true,
-              metadata: true,
-            },
+            _sum: { units: true },
           });
 
-          const paymentConfirmed = hasCreditCyclePaymentConfirmation(usageEvents);
           const summary = buildBillingSummary({
             plan,
             status,
-            usageEvents,
-            requiresPaymentConfirmation,
-            creditCyclePaymentConfirmed: paymentConfirmed,
+            usedThisMonth: usedThisMonthResult._sum.units || 0,
           });
 
-          if (requiresPaymentConfirmation && !paymentConfirmed) {
-            throw new Error(
-              "Os créditos do novo ciclo aguardam confirmação do pagamento da renovação.",
-            );
-          }
-
           if (!summary.canGenerateBanner) {
-            throw new Error("Você usou todos os seus créditos deste período.");
+            throw new Error("Você usou todos os seus créditos deste mês.");
           }
 
           const usageEvent = await tx.usageEvent.create({
@@ -387,18 +363,22 @@ export async function POST(request: Request) {
 
     const payload = parsed.data;
     const isAdmin = isAdminEmail(workspace.user?.email);
+
+    if (!isAdmin && !workspace.user?.emailVerifiedAt) {
+      return NextResponse.json(
+        {
+          error:
+            "Confirme seu e-mail antes de gerar banners. Enviamos um código de verificação para sua caixa de entrada.",
+          requiresEmailVerification: true,
+          redirectTo: `/verify-email?email=${encodeURIComponent(
+            workspace.user?.email || "",
+          )}`,
+        },
+        { status: 403, headers: buildRateLimitHeaders(rateLimit) },
+      );
+    }
+
     const subscriptionPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
-    const billingPeriod = getBillingPeriodRange({
-      providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
-      currentPeriodStart: workspace.subscription?.currentPeriodStart,
-      currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
-    });
-    const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
-      plan: subscriptionPlan,
-      providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
-      currentPeriodStart: workspace.subscription?.currentPeriodStart,
-      currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
-    });
     const requestedQuality =
       payload.quality || getDefaultBannerQuality(subscriptionPlan, isAdmin);
 
@@ -418,9 +398,6 @@ export async function POST(request: Request) {
       workspaceId: workspace.id,
       plan: subscriptionPlan,
       status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
-      billingPeriodStart: billingPeriod.start,
-      billingPeriodEnd: billingPeriod.end,
-      requiresPaymentConfirmation,
       isAdmin,
     });
 
@@ -515,9 +492,7 @@ export async function POST(request: Request) {
       {
         status:
           error instanceof Error &&
-          (error.message === "Você usou todos os seus créditos deste período." ||
-          error.message ===
-            "Os créditos do novo ciclo aguardam confirmação do pagamento da renovação.")
+          error.message === "Você usou todos os seus créditos deste mês."
             ? 403
             : 500,
         headers: buildRateLimitHeaders(rateLimit),

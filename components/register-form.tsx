@@ -64,13 +64,21 @@ export function RegisterForm() {
       const data = (await response.json().catch(() => ({}))) as {
         error?: string;
         redirectTo?: string;
+        devVerificationCode?: string;
       };
 
       if (!response.ok) {
         throw new Error(data?.error || "Não foi possível criar sua conta.");
       }
 
-      router.push(data.redirectTo ?? "/dashboard");
+      if (data.devVerificationCode) {
+        window.sessionStorage.setItem(
+          "djproia_dev_verification_code",
+          data.devVerificationCode,
+        );
+      }
+
+      router.push(data.redirectTo ?? "/verify-email");
       router.refresh();
     } catch (err) {
       setError(
@@ -93,7 +101,7 @@ export function RegisterForm() {
           Criar conta
         </h1>
         <p className="mt-2 text-sm leading-6 text-white/60">
-          Configure sua conta inicial e comece a gerar banners profissionais com IA.
+Crie sua conta e confirme o e-mail para liberar seus créditos grátis.
         </p>
       </div>
 

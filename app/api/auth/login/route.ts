@@ -4,6 +4,7 @@ import { z } from "zod";
 import { setSessionCookie, signSessionToken } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth";
+import { normalizeEmail } from "@/lib/email-verification";
 
 const schema = z.object({
   email: z.string().trim().email("Informe um e-mail válido."),
@@ -24,7 +25,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, password, rememberSession } = parsed.data;
+    const { password, rememberSession } = parsed.data;
+    const email = normalizeEmail(parsed.data.email);
 
     const user = await prisma.user.findUnique({
       where: { email },
@@ -34,6 +36,7 @@ export async function POST(request: Request) {
         email: true,
         role: true,
         isActive: true,
+        emailVerifiedAt: true,
         passwordHash: true,
         workspaces: {
           select: {
@@ -71,6 +74,14 @@ export async function POST(request: Request) {
         { error: "E-mail ou senha inválidos." },
         { status: 400 },
       );
+    }
+
+    if (!user.emailVerifiedAt) {
+      return NextResponse.json({
+        success: true,
+        requiresEmailVerification: true,
+        redirectTo: `/verify-email?email=${encodeURIComponent(user.email)}`,
+      });
     }
 
     const activeWorkspace =

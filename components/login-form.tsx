@@ -32,7 +32,11 @@ export function LoginForm() {
         }),
       });
 
-      const data = await response.json().catch(() => ({}));
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        redirectTo?: string;
+        requiresEmailVerification?: boolean;
+      };
 
       if (!response.ok) {
         throw new Error(
@@ -40,7 +44,7 @@ export function LoginForm() {
         );
       }
 
-      router.push("/dashboard");
+      router.push(data.redirectTo || "/dashboard");
       router.refresh();
     } catch (err) {
       setError(
