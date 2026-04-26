@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { SubscriptionPlan } from "@/generated/prisma/enums";
+import {
+  getAllowedBannerQualities,
+  getDefaultBannerQuality,
+  type BannerImageQuality,
+} from "@/lib/plans";
 
 const stylePresets = [
   { value: "NEON_CLUB", label: "Neon Club" },
@@ -12,10 +18,8 @@ const stylePresets = [
 ] as const;
 
 const formats = [
-  { value: "POST_FEED", label: "Post Feed" },
+  { value: "POST_FEED", label: "Feed" },
   { value: "STORY", label: "Story" },
-  { value: "SQUARE", label: "Square" },
-  { value: "FLYER", label: "Flyer" },
 ] as const;
 
 const generateSteps = [
@@ -32,12 +36,51 @@ const editSteps = [
   "Finalizando os ajustes da arte",
 ];
 
+const qualityOptions: {
+  value: BannerImageQuality;
+  label: string;
+}[] = [
+  {
+    value: "low",
+    label: "Rápido",
+  },
+  {
+    value: "medium",
+    label: "Equilibrado",
+  },
+  {
+    value: "high",
+    label: "Alta qualidade",
+  },
+];
+
 type GenerationResult = {
   imageUrl: string;
   bannerId?: string | null;
   bannerUrl?: string | null;
   saved?: boolean;
 };
+
+type BannerFormState = {
+  mainText: string;
+  djName: string;
+  secondaryText: string;
+  eventDate: string;
+  eventLocation: string;
+  stylePreset: string;
+  format: string;
+  quality: BannerImageQuality;
+};
+
+type ActiveBannerJob = {
+  bannerId: string;
+  mode: "generate" | "edit";
+  bannerUrl?: string | null;
+  startedAt: number;
+  form: BannerFormState;
+};
+
+const ACTIVE_BANNER_JOB_KEY = "dj-banner-active-job";
 
 function readFileAsDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -63,12 +106,11 @@ function readFileAsDataUrl(file: File) {
 const inputClassName =
   "w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35";
 
+const selectClassName = `${inputClassName} [color-scheme:dark]`;
+
 function getPreviewAspectClass(format: string) {
   switch (format) {
-    case "SQUARE":
-      return "aspect-square";
     case "STORY":
-    case "FLYER":
       return "aspect-[2/3]";
     case "POST_FEED":
     default:
@@ -114,12 +156,35 @@ function buildLoadingTexts(mode: "generate" | "edit" | null) {
   };
 }
 
-export function NewBannerForm() {
+function isCreditExhaustedMessage(message: string) {
+  const normalized = message.toLowerCase();
+
+  return (
+    normalized.includes("crédito") ||
+    normalized.includes("créditos") ||
+    normalized.includes("credito") ||
+    normalized.includes("creditos")
+  );
+}
+
+export function NewBannerForm({
+  currentPlan,
+  isAdmin = false,
+  canGenerateBanner = true,
+  initialRemainingCredits = null,
+}: {
+  currentPlan: SubscriptionPlan;
+  isAdmin?: boolean;
+  canGenerateBanner?: boolean;
+  initialRemainingCredits?: number | null;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [error, setError] = useState("");
-  const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
+  const [remainingCredits, setRemainingCredits] = useState<number | null>(
+    initialRemainingCredits,
+  );
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [activeStep, setActiveStep] = useState(0);
@@ -130,7 +195,15 @@ export function NewBannerForm() {
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
-  const [form, setForm] = useState({
+  const [showCreditUpgrade, setShowCreditUpgrade] = useState(false);
+  const [jobProgress, setJobProgress] = useState<number | null>(null);
+  const pollingTimerRef = useRef<number | null>(null);
+  const allowedQualities = useMemo(
+    () => getAllowedBannerQualities(currentPlan, isAdmin),
+    [currentPlan, isAdmin],
+  );
+
+  const [form, setForm] = useState<BannerFormState>({
     mainText: "",
     djName: "",
     secondaryText: "",
@@ -138,6 +211,7 @@ export function NewBannerForm() {
     eventLocation: "",
     stylePreset: "LUXURY_GOLD",
     format: "POST_FEED",
+    quality: getDefaultBannerQuality(currentPlan, isAdmin),
   });
 
   const completion = useMemo(() => {
@@ -162,22 +236,265 @@ export function NewBannerForm() {
   );
 
   const loadingProgress = useMemo(
-    () => getLoadingProgress(activeStep),
-    [activeStep],
+    () => jobProgress ?? getLoadingProgress(activeStep),
+    [activeStep, jobProgress],
   );
 
   const displayLoading = loading || editLoading;
   const currentSteps = loadingMode === "edit" ? editSteps : generateSteps;
   const loadingTexts = buildLoadingTexts(loadingMode);
+  const hasNoCredits =
+    !isAdmin &&
+    (!canGenerateBanner ||
+      (typeof remainingCredits === "number" && remainingCredits <= 0));
+
+  function clearPollingTimer() {
+    if (pollingTimerRef.current !== null) {
+      window.clearInterval(pollingTimerRef.current);
+      pollingTimerRef.current = null;
+    }
+  }
+
+  function clearActiveBannerJob() {
+    clearPollingTimer();
+    window.localStorage.removeItem(ACTIVE_BANNER_JOB_KEY);
+  }
+
+  function saveActiveBannerJob(job: ActiveBannerJob) {
+    window.localStorage.setItem(ACTIVE_BANNER_JOB_KEY, JSON.stringify(job));
+  }
+
+  function startBannerJob(params: {
+    bannerId: string;
+    mode: "generate" | "edit";
+    bannerUrl?: string | null;
+  }) {
+    const job: ActiveBannerJob = {
+      bannerId: params.bannerId,
+      mode: params.mode,
+      bannerUrl: params.bannerUrl || null,
+      startedAt: Date.now(),
+      form,
+    };
+
+    saveActiveBannerJob(job);
+    setResult(null);
+    setJobProgress(18);
+    setActiveStep(1);
+    setLoadingMode(params.mode);
+    setStatusText(
+      params.mode === "edit"
+        ? "Alteração iniciada. Você pode sair da página e voltar para acompanhar."
+        : "Geração iniciada. Você pode sair da página e voltar para acompanhar.",
+    );
+
+    if (params.mode === "edit") {
+      setEditLoading(true);
+      setLoading(false);
+    } else {
+      setLoading(true);
+      setEditLoading(false);
+    }
+
+    pollBannerJob(params.bannerId, params.mode, params.bannerUrl || null);
+  }
+
+  async function checkBannerJobStatus(
+    bannerId: string,
+    mode: "generate" | "edit",
+    bannerUrl?: string | null,
+  ) {
+    const response = await fetch(`/api/banners/status/${bannerId}`, {
+      cache: "no-store",
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Não foi possível acompanhar a geração.");
+    }
+
+    if (typeof data.remainingCredits === "number") {
+      setRemainingCredits(data.remainingCredits);
+    }
+
+    if (data.status === "COMPLETED") {
+      if (!data.imageUrl) {
+        throw new Error("O banner foi concluído, mas a imagem final não foi encontrada.");
+      }
+
+      clearActiveBannerJob();
+      setJobProgress(100);
+      setActiveStep(3);
+      setLoading(false);
+      setEditLoading(false);
+      setLoadingMode(null);
+      setStatusText(
+        mode === "edit"
+          ? "Alteração aplicada com sucesso."
+          : "Banner gerado e salvo com sucesso.",
+      );
+      setError("");
+      setEditError("");
+      setResult({
+        imageUrl: data.imageUrl,
+        bannerId: data.bannerId || bannerId,
+        bannerUrl: data.bannerUrl || bannerUrl || null,
+        saved: true,
+      });
+
+      if (mode === "edit") {
+        setEditSuccess("Alteração aplicada com sucesso.");
+        setEditPrompt("");
+      }
+
+      router.refresh();
+      return;
+    }
+
+    if (data.status === "FAILED") {
+      clearActiveBannerJob();
+      setJobProgress(null);
+      setActiveStep(0);
+      setLoading(false);
+      setEditLoading(false);
+      setLoadingMode(null);
+      setStatusText("");
+
+      const failedMessage =
+        data.message ||
+        (mode === "edit"
+          ? "Não foi possível concluir a alteração da arte."
+          : "Não foi possível concluir a geração do banner.");
+
+      if (mode === "edit") {
+        setEditError(failedMessage);
+      } else {
+        setError(failedMessage);
+      }
+
+      router.refresh();
+      return;
+    }
+
+    const nextProgress =
+      typeof data.progress === "number" ? Math.min(data.progress, 94) : null;
+    const nextStep =
+      typeof data.activeStep === "number" ? data.activeStep : activeStep;
+
+    setJobProgress(nextProgress);
+    setActiveStep(nextStep);
+    setLoadingMode(mode);
+    setStatusText(
+      mode === "edit"
+        ? "Sua alteração ainda está sendo processada pela IA..."
+        : "Seu banner ainda está sendo processado pela IA...",
+    );
+
+    if (mode === "edit") {
+      setEditLoading(true);
+    } else {
+      setLoading(true);
+    }
+  }
+
+  function pollBannerJob(
+    bannerId: string,
+    mode: "generate" | "edit",
+    bannerUrl?: string | null,
+  ) {
+    clearPollingTimer();
+
+    void checkBannerJobStatus(bannerId, mode, bannerUrl).catch((err) => {
+      const message =
+        err instanceof Error ? err.message : "Não foi possível acompanhar a geração.";
+      if (mode === "edit") {
+        setEditError(message);
+      } else {
+        setError(message);
+      }
+    });
+
+    pollingTimerRef.current = window.setInterval(() => {
+      void checkBannerJobStatus(bannerId, mode, bannerUrl).catch((err) => {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Não foi possível acompanhar a geração.";
+        if (mode === "edit") {
+          setEditError(message);
+        } else {
+          setError(message);
+        }
+      });
+    }, 2500);
+  }
+
+  useEffect(() => {
+    const storedJob = window.localStorage.getItem(ACTIVE_BANNER_JOB_KEY);
+
+    if (!storedJob) {
+      return () => clearPollingTimer();
+    }
+
+    try {
+      const job = JSON.parse(storedJob) as ActiveBannerJob;
+
+      if (!job?.bannerId || !job?.mode) {
+        window.localStorage.removeItem(ACTIVE_BANNER_JOB_KEY);
+        return () => clearPollingTimer();
+      }
+
+      if (job.form) {
+        setForm(job.form);
+      }
+
+      setResult(null);
+      setError("");
+      setEditError("");
+      setEditSuccess("");
+      setShowCreditUpgrade(false);
+      setJobProgress(24);
+      setActiveStep(1);
+      setLoadingMode(job.mode);
+      setStatusText(
+        job.mode === "edit"
+          ? "Retomando acompanhamento da alteração em andamento..."
+          : "Retomando acompanhamento do banner em andamento...",
+      );
+
+      if (job.mode === "edit") {
+        setEditLoading(true);
+      } else {
+        setLoading(true);
+      }
+
+      pollBannerJob(job.bannerId, job.mode, job.bannerUrl || null);
+    } catch {
+      window.localStorage.removeItem(ACTIVE_BANNER_JOB_KEY);
+    }
+
+    return () => clearPollingTimer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (hasNoCredits) {
+      setError("Você usou todos os seus créditos deste mês.");
+      setShowCreditUpgrade(true);
+      setStatusText("");
+      setActiveStep(0);
+      return;
+    }
+
     setLoading(true);
     setLoadingMode("generate");
     setActiveStep(0);
     setStatusText("Preparando os dados do banner...");
     setError("");
     setResult(null);
+    setShowCreditUpgrade(false);
     setEditPrompt("");
     setEditError("");
     setEditSuccess("");
@@ -185,6 +502,7 @@ export function NewBannerForm() {
     let progressTimerA: number | undefined;
     let progressTimerB: number | undefined;
     let progressTimerC: number | undefined;
+    let keepLoadingForPolling = false;
 
     try {
       const referenceImageDataUrl = referenceFile
@@ -219,6 +537,7 @@ export function NewBannerForm() {
           eventLocation: form.eventLocation,
           stylePreset: form.stylePreset,
           format: form.format,
+          quality: form.quality,
           referenceImageUrl: referenceFile ? referenceImageDataUrl : null,
         }),
       });
@@ -232,6 +551,23 @@ export function NewBannerForm() {
         throw new Error(data.error || "Não foi possível gerar o banner.");
       }
 
+      if (data.status === "PENDING" && data.bannerId) {
+        const nextRemainingCredits =
+          typeof data.remainingCredits === "number" ? data.remainingCredits : null;
+
+        setRemainingCredits(nextRemainingCredits);
+        setShowCreditUpgrade(false);
+
+        keepLoadingForPolling = true;
+        startBannerJob({
+          bannerId: data.bannerId,
+          mode: "generate",
+          bannerUrl: data.bannerUrl || null,
+        });
+        router.refresh();
+        return;
+      }
+
       setActiveStep(3);
       setStatusText(
         data.saved === false
@@ -239,11 +575,11 @@ export function NewBannerForm() {
           : "Banner gerado e salvo com sucesso.",
       );
 
-      setRemainingCredits(
-        typeof data.remainingCredits === "number"
-          ? data.remainingCredits
-          : null,
-      );
+      const nextRemainingCredits =
+        typeof data.remainingCredits === "number" ? data.remainingCredits : null;
+
+      setRemainingCredits(nextRemainingCredits);
+      setShowCreditUpgrade(false);
 
       setResult({
         imageUrl: data.previewImageUrl || data.imageUrl,
@@ -257,17 +593,31 @@ export function NewBannerForm() {
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
-      setError(err instanceof Error ? err.message : "Erro ao gerar banner.");
+      const message = err instanceof Error ? err.message : "Erro ao gerar banner.";
+      setError(message);
+      if (isCreditExhaustedMessage(message)) {
+        setRemainingCredits(0);
+        setShowCreditUpgrade(true);
+      }
       setStatusText("");
       setActiveStep(0);
     } finally {
-      setLoading(false);
-      setLoadingMode(null);
+      if (!keepLoadingForPolling) {
+        setLoading(false);
+        setLoadingMode(null);
+        setJobProgress(null);
+      }
     }
   }
 
   async function handleEdit() {
     if (!result?.imageUrl) return;
+
+    if (hasNoCredits) {
+      setEditError("Você usou todos os seus créditos deste mês.");
+      setShowCreditUpgrade(true);
+      return;
+    }
 
     if (editPrompt.trim().length < 4) {
       setEditError(
@@ -286,6 +636,7 @@ export function NewBannerForm() {
     let progressTimerA: number | undefined;
     let progressTimerB: number | undefined;
     let progressTimerC: number | undefined;
+    let keepLoadingForPolling = false;
 
     try {
       progressTimerA = window.setTimeout(() => {
@@ -319,6 +670,7 @@ export function NewBannerForm() {
           eventLocation: form.eventLocation,
           stylePreset: form.stylePreset,
           format: form.format,
+          quality: form.quality,
         }),
       });
 
@@ -331,6 +683,23 @@ export function NewBannerForm() {
         throw new Error(data.error || "Não foi possível editar a arte.");
       }
 
+      if (data.status === "PENDING" && data.bannerId) {
+        const nextRemainingAfterEdit =
+          typeof data.remainingCredits === "number" ? data.remainingCredits : null;
+
+        setRemainingCredits(nextRemainingAfterEdit);
+        setShowCreditUpgrade(false);
+
+        keepLoadingForPolling = true;
+        startBannerJob({
+          bannerId: data.bannerId,
+          mode: "edit",
+          bannerUrl: data.bannerUrl || null,
+        });
+        router.refresh();
+        return;
+      }
+
       setActiveStep(3);
       setStatusText("Alteração aplicada com sucesso.");
 
@@ -341,17 +710,15 @@ export function NewBannerForm() {
         saved: data.saved !== false,
       });
 
-      setRemainingCredits((currentCredits) => {
-        if (typeof data.remainingCredits === "number") {
-          return data.remainingCredits;
-        }
+      const nextRemainingAfterEdit =
+        typeof data.remainingCredits === "number"
+          ? data.remainingCredits
+          : typeof remainingCredits === "number"
+            ? Math.max(remainingCredits - 1, 0)
+            : null;
 
-        if (typeof currentCredits === "number") {
-          return Math.max(currentCredits - 1, 0);
-        }
-
-        return currentCredits;
-      });
+      setRemainingCredits(nextRemainingAfterEdit);
+      setShowCreditUpgrade(false);
       setEditSuccess("Alteração aplicada com sucesso.");
       setEditPrompt("");
 
@@ -360,14 +727,20 @@ export function NewBannerForm() {
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
-      setEditError(
-        err instanceof Error ? err.message : "Erro ao editar a arte.",
-      );
+      const message = err instanceof Error ? err.message : "Erro ao editar a arte.";
+      setEditError(message);
+      if (isCreditExhaustedMessage(message)) {
+        setRemainingCredits(0);
+        setShowCreditUpgrade(true);
+      }
       setStatusText("");
       setActiveStep(0);
     } finally {
-      setEditLoading(false);
-      setLoadingMode(null);
+      if (!keepLoadingForPolling) {
+        setEditLoading(false);
+        setLoadingMode(null);
+        setJobProgress(null);
+      }
     }
   }
 
@@ -469,17 +842,21 @@ export function NewBannerForm() {
         </Section>
 
         <Section title="Direção visual">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <Field label="Estilo visual">
               <select
-                className={inputClassName}
+                className={selectClassName}
                 value={form.stylePreset}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, stylePreset: e.target.value }))
                 }
               >
                 {stylePresets.map((preset) => (
-                  <option key={preset.value} value={preset.value}>
+                  <option
+                    key={preset.value}
+                    value={preset.value}
+                    className="bg-black text-white"
+                  >
                     {preset.label}
                   </option>
                 ))}
@@ -488,17 +865,49 @@ export function NewBannerForm() {
 
             <Field label="Formato">
               <select
-                className={inputClassName}
+                className={selectClassName}
                 value={form.format}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, format: e.target.value }))
                 }
               >
                 {formats.map((format) => (
-                  <option key={format.value} value={format.value}>
+                  <option
+                    key={format.value}
+                    value={format.value}
+                    className="bg-black text-white"
+                  >
                     {format.label}
                   </option>
                 ))}
+              </select>
+            </Field>
+
+            <Field label="Qualidade de geração">
+              <select
+                className={selectClassName}
+                value={form.quality}
+                onChange={(e) =>
+                  setForm((current) => ({
+                    ...current,
+                    quality: e.target.value as BannerImageQuality,
+                  }))
+                }
+              >
+                {qualityOptions.map((quality) => {
+                  const enabled = allowedQualities.includes(quality.value);
+                  return (
+                    <option
+                      key={quality.value}
+                      value={quality.value}
+                      disabled={!enabled}
+                      className="bg-black text-white"
+                    >
+                      {quality.label}
+                      {enabled ? "" : " — indisponível no seu plano"}
+                    </option>
+                  );
+                })}
               </select>
             </Field>
           </div>
@@ -545,7 +954,7 @@ export function NewBannerForm() {
         <button
           type="submit"
           disabled={displayLoading}
-          className="mt-5 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-80"
+          className="mt-5 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-70"
         >
           {loading
             ? "Gerando preview..."
@@ -818,6 +1227,79 @@ export function NewBannerForm() {
           </div>
         )}
       </aside>
+
+      {showCreditUpgrade ? (
+        <CreditUpgradeModal onClose={() => setShowCreditUpgrade(false)} />
+      ) : null}
+    </div>
+  );
+}
+
+function CreditUpgradeModal({
+  onClose,
+}: {
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-black/70 px-4 py-6 backdrop-blur-md">
+      <div className="relative w-full max-w-[520px] overflow-hidden rounded-[30px] border border-amber-200/20 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.16),transparent_38%),linear-gradient(135deg,rgba(18,24,38,0.98),rgba(7,11,22,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg leading-none text-white/70 transition hover:bg-white/10 hover:text-white"
+          aria-label="Fechar popup"
+        >
+          ×
+        </button>
+
+        <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-amber-200/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-14 left-8 h-32 w-32 rounded-full bg-sky-300/10 blur-3xl" />
+
+        <div className="relative z-10 pr-8">
+          <span className="inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+            Créditos esgotados
+          </span>
+
+          <h3 className="mt-4 text-2xl font-semibold leading-tight text-white">
+            Você chegou ao limite de banners deste mês
+          </h3>
+
+          <p className="mt-3 text-sm leading-6 text-white/70">
+            Faça upgrade do seu plano para liberar mais créditos mensais e
+            continuar criando banners profissionais com IA sem interromper seu
+            fluxo de trabalho.
+          </p>
+        </div>
+
+        <div className="relative z-10 mt-5 grid gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+          <div className="flex items-start gap-3 text-sm text-white/75">
+            <span className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-amber-200 shadow-[0_0_16px_rgba(251,191,36,0.7)]" />
+            <p>
+              O plano Pro aumenta seus créditos, enquanto o Professional libera créditos extras e qualidade superior.
+            </p>
+          </div>
+          <div className="flex items-start gap-3 text-sm text-white/75">
+            <span className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-sky-300 shadow-[0_0_16px_rgba(125,211,252,0.7)]" />
+            <p>Continue gerando banners para eventos, stories e posts de divulgação.</p>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-6 flex flex-col gap-3 sm:flex-row">
+          <a
+            href="/dashboard/billing"
+            className="inline-flex min-h-[50px] flex-1 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-200 via-sky-200 to-violet-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
+          >
+            Ver planos
+          </a>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex min-h-[50px] flex-1 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-5 text-sm font-medium text-white transition hover:bg-white/[0.08]"
+          >
+            Agora não
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

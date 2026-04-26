@@ -1,18 +1,33 @@
 import sharp from "sharp";
 
+import type { BannerImageQuality } from "@/lib/plans";
+
 export type GenerateBannerInput = {
   prompt: string;
   size: string;
+  quality?: BannerImageQuality;
   referenceImageUrl?: string | null;
 };
 
 export type EditBannerInput = {
   prompt: string;
   size: string;
+  quality?: BannerImageQuality;
   sourceImageUrl: string;
 };
 
 const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2";
+const OPENAI_DEFAULT_IMAGE_QUALITY =
+  (process.env.OPENAI_IMAGE_QUALITY?.trim().toLowerCase() as BannerImageQuality | undefined) ||
+  "medium";
+
+function resolveImageQuality(quality?: BannerImageQuality) {
+  if (quality === "low" || quality === "medium" || quality === "high") {
+    return quality;
+  }
+
+  return OPENAI_DEFAULT_IMAGE_QUALITY;
+}
 
 export function buildBannerPrompt(params: {
   mainText: string;
@@ -113,12 +128,13 @@ async function loadImageBufferFromInput(source: string) {
 async function callImageEditApi(input: EditBannerInput) {
   const sourceImageBuffer = await loadImageBufferFromInput(input.sourceImageUrl);
   const preparedImage = await prepareImage(sourceImageBuffer, input.size);
+  const quality = resolveImageQuality(input.quality);
 
   const formData = new FormData();
   formData.append("model", OPENAI_IMAGE_MODEL);
   formData.append("prompt", input.prompt);
   formData.append("size", input.size);
-  formData.append("quality", "high");
+  formData.append("quality", quality);
   formData.append("n", "1");
   formData.append(
     "image",
@@ -156,9 +172,12 @@ export async function generateBannerImage(input: GenerateBannerInput) {
     return callImageEditApi({
       prompt: input.prompt,
       size: input.size,
+      quality: input.quality,
       sourceImageUrl: input.referenceImageUrl,
     });
   }
+
+  const quality = resolveImageQuality(input.quality);
 
   const response = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
@@ -170,7 +189,7 @@ export async function generateBannerImage(input: GenerateBannerInput) {
       model: OPENAI_IMAGE_MODEL,
       prompt: input.prompt,
       size: input.size,
-      quality: "high",
+      quality,
       n: 1,
     }),
   });

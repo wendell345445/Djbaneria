@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { after, NextResponse } from "next/server";
 import sharp from "sharp";
 import { z } from "zod";
 import {
@@ -12,7 +13,15 @@ import {
 
 import { isAdminEmail } from "@/lib/admin";
 import { buildBannerPrompt, generateBannerImage } from "@/lib/openai-image";
-import { buildBillingSummary } from "@/lib/plans";
+import {
+  buildBillingSummary,
+  getBillingPeriodRange,
+  getDefaultBannerQuality,
+  hasCreditCyclePaymentConfirmation,
+  requiresCreditCyclePaymentConfirmation,
+  isBannerQualityAllowed,
+  type BannerImageQuality,
+} from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import {
   buildRateLimitHeaders,
@@ -24,6 +33,7 @@ import { uploadBannerBuffer } from "@/lib/storage";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 const SERIALIZABLE_ISOLATION_LEVEL = "Serializable" as never;
 
@@ -36,7 +46,8 @@ const CREDIT_EVENT_TYPES = [
 const referenceImageField = z
   .union([
     z.string().trim().url("A URL da imagem de referência precisa ser válida."),
-    z.string()
+    z
+      .string()
       .trim()
       .regex(
         /^data:image\/[a-zA-Z0-9.+-]+;base64,/,
@@ -64,19 +75,22 @@ const schema = z.object({
     "MINIMAL_TECHNO",
     "LUXURY_GOLD",
   ]),
-  format: z.enum(["POST_FEED", "STORY", "SQUARE", "FLYER"]),
+  format: z.enum(["POST_FEED", "STORY"]),
+  quality: z.enum(["low", "medium", "high"]).optional(),
   referenceImageUrl: referenceImageField,
 });
 
 type GeneratePayload = z.infer<typeof schema>;
 
+type CreditReservation = {
+  usageEventId: string | null;
+  remainingCreditsAfterReserve: number;
+  isAdminUnlimited: boolean;
+};
+
 function getSizeForFormat(format: GeneratePayload["format"]) {
   switch (format) {
     case "STORY":
-      return "1024x1536";
-    case "SQUARE":
-      return "1024x1024";
-    case "FLYER":
       return "1024x1536";
     case "POST_FEED":
     default:
@@ -103,13 +117,28 @@ function hasPrismaCode(error: unknown, code: string) {
   );
 }
 
+function getPendingModelName() {
+  return process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2";
+}
+
 async function reserveGenerationCredit(params: {
   workspaceId: string;
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
+  billingPeriodStart: Date;
+  billingPeriodEnd: Date;
+  requiresPaymentConfirmation: boolean;
   isAdmin: boolean;
 }) {
-  const { workspaceId, plan, status, isAdmin } = params;
+  const {
+    workspaceId,
+    plan,
+    status,
+    billingPeriodStart,
+    billingPeriodEnd,
+    requiresPaymentConfirmation,
+    isAdmin,
+  } = params;
 
   if (isAdmin) {
     return {
@@ -119,30 +148,40 @@ async function reserveGenerationCredit(params: {
     };
   }
 
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
       return await prisma.$transaction(
         async (tx) => {
-          const usedThisMonthResult = await tx.usageEvent.aggregate({
+          const usageEvents = await tx.usageEvent.findMany({
             where: {
               workspaceId,
-              createdAt: { gte: monthStart },
+              createdAt: { gte: billingPeriodStart, lt: billingPeriodEnd },
               type: { in: [...CREDIT_EVENT_TYPES] },
             },
-            _sum: { units: true },
+            select: {
+              units: true,
+              createdAt: true,
+              metadata: true,
+            },
           });
 
+          const paymentConfirmed = hasCreditCyclePaymentConfirmation(usageEvents);
           const summary = buildBillingSummary({
             plan,
             status,
-            usedThisMonth: usedThisMonthResult._sum.units || 0,
+            usageEvents,
+            requiresPaymentConfirmation,
+            creditCyclePaymentConfirmed: paymentConfirmed,
           });
 
+          if (requiresPaymentConfirmation && !paymentConfirmed) {
+            throw new Error(
+              "Os créditos do novo ciclo aguardam confirmação do pagamento da renovação.",
+            );
+          }
+
           if (!summary.canGenerateBanner) {
-            throw new Error("Você usou todos os seus créditos deste mês.");
+            throw new Error("Você usou todos os seus créditos deste período.");
           }
 
           const usageEvent = await tx.usageEvent.create({
@@ -175,6 +214,136 @@ async function reserveGenerationCredit(params: {
   }
 
   throw new Error("Não foi possível reservar crédito no momento.");
+}
+
+async function refundReservedCredit(usageEventId: string | null) {
+  if (!usageEventId) return;
+
+  try {
+    await prisma.usageEvent.delete({ where: { id: usageEventId } });
+  } catch (error) {
+    console.error("Erro ao estornar crédito reservado na geração:", error);
+  }
+}
+
+async function processGenerationJob(params: {
+  bannerId: string;
+  workspaceId: string;
+  usageEventId: string | null;
+  reservation: CreditReservation;
+  payload: GeneratePayload;
+  prompt: string;
+  size: string;
+  quality: BannerImageQuality;
+  isAdmin: boolean;
+}) {
+  const {
+    bannerId,
+    workspaceId,
+    usageEventId,
+    payload,
+    prompt,
+    size,
+    quality,
+    isAdmin,
+  } = params;
+
+  const startedAt = Date.now();
+
+  try {
+    const generated = await generateBannerImage({
+      prompt,
+      size,
+      quality,
+      referenceImageUrl: payload.referenceImageUrl,
+    });
+
+    if (!generated.imageBase64) {
+      throw new Error("A OpenAI não retornou a imagem do banner.");
+    }
+
+    const imageBuffer = Buffer.from(generated.imageBase64, "base64");
+    const finalPng = await sharp(imageBuffer).png().toBuffer();
+    const meta = await sharp(finalPng).metadata();
+
+    const filenameBase =
+      sanitizeForFileName(`${payload.djName}-${payload.mainText}`) ||
+      `banner-${Date.now()}`;
+    const key = `workspaces/${workspaceId}/generated-banners/${Date.now()}-${filenameBase}.png`;
+    const uploaded = await uploadBannerBuffer({
+      key,
+      body: finalPng,
+      contentType: "image/png",
+    });
+
+    await prisma.banner.update({
+      where: { id: bannerId },
+      data: {
+        revisedPrompt: generated.revisedPrompt || null,
+        modelName: generated.modelName,
+        status: BannerStatus.COMPLETED,
+        outputImageUrl: uploaded.url,
+        width: meta.width || null,
+        height: meta.height || null,
+        generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+      },
+    });
+
+    await prisma.asset.create({
+      data: {
+        workspaceId,
+        url: uploaded.url,
+        originalName: `${filenameBase}.png`,
+        storageProvider: "cloudflare-r2",
+        storageKey: key,
+        mimeType: "image/png",
+        sizeBytes: finalPng.byteLength,
+        width: meta.width || null,
+        height: meta.height || null,
+      },
+    });
+
+    if (usageEventId) {
+      await prisma.usageEvent.update({
+        where: { id: usageEventId },
+        data: {
+          metadata: {
+            status: "confirmed",
+            confirmedAt: new Date().toISOString(),
+            model: generated.modelName,
+            stylePreset: payload.stylePreset,
+            format: payload.format,
+            quality,
+            bannerId,
+            isAdminBypass: isAdmin,
+          },
+        },
+      });
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/billing");
+    revalidatePath("/dashboard/banners/new");
+    revalidatePath("/dashboard/banners");
+    revalidatePath(`/dashboard/banners/${bannerId}`);
+  } catch (error) {
+    console.error("Erro ao processar geração do banner:", error);
+
+    await prisma.banner.update({
+      where: { id: bannerId },
+      data: {
+        status: BannerStatus.FAILED,
+        generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+      },
+    });
+
+    await refundReservedCredit(usageEventId);
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/billing");
+    revalidatePath("/dashboard/banners/new");
+    revalidatePath("/dashboard/banners");
+  }
 }
 
 export async function POST(request: Request) {
@@ -216,18 +385,47 @@ export async function POST(request: Request) {
       );
     }
 
+    const payload = parsed.data;
     const isAdmin = isAdminEmail(workspace.user?.email);
+    const subscriptionPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
+    const billingPeriod = getBillingPeriodRange({
+      providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+      currentPeriodStart: workspace.subscription?.currentPeriodStart,
+      currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+    });
+    const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
+      plan: subscriptionPlan,
+      providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+      currentPeriodStart: workspace.subscription?.currentPeriodStart,
+      currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+    });
+    const requestedQuality =
+      payload.quality || getDefaultBannerQuality(subscriptionPlan, isAdmin);
+
+    if (!isBannerQualityAllowed(subscriptionPlan, requestedQuality, isAdmin)) {
+      return NextResponse.json(
+        {
+          error:
+            requestedQuality === "high"
+              ? "Alta qualidade fica disponível apenas nos planos Professional e Studio."
+              : "Essa qualidade não está disponível no seu plano atual.",
+        },
+        { status: 403, headers: buildRateLimitHeaders(rateLimit) },
+      );
+    }
 
     const reservation = await reserveGenerationCredit({
       workspaceId: workspace.id,
-      plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
+      plan: subscriptionPlan,
       status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
+      billingPeriodStart: billingPeriod.start,
+      billingPeriodEnd: billingPeriod.end,
+      requiresPaymentConfirmation,
       isAdmin,
     });
 
     reservedUsageEventId = reservation.usageEventId;
 
-    const payload = parsed.data;
     const size = getSizeForFormat(payload.format);
     const prompt = buildBannerPrompt({
       mainText: payload.mainText,
@@ -239,29 +437,7 @@ export async function POST(request: Request) {
       format: payload.format,
     });
 
-    const startedAt = Date.now();
-    const generated = await generateBannerImage({
-      prompt,
-      size,
-      referenceImageUrl: payload.referenceImageUrl,
-    });
-
-    if (!generated.imageBase64) throw new Error("A OpenAI não retornou a imagem do banner.");
-
-    const imageBuffer = Buffer.from(generated.imageBase64, "base64");
-    const finalPng = await sharp(imageBuffer).png().toBuffer();
-    const meta = await sharp(finalPng).metadata();
-
-    const filenameBase =
-      sanitizeForFileName(`${payload.djName}-${payload.mainText}`) || `banner-${Date.now()}`;
-    const key = `workspaces/${workspace.id}/generated-banners/${Date.now()}-${filenameBase}.png`;
-    const uploaded = await uploadBannerBuffer({
-      key,
-      body: finalPng,
-      contentType: "image/png",
-    });
-
-    const banner = await prisma.banner.create({
+    const pendingBanner = await prisma.banner.create({
       data: {
         workspaceId: workspace.id,
         title: payload.mainText,
@@ -273,30 +449,16 @@ export async function POST(request: Request) {
         stylePreset: payload.stylePreset as BannerStylePreset,
         format: payload.format as BannerFormat,
         prompt,
-        revisedPrompt: generated.revisedPrompt || null,
-        modelName: generated.modelName,
-        status: BannerStatus.COMPLETED,
+        revisedPrompt: null,
+        modelName: getPendingModelName(),
+        status: BannerStatus.PENDING,
         referenceImageUrl: payload.referenceImageUrl,
-        outputImageUrl: uploaded.url,
-        width: meta.width || null,
-        height: meta.height || null,
-        generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+        outputImageUrl: null,
+        width: null,
+        height: null,
+        generationSeconds: null,
       },
-      select: { id: true, outputImageUrl: true },
-    });
-
-    await prisma.asset.create({
-      data: {
-        workspaceId: workspace.id,
-        url: uploaded.url,
-        originalName: `${filenameBase}.png`,
-        storageProvider: "cloudflare-r2",
-        storageKey: key,
-        mimeType: "image/png",
-        sizeBytes: finalPng.byteLength,
-        width: meta.width || null,
-        height: meta.height || null,
-      },
+      select: { id: true },
     });
 
     if (reservedUsageEventId) {
@@ -304,39 +466,47 @@ export async function POST(request: Request) {
         where: { id: reservedUsageEventId },
         data: {
           metadata: {
-            status: "confirmed",
-            confirmedAt: new Date().toISOString(),
-            model: generated.modelName,
+            status: "processing",
+            reservedAt: new Date().toISOString(),
+            bannerId: pendingBanner.id,
             stylePreset: payload.stylePreset,
             format: payload.format,
-            bannerId: banner.id,
+            quality: requestedQuality,
             isAdminBypass: isAdmin,
           },
         },
       });
     }
 
+    after(() =>
+      processGenerationJob({
+        bannerId: pendingBanner.id,
+        workspaceId: workspace.id,
+        usageEventId: reservation.usageEventId,
+        reservation,
+        payload,
+        prompt,
+        size,
+        quality: requestedQuality,
+        isAdmin,
+      }),
+    );
+
     return NextResponse.json(
       {
         success: true,
-        bannerId: banner.id,
-        imageUrl: banner.outputImageUrl,
-        bannerUrl: `/dashboard/banners/${banner.id}`,
+        status: BannerStatus.PENDING,
+        bannerId: pendingBanner.id,
+        bannerUrl: `/dashboard/banners/${pendingBanner.id}`,
         remainingCredits: reservation.remainingCreditsAfterReserve,
         isAdminUnlimited: reservation.isAdminUnlimited,
       },
-      { headers: buildRateLimitHeaders(rateLimit) },
+      { status: 202, headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
-    if (reservedUsageEventId) {
-      try {
-        await prisma.usageEvent.delete({ where: { id: reservedUsageEventId } });
-      } catch (rollbackError) {
-        console.error("Erro ao estornar crédito reservado na geração:", rollbackError);
-      }
-    }
+    await refundReservedCredit(reservedUsageEventId);
 
-    console.error("Erro ao gerar banner:", error);
+    console.error("Erro ao iniciar geração do banner:", error);
 
     return NextResponse.json(
       {
@@ -345,7 +515,9 @@ export async function POST(request: Request) {
       {
         status:
           error instanceof Error &&
-          error.message === "Você usou todos os seus créditos deste mês."
+          (error.message === "Você usou todos os seus créditos deste período." ||
+          error.message ===
+            "Os créditos do novo ciclo aguardam confirmação do pagamento da renovação.")
             ? 403
             : 500,
         headers: buildRateLimitHeaders(rateLimit),

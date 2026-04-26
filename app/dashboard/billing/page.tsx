@@ -1,15 +1,28 @@
 import Link from "next/link";
-import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma/enums";
+import {
+  SubscriptionPlan,
+  SubscriptionStatus,
+  UsageEventType,
+} from "@/generated/prisma/enums";
 
+import { BillingCheckoutButton } from "@/components/billing-checkout-button";
 import { isAdminEmail } from "@/lib/admin";
-import { buildBillingSummary } from "@/lib/plans";
+import {
+  buildBillingSummary,
+  getBillingPeriodRange,
+  hasCreditCyclePaymentConfirmation,
+  requiresCreditCyclePaymentConfirmation,
+} from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import { isStripePaidPlan, isStripePriceConfigured } from "@/lib/stripe";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
 const planOrder = ["FREE", "PRO", "PROFESSIONAL", "STUDIO"] as const;
 
+type PlanKey = (typeof planOrder)[number];
+
 const planMeta: Record<
-  (typeof planOrder)[number],
+  PlanKey,
   {
     title: string;
     monthlyCredits: string;
@@ -22,9 +35,9 @@ const planMeta: Record<
     monthlyCredits: "2 créditos/mês",
     description: "Ideal para testar a plataforma e criar as primeiras artes.",
     highlights: [
-      "Geração de banners com IA",
-      "Preview e download da arte",
-      "Fluxo simples para usuários iniciantes",
+      "Geração rápida disponível",
+      "Feed e Story liberados",
+      "Perfeito para conhecer a plataforma",
     ],
   },
   PRO: {
@@ -33,18 +46,18 @@ const planMeta: Record<
     description: "Plano equilibrado para DJs e criadores com uso recorrente.",
     highlights: [
       "Mais créditos mensais",
+      "Qualidade rápida e equilibrada",
       "Bom para campanhas e eventos recorrentes",
-      "Ideal para uso frequente",
     ],
   },
   PROFESSIONAL: {
-    title: "Profissional",
+    title: "Professional",
     monthlyCredits: "40 créditos/mês",
     description:
       "Para quem precisa de mais fôlego para gerar, ajustar e testar artes.",
     highlights: [
       "Mais créditos para produção recorrente",
-      "Melhor para quem trabalha com vários materiais",
+      "Alta qualidade liberada",
       "Mais margem para alterações e refinamentos",
     ],
   },
@@ -54,21 +67,46 @@ const planMeta: Record<
     description: "Pensado para operação intensa e produção em maior volume.",
     highlights: [
       "Alto volume de criação",
+      "Alta qualidade liberada",
       "Ótimo para operação profissional contínua",
-      "Mais espaço para testes, versões e ajustes",
     ],
   },
 };
 
 function getPlanRank(plan: string) {
-  const index = planOrder.indexOf(plan as (typeof planOrder)[number]);
+  const index = planOrder.indexOf(plan as PlanKey);
   return index === -1 ? 0 : index;
+}
+
+function getStatusLabel(status: SubscriptionStatus) {
+  const labels: Record<SubscriptionStatus, string> = {
+    TRIALING: "Teste ativo",
+    ACTIVE: "Ativo",
+    PAST_DUE: "Pagamento pendente",
+    CANCELED: "Cancelado",
+    EXPIRED: "Expirado",
+  };
+
+  return labels[status] ?? status;
 }
 
 export default async function BillingPage() {
   const workspace = await requireCurrentWorkspace();
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const billingPeriod = getBillingPeriodRange({
+    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+    currentPeriodStart: workspace.subscription?.currentPeriodStart,
+    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+    now,
+  });
+
+  const currentPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
+  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
+    plan: currentPlan,
+    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+    currentPeriodStart: workspace.subscription?.currentPeriodStart,
+    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+  });
 
   const [bannerCount, usageEvents] = await Promise.all([
     prisma.banner.count({
@@ -77,36 +115,45 @@ export default async function BillingPage() {
     prisma.usageEvent.findMany({
       where: {
         workspaceId: workspace.id,
-        createdAt: { gte: monthStart },
+        createdAt: { gte: billingPeriod.start, lt: billingPeriod.end },
+        type: {
+          in: [
+            UsageEventType.BANNER_GENERATION,
+            UsageEventType.BANNER_EDIT,
+            UsageEventType.BANNER_VARIATION,
+          ],
+        },
       },
       orderBy: { createdAt: "desc" },
       select: {
         type: true,
         units: true,
         createdAt: true,
+        metadata: true,
       },
     }),
   ]);
 
-  const usedThisMonth = usageEvents.reduce(
-    (total, event) => total + (event.units || 0),
-    0,
-  );
-
   const summary = buildBillingSummary({
-    plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
+    plan: currentPlan,
     status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
-    usedThisMonth,
+    usageEvents,
+    requiresPaymentConfirmation,
+    creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
   });
 
   const isAdmin = isAdminEmail(workspace.user?.email);
-  const planLabel = isAdmin ? `${summary.plan} (Admin)` : summary.plan;
   const usageLabel = isAdmin
     ? `${summary.usedThisMonth} / ∞`
     : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
-  const remainingLabel = isAdmin
-    ? "Ilimitado"
-    : String(summary.remainingCredits);
+  const remainingLabel = isAdmin ? "Ilimitado" : String(summary.remainingCredits);
+  const currentPlanRank = getPlanRank(String(summary.plan));
+  const currentPlanMeta = planMeta[String(summary.plan) as PlanKey] ?? planMeta.FREE;
+  const hasStripeCustomer = Boolean(workspace.subscription?.providerCustomerId);
+  const hasPaidStripeSubscription = Boolean(
+    workspace.subscription?.providerSubscriptionId &&
+      workspace.subscription.plan !== SubscriptionPlan.FREE,
+  );
 
   const generationUnits = usageEvents
     .filter((event) => String(event.type) === "BANNER_GENERATION")
@@ -118,96 +165,144 @@ export default async function BillingPage() {
     .filter((event) => String(event.type) === "BANNER_VARIATION")
     .reduce((total, event) => total + (event.units || 0), 0);
 
-  const currentPlanRank = getPlanRank(String(summary.plan));
-
   return (
     <main className="mx-auto max-w-[1320px] px-5 py-7">
-      <div className="mb-7 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <section className="mt-6">
-          <div className="">
-            <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-white font-bold">
-                  Planos
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-4 xl:grid-cols-4">
-              {planOrder.map((planKey) => {
-                const meta = planMeta[planKey];
-                const isCurrent = String(summary.plan) === planKey;
-                const isUpgrade = getPlanRank(planKey) > currentPlanRank;
-
-                return (
-                  <div
-                    key={planKey}
-                    className={`rounded-[24px] border p-5 ${isCurrent ? "border-sky-300/20 bg-sky-300/[0.08]" : "border-white/10 bg-white/[0.03]"}`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.18em] text-white font-black">
-                          {meta.title}
-                        </p>
-                        <h3 className="mt-2 text-[18px] font-semibold text-white">
-                          {meta.monthlyCredits}
-                        </h3>
-                      </div>
-
-                      {isCurrent ? (
-                        <span className="rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-sky-100">
-                          Plano atual
-                        </span>
-                      ) : isUpgrade ? (
-                        <span className="rounded-full border border-violet-300/20 bg-green-500 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-gray-900 font-bold ">
-                          Upgrade
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <p className="mt-3 text-sm leading-4 text-white/65">
-                      {meta.description}
-                    </p>
-
-                    <div className="mt-4 grid gap-2">
-                      {meta.highlights.map((highlight) => (
-                        <div
-                          key={highlight}
-                          className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-sm text-white/75"
-                        >
-                          {highlight}
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-5">
-                      {isCurrent ? (
-                        <button
-                          type="button"
-                          disabled
-                          className="inline-flex min-h-[46px] w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm font-medium text-white/70"
-                        >
-                          Plano em uso
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className="inline-flex min-h-[46px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-4 text-sm font-bold text-slate-950 transition hover:opacity-95"
-                        >
-                          Upgrade em breve
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+      <section className="mb-7">
+        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.2em] text-white/55">
+              Assinatura
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold text-white md:text-[34px]">
+              Planos e créditos
+            </h1>
           </div>
-        </section>
-      </div>
+
+          {hasPaidStripeSubscription ? (
+            <div className="w-full md:w-auto md:min-w-[230px]">
+              <BillingCheckoutButton
+                mode="portal"
+                label="Gerenciar assinatura"
+                className="inline-flex min-h-[46px] w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-4 text-sm font-semibold text-white transition hover:bg-white/[0.1] disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </div>
+          ) : null}
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-4">
+          {planOrder.map((planKey) => {
+            const meta = planMeta[planKey];
+            const isCurrent = String(summary.plan) === planKey;
+            const isUpgrade = getPlanRank(planKey) > currentPlanRank;
+            const isPaidPlan = isStripePaidPlan(planKey);
+            const priceConfigured = isPaidPlan
+              ? isStripePriceConfigured(planKey)
+              : false;
+            const isPremium =
+              planKey === "PROFESSIONAL" || planKey === "STUDIO";
+
+            return (
+              <div
+                key={planKey}
+                className={`relative overflow-hidden rounded-[26px] border p-5 shadow-[0_18px_60px_rgba(0,0,0,0.22)] ${
+                  isCurrent
+                    ? "border-sky-300/30 bg-sky-300/[0.08]"
+                    : "border-white/10 bg-white/[0.035]"
+                }`}
+              >
+                <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-sky-300/10 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-12 left-6 h-28 w-28 rounded-full bg-violet-400/10 blur-3xl" />
+
+                <div className="relative z-10 flex min-h-full flex-col">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-white/55">
+                        {meta.title}
+                      </p>
+                      <h3 className="mt-2 text-[19px] font-semibold text-white">
+                        {meta.monthlyCredits}
+                      </h3>
+                    </div>
+
+                    {isCurrent ? (
+                      <span className="rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-sky-100">
+                        Atual
+                      </span>
+                    ) : isUpgrade ? (
+                      <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-emerald-100">
+                        Upgrade
+                      </span>
+                    ) : hasPaidStripeSubscription && isPaidPlan ? (
+                      <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-amber-100">
+                        Troca
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p className="mt-3 text-sm leading-5 text-white/65">
+                    {meta.description}
+                  </p>
+
+                  {isPremium ? (
+                    <div className="mt-3 inline-flex w-fit rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
+                      Alta qualidade inclusa
+                    </div>
+                  ) : null}
+
+                  <div className="mt-4 grid gap-2">
+                    {meta.highlights.map((highlight) => (
+                      <div
+                        key={highlight}
+                        className="rounded-xl border border-white/8 bg-white/[0.035] px-3 py-2 text-sm text-white/75"
+                      >
+                        {highlight}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-auto pt-5">
+                    {isCurrent ? (
+                      <BillingCheckoutButton
+                        mode={hasStripeCustomer && isPaidPlan ? "portal" : "disabled"}
+                        label="Gerenciar assinatura"
+                        disabledLabel="Plano em uso"
+                        className="inline-flex min-h-[46px] w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm font-medium text-white/75 transition hover:bg-white/[0.08] disabled:cursor-default disabled:opacity-75"
+                      />
+                    ) : isPaidPlan && !priceConfigured ? (
+                      <BillingCheckoutButton
+                        mode="disabled"
+                        label="Preço não configurado"
+                        disabledLabel="Preço não configurado"
+                      />
+                    ) : hasPaidStripeSubscription && isPaidPlan ? (
+                      <BillingCheckoutButton
+                        mode="change"
+                        plan={planKey}
+                        label={isUpgrade ? `Mudar para ${meta.title}` : `Trocar para ${meta.title}`}
+                      />
+                    ) : isPaidPlan ? (
+                      <BillingCheckoutButton
+                        mode="checkout"
+                        plan={planKey}
+                        label={isUpgrade ? "Assinar agora" : "Escolher plano"}
+                      />
+                    ) : (
+                      <BillingCheckoutButton
+                        mode="disabled"
+                        label="Plano gratuito"
+                        disabledLabel="Plano gratuito"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_360px]">
-        <div className=" ">
+        <div>
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <span className="inline-flex rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-sky-100">
@@ -216,14 +311,12 @@ export default async function BillingPage() {
               <h2 className="mt-4 text-[28px] font-semibold leading-tight text-white md:text-[34px]">
                 {isAdmin
                   ? "Conta admin com uso liberado"
-                  : `Seu plano atual é ${planMeta[String(summary.plan) as keyof typeof planMeta]?.title ?? summary.plan}`}
+                  : `Seu plano atual é ${currentPlanMeta.title}`}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">
                 {isAdmin
                   ? "Durante os testes, esta conta pode gerar e alterar artes sem bloqueio de créditos."
-                  : (planMeta[String(summary.plan) as keyof typeof planMeta]
-                      ?.description ??
-                    "Seu plano define quantos créditos você pode usar por mês.")}
+                  : currentPlanMeta.description}
               </p>
             </div>
 
@@ -232,12 +325,12 @@ export default async function BillingPage() {
                 Status do plano
               </p>
               <h3 className="mt-2 text-2xl font-semibold text-white">
-                {summary.status}
+                {isAdmin ? "Admin" : getStatusLabel(summary.status)}
               </h3>
               <p className="mt-2 text-sm leading-6 text-white/60">
                 {isAdmin
                   ? "Modo especial de testes ativo."
-                  : `Limite do mês: ${summary.monthlyLimit} crédito${summary.monthlyLimit === 1 ? "" : "s"}.`}
+                  : `Limite do período: ${summary.monthlyLimit} crédito${summary.monthlyLimit === 1 ? "" : "s"}.`}
               </p>
             </div>
           </div>
@@ -249,19 +342,19 @@ export default async function BillingPage() {
               helper="Total de artes no workspace"
             />
             <UsageCard
-              title="Gerações do mês"
+              title="Gerações do período"
               value={String(generationUnits)}
               helper="Cada geração consome 1 crédito"
             />
             <UsageCard
-              title="Alterações do mês"
+              title="Alterações do período"
               value={String(editUnits)}
               helper="Cada alteração também consome 1 crédito"
             />
             <UsageCard
-              title="Variações"
-              value={String(variationUnits)}
-              helper="Fluxos alternativos da arte"
+              title="Restantes"
+              value={remainingLabel}
+              helper={`Uso atual: ${usageLabel}`}
             />
           </div>
         </div>
@@ -273,7 +366,7 @@ export default async function BillingPage() {
           items={[
             "Cada geração de banner consome 1 crédito.",
             "Cada alteração da arte por IA consome 1 crédito.",
-            "Os créditos são contabilizados por período mensal.",
+            "Em planos pagos, os créditos seguem o ciclo da assinatura Stripe. No Free, seguem o mês calendário.",
           ]}
         />
         <RuleCard
@@ -316,29 +409,6 @@ export default async function BillingPage() {
   );
 }
 
-function CompactMetric({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`min-w-[12px]  rounded-2xl  px-4 py-3  ${highlight ? "" : ""}`}
-    >
-      <p className="m-0 text-[10px] uppercase tracking-[0.18em] text-white/45">
-        {label}
-      </p>
-      <div className="mt-1.5 text-[15px] font-semibold leading-none text-white">
-        {value}
-      </div>
-    </div>
-  );
-}
-
 function UsageCard({
   title,
   value,
@@ -350,26 +420,6 @@ function UsageCard({
 }) {
   return (
     <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">
-        {title}
-      </p>
-      <h3 className="mt-2 text-2xl font-semibold text-white">{value}</h3>
-      <p className="mt-2 text-sm leading-6 text-white/60">{helper}</p>
-    </div>
-  );
-}
-
-function InfoCard({
-  title,
-  value,
-  helper,
-}: {
-  title: string;
-  value: string;
-  helper: string;
-}) {
-  return (
-    <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,14,28,0.96),rgba(5,10,20,0.94))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
       <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">
         {title}
       </p>
