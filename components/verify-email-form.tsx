@@ -15,7 +15,10 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
   const [devCode, setDevCode] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedCode = window.sessionStorage.getItem("djproia_dev_verification_code");
+    const storedCode = window.sessionStorage.getItem(
+      "djproia_dev_verification_code",
+    );
+
     if (storedCode) {
       setDevCode(storedCode);
       window.sessionStorage.removeItem("djproia_dev_verification_code");
@@ -41,14 +44,14 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
       };
 
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível verificar o código.");
+        throw new Error(data.error || "We could not verify your code.");
       }
 
-      setMessage("E-mail confirmado com sucesso. Redirecionando...");
+      setMessage("Email confirmed successfully. Redirecting...");
       router.push(data.redirectTo || "/login?verified=1");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao verificar código.");
+      setError(err instanceof Error ? err.message : "Error verifying code.");
     } finally {
       setLoading(false);
     }
@@ -73,16 +76,16 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
       };
 
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível reenviar o código.");
+        throw new Error(data.error || "We could not resend the code.");
       }
 
       if (data.devVerificationCode) {
         setDevCode(data.devVerificationCode);
       }
 
-      setMessage("Enviamos um novo código para o seu e-mail.");
+      setMessage("We sent a new code to your email.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao reenviar código.");
+      setError(err instanceof Error ? err.message : "Error resending code.");
     } finally {
       setResending(false);
     }
@@ -92,18 +95,18 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
     <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.32)] sm:p-7">
       <div className="mb-7">
         <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
-          Verificação
+          Email verification
         </p>
         <h1 className="mt-3 text-[28px] font-semibold leading-tight text-white">
-          Confirme seu e-mail
+          Confirm your email
         </h1>
         <p className="mt-2 text-sm leading-6 text-white/60">
-          Digite o código de 6 dígitos enviado para liberar sua conta e seus créditos grátis.
+          Enter the 6-digit code we sent to your email to unlock your account and free credits.
         </p>
       </div>
 
       <form onSubmit={handleVerify} className="grid gap-5">
-        <Field label="E-mail">
+        <Field label="Email">
           <input
             type="email"
             className={inputClassName}
@@ -113,7 +116,7 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
           />
         </Field>
 
-        <Field label="Código de verificação">
+        <Field label="Verification code">
           <input
             type="text"
             inputMode="numeric"
@@ -130,7 +133,7 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
 
         {devCode ? (
           <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
-            Modo desenvolvimento: código <strong>{devCode}</strong>
+            Development mode: code <strong>{devCode}</strong>
           </div>
         ) : null}
 
@@ -151,7 +154,7 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
           disabled={loading}
           className="inline-flex min-h-[52px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-80"
         >
-          {loading ? "Verificando..." : "Confirmar e-mail"}
+          {loading ? "Verifying..." : "Confirm email"}
         </button>
       </form>
 
@@ -162,13 +165,13 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
           disabled={resending || !email}
           className="text-left font-medium text-sky-200 transition hover:text-sky-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {resending ? "Reenviando código..." : "Reenviar código"}
+          {resending ? "Resending code..." : "Resend code"}
         </button>
 
         <p>
-          Já confirmou?{" "}
+          Already confirmed?{" "}
           <Link href="/login" className="font-medium text-sky-200 hover:text-sky-100">
-            Entrar
+            Log in
           </Link>
         </p>
       </div>

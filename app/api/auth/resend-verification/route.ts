@@ -19,7 +19,7 @@ import {
 import { validateMutationOrigin } from "@/lib/request-security";
 
 const schema = z.object({
-  email: z.string().trim().email("Informe um e-mail válido."),
+  email: z.string().trim().email("Enter a valid email address."),
 });
 
 export async function POST(request: Request) {
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Muitos reenvios em sequência. Aguarde um pouco e tente novamente." },
+      { error: "Too many resend attempts. Wait a moment and try again." },
       { status: 429, headers: buildRateLimitHeaders(rateLimit) },
     );
   }
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Dados inválidos." },
+        { error: parsed.error.issues[0]?.message || "Invalid data." },
         { status: 400, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Conta não encontrada." },
+        { error: "Account not found." },
         { status: 404, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
@@ -80,9 +80,9 @@ export async function POST(request: Request) {
     if (!canResendVerificationCode(user.emailVerificationSentAt)) {
       return NextResponse.json(
         {
-          error: `Aguarde ${getResendWaitSeconds(
+          error: `Wait ${getResendWaitSeconds(
             user.emailVerificationSentAt,
-          )}s para reenviar o código.`,
+          )}s before resending the code.`,
         },
         { status: 429, headers: buildRateLimitHeaders(rateLimit) },
       );
@@ -116,10 +116,10 @@ export async function POST(request: Request) {
       { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
-    console.error("Erro ao reenviar código de e-mail:", error);
+    console.error("Error resending verification code:", error);
 
     return NextResponse.json(
-      { error: "Não foi possível reenviar o código." },
+      { error: "We could not resend the code." },
       { status: 500, headers: buildRateLimitHeaders(rateLimit) },
     );
   }

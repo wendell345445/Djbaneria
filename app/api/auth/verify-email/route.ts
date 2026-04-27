@@ -15,8 +15,8 @@ import {
 import { validateMutationOrigin } from "@/lib/request-security";
 
 const schema = z.object({
-  email: z.string().trim().email("Informe um e-mail válido."),
-  code: z.string().trim().regex(/^\d{6}$/, "Informe o código de 6 dígitos."),
+  email: z.string().trim().email("Enter a valid email address."),
+  code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code."),
 });
 
 export async function POST(request: Request) {
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Muitas tentativas. Aguarde um pouco e tente novamente." },
+      { error: "Too many attempts. Wait a moment and try again." },
       { status: 429, headers: buildRateLimitHeaders(rateLimit) },
     );
   }
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Dados inválidos." },
+        { error: parsed.error.issues[0]?.message || "Invalid data." },
         { status: 400, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Conta não encontrada." },
+        { error: "Account not found." },
         { status: 404, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
 
     if (user.emailVerificationAttempts >= 5) {
       return NextResponse.json(
-        { error: "Muitas tentativas incorretas. Solicite um novo código." },
+        { error: "Too many incorrect attempts. Request a new code." },
         { status: 429, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       isEmailVerificationExpired(user.emailVerificationExpiresAt)
     ) {
       return NextResponse.json(
-        { error: "Código expirado. Solicite um novo código." },
+        { error: "Code expired. Request a new code." },
         { status: 400, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
       });
 
       return NextResponse.json(
-        { error: "Código inválido." },
+        { error: "Invalid code." },
         { status: 400, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
@@ -123,10 +123,10 @@ export async function POST(request: Request) {
       { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
-    console.error("Erro ao verificar e-mail:", error);
+    console.error("Error verifying email:", error);
 
     return NextResponse.json(
-      { error: "Não foi possível verificar seu e-mail." },
+      { error: "We could not verify your email." },
       { status: 500, headers: buildRateLimitHeaders(rateLimit) },
     );
   }
