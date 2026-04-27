@@ -19,6 +19,7 @@ import {
 } from "@/lib/rate-limit";
 import { validateMutationOrigin } from "@/lib/request-security";
 import { validateTurnstileToken } from "@/lib/turnstile";
+import { getMetaRequestContext, sendMetaConversionEvent } from "@/lib/meta-capi";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Informe seu nome."),
@@ -27,6 +28,7 @@ const schema = z.object({
   artistName: z.string().trim().optional(),
   turnstileToken: z.string().trim().optional().default(""),
   locale: z.enum(["pt-BR", "en", "es"]).optional().default("en"),
+  metaEventId: z.string().trim().optional(),
 });
 
 export async function POST(request: Request) {
@@ -163,6 +165,21 @@ export async function POST(request: Request) {
         ip,
       });
     }
+
+    const metaContext = getMetaRequestContext(request);
+
+    void sendMetaConversionEvent({
+      eventName: "CompleteRegistration",
+      eventId: parsed.data.metaEventId,
+      email: user.email,
+      contentName: "DJ Pro IA Account",
+      contentCategory: "signup",
+      ...metaContext,
+      customData: {
+        preferred_locale: locale,
+        workspace_id: user.workspaces[0]?.id,
+      },
+    });
 
     return NextResponse.json(
       {

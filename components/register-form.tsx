@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { createMetaEventId, trackMetaCompleteRegistration, trackMetaLead } from "@/lib/meta-pixel";
 
 declare global {
   interface Window {
@@ -256,6 +257,9 @@ export function RegisterForm({
     }
 
     try {
+      const metaEventId = createMetaEventId("CompleteRegistration");
+      const leadEventId = createMetaEventId("Lead");
+
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -268,6 +272,7 @@ export function RegisterForm({
           artistName: form.artistName,
           turnstileToken,
           locale,
+          metaEventId,
         }),
       });
 
@@ -288,6 +293,21 @@ export function RegisterForm({
           data.devVerificationCode,
         );
       }
+
+      trackMetaLead(
+        {
+          content_name: "DJ Pro IA Sign Up",
+          content_category: "signup",
+        },
+        leadEventId,
+      );
+      trackMetaCompleteRegistration(
+        {
+          content_name: "DJ Pro IA Account",
+          status: true,
+        },
+        metaEventId,
+      );
 
       router.push(data.redirectTo ?? "/verify-email");
       router.refresh();
