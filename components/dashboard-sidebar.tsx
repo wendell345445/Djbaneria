@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   CreditCard,
+  Globe2,
   Grid2X2,
   ImagePlus,
   Images,
@@ -16,8 +17,20 @@ import {
   X,
 } from "lucide-react";
 
+import {
+  getDashboardCopy,
+  normalizeLocale,
+  type SupportedLocale,
+} from "@/lib/i18n";
+
 type NavItem = {
-  label: string;
+  key:
+    | "dashboard"
+    | "newBanner"
+    | "myBanners"
+    | "billing"
+    | "language"
+    | "settings";
   href: string;
   icon: LucideIcon;
   badge?: string;
@@ -25,16 +38,17 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: Grid2X2 },
+  { key: "dashboard", href: "/dashboard", icon: Grid2X2 },
   {
-    label: "Novo banner",
+    key: "newBanner",
     href: "/dashboard/banners/new",
     icon: ImagePlus,
     badgeType: "ai",
   },
-  { label: "Meus banners", href: "/dashboard/banners", icon: Images },
-  { label: "Assinatura", href: "/dashboard/billing", icon: CreditCard },
-  { label: "Configurações", href: "/dashboard/settings", icon: Settings },
+  { key: "myBanners", href: "/dashboard/banners", icon: Images },
+  { key: "billing", href: "/dashboard/billing", icon: CreditCard },
+  { key: "language", href: "/dashboard/settings/language", icon: Globe2 },
+  { key: "settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 function isNavItemActive(pathname: string, href: string) {
@@ -54,19 +68,40 @@ function isNavItemActive(pathname: string, href: string) {
     );
   }
 
+  if (href === "/dashboard/settings") {
+    return pathname === "/dashboard/settings";
+  }
+
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function getPageLabel(pathname: string) {
+function getPageLabel(
+  pathname: string,
+  copy: ReturnType<typeof getDashboardCopy>,
+) {
   const match = navItems.find((item) => isNavItemActive(pathname, item.href));
-  return match?.label ?? "Painel";
+  return match ? copy.nav[match.key] : copy.shell.fallbackPage;
 }
 
-export function DashboardSidebar({ children }: { children: React.ReactNode }) {
+export function DashboardSidebar({
+  children,
+  locale,
+}: {
+  children: React.ReactNode;
+  locale?: SupportedLocale;
+}) {
+  const normalizedLocale = normalizeLocale(locale);
+  const copy = useMemo(
+    () => getDashboardCopy(normalizedLocale),
+    [normalizedLocale],
+  );
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const pageLabel = useMemo(() => getPageLabel(pathname), [pathname]);
+  const pageLabel = useMemo(
+    () => getPageLabel(pathname, copy),
+    [copy, pathname],
+  );
 
   async function handleLogout() {
     try {
@@ -85,12 +120,13 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
       <div className="lg:flex">
         <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-[280px] lg:flex-col lg:border-r lg:border-white/10 lg:bg-[linear-gradient(180deg,rgba(8,12,24,0.98),rgba(5,8,18,0.96))]">
           <div className="flex h-full flex-col p-5">
-            <BrandBlock />
+            <BrandBlock studioLabel={copy.brand.studio} />
             <nav className="mt-8 flex-1 space-y-2">
               {navItems.map((item) => (
                 <SidebarLink
                   key={item.href}
                   item={item}
+                  label={copy.nav[item.key]}
                   pathname={pathname}
                   onClick={() => undefined}
                 />
@@ -100,13 +136,13 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
             <div className="mt-6 border-t border-white/10 pt-4">
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-white/40">
-                  Workspace
+                  {copy.shell.workspace}
                 </p>
                 <p className="mt-2 text-sm font-medium text-white/90">
                   DJ Banner AI
                 </p>
                 <p className="mt-1 text-xs leading-5 text-white/50">
-                  Painel criativo com fluxo rápido para gerar banners com IA.
+                  {copy.shell.workspaceDescription}
                 </p>
               </div>
 
@@ -116,7 +152,7 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
                 className="mt-3 flex min-h-[48px] w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-white/90 transition hover:bg-white/[0.08]"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Sair</span>
+                <span>{copy.shell.logout}</span>
               </button>
             </div>
           </div>
@@ -129,14 +165,14 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
                 type="button"
                 onClick={() => setMobileOpen(true)}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white"
-                aria-label="Abrir menu"
+                aria-label={copy.shell.openMenu}
               >
                 <Menu className="h-5 w-5" />
               </button>
 
               <div className="text-center">
                 <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">
-                  Painel
+                  {copy.shell.panel}
                 </p>
                 <p className="text-sm font-semibold text-white">{pageLabel}</p>
               </div>
@@ -145,7 +181,7 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
                 href="/dashboard/banners/new"
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-4 text-sm font-bold text-slate-950"
               >
-                Novo
+                {copy.shell.new}
               </Link>
             </div>
           </header>
@@ -159,17 +195,17 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             className="absolute inset-0 bg-black/70"
-            aria-label="Fechar menu"
+            aria-label={copy.shell.closeMenu}
             onClick={() => setMobileOpen(false)}
           />
           <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-[320px] flex-col border-r border-white/10 bg-[linear-gradient(180deg,rgba(8,12,24,0.99),rgba(4,8,18,0.98))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
             <div className="flex items-start justify-between gap-4">
-              <BrandBlock />
+              <BrandBlock studioLabel={copy.brand.studio} />
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-white"
-                aria-label="Fechar menu"
+                aria-label={copy.shell.closeMenu}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -180,6 +216,7 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
                 <SidebarLink
                   key={item.href}
                   item={item}
+                  label={copy.nav[item.key]}
                   pathname={pathname}
                   onClick={() => setMobileOpen(false)}
                 />
@@ -189,13 +226,13 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
             <div className="mt-6 border-t border-white/10 pt-4">
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-white/40">
-                  Informação
+                  {copy.shell.information}
                 </p>
                 <p className="mt-2 text-sm font-medium text-white/90">
-                  Novo banner em poucos passos
+                  {copy.shell.informationTitle}
                 </p>
                 <p className="mt-1 text-xs leading-5 text-white/50">
-                  Para criar seu primeiro baner basta clicar em novo baner
+                  {copy.shell.informationDescription}
                 </p>
               </div>
 
@@ -205,7 +242,7 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
                 className="mt-3 flex min-h-[48px] w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-white/90 transition hover:bg-white/[0.08]"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Sair</span>
+                <span>{copy.shell.logout}</span>
               </button>
             </div>
           </div>
@@ -217,10 +254,12 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
 
 function SidebarLink({
   item,
+  label,
   pathname,
   onClick,
 }: {
   item: NavItem;
+  label: string;
   pathname: string;
   onClick: () => void;
 }) {
@@ -247,7 +286,7 @@ function SidebarLink({
         >
           <Icon className="h-4 w-4" />
         </span>
-        <span className="truncate text-sm font-medium">{item.label}</span>
+        <span className="truncate text-sm font-medium">{label}</span>
       </span>
 
       {item.badgeType === "ai" ? (
@@ -263,21 +302,21 @@ function SidebarLink({
   );
 }
 
-function BrandBlock() {
+function BrandBlock({ studioLabel }: { studioLabel: string }) {
   return (
-    <div className=" p-4">
+    <Link
+      href="/dashboard"
+      className="block rounded-3xl border border-white/10 bg-white/[0.04] p-4"
+    >
       <div className="flex items-center gap-3">
-        <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-violet-300 to-amber-200 text-slate-950">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-violet-300 to-amber-200 text-slate-950 shadow-[0_0_28px_rgba(125,211,252,0.22)]">
           <Sparkles className="h-5 w-5" />
-        </div>
-
+        </span>
         <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">
-            Studio
-          </p>
-          <h1 className="text-sm font-semibold text-white">DJ Banner AI</h1>
+          <p className="text-sm font-semibold text-white">DJ Banner AI</p>
+          <p className="text-xs text-white/45">{studioLabel}</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

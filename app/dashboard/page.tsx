@@ -6,6 +6,7 @@ import {
 } from "@/generated/prisma/enums";
 
 import { isAdminEmail } from "@/lib/admin";
+import { normalizeLocale, type AppLocale } from "@/lib/i18n";
 import {
   buildBillingSummary,
   getBillingPeriodRange,
@@ -15,8 +16,257 @@ import {
 import { prisma } from "@/lib/prisma";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
+type DashboardPageCopy = {
+  plan: {
+    adminSuffix: string;
+    unlimited: string;
+    currentPlan: string;
+    premium: string;
+    essential: string;
+    admin: string;
+    metricPlan: string;
+    metricUsage: string;
+    metricRemaining: string;
+    unlimitedTesting: string;
+    periodConsumption: string;
+  };
+  hero: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    primaryCta: string;
+    secondaryCta: string;
+  };
+  steps: Array<{
+    number: string;
+    title: string;
+    description: string;
+  }>;
+  cards: {
+    generatedTitle: string;
+    generatedHelper: string;
+    creditsTitle: string;
+    creditsAdminHelper: string;
+    creditsHelper: string;
+    remainingTitle: string;
+    remainingHelper: string;
+  };
+  adminNotice: {
+    eyebrow: string;
+    description: string;
+  };
+  status: Record<SubscriptionStatus, string>;
+  plans: Record<SubscriptionPlan, string>;
+};
+
+const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
+  en: {
+    plan: {
+      adminSuffix: "Admin",
+      unlimited: "Unlimited",
+      currentPlan: "Current plan",
+      premium: "Premium",
+      essential: "Essential",
+      admin: "Admin",
+      metricPlan: "Plan",
+      metricUsage: "Usage",
+      metricRemaining: "Remaining",
+      unlimitedTesting: "Unlimited usage for tests",
+      periodConsumption: "Period consumption",
+    },
+    hero: {
+      eyebrow: "Quick action",
+      title: "Create a professional banner in a few steps",
+      description:
+        "Fill in the brief, generate the AI preview and download the final artwork without complication.",
+      primaryCta: "Create banner now",
+      secondaryCta: "Go to my banners",
+    },
+    steps: [
+      {
+        number: "1",
+        title: "Fill in the details",
+        description: "Title, DJ name, date and event location.",
+      },
+      {
+        number: "2",
+        title: "Generate the preview",
+        description: "AI creates the banner in the selected format.",
+      },
+      {
+        number: "3",
+        title: "Download or adjust",
+        description: "Make changes and download the final version.",
+      },
+    ],
+    cards: {
+      generatedTitle: "Generated banners",
+      generatedHelper: "Total created in this workspace",
+      creditsTitle: "Period credits",
+      creditsAdminHelper: "Admin account with unrestricted usage",
+      creditsHelper: "Usage in the current cycle",
+      remainingTitle: "Remaining",
+      remainingHelper: "Credits available for new generations and edits",
+    },
+    adminNotice: {
+      eyebrow: "Admin test mode",
+      description:
+        "This account is allowed to generate banners without credit limits during tests.",
+    },
+    status: {
+      TRIALING: "Trial active",
+      ACTIVE: "Active",
+      PAST_DUE: "Payment pending",
+      CANCELED: "Canceled",
+      EXPIRED: "Expired",
+    },
+    plans: {
+      FREE: "Free",
+      PRO: "Pro",
+      PROFESSIONAL: "Professional",
+      STUDIO: "Studio",
+    },
+  },
+  "pt-BR": {
+    plan: {
+      adminSuffix: "Admin",
+      unlimited: "Ilimitado",
+      currentPlan: "Plano atual",
+      premium: "Premium",
+      essential: "Essencial",
+      admin: "Admin",
+      metricPlan: "Plano",
+      metricUsage: "Uso",
+      metricRemaining: "Restantes",
+      unlimitedTesting: "Uso ilimitado para testes",
+      periodConsumption: "Consumo do período",
+    },
+    hero: {
+      eyebrow: "Ação rápida",
+      title: "Crie um banner profissional em poucos passos",
+      description:
+        "Preencha o briefing, gere o preview com IA e baixe a arte pronta sem complicação.",
+      primaryCta: "Criar banner agora",
+      secondaryCta: "Ir para meus banners",
+    },
+    steps: [
+      {
+        number: "1",
+        title: "Preencha os dados",
+        description: "Título, nome do DJ, data e local do evento.",
+      },
+      {
+        number: "2",
+        title: "Gere o preview",
+        description: "A IA monta o banner no formato escolhido.",
+      },
+      {
+        number: "3",
+        title: "Baixe ou ajuste",
+        description: "Faça alterações e baixe a versão final.",
+      },
+    ],
+    cards: {
+      generatedTitle: "Banners gerados",
+      generatedHelper: "Total criado no workspace",
+      creditsTitle: "Créditos do período",
+      creditsAdminHelper: "Conta admin com uso liberado",
+      creditsHelper: "Consumo no ciclo atual",
+      remainingTitle: "Restantes",
+      remainingHelper: "Créditos disponíveis para novas gerações e alterações",
+    },
+    adminNotice: {
+      eyebrow: "Modo teste admin",
+      description:
+        "Esta conta está liberada para gerar banners sem limite de créditos durante os testes.",
+    },
+    status: {
+      TRIALING: "Teste ativo",
+      ACTIVE: "Ativo",
+      PAST_DUE: "Pagamento pendente",
+      CANCELED: "Cancelado",
+      EXPIRED: "Expirado",
+    },
+    plans: {
+      FREE: "Free",
+      PRO: "Pro",
+      PROFESSIONAL: "Professional",
+      STUDIO: "Studio",
+    },
+  },
+  es: {
+    plan: {
+      adminSuffix: "Admin",
+      unlimited: "Ilimitado",
+      currentPlan: "Plan actual",
+      premium: "Premium",
+      essential: "Esencial",
+      admin: "Admin",
+      metricPlan: "Plan",
+      metricUsage: "Uso",
+      metricRemaining: "Restantes",
+      unlimitedTesting: "Uso ilimitado para pruebas",
+      periodConsumption: "Consumo del período",
+    },
+    hero: {
+      eyebrow: "Acción rápida",
+      title: "Crea un banner profesional en pocos pasos",
+      description:
+        "Completa el briefing, genera la vista previa con IA y descarga el arte final sin complicaciones.",
+      primaryCta: "Crear banner ahora",
+      secondaryCta: "Ir a mis banners",
+    },
+    steps: [
+      {
+        number: "1",
+        title: "Completa los datos",
+        description: "Título, nombre del DJ, fecha y lugar del evento.",
+      },
+      {
+        number: "2",
+        title: "Genera la vista previa",
+        description: "La IA crea el banner en el formato seleccionado.",
+      },
+      {
+        number: "3",
+        title: "Descarga o ajusta",
+        description: "Haz cambios y descarga la versión final.",
+      },
+    ],
+    cards: {
+      generatedTitle: "Banners generados",
+      generatedHelper: "Total creado en el workspace",
+      creditsTitle: "Créditos del período",
+      creditsAdminHelper: "Cuenta admin con uso liberado",
+      creditsHelper: "Consumo en el ciclo actual",
+      remainingTitle: "Restantes",
+      remainingHelper: "Créditos disponibles para nuevas generaciones y ediciones",
+    },
+    adminNotice: {
+      eyebrow: "Modo prueba admin",
+      description:
+        "Esta cuenta puede generar banners sin límite de créditos durante las pruebas.",
+    },
+    status: {
+      TRIALING: "Prueba activa",
+      ACTIVE: "Activo",
+      PAST_DUE: "Pago pendiente",
+      CANCELED: "Cancelado",
+      EXPIRED: "Expirado",
+    },
+    plans: {
+      FREE: "Free",
+      PRO: "Pro",
+      PROFESSIONAL: "Professional",
+      STUDIO: "Studio",
+    },
+  },
+};
+
 export default async function DashboardPage() {
   const workspace = await requireCurrentWorkspace();
+  const locale = normalizeLocale(workspace.user?.preferredLocale);
+  const copy = DASHBOARD_PAGE_COPY[locale];
   const now = new Date();
   const billingPeriod = getBillingPeriodRange({
     providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
@@ -67,13 +317,13 @@ export default async function DashboardPage() {
 
   const isAdmin = isAdminEmail(workspace.user?.email);
   const planLabel = isAdmin
-    ? `${getPlanDisplayName(summary.plan)} Admin`
-    : getPlanDisplayName(summary.plan);
+    ? `${getPlanDisplayName(summary.plan, copy)} ${copy.plan.adminSuffix}`
+    : getPlanDisplayName(summary.plan, copy);
   const usageLabel = isAdmin
     ? `${summary.usedThisMonth} / ∞`
     : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
   const remainingLabel = isAdmin
-    ? "Ilimitado"
+    ? copy.plan.unlimited
     : String(summary.remainingCredits);
   const usagePercent = isAdmin
     ? 100
@@ -89,6 +339,7 @@ export default async function DashboardPage() {
       <div className="mb-7 flex justify-center xl:justify-end">
         <div className="w-full xl:max-w-[460px]">
           <PlanUsageCard
+            copy={copy}
             plan={summary.plan}
             planLabel={planLabel}
             usageLabel={usageLabel}
@@ -108,35 +359,27 @@ export default async function DashboardPage() {
           <div className="relative z-10 flex h-full flex-col justify-between gap-6">
             <div className="max-w-2xl">
               <span className="inline-flex rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-sky-100">
-                Ação rápida
+                {copy.hero.eyebrow}
               </span>
 
               <h2 className="mt-4 text-[28px] font-semibold leading-tight text-white">
-                Crie um banner profissional em poucos passos
+                {copy.hero.title}
               </h2>
 
               <p className="mt-3 text-[12px] leading-6 text-white/70">
-                Preencha o briefing, gere o preview com IA e baixe a arte pronta
-                sem complicação.
+                {copy.hero.description}
               </p>
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
-              <QuickStep
-                number="1"
-                title="Preencha os dados"
-                description="Título, nome do DJ, data e local do evento."
-              />
-              <QuickStep
-                number="2"
-                title="Gere o preview"
-                description="A IA monta o banner no formato escolhido."
-              />
-              <QuickStep
-                number="3"
-                title="Baixe ou ajuste"
-                description="Faça alterações e baixe a versão final."
-              />
+              {copy.steps.map((step) => (
+                <QuickStep
+                  key={step.number}
+                  number={step.number}
+                  title={step.title}
+                  description={step.description}
+                />
+              ))}
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -144,14 +387,14 @@ export default async function DashboardPage() {
                 href="/dashboard/banners/new"
                 className="inline-flex min-h-[52px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
               >
-                Criar banner agora
+                {copy.hero.primaryCta}
               </Link>
 
               <Link
                 href="/dashboard/banners"
                 className="inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-5 text-sm font-medium text-white transition hover:bg-white/[0.08]"
               >
-                Ir para meus banners
+                {copy.hero.secondaryCta}
               </Link>
             </div>
           </div>
@@ -159,23 +402,21 @@ export default async function DashboardPage() {
 
         <div className="grid gap-4">
           <InfoCard
-            title="Banners gerados"
+            title={copy.cards.generatedTitle}
             value={String(bannerCount)}
-            helper="Total criado no workspace"
+            helper={copy.cards.generatedHelper}
           />
           <InfoCard
-            title="Créditos do período"
+            title={copy.cards.creditsTitle}
             value={usageLabel}
             helper={
-              isAdmin
-                ? "Conta admin com uso liberado"
-                : "Consumo no ciclo atual"
+              isAdmin ? copy.cards.creditsAdminHelper : copy.cards.creditsHelper
             }
           />
           <InfoCard
-            title="Restantes"
+            title={copy.cards.remainingTitle}
             value={remainingLabel}
-            helper="Créditos disponíveis para novas gerações e alterações"
+            helper={copy.cards.remainingHelper}
           />
         </div>
       </section>
@@ -183,11 +424,10 @@ export default async function DashboardPage() {
       {isAdmin ? (
         <section className="mt-5 rounded-3xl border border-white/10 bg-gradient-to-br from-sky-400/8 to-violet-400/10 p-5">
           <p className="m-0 text-xs uppercase tracking-[0.2em] text-white/50">
-            Modo teste admin
+            {copy.adminNotice.eyebrow}
           </p>
           <p className="mt-2 text-sm leading-7 text-white/80">
-            Esta conta está liberada para gerar banners sem limite de créditos
-            durante os testes.
+            {copy.adminNotice.description}
           </p>
         </section>
       ) : null}
@@ -195,30 +435,16 @@ export default async function DashboardPage() {
   );
 }
 
-function getPlanDisplayName(plan: SubscriptionPlan) {
-  const labels: Record<SubscriptionPlan, string> = {
-    FREE: "Free",
-    PRO: "Pro",
-    PROFESSIONAL: "Professional",
-    STUDIO: "Studio",
-  };
-
-  return labels[plan] ?? plan;
+function getPlanDisplayName(plan: SubscriptionPlan, copy: DashboardPageCopy) {
+  return copy.plans[plan] ?? plan;
 }
 
-function getStatusLabel(status: SubscriptionStatus) {
-  const labels: Record<SubscriptionStatus, string> = {
-    TRIALING: "Teste ativo",
-    ACTIVE: "Ativo",
-    PAST_DUE: "Pagamento pendente",
-    CANCELED: "Cancelado",
-    EXPIRED: "Expirado",
-  };
-
-  return labels[status] ?? status;
+function getStatusLabel(status: SubscriptionStatus, copy: DashboardPageCopy) {
+  return copy.status[status] ?? status;
 }
 
 function PlanUsageCard({
+  copy,
   plan,
   planLabel,
   usageLabel,
@@ -227,6 +453,7 @@ function PlanUsageCard({
   status,
   isAdmin,
 }: {
+  copy: DashboardPageCopy;
   plan: SubscriptionPlan;
   planLabel: string;
   usageLabel: string;
@@ -247,7 +474,7 @@ function PlanUsageCard({
       <div className="relative z-10 flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] uppercase tracking-[0.22em] text-white/45">
-            Plano atual
+            {copy.plan.currentPlan}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <strong className="text-xl font-semibold leading-none text-white">
@@ -260,25 +487,31 @@ function PlanUsageCard({
                   : "border-sky-200/25 bg-sky-200/10 text-sky-100"
               }`}
             >
-              {isPremium ? "Premium" : "Essencial"}
+              {isPremium ? copy.plan.premium : copy.plan.essential}
             </span>
           </div>
         </div>
 
         <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100">
-          {isAdmin ? "Admin" : getStatusLabel(status)}
+          {isAdmin ? copy.plan.admin : getStatusLabel(status, copy)}
         </span>
       </div>
 
       <div className="relative z-10 mt-4 grid grid-cols-3 gap-2">
-        <PlanMetric label="Plano" value={planLabel} />
-        <PlanMetric label="Uso" value={usageLabel} />
-        <PlanMetric label="Restantes" value={remainingLabel} highlight />
+        <PlanMetric label={copy.plan.metricPlan} value={planLabel} />
+        <PlanMetric label={copy.plan.metricUsage} value={usageLabel} />
+        <PlanMetric
+          label={copy.plan.metricRemaining}
+          value={remainingLabel}
+          highlight
+        />
       </div>
 
       <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
         <div className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
-          <span>{isAdmin ? "Uso ilimitado para testes" : "Consumo do período"}</span>
+          <span>
+            {isAdmin ? copy.plan.unlimitedTesting : copy.plan.periodConsumption}
+          </span>
           <strong className="text-white/85">
             {isAdmin ? "∞" : `${usagePercent}%`}
           </strong>

@@ -2,7 +2,135 @@
 
 import { useState } from "react";
 
-export function SettingsPasswordForm() {
+type Locale = "pt-BR" | "en" | "es";
+
+type SettingsPasswordFormProps = {
+  locale?: Locale;
+};
+
+const passwordCopy: Record<
+  Locale,
+  {
+    changeError: string;
+    genericError: string;
+    success: string;
+    securityEyebrow: string;
+    closedTitle: string;
+    closedDescription: string;
+    openButton: string;
+    changeTitle: string;
+    cancel: string;
+    currentPassword: string;
+    currentPasswordPlaceholder: string;
+    newPassword: string;
+    newPasswordPlaceholder: string;
+    confirmPassword: string;
+    confirmPasswordPlaceholder: string;
+    changing: string;
+    save: string;
+    rulesTitle: string;
+    rulesItems: string[];
+    securityTitle: string;
+    securityItems: string[];
+  }
+> = {
+  "pt-BR": {
+    changeError: "Não foi possível alterar a senha.",
+    genericError: "Erro ao alterar a senha.",
+    success: "Senha alterada com sucesso.",
+    securityEyebrow: "Segurança",
+    closedTitle: "Senha e acesso",
+    closedDescription:
+      "A opção de alteração de senha fica oculta até você solicitar.",
+    openButton: "Alterar senha",
+    changeTitle: "Alterar senha",
+    cancel: "Cancelar",
+    currentPassword: "Senha atual",
+    currentPasswordPlaceholder: "Digite sua senha atual",
+    newPassword: "Nova senha",
+    newPasswordPlaceholder: "Mínimo de 6 caracteres",
+    confirmPassword: "Confirmar nova senha",
+    confirmPasswordPlaceholder: "Repita a nova senha",
+    changing: "Alterando senha...",
+    save: "Salvar nova senha",
+    rulesTitle: "Regras da senha",
+    rulesItems: [
+      "Informe a senha atual corretamente.",
+      "Use pelo menos 6 caracteres.",
+      "Confirme a nova senha antes de salvar.",
+    ],
+    securityTitle: "Segurança",
+    securityItems: [
+      "A nova senha substitui a anterior imediatamente.",
+      "Depois podemos adicionar fluxo de recuperação por e-mail.",
+    ],
+  },
+  en: {
+    changeError: "We could not change your password.",
+    genericError: "Error while changing the password.",
+    success: "Password changed successfully.",
+    securityEyebrow: "Security",
+    closedTitle: "Password and access",
+    closedDescription:
+      "The password change option stays hidden until you request it.",
+    openButton: "Change password",
+    changeTitle: "Change password",
+    cancel: "Cancel",
+    currentPassword: "Current password",
+    currentPasswordPlaceholder: "Enter your current password",
+    newPassword: "New password",
+    newPasswordPlaceholder: "Minimum of 6 characters",
+    confirmPassword: "Confirm new password",
+    confirmPasswordPlaceholder: "Repeat the new password",
+    changing: "Changing password...",
+    save: "Save new password",
+    rulesTitle: "Password rules",
+    rulesItems: [
+      "Enter the current password correctly.",
+      "Use at least 6 characters.",
+      "Confirm the new password before saving.",
+    ],
+    securityTitle: "Security",
+    securityItems: [
+      "The new password replaces the previous one immediately.",
+      "Later we can add an email recovery flow.",
+    ],
+  },
+  es: {
+    changeError: "No se pudo cambiar la contraseña.",
+    genericError: "Error al cambiar la contraseña.",
+    success: "Contraseña cambiada correctamente.",
+    securityEyebrow: "Seguridad",
+    closedTitle: "Contraseña y acceso",
+    closedDescription:
+      "La opción para cambiar la contraseña permanece oculta hasta que la solicites.",
+    openButton: "Cambiar contraseña",
+    changeTitle: "Cambiar contraseña",
+    cancel: "Cancelar",
+    currentPassword: "Contraseña actual",
+    currentPasswordPlaceholder: "Ingresa tu contraseña actual",
+    newPassword: "Nueva contraseña",
+    newPasswordPlaceholder: "Mínimo de 6 caracteres",
+    confirmPassword: "Confirmar nueva contraseña",
+    confirmPasswordPlaceholder: "Repite la nueva contraseña",
+    changing: "Cambiando contraseña...",
+    save: "Guardar nueva contraseña",
+    rulesTitle: "Reglas de la contraseña",
+    rulesItems: [
+      "Ingresa correctamente la contraseña actual.",
+      "Usa al menos 6 caracteres.",
+      "Confirma la nueva contraseña antes de guardar.",
+    ],
+    securityTitle: "Seguridad",
+    securityItems: [
+      "La nueva contraseña sustituye a la anterior inmediatamente.",
+      "Después podemos agregar un flujo de recuperación por correo electrónico.",
+    ],
+  },
+};
+
+export function SettingsPasswordForm({ locale = "en" }: SettingsPasswordFormProps) {
+  const copy = passwordCopy[locale] ?? passwordCopy.en;
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -48,15 +176,15 @@ export function SettingsPasswordForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível alterar a senha.");
+        throw new Error(data.error || copy.changeError);
       }
 
-      setSuccess("Senha alterada com sucesso.");
+      setSuccess(copy.success);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao alterar a senha.");
+      setError(err instanceof Error ? err.message : copy.genericError);
     } finally {
       setLoading(false);
     }
@@ -64,17 +192,17 @@ export function SettingsPasswordForm() {
 
   if (!open) {
     return (
-      <section className="">
+      <section>
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="max-w-2xl">
             <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">
-              Segurança
+              {copy.securityEyebrow}
             </p>
             <h2 className="mt-2 text-xl font-semibold text-white">
-              Senha e acesso
+              {copy.closedTitle}
             </h2>
             <p className="mt-2 text-sm leading-6 text-white/60">
-              A opção de alteração de senha fica oculta até você solicitar.
+              {copy.closedDescription}
             </p>
           </div>
 
@@ -84,7 +212,7 @@ export function SettingsPasswordForm() {
               onClick={openForm}
               className="inline-flex min-h-[42px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-6 py-3 text-sm font-bold text-slate-950 transition hover:opacity-95"
             >
-              Alterar senha
+              {copy.openButton}
             </button>
           </div>
         </div>
@@ -102,10 +230,10 @@ export function SettingsPasswordForm() {
           <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">
-                Segurança
+                {copy.securityEyebrow}
               </p>
               <h2 className="mt-2 text-xl font-semibold text-white">
-                Alterar senha
+                {copy.changeTitle}
               </h2>
             </div>
 
@@ -114,43 +242,43 @@ export function SettingsPasswordForm() {
               onClick={closeForm}
               className="inline-flex min-h-[42px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-6 py-1 text-sm font-medium text-white transition hover:bg-white/[0.08]"
             >
-              Cancelar
+              {copy.cancel}
             </button>
           </div>
 
           <div className="grid gap-4">
-            <Field label="Senha atual">
+            <Field label={copy.currentPassword}>
               <input
                 type="password"
                 className={inputClassName}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Digite sua senha atual"
+                placeholder={copy.currentPasswordPlaceholder}
                 autoComplete="current-password"
                 required
               />
             </Field>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Nova senha">
+              <Field label={copy.newPassword}>
                 <input
                   type="password"
                   className={inputClassName}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo de 6 caracteres"
+                  placeholder={copy.newPasswordPlaceholder}
                   autoComplete="new-password"
                   required
                 />
               </Field>
 
-              <Field label="Confirmar nova senha">
+              <Field label={copy.confirmPassword}>
                 <input
                   type="password"
                   className={inputClassName}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repita a nova senha"
+                  placeholder={copy.confirmPasswordPlaceholder}
                   autoComplete="new-password"
                   required
                 />
@@ -165,7 +293,7 @@ export function SettingsPasswordForm() {
             disabled={loading}
             className="inline-flex min-h-[50px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-80"
           >
-            {loading ? "Alterando senha..." : "Salvar nova senha"}
+            {loading ? copy.changing : copy.save}
           </button>
 
           {success ? (
@@ -177,22 +305,8 @@ export function SettingsPasswordForm() {
       </div>
 
       <aside className="grid gap-4 xl:sticky xl:top-5 xl:h-fit">
-        <InfoCard
-          title="Regras da senha"
-          items={[
-            "Informe a senha atual corretamente.",
-            "Use pelo menos 6 caracteres.",
-            "Confirme a nova senha antes de salvar.",
-          ]}
-        />
-
-        <InfoCard
-          title="Segurança"
-          items={[
-            "A nova senha substitui a anterior imediatamente.",
-            "Depois podemos adicionar fluxo de recuperação por e-mail.",
-          ]}
-        />
+        <InfoCard title={copy.rulesTitle} items={copy.rulesItems} />
+        <InfoCard title={copy.securityTitle} items={copy.securityItems} />
       </aside>
     </form>
   );

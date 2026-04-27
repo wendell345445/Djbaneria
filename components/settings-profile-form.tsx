@@ -2,15 +2,132 @@
 
 import { useState } from "react";
 
+type Locale = "pt-BR" | "en" | "es";
+
 type SettingsProfileFormProps = {
   initialData: {
     workspaceName: string;
     userName: string;
     email: string;
   };
+  locale?: Locale;
 };
 
-export function SettingsProfileForm({ initialData }: SettingsProfileFormProps) {
+const profileCopy: Record<
+  Locale,
+  {
+    saveError: string;
+    genericError: string;
+    success: string;
+    profileEyebrow: string;
+    profileTitle: string;
+    userName: string;
+    userNamePlaceholder: string;
+    email: string;
+    emailPlaceholder: string;
+    workspaceEyebrow: string;
+    workspaceTitle: string;
+    workspaceName: string;
+    workspacePlaceholder: string;
+    saving: string;
+    save: string;
+    editableTitle: string;
+    editableItems: string[];
+    noteTitle: string;
+    noteItems: string[];
+  }
+> = {
+  "pt-BR": {
+    saveError: "Não foi possível salvar as configurações.",
+    genericError: "Erro ao salvar.",
+    success: "Informações atualizadas com sucesso.",
+    profileEyebrow: "Perfil principal",
+    profileTitle: "Informações da conta",
+    userName: "Nome do usuário",
+    userNamePlaceholder: "Ex.: João Pedro",
+    email: "E-mail",
+    emailPlaceholder: "Seu e-mail",
+    workspaceEyebrow: "Workspace",
+    workspaceTitle: "Identidade do workspace",
+    workspaceName: "Nome do workspace",
+    workspacePlaceholder: "Ex.: Meu Workspace",
+    saving: "Salvando...",
+    save: "Salvar alterações",
+    editableTitle: "O que você pode editar",
+    editableItems: [
+      "Nome do usuário",
+      "Nome do workspace",
+      "Consulta do e-mail atual",
+    ],
+    noteTitle: "Observação",
+    noteItems: [
+      "Nesta etapa o e-mail está apenas para visualização.",
+      "A senha pode ser alterada no bloco logo abaixo.",
+    ],
+  },
+  en: {
+    saveError: "We could not save your settings.",
+    genericError: "Error while saving.",
+    success: "Information updated successfully.",
+    profileEyebrow: "Main profile",
+    profileTitle: "Account information",
+    userName: "User name",
+    userNamePlaceholder: "Ex.: John Smith",
+    email: "Email",
+    emailPlaceholder: "Your email",
+    workspaceEyebrow: "Workspace",
+    workspaceTitle: "Workspace identity",
+    workspaceName: "Workspace name",
+    workspacePlaceholder: "Ex.: My Workspace",
+    saving: "Saving...",
+    save: "Save changes",
+    editableTitle: "What you can edit",
+    editableItems: [
+      "User name",
+      "Workspace name",
+      "View current email",
+    ],
+    noteTitle: "Note",
+    noteItems: [
+      "At this stage, the email is view-only.",
+      "The password can be changed in the block below.",
+    ],
+  },
+  es: {
+    saveError: "No se pudieron guardar las configuraciones.",
+    genericError: "Error al guardar.",
+    success: "Información actualizada correctamente.",
+    profileEyebrow: "Perfil principal",
+    profileTitle: "Información de la cuenta",
+    userName: "Nombre del usuario",
+    userNamePlaceholder: "Ej.: Juan Pérez",
+    email: "Correo electrónico",
+    emailPlaceholder: "Tu correo electrónico",
+    workspaceEyebrow: "Workspace",
+    workspaceTitle: "Identidad del workspace",
+    workspaceName: "Nombre del workspace",
+    workspacePlaceholder: "Ej.: Mi Workspace",
+    saving: "Guardando...",
+    save: "Guardar cambios",
+    editableTitle: "Qué puedes editar",
+    editableItems: [
+      "Nombre del usuario",
+      "Nombre del workspace",
+      "Consulta del correo actual",
+    ],
+    noteTitle: "Observación",
+    noteItems: [
+      "En esta etapa el correo solo está disponible para visualización.",
+      "La contraseña se puede cambiar en el bloque de abajo.",
+    ],
+  },
+};
+
+export function SettingsProfileForm({
+  initialData,
+  locale = "en",
+}: SettingsProfileFormProps) {
+  const copy = profileCopy[locale] ?? profileCopy.en;
   const [workspaceName, setWorkspaceName] = useState(initialData.workspaceName);
   const [userName, setUserName] = useState(initialData.userName);
   const [email] = useState(initialData.email);
@@ -39,14 +156,12 @@ export function SettingsProfileForm({ initialData }: SettingsProfileFormProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.error || "Não foi possível salvar as configurações.",
-        );
+        throw new Error(data.error || copy.saveError);
       }
 
-      setSuccess("Informações atualizadas com sucesso.");
+      setSuccess(copy.success);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar.");
+      setError(err instanceof Error ? err.message : copy.genericError);
     } finally {
       setLoading(false);
     }
@@ -61,51 +176,51 @@ export function SettingsProfileForm({ initialData }: SettingsProfileFormProps) {
         <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="mb-5">
             <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">
-              Perfil principal
+              {copy.profileEyebrow}
             </p>
             <h2 className="mt-2 text-xl font-semibold text-white">
-              Informações da conta
+              {copy.profileTitle}
             </h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Nome do usuário">
+            <Field label={copy.userName}>
               <input
                 className={inputClassName}
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="Ex.: João Pedro"
+                placeholder={copy.userNamePlaceholder}
               />
             </Field>
 
-            <Field label="E-mail">
+            <Field label={copy.email}>
               <input
                 className={`${inputClassName} opacity-80`}
                 value={email}
                 readOnly
-                placeholder="Seu e-mail"
+                placeholder={copy.emailPlaceholder}
               />
             </Field>
           </div>
         </section>
 
-        <section className=" p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+        <section className="p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
           <div className="mb-5">
             <p className="text-[11px] uppercase tracking-[0.2em] text-white/45">
-              Workspace
+              {copy.workspaceEyebrow}
             </p>
             <h2 className="mt-2 text-xl font-semibold text-white">
-              Identidade do workspace
+              {copy.workspaceTitle}
             </h2>
           </div>
 
           <div className="grid gap-4">
-            <Field label="Nome do workspace">
+            <Field label={copy.workspaceName}>
               <input
                 className={inputClassName}
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
-                placeholder="Ex.: Meu Workspace"
+                placeholder={copy.workspacePlaceholder}
               />
             </Field>
           </div>
@@ -117,7 +232,7 @@ export function SettingsProfileForm({ initialData }: SettingsProfileFormProps) {
             disabled={loading}
             className="inline-flex min-h-[50px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-80"
           >
-            {loading ? "Salvando..." : "Salvar alterações"}
+            {loading ? copy.saving : copy.save}
           </button>
 
           {success ? (
@@ -129,22 +244,8 @@ export function SettingsProfileForm({ initialData }: SettingsProfileFormProps) {
       </div>
 
       <aside className="grid gap-4 xl:sticky xl:top-5 xl:h-fit">
-        <InfoCard
-          title="O que você pode editar"
-          items={[
-            "Nome do usuário",
-            "Nome do workspace",
-            "Consulta do e-mail atual",
-          ]}
-        />
-
-        <InfoCard
-          title="Observação"
-          items={[
-            "Nesta etapa o e-mail está apenas para visualização.",
-            "A senha pode ser alterada no bloco logo abaixo.",
-          ]}
-        />
+        <InfoCard title={copy.editableTitle} items={copy.editableItems} />
+        <InfoCard title={copy.noteTitle} items={copy.noteItems} />
       </aside>
     </form>
   );

@@ -26,6 +26,7 @@ const schema = z.object({
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres."),
   artistName: z.string().trim().optional(),
   turnstileToken: z.string().trim().optional().default(""),
+  locale: z.enum(["pt-BR", "en", "es"]).optional().default("en"),
 });
 
 export async function POST(request: Request) {
@@ -40,7 +41,10 @@ export async function POST(request: Request) {
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { error: "Muitas contas criadas em sequência. Aguarde um pouco e tente novamente." },
+      {
+        error:
+          "Muitas contas criadas em sequência. Aguarde um pouco e tente novamente.",
+      },
       { status: 429, headers: buildRateLimitHeaders(rateLimit) },
     );
   }
@@ -73,7 +77,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, password, artistName } = parsed.data;
+    const { name, password, artistName, locale } = parsed.data;
     const email = normalizeEmail(parsed.data.email);
 
     const emailDomainValidation = validateSignupEmailDomain(email);
@@ -108,6 +112,8 @@ export async function POST(request: Request) {
         name,
         email,
         passwordHash,
+        preferredLocale: locale,
+        languageOnboardingCompleted: true,
         emailVerificationCodeHash: codeHash,
         emailVerificationExpiresAt: expiresAt,
         emailVerificationSentAt: new Date(),
@@ -121,6 +127,8 @@ export async function POST(request: Request) {
       update: {
         name,
         passwordHash,
+        preferredLocale: locale,
+        languageOnboardingCompleted: true,
         emailVerificationCodeHash: codeHash,
         emailVerificationExpiresAt: expiresAt,
         emailVerificationSentAt: new Date(),

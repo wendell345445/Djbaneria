@@ -13,10 +13,114 @@ import {
   requiresCreditCyclePaymentConfirmation,
 } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import { normalizeLocale, type AppLocale } from "@/lib/i18n";
 import { requireCurrentWorkspace } from "@/lib/workspace";
+
+export const dynamic = "force-dynamic";
+
+const newBannerPageCopy = {
+  "pt-BR": {
+    unlimited: "Ilimitado",
+    currentPlan: "Plano atual",
+    plan: "Plano",
+    usage: "Uso",
+    remaining: "Restantes",
+    premium: "Premium",
+    essential: "Essencial",
+    admin: "Admin",
+    unlimitedTestUsage: "Uso ilimitado para testes",
+    periodUsage: "Consumo do período",
+    statuses: {
+      TRIALING: "Teste ativo",
+      ACTIVE: "Ativo",
+      PAST_DUE: "Pagamento pendente",
+      CANCELED: "Cancelado",
+      EXPIRED: "Expirado",
+    },
+    adminTestMode: "Modo teste admin",
+    adminDescription:
+      "Esta conta está liberada para gerar banners sem limite de créditos durante os testes.",
+    verificationPending: "Verificação pendente",
+    verifyTitle: "Confirme seu e-mail para liberar a geração",
+    verifyDescriptionStart:
+      "Para proteger os créditos grátis contra abuso, confirme o código enviado para",
+    verifyDescriptionEnd:
+      "Depois disso, você poderá gerar seus banners normalmente.",
+    verifyButton: "Confirmar e-mail",
+  },
+  en: {
+    unlimited: "Unlimited",
+    currentPlan: "Current plan",
+    plan: "Plan",
+    usage: "Usage",
+    remaining: "Remaining",
+    premium: "Premium",
+    essential: "Essential",
+    admin: "Admin",
+    unlimitedTestUsage: "Unlimited test usage",
+    periodUsage: "Period usage",
+    statuses: {
+      TRIALING: "Trial active",
+      ACTIVE: "Active",
+      PAST_DUE: "Payment pending",
+      CANCELED: "Canceled",
+      EXPIRED: "Expired",
+    },
+    adminTestMode: "Admin test mode",
+    adminDescription:
+      "This account can generate banners without credit limits during testing.",
+    verificationPending: "Verification pending",
+    verifyTitle: "Confirm your email to unlock generation",
+    verifyDescriptionStart:
+      "To protect free credits from abuse, confirm the code sent to",
+    verifyDescriptionEnd:
+      "After that, you will be able to generate your banners normally.",
+    verifyButton: "Confirm email",
+  },
+  es: {
+    unlimited: "Ilimitado",
+    currentPlan: "Plan actual",
+    plan: "Plan",
+    usage: "Uso",
+    remaining: "Restantes",
+    premium: "Premium",
+    essential: "Esencial",
+    admin: "Admin",
+    unlimitedTestUsage: "Uso ilimitado para pruebas",
+    periodUsage: "Consumo del período",
+    statuses: {
+      TRIALING: "Prueba activa",
+      ACTIVE: "Activo",
+      PAST_DUE: "Pago pendiente",
+      CANCELED: "Cancelado",
+      EXPIRED: "Expirado",
+    },
+    adminTestMode: "Modo de prueba admin",
+    adminDescription:
+      "Esta cuenta está liberada para generar banners sin límite de créditos durante las pruebas.",
+    verificationPending: "Verificación pendiente",
+    verifyTitle: "Confirma tu email para liberar la generación",
+    verifyDescriptionStart:
+      "Para proteger los créditos gratis contra abuso, confirma el código enviado a",
+    verifyDescriptionEnd: "Después de eso, podrás generar tus banners normalmente.",
+    verifyButton: "Confirmar email",
+  },
+} as const;
+
+type NewBannerPageCopy = (typeof newBannerPageCopy)[AppLocale];
 
 export default async function NewBannerPage() {
   const workspace = await requireCurrentWorkspace();
+
+  const userLanguage = await prisma.user.findUnique({
+    where: { id: workspace.userId },
+    select: { preferredLocale: true },
+  });
+
+  const locale = normalizeLocale(
+    userLanguage?.preferredLocale ?? workspace.user?.preferredLocale,
+  );
+  const copy = newBannerPageCopy[locale];
   const now = new Date();
   const currentPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
 
@@ -66,12 +170,12 @@ export default async function NewBannerPage() {
 
   const isAdmin = isAdminEmail(workspace.user?.email);
   const planLabel = isAdmin
-    ? `${getPlanDisplayName(summary.plan)} Admin`
+    ? `${getPlanDisplayName(summary.plan)} ${copy.admin}`
     : getPlanDisplayName(summary.plan);
   const usageLabel = isAdmin
     ? `${summary.usedThisMonth} / ∞`
     : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
-  const remainingLabel = isAdmin ? "Ilimitado" : String(summary.remainingCredits);
+  const remainingLabel = isAdmin ? copy.unlimited : String(summary.remainingCredits);
   const usagePercent = isAdmin
     ? 100
     : summary.monthlyLimit > 0
@@ -92,28 +196,33 @@ export default async function NewBannerPage() {
           usagePercent={usagePercent}
           status={summary.status}
           isAdmin={isAdmin}
+          copy={copy}
         />
       </div>
 
       {!isAdmin && !workspace.user?.emailVerifiedAt ? (
-        <EmailVerificationRequiredCard email={workspace.user?.email || ""} />
+        <EmailVerificationRequiredCard
+          email={workspace.user?.email || ""}
+          copy={copy}
+        />
       ) : (
         <NewBannerForm
+          key={locale}
           currentPlan={summary.plan}
           isAdmin={isAdmin}
           canGenerateBanner={isAdmin || summary.canGenerateBanner}
           initialRemainingCredits={isAdmin ? null : summary.remainingCredits}
+          locale={locale}
         />
       )}
 
       {isAdmin ? (
         <section className="mt-5 rounded-3xl border border-sky-300/15 bg-gradient-to-br from-sky-400/10 via-white/[0.03] to-violet-400/10 p-5 shadow-[0_24px_80px_rgba(56,189,248,0.08)]">
           <p className="m-0 text-xs uppercase tracking-[0.2em] text-white/50">
-            Modo teste admin
+            {copy.adminTestMode}
           </p>
           <p className="mt-2 text-sm leading-7 text-white/80">
-            Esta conta está liberada para gerar banners sem limite de créditos
-            durante os testes.
+            {copy.adminDescription}
           </p>
         </section>
       ) : null}
@@ -132,16 +241,8 @@ function getPlanDisplayName(plan: SubscriptionPlan) {
   return labels[plan] ?? plan;
 }
 
-function getStatusLabel(status: SubscriptionStatus) {
-  const labels: Record<SubscriptionStatus, string> = {
-    TRIALING: "Teste ativo",
-    ACTIVE: "Ativo",
-    PAST_DUE: "Pagamento pendente",
-    CANCELED: "Cancelado",
-    EXPIRED: "Expirado",
-  };
-
-  return labels[status] ?? status;
+function getStatusLabel(status: SubscriptionStatus, copy: NewBannerPageCopy) {
+  return copy.statuses[status] ?? status;
 }
 
 function PlanUsageCard({
@@ -152,6 +253,7 @@ function PlanUsageCard({
   usagePercent,
   status,
   isAdmin,
+  copy,
 }: {
   plan: SubscriptionPlan;
   planLabel: string;
@@ -160,6 +262,7 @@ function PlanUsageCard({
   usagePercent: number;
   status: SubscriptionStatus;
   isAdmin: boolean;
+  copy: NewBannerPageCopy;
 }) {
   const isPremium =
     plan === SubscriptionPlan.PROFESSIONAL || plan === SubscriptionPlan.STUDIO;
@@ -173,7 +276,7 @@ function PlanUsageCard({
       <div className="relative z-10 flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] uppercase tracking-[0.22em] text-white/45">
-            Plano atual
+            {copy.currentPlan}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <strong className="text-xl font-semibold leading-none text-white">
@@ -186,25 +289,25 @@ function PlanUsageCard({
                   : "border-sky-200/25 bg-sky-200/10 text-sky-100"
               }`}
             >
-              {isPremium ? "Premium" : "Essencial"}
+              {isPremium ? copy.premium : copy.essential}
             </span>
           </div>
         </div>
 
         <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100">
-          {isAdmin ? "Admin" : getStatusLabel(status)}
+          {isAdmin ? copy.admin : getStatusLabel(status, copy)}
         </span>
       </div>
 
       <div className="relative z-10 mt-4 grid grid-cols-3 gap-2">
-        <PlanMetric label="Plano" value={planLabel} />
-        <PlanMetric label="Uso" value={usageLabel} />
-        <PlanMetric label="Restantes" value={remainingLabel} highlight />
+        <PlanMetric label={copy.plan} value={planLabel} />
+        <PlanMetric label={copy.usage} value={usageLabel} />
+        <PlanMetric label={copy.remaining} value={remainingLabel} highlight />
       </div>
 
       <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
         <div className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
-          <span>{isAdmin ? "Uso ilimitado para testes" : "Consumo do período"}</span>
+          <span>{isAdmin ? copy.unlimitedTestUsage : copy.periodUsage}</span>
           <strong className="text-white/85">
             {isAdmin ? "∞" : `${usagePercent}%`}
           </strong>
@@ -247,25 +350,31 @@ function PlanMetric({
   );
 }
 
-function EmailVerificationRequiredCard({ email }: { email: string }) {
+function EmailVerificationRequiredCard({
+  email,
+  copy,
+}: {
+  email: string;
+  copy: NewBannerPageCopy;
+}) {
   return (
     <section className="relative overflow-hidden rounded-[30px] border border-amber-200/20 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.14),transparent_34%),linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
       <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-amber-300/10 blur-3xl" />
       <div className="relative z-10 max-w-2xl">
         <span className="inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-amber-100">
-          Verificação pendente
+          {copy.verificationPending}
         </span>
         <h2 className="mt-4 text-2xl font-semibold leading-tight text-white">
-          Confirme seu e-mail para liberar a geração
+          {copy.verifyTitle}
         </h2>
         <p className="mt-3 text-sm leading-7 text-white/70">
-          Para proteger os créditos grátis contra abuso, confirme o código enviado para <strong className="text-white">{email}</strong>. Depois disso, você poderá gerar seus banners normalmente.
+          {copy.verifyDescriptionStart} <strong className="text-white">{email}</strong>. {copy.verifyDescriptionEnd}
         </p>
         <a
           href={`/verify-email?email=${encodeURIComponent(email)}`}
           className="mt-5 inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
         >
-          Confirmar e-mail
+          {copy.verifyButton}
         </a>
       </div>
     </section>

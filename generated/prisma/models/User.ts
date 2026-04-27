@@ -44,6 +44,8 @@ export type UserMinAggregateOutputType = {
   emailVerifiedAt: Date | null
   emailVerificationCodeHash: string | null
   emailVerificationExpiresAt: Date | null
+  preferredLocale: string | null
+  languageOnboardingCompleted: boolean | null
   emailVerificationSentAt: Date | null
   emailVerificationAttempts: number | null
   createdAt: Date | null
@@ -60,6 +62,8 @@ export type UserMaxAggregateOutputType = {
   emailVerifiedAt: Date | null
   emailVerificationCodeHash: string | null
   emailVerificationExpiresAt: Date | null
+  preferredLocale: string | null
+  languageOnboardingCompleted: boolean | null
   emailVerificationSentAt: Date | null
   emailVerificationAttempts: number | null
   createdAt: Date | null
@@ -76,6 +80,8 @@ export type UserCountAggregateOutputType = {
   emailVerifiedAt: number
   emailVerificationCodeHash: number
   emailVerificationExpiresAt: number
+  preferredLocale: number
+  languageOnboardingCompleted: number
   emailVerificationSentAt: number
   emailVerificationAttempts: number
   createdAt: number
@@ -102,6 +108,8 @@ export type UserMinAggregateInputType = {
   emailVerifiedAt?: true
   emailVerificationCodeHash?: true
   emailVerificationExpiresAt?: true
+  preferredLocale?: true
+  languageOnboardingCompleted?: true
   emailVerificationSentAt?: true
   emailVerificationAttempts?: true
   createdAt?: true
@@ -118,6 +126,8 @@ export type UserMaxAggregateInputType = {
   emailVerifiedAt?: true
   emailVerificationCodeHash?: true
   emailVerificationExpiresAt?: true
+  preferredLocale?: true
+  languageOnboardingCompleted?: true
   emailVerificationSentAt?: true
   emailVerificationAttempts?: true
   createdAt?: true
@@ -134,6 +144,8 @@ export type UserCountAggregateInputType = {
   emailVerifiedAt?: true
   emailVerificationCodeHash?: true
   emailVerificationExpiresAt?: true
+  preferredLocale?: true
+  languageOnboardingCompleted?: true
   emailVerificationSentAt?: true
   emailVerificationAttempts?: true
   createdAt?: true
@@ -237,6 +249,8 @@ export type UserGroupByOutputType = {
   emailVerifiedAt: Date | null
   emailVerificationCodeHash: string | null
   emailVerificationExpiresAt: Date | null
+  preferredLocale: string
+  languageOnboardingCompleted: boolean
   emailVerificationSentAt: Date | null
   emailVerificationAttempts: number
   createdAt: Date
@@ -276,6 +290,8 @@ export type UserWhereInput = {
   emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerificationCodeHash?: Prisma.StringNullableFilter<"User"> | string | null
   emailVerificationExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  preferredLocale?: Prisma.StringFilter<"User"> | string
+  languageOnboardingCompleted?: Prisma.BoolFilter<"User"> | boolean
   emailVerificationSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerificationAttempts?: Prisma.IntFilter<"User"> | number
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -293,6 +309,8 @@ export type UserOrderByWithRelationInput = {
   emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationCodeHash?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredLocale?: Prisma.SortOrder
+  languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -313,6 +331,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerificationCodeHash?: Prisma.StringNullableFilter<"User"> | string | null
   emailVerificationExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  preferredLocale?: Prisma.StringFilter<"User"> | string
+  languageOnboardingCompleted?: Prisma.BoolFilter<"User"> | boolean
   emailVerificationSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerificationAttempts?: Prisma.IntFilter<"User"> | number
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -330,6 +350,8 @@ export type UserOrderByWithAggregationInput = {
   emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationCodeHash?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  preferredLocale?: Prisma.SortOrder
+  languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -354,6 +376,8 @@ export type UserScalarWhereWithAggregatesInput = {
   emailVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   emailVerificationCodeHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   emailVerificationExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  preferredLocale?: Prisma.StringWithAggregatesFilter<"User"> | string
+  languageOnboardingCompleted?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   emailVerificationSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   emailVerificationAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -370,6 +394,8 @@ export type UserCreateInput = {
   emailVerifiedAt?: Date | string | null
   emailVerificationCodeHash?: string | null
   emailVerificationExpiresAt?: Date | string | null
+  preferredLocale?: string
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
   createdAt?: Date | string
@@ -387,6 +413,8 @@ export type UserUncheckedCreateInput = {
   emailVerifiedAt?: Date | string | null
   emailVerificationCodeHash?: string | null
   emailVerificationExpiresAt?: Date | string | null
+  preferredLocale?: string
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
   createdAt?: Date | string
@@ -404,6 +432,8 @@ export type UserUpdateInput = {
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationCodeHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredLocale?: Prisma.StringFieldUpdateOperationsInput | string
+  languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -421,6 +451,8 @@ export type UserUncheckedUpdateInput = {
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationCodeHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredLocale?: Prisma.StringFieldUpdateOperationsInput | string
+  languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -438,6 +470,8 @@ export type UserCreateManyInput = {
   emailVerifiedAt?: Date | string | null
   emailVerificationCodeHash?: string | null
   emailVerificationExpiresAt?: Date | string | null
+  preferredLocale?: string
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
   createdAt?: Date | string
@@ -454,6 +488,8 @@ export type UserUpdateManyMutationInput = {
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationCodeHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredLocale?: Prisma.StringFieldUpdateOperationsInput | string
+  languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -470,6 +506,8 @@ export type UserUncheckedUpdateManyInput = {
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationCodeHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredLocale?: Prisma.StringFieldUpdateOperationsInput | string
+  languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -486,6 +524,8 @@ export type UserCountOrderByAggregateInput = {
   emailVerifiedAt?: Prisma.SortOrder
   emailVerificationCodeHash?: Prisma.SortOrder
   emailVerificationExpiresAt?: Prisma.SortOrder
+  preferredLocale?: Prisma.SortOrder
+  languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -506,6 +546,8 @@ export type UserMaxOrderByAggregateInput = {
   emailVerifiedAt?: Prisma.SortOrder
   emailVerificationCodeHash?: Prisma.SortOrder
   emailVerificationExpiresAt?: Prisma.SortOrder
+  preferredLocale?: Prisma.SortOrder
+  languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -522,6 +564,8 @@ export type UserMinOrderByAggregateInput = {
   emailVerifiedAt?: Prisma.SortOrder
   emailVerificationCodeHash?: Prisma.SortOrder
   emailVerificationExpiresAt?: Prisma.SortOrder
+  preferredLocale?: Prisma.SortOrder
+  languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -593,6 +637,8 @@ export type UserCreateWithoutWorkspacesInput = {
   emailVerifiedAt?: Date | string | null
   emailVerificationCodeHash?: string | null
   emailVerificationExpiresAt?: Date | string | null
+  preferredLocale?: string
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
   createdAt?: Date | string
@@ -609,6 +655,8 @@ export type UserUncheckedCreateWithoutWorkspacesInput = {
   emailVerifiedAt?: Date | string | null
   emailVerificationCodeHash?: string | null
   emailVerificationExpiresAt?: Date | string | null
+  preferredLocale?: string
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
   createdAt?: Date | string
@@ -641,6 +689,8 @@ export type UserUpdateWithoutWorkspacesInput = {
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationCodeHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredLocale?: Prisma.StringFieldUpdateOperationsInput | string
+  languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -657,6 +707,8 @@ export type UserUncheckedUpdateWithoutWorkspacesInput = {
   emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationCodeHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  preferredLocale?: Prisma.StringFieldUpdateOperationsInput | string
+  languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -704,6 +756,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   emailVerifiedAt?: boolean
   emailVerificationCodeHash?: boolean
   emailVerificationExpiresAt?: boolean
+  preferredLocale?: boolean
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
   createdAt?: boolean
@@ -722,6 +776,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   emailVerifiedAt?: boolean
   emailVerificationCodeHash?: boolean
   emailVerificationExpiresAt?: boolean
+  preferredLocale?: boolean
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
   createdAt?: boolean
@@ -738,6 +794,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   emailVerifiedAt?: boolean
   emailVerificationCodeHash?: boolean
   emailVerificationExpiresAt?: boolean
+  preferredLocale?: boolean
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
   createdAt?: boolean
@@ -754,13 +812,15 @@ export type UserSelectScalar = {
   emailVerifiedAt?: boolean
   emailVerificationCodeHash?: boolean
   emailVerificationExpiresAt?: boolean
+  preferredLocale?: boolean
+  languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "isActive" | "emailVerifiedAt" | "emailVerificationCodeHash" | "emailVerificationExpiresAt" | "emailVerificationSentAt" | "emailVerificationAttempts" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "isActive" | "emailVerifiedAt" | "emailVerificationCodeHash" | "emailVerificationExpiresAt" | "preferredLocale" | "languageOnboardingCompleted" | "emailVerificationSentAt" | "emailVerificationAttempts" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspaces?: boolean | Prisma.User$workspacesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -783,6 +843,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     emailVerifiedAt: Date | null
     emailVerificationCodeHash: string | null
     emailVerificationExpiresAt: Date | null
+    preferredLocale: string
+    languageOnboardingCompleted: boolean
     emailVerificationSentAt: Date | null
     emailVerificationAttempts: number
     createdAt: Date
@@ -1220,6 +1282,8 @@ export interface UserFieldRefs {
   readonly emailVerifiedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly emailVerificationCodeHash: Prisma.FieldRef<"User", 'String'>
   readonly emailVerificationExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly preferredLocale: Prisma.FieldRef<"User", 'String'>
+  readonly languageOnboardingCompleted: Prisma.FieldRef<"User", 'Boolean'>
   readonly emailVerificationSentAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly emailVerificationAttempts: Prisma.FieldRef<"User", 'Int'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>

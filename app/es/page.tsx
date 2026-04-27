@@ -27,83 +27,83 @@ const poppins = Poppins({
 const advantages = [
   {
     icon: Zap,
-    title: "Much faster creation",
+    title: "Creación mucho más rápida",
     description:
-      "Build your brief, choose the style, and get a polished visual in minutes to promote your event.",
+      "Crea el briefing, elige el estilo y recibe una pieza lista en minutos para promocionar tu evento.",
   },
   {
     icon: Sparkles,
-    title: "Visuals built for DJs",
+    title: "Visuales pensados para DJs",
     description:
-      "Premium flyer-style layouts designed for visual impact, artist presence, and strong readability on social media.",
+      "Layouts con estilo de flyer premium, enfocados en impacto visual, presencia del artista y lectura fuerte en redes sociales.",
   },
   {
     icon: Layers3,
-    title: "Variations without starting over",
+    title: "Variaciones sin empezar desde cero",
     description:
-      "Test new directions, refine the artwork with AI, and iterate quickly until you find the right version to publish.",
+      "Prueba nuevos estilos, ajusta la pieza con IA e itera rápidamente hasta encontrar la versión ideal para publicar.",
   },
   {
     icon: ImageIcon,
-    title: "Use your own photo",
+    title: "Usa tu propia foto",
     description:
-      "Upload a reference image so the banner feels closer to your identity and more personal.",
+      "Sube una imagen de referencia para acercar el banner a tu identidad y hacerlo más personal.",
   },
   {
     icon: Gauge,
-    title: "Simple workflow for everyone",
+    title: "Flujo simple para todos",
     description:
-      "Even without design experience, you can create professional banners through a guided, intuitive process.",
+      "Aunque no tengas experiencia en diseño, puedes crear banners profesionales con un proceso guiado e intuitivo.",
   },
   {
     icon: ShieldCheck,
-    title: "Access control and security",
+    title: "Control de acceso y seguridad",
     description:
-      "Email verification, protected signup, and a structure built to scale with more confidence.",
+      "Registro con verificación por e-mail, protección en el acceso y estructura lista para crecer con más confianza.",
   },
 ];
 
 const steps = [
   {
     step: "01",
-    title: "Build your brief",
+    title: "Crea tu briefing",
     description:
-      "Add the main title, date, venue, visual style, and format. You can also upload your photo.",
+      "Agrega el texto principal, fecha, lugar, estilo visual y formato. Si quieres, también puedes subir tu foto.",
   },
   {
     step: "02",
-    title: "Generate and refine with AI",
+    title: "Genera y mejora con IA",
     description:
-      "Get your banner, test new versions, and make edits in just a few clicks until the visual feels right.",
+      "Recibe el banner, prueba nuevas versiones y realiza cambios con pocos clics hasta llegar al visual ideal.",
   },
   {
     step: "03",
-    title: "Download and publish",
+    title: "Descarga y publica",
     description:
-      "Use your banner for feed posts, stories, paid ads, WhatsApp, weekly schedules, and event promotion.",
+      "Usa tu banner en feed, stories, anuncios pagos, WhatsApp, agenda semanal y promoción de eventos.",
   },
 ];
 
 const faqs = [
   {
-    question: "Do I need design skills to use it?",
+    question: "¿Necesito saber diseño para usarlo?",
     answer:
-      "No. The platform is built to help DJs and producers create professional-looking visuals without needing advanced design skills.",
+      "No. La plataforma está pensada para que DJs y productores creen piezas con apariencia profesional sin depender de conocimientos avanzados de diseño.",
   },
   {
-    question: "Can I use my own photo in the banner?",
+    question: "¿Puedo usar mi propia foto en el banner?",
     answer:
-      "Yes. You can upload an image as a reference to generate banners that better match your visual identity.",
+      "Sí. Puedes subir una imagen como referencia para generar banners más alineados con tu identidad visual.",
   },
   {
-    question: "Which formats can I generate?",
+    question: "¿Qué formatos puedo generar?",
     answer:
-      "The current workflow is optimized for Feed and Story, the most common formats for events, schedules, and promotional posts.",
+      "Actualmente el flujo está optimizado para Feed y Story, los formatos más usados para eventos, agendas y publicaciones promocionales.",
   },
   {
-    question: "Does signup give me access to the system?",
+    question: "¿El registro libera el acceso al sistema?",
     answer:
-      "After creating your account, you confirm your email with a code and can access the dashboard to start generating AI banners.",
+      "Después de crear tu cuenta, confirmas tu e-mail con un código y puedes entrar al panel para comenzar a generar banners con IA.",
   },
 ];
 
@@ -120,22 +120,22 @@ export default function HomePage() {
                 DJ Banner AI
               </p>
               <p className="mt-1 hidden text-sm text-white/55 sm:block">
-                Professional AI banners for DJs and events
+                Banners profesionales con IA para DJs y eventos
               </p>
             </div>
 
             <nav className="hidden items-center gap-7 text-sm text-white/70 md:flex">
               <a href="#vantagens" className="transition hover:text-white">
-                Benefits
+                Ventajas
               </a>
               <a href="#exemplos" className="transition hover:text-white">
-                Examples
+                Ejemplos
               </a>
               <a href="#como-funciona" className="transition hover:text-white">
-                How it works
+                Cómo funciona
               </a>
               <a href="#cadastro" className="transition hover:text-white">
-                Create account
+                Crear cuenta
               </a>
             </nav>
 
@@ -144,13 +144,13 @@ export default function HomePage() {
                 href="/login"
                 className="hidden rounded-2xl border border-white/10 px-4 py-2 text-sm font-medium text-white/80 transition hover:border-white/20 hover:text-white sm:inline-flex"
               >
-                Log in
+                Entrar
               </Link>
               <a
                 href="#cadastro"
                 className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-slate-950 transition hover:opacity-95 sm:px-4 sm:text-sm"
               >
-                Start free
+                Empezar gratis
               </a>
             </div>
           </div>
@@ -160,18 +160,18 @@ export default function HomePage() {
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-4 py-2 text-xs font-medium text-cyan-100">
               <BadgeCheck size={14} className="text-cyan-200" />
-              Made for DJs, producers, and event promotion
+              Hecho para DJs, productores y promoción de eventos
             </div>
 
             <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
-              Create premium-looking DJ banners in minutes with AI.
+              Crea banners de DJ con apariencia premium en minutos usando IA.
             </h1>
 
             <p className="mt-5 max-w-2xl text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
-              Generate high-impact visuals for feed and story, elevate your image,
-              promote events faster, and use a simple workflow to create
-              professional banners without relying on a designer for every
-              new campaign.
+              Genera piezas impactantes para feed y story, fortalece tu imagen,
+              promociona eventos con más velocidad y usa un flujo simple para
+              crear banners profesionales sin depender de un diseñador en cada
+              nueva campaña.
             </p>
 
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
@@ -179,22 +179,22 @@ export default function HomePage() {
                 href="#cadastro"
                 className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:min-h-[54px] sm:px-6"
               >
-                Create my free account
+                Crear mi cuenta gratis
               </a>
               <a
                 href="#exemplos"
                 className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.03] px-5 text-sm font-semibold text-white/85 transition hover:bg-white/[0.05] sm:w-auto sm:min-h-[54px] sm:px-6"
               >
-                View banner examples
+                Ver ejemplos de banners
               </a>
             </div>
 
             <div className="mt-7 grid gap-3 text-sm text-white/72 sm:mt-8 sm:grid-cols-2">
               {[
-                "Generation built for events and schedules",
-                "Intuitive workflow for non-designers",
-                "Quick AI refinement to test new versions",
-                "Simple signup with instant online access",
+                "Generación pensada para eventos y agendas",
+                "Flujo intuitivo para quienes no dominan diseño",
+                "Ajustes rápidos con IA para probar nuevas versiones",
+                "Registro simple con acceso online inmediato",
               ].map((item) => (
                 <div
                   key={item}
@@ -218,13 +218,13 @@ export default function HomePage() {
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <FeatureMiniCard
                     icon={Wand2}
-                    title="AI focused on flyers"
-                    description="Premium-looking visuals for event posts, schedules, and music promotion."
+                    title="IA enfocada en flyers"
+                    description="Piezas con visual más premium para eventos, agendas y promoción musical."
                   />
                   <FeatureMiniCard
                     icon={Clock3}
-                    title="Save time"
-                    description="Reduce the time between having the idea and publishing the final visual online."
+                    title="Ahorro de tiempo"
+                    description="Reduce el tiempo entre tener la idea y publicar la pieza final en redes."
                   />
                 </div>
               </div>
@@ -232,14 +232,14 @@ export default function HomePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
-                    Perfect for
+                    Perfecto para
                   </p>
                   <ul className="mt-4 space-y-3 text-sm text-white/70">
                     {[
-                      "Party and event promotion",
-                      "Weekly schedule stories",
-                      "Paid traffic creatives",
-                      "DJ and producer promo posts",
+                      "Promoción de fiestas y eventos",
+                      "Stories de agenda semanal",
+                      "Creativos para anuncios pagos",
+                      "Posts promocionales para DJs y productores",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
                         <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-200">
@@ -253,25 +253,25 @@ export default function HomePage() {
 
                 <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
-                    Practical advantage
+                    Ventaja práctica
                   </p>
                   <div className="mt-4 space-y-4 text-sm text-white/72">
                     <div>
                       <p className="font-semibold text-white">
-                        Less friction to promote your event
+                        Menos fricción para promocionar tu evento
                       </p>
                       <p className="mt-1 leading-6 text-white/60">
-                        Always have a new visual ready to promote,
-                        reposition your ad, and keep your communication active.
+                        Ten siempre una nueva pieza visual lista para promocionar,
+                        reposicionar el anuncio y mantener tu comunicación activa.
                       </p>
                     </div>
                     <div>
                       <p className="font-semibold text-white">
-                        More visual consistency
+                        Más consistencia visual
                       </p>
                       <p className="mt-1 leading-5 text-white/60">
-                        Create banners with an aesthetic aligned with the DJ universe,
-                        strengthening your perceived value online.
+                        Crea banners con una estética más alineada al universo DJ,
+                        reforzando tu percepción de valor online.
                       </p>
                     </div>
                   </div>
@@ -288,15 +288,15 @@ export default function HomePage() {
       >
         <div className="max-w-3xl">
           <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-            Visual examples
+            Ejemplos visuales
           </p>
           <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-            See banners generated on our platform
+            Mira algunos banners generados en nuestra plataforma
           </h2>
           <p className="mt-4  max-w-2xl text-base leading-5 text-white/66">
-            Present your events with a more professional aesthetic, highlight
-            your identity as a DJ, and publish high-impact visuals in just a few
-            minutes.
+            Presenta tus eventos con una estética más profesional, destaca
+            tu identidad como DJ y publica piezas de alto impacto en pocos
+            minutos.
           </p>
         </div>
 
@@ -312,16 +312,16 @@ export default function HomePage() {
         <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
           <div className="max-w-3xl">
             <p className="text-[11px] uppercase tracking-[0.25em] text-violet-200/75">
-              Platform benefits
+              Ventajas del sistema
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              Everything you need to create banners faster and
-              with more impact.
+              Todo lo que necesitas para crear banners con más velocidad y
+              más impacto.
             </h2>
             <p className="mt-4 text-base leading-6 text-white/66">
-              The platform was designed to reduce friction in creation,
-              improve your presentation, and make it easier to promote events and
-              schedules.
+              La plataforma fue diseñada para reducir fricción en la creación,
+              mejorar tu presentación y facilitar la promoción de eventos y
+              agendas.
             </p>
           </div>
 
@@ -356,26 +356,26 @@ export default function HomePage() {
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-amber-200/80">
-              How it works
+              Cómo funciona
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              From idea to finished banner in a simple flow.
+              De la idea al banner listo en un flujo simple.
             </h2>
             <p className="mt-4 text-base leading-7 text-white/66">
-              No complicated process. You provide what you need, AI creates the
-              artwork, and you move to promotion much faster.
+              Sin procesos complicados. Tú informas lo que necesitas, la IA crea la
+              pieza y puedes promocionar con mucha más rapidez.
             </p>
 
             <div className="mt-8 rounded-[28px] border border-white/10 bg-[#0b1020] p-6">
               <p className="text-sm font-semibold text-white">
-                Ideal for anyone who wants to:
+                Ideal para quien quiere:
               </p>
               <div className="mt-5 space-y-4 text-sm text-white/70">
                 {[
-                  "promote parties with a more professional look",
-                  "post more often without getting stuck on design",
-                  "test campaigns and creatives quickly",
-                  "save time producing social media visuals",
+                  "promocionar fiestas con apariencia más profesional",
+                  "publicar con más frecuencia sin bloquearse en la creación",
+                  "probar campañas y creativos rápidamente",
+                  "ahorrar tiempo en la producción de piezas para redes sociales",
                 ].map((item) => (
                   <div key={item} className="flex gap-3">
                     <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
@@ -396,10 +396,10 @@ export default function HomePage() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <span className="text-[13px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-                    Step {item.step}
+                    Paso {item.step}
                   </span>
                   <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/55">
-                    Guided process
+                    Proceso guiado
                   </span>
                 </div>
                 <h3 className="mt-5 text-2xl font-semibold text-white">
@@ -418,38 +418,38 @@ export default function HomePage() {
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
           <div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-              Why this converts better
+              Por qué esto convierte mejor
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              Strong visuals increase the perceived value of your DJ brand.
+              Una pieza visual fuerte aumenta la percepción de valor de tu marca como DJ.
             </h2>
             <p className="mt-4 text-base leading-7 text-white/66">
-              When your promotion looks professional, your digital presence
-              becomes stronger. This helps attract more attention, strengthen your
-              positioning, and make your communication more consistent.
+              Cuando tu promoción parece profesional, tu presencia digital
+              gana fuerza. Esto ayuda a atraer más atención, fortalecer tu
+              posicionamiento y hacer tu comunicación más consistente.
             </p>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <BenefitCallout
               icon={CreditCard}
-              title="Save on visual production"
-              description="Use an accessible workflow to generate banners quickly without hiring someone for every new promotion."
+              title="Ahorra en producción visual"
+              description="Ten un flujo accesible para generar banners rápidamente sin depender de una nueva contratación para cada promoción."
             />
             <BenefitCallout
               icon={MailCheck}
-              title="Start securely"
-              description="Signup flow with email verification to build a more reliable user base from the start."
+              title="Empieza con seguridad"
+              description="Flujo de registro con verificación por e-mail para crear una base más confiable desde el inicio."
             />
             <BenefitCallout
               icon={Clock3}
-              title="Gain operational speed"
-              description="Create faster and use the time saved to focus on your schedule, promotion, and audience relationships."
+              title="Gana velocidad operativa"
+              description="Crea más rápido y aprovecha el tiempo ahorrado para enfocarte en agenda, promoción y relación con el público."
             />
             <BenefitCallout
               icon={Zap}
-              title="Test more ideas"
-              description="Validate visual ideas, campaigns, and new ads without the delay of starting every piece from scratch."
+              title="Prueba más ideas"
+              description="Valida propuestas visuales, campañas y nuevos anuncios sin la lentitud de empezar cada pieza desde cero."
             />
           </div>
         </div>
@@ -462,22 +462,22 @@ export default function HomePage() {
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
           <div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-              Start now
+              Empieza ahora
             </p>
             <h2 className="mt-4 max-w-xl text-[30px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[46px]">
-              Create your account and try a new way to promote your events.
+              Crea tu cuenta y prueba una nueva forma de promocionar tus eventos.
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-white/66">
-              Sign up, confirm your email, and enter the dashboard to start
-              generating AI banners. Ideal for DJs who want more speed,
-              visual presence, and more professional promotion.
+              Regístrate, confirma tu e-mail y entra al panel para comenzar a
+              generar banners con IA. Ideal para DJs que quieren más agilidad,
+              presencia visual y una promoción más profesional.
             </p>
 
             <div className="mt-8 space-y-4 text-sm text-white/72">
               {[
-                "Online access and a simple flow to start fast",
-                "Built for feed and story, the most used promotion formats",
-                "Signup with extra protection and email confirmation",
+                "Acceso online y flujo simple para empezar rápido",
+                "Ideal para feed y story, los formatos más usados en promoción",
+                "Registro con protección extra y confirmación por e-mail",
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3">
                   <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
@@ -490,29 +490,29 @@ export default function HomePage() {
 
             <div className="mt-8 rounded-[28px] border border-white/10 bg-[#0b1020] p-6">
               <p className="text-sm font-semibold text-white">
-                What you get inside
+                Qué encuentras al entrar
               </p>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <MiniPill icon={Sparkles} label="AI banner generation" />
-                <MiniPill icon={Wand2} label="Editing and refinement" />
-                <MiniPill icon={Gauge} label="Intuitive workflow" />
-                <MiniPill icon={MailCheck} label="Email-verified access" />
+                <MiniPill icon={Sparkles} label="Generación de banners con IA" />
+                <MiniPill icon={Wand2} label="Edición y refinamiento" />
+                <MiniPill icon={Gauge} label="Flujo intuitivo" />
+                <MiniPill icon={MailCheck} label="Acceso validado por e-mail" />
               </div>
             </div>
           </div>
 
           <div className="min-w-0">
-            <RegisterForm locale="en" />
+            <RegisterForm locale="es" />
           </div>
         </div>
       </section>
       <section className="mx-auto w-full max-w-5xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
         <div className="text-center">
           <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-            Frequently asked questions
+            Preguntas frecuentes
           </p>
           <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-            Clear up your doubts before getting started.
+            Resuelve tus dudas antes de empezar.
           </h2>
         </div>
 
