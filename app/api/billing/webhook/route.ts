@@ -14,6 +14,7 @@ import {
   hasCreditCyclePaymentConfirmation,
   requiresCreditCyclePaymentConfirmation,
 } from "@/lib/plans";
+import { sendMetaConversionEvent } from "@/lib/meta-capi";
 import { prisma } from "@/lib/prisma";
 import {
   getPlanFromPriceId,
@@ -45,6 +46,15 @@ type PreviousSubscriptionForCarryover = {
   currentPeriodStart: Date | null;
   currentPeriodEnd: Date | null;
 } | null;
+
+type SyncedStripeSubscription = {
+  workspaceId: string;
+  plan: SubscriptionPlan;
+  stripeSubscriptionId: string;
+  providerCustomerId: string | null;
+  currentPeriodStart: Date | null;
+  currentPeriodEnd: Date | null;
+};
 
 function getMetadataValue(value: unknown) {
   return typeof value === "string" && value.trim().length > 0
@@ -310,7 +320,7 @@ async function syncStripeSubscription(
 
   if (!workspaceId) {
     console.warn("Webhook Stripe ignorado: subscription sem workspaceId.", subscriptionId);
-    return;
+    return null;
   }
 
   if (!plan) {
@@ -318,7 +328,7 @@ async function syncStripeSubscription(
       "Webhook Stripe ignorado: priceId sem plano mapeado.",
       priceId,
     );
-    return;
+    return null;
   }
 
   const existingSubscription = await prisma.subscription.findUnique({
@@ -385,6 +395,18 @@ async function syncStripeSubscription(
       stripeInvoiceId: options.stripeInvoiceId,
     });
   }
+
+  return {
+    workspaceId,
+    plan,
+    stripeSubscriptionId: stripeSubscription.id,
+    providerCustomerId:
+      typeof stripeSubscription.customer === "string"
+        ? stripeSubscription.customer
+        : stripeSubscription.customer?.id || null,
+    currentPeriodStart,
+    currentPeriodEnd,
+  } satisfies SyncedStripeSubscription;
 }
 
 async function handleCheckoutCompleted(
@@ -474,6 +496,123 @@ function getSubscriptionIdFromInvoice(invoice: Stripe.Invoice) {
   );
 }
 
+
+function getPlanDisplayNameForMeta(plan: SubscriptionPlan) {
+  const labels: Record<SubscriptionPlan, string> = {
+    FREE: "Free",
+    PRO: "Pro",
+    PROFESSIONAL: "Professional",
+    STUDIO: "Studio",
+  };
+
+  return labels[plan] ?? plan;
+}
+
+function getPlanFallbackValue(plan: SubscriptionPlan) {
+  const values: Record<SubscriptionPlan, number> = {
+    FREE: 0,
+    PRO: 12.99,
+    PROFESSIONAL: 24.99,
+    STUDIO: 39.99,
+  };
+
+  return values[plan] ?? 0;
+}
+
+function getInvoicePaidValue(invoice: Stripe.Invoice, plan: SubscriptionPlan) {
+  const amountPaid = typeof invoice.amount_paid === "number" ? invoice.amount_paid : 0;
+  const value = amountPaid > 0 ? amountPaid / 100 : getPlanFallbackValue(plan);
+
+  return Math.round(value * 100) / 100;
+}
+
+function getInvoiceCurrency(invoice: Stripe.Invoice) {
+  return (invoice.currency || "usd").toUpperCase();
+}
+
+async function sendMetaBillingEventsForPaidInvoice(params: {
+  invoice: Stripe.Invoice;
+  syncedSubscription: SyncedStripeSubscription;
+  stripeEventId: string;
+}) {
+  const { invoice, syncedSubscription, stripeEventId } = params;
+  const value = getInvoicePaidValue(invoice, syncedSubscription.plan);
+
+  if (value <= 0) {
+    console.info("Meta CAPI Purchase ignorado: invoice sem valor pago.", invoice.id);
+    return;
+  }
+
+  try {
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: syncedSubscription.workspaceId },
+      select: {
+        id: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    const planName = getPlanDisplayNameForMeta(syncedSubscription.plan);
+    const currency = getInvoiceCurrency(invoice);
+    const eventSourceUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://djproia.com"}/dashboard/billing`;
+    const invoiceId = invoice.id || stripeEventId;
+
+    const baseCustomData = {
+      content_type: "product",
+      num_items: 1,
+      stripe_invoice_id: invoice.id,
+      stripe_subscription_id: syncedSubscription.stripeSubscriptionId,
+      stripe_customer_id: syncedSubscription.providerCustomerId,
+      workspace_id: workspace?.id || syncedSubscription.workspaceId,
+      plan: syncedSubscription.plan,
+    };
+
+    const purchaseResult = await sendMetaConversionEvent({
+      eventName: "Purchase",
+      eventId: `purchase_${invoiceId}`,
+      email: workspace?.user?.email || null,
+      value,
+      currency,
+      contentName: `${planName} Subscription`,
+      contentCategory: "SaaS Subscription",
+      eventSourceUrl,
+      clientUserAgent: "stripe-webhook",
+      customData: baseCustomData,
+    });
+
+    const subscribeResult = await sendMetaConversionEvent({
+      eventName: "Subscribe",
+      eventId: `subscribe_${invoiceId}`,
+      email: workspace?.user?.email || null,
+      value,
+      currency,
+      contentName: `${planName} Subscription`,
+      contentCategory: "SaaS Subscription",
+      eventSourceUrl,
+      clientUserAgent: "stripe-webhook",
+      customData: {
+        ...baseCustomData,
+        predicted_ltv: value,
+      },
+    });
+
+    console.info("Meta CAPI billing events processed.", {
+      invoiceId: invoice.id,
+      plan: syncedSubscription.plan,
+      value,
+      currency,
+      purchase: purchaseResult,
+      subscribe: subscribeResult,
+    });
+  } catch (error) {
+    console.error("Erro ao enviar eventos Meta CAPI de billing:", error);
+  }
+}
+
 async function handleInvoicePaymentSucceeded(
   invoice: Stripe.Invoice,
   stripeEventId: string,
@@ -484,12 +623,20 @@ async function handleInvoicePaymentSucceeded(
     return;
   }
 
-  await syncStripeSubscription(subscriptionId, undefined, {
+  const syncedSubscription = await syncStripeSubscription(subscriptionId, undefined, {
     paymentConfirmed: true,
     source: "invoice.payment_succeeded",
     stripeEventId,
     stripeInvoiceId: invoice.id,
   });
+
+  if (syncedSubscription) {
+    await sendMetaBillingEventsForPaidInvoice({
+      invoice,
+      syncedSubscription,
+      stripeEventId,
+    });
+  }
 }
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
