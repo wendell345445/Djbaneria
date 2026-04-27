@@ -2,31 +2,48 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 import { trackMetaPageView, trackMetaViewContent } from "@/lib/meta-pixel";
 
 const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
 
+function isLandingPath(pathname: string | null) {
+  return pathname === "/" || pathname === "/es" || pathname === "/en";
+}
+
 export function MetaPixelProvider() {
   const pathname = usePathname();
-  const [loaded, setLoaded] = useState(false);
-
-  const isLandingPath = useMemo(() => {
-    return pathname === "/" || pathname === "/es" || pathname === "/en";
-  }, [pathname]);
 
   useEffect(() => {
-    if (!pixelId || !loaded) return;
+    if (!pixelId) return;
 
-    trackMetaPageView();
+    let attempts = 0;
+    const maxAttempts = 40;
 
-    if (isLandingPath) {
-      trackMetaViewContent({
-        content_name: "DJ Pro IA Landing Page",
-        content_category: "landing_page",
-      });
-    }
-  }, [loaded, pathname, isLandingPath]);
+    const timer = window.setInterval(() => {
+      attempts += 1;
+
+      if (typeof window.fbq === "function") {
+        window.clearInterval(timer);
+
+        trackMetaPageView();
+
+        if (isLandingPath(pathname)) {
+          trackMetaViewContent({
+            content_name: "DJ Pro IA Landing Page",
+            content_category: "landing_page",
+            content_type: "product",
+          });
+        }
+      }
+
+      if (attempts >= maxAttempts) {
+        window.clearInterval(timer);
+      }
+    }, 150);
+
+    return () => window.clearInterval(timer);
+  }, [pathname]);
 
   if (!pixelId) return null;
 
@@ -44,14 +61,6 @@ export function MetaPixelProvider() {
           'https://connect.facebook.net/en_US/fbevents.js');
           fbq('init', '${pixelId}');
         `}
-      </Script>
-
-      <Script
-        id="meta-pixel-loaded"
-        strategy="afterInteractive"
-        onLoad={() => setLoaded(true)}
-      >
-        {`window.__metaPixelReady = true;`}
       </Script>
 
       <noscript>

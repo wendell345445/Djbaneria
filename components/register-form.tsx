@@ -11,7 +11,11 @@ import {
   type ReactNode,
 } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { createMetaEventId, trackMetaCompleteRegistration, trackMetaLead } from "@/lib/meta-pixel";
+import {
+  createMetaEventId,
+  trackMetaCompleteRegistration,
+  trackMetaLead,
+} from "@/lib/meta-pixel";
 
 declare global {
   interface Window {
@@ -166,11 +170,11 @@ const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim();
 
 function normalizeRegisterLocale(locale?: string): RegisterFormLocale {
   if (locale === "pt-BR" || locale === "en" || locale === "es") return locale;
-  return "en";
+  return "pt-BR";
 }
 
 export function RegisterForm({
-  locale = "en",
+  locale = "pt-BR",
 }: {
   locale?: RegisterFormLocale;
 }) {
@@ -258,7 +262,6 @@ export function RegisterForm({
 
     try {
       const metaEventId = createMetaEventId("CompleteRegistration");
-      const leadEventId = createMetaEventId("Lead");
 
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -287,27 +290,31 @@ export function RegisterForm({
         throw new Error(data?.error || copy.genericCreateError);
       }
 
+      trackMetaLead(
+        {
+          content_name: "DJ Pro IA Account",
+          content_category: "signup",
+          registration_method: "email",
+        },
+        metaEventId,
+      );
+
+      trackMetaCompleteRegistration(
+        {
+          content_name: "DJ Pro IA Account",
+          content_category: "signup",
+          registration_method: "email",
+          status: "completed",
+        },
+        metaEventId,
+      );
+
       if (data.devVerificationCode) {
         window.sessionStorage.setItem(
           "djproia_dev_verification_code",
           data.devVerificationCode,
         );
       }
-
-      trackMetaLead(
-        {
-          content_name: "DJ Pro IA Sign Up",
-          content_category: "signup",
-        },
-        leadEventId,
-      );
-      trackMetaCompleteRegistration(
-        {
-          content_name: "DJ Pro IA Account",
-          status: true,
-        },
-        metaEventId,
-      );
 
       router.push(data.redirectTo ?? "/verify-email");
       router.refresh();
