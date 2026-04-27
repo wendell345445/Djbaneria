@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Plano inválido." },
+        { error: parsed.error.issues[0]?.message || "Invalid plan." },
         { status: 400 },
       );
     }
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
 
     if (!workspace) {
       return NextResponse.json(
-        { error: "Usuário não autenticado." },
+        { error: "User is not authenticated." },
         { status: 401 },
       );
     }
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
 
     if (!isStripePaidPlan(plan)) {
       return NextResponse.json(
-        { error: "Plano não suportado." },
+        { error: "Unsupported plan." },
         { status: 400 },
       );
     }
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
 
     if (!priceId) {
       return NextResponse.json(
-        { error: `Preço Stripe não configurado para o plano ${plan}.` },
+        { error: `Stripe price is not configured for plan ${plan}.` },
         { status: 500 },
       );
     }
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Você já possui uma assinatura paga. Use o botão Gerenciar assinatura para trocar ou cancelar o plano.",
+            "You already have a paid subscription. Use Manage subscription to change or cancel your plan.",
         },
         { status: 409 },
       );
@@ -141,14 +141,8 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      /*
-       * Este projeto está usando Stripe API version 2025-08-27.basil em lib/stripe.ts.
-       * Para essa versão, o valor compatível é "embedded".
-       * Se você atualizar a versão da API Stripe para 2026-03-25.dahlia ou superior,
-       * troque para "embedded_page".
-       */
-      ui_mode: "embedded" as never,
-      return_url: `${appUrl}/dashboard/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${appUrl}/dashboard/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appUrl}/dashboard/billing`,
       allow_promotion_codes: true,
       client_reference_id: workspace.id,
       metadata: {
@@ -163,22 +157,22 @@ export async function POST(request: Request) {
       },
     });
 
-    if (!session.client_secret) {
-      throw new Error("A Stripe não retornou o client secret do checkout.");
+    if (!session.url) {
+      throw new Error("Stripe did not return a valid checkout URL.");
     }
 
     return NextResponse.json({
-      clientSecret: session.client_secret,
+      url: session.url,
     });
   } catch (error) {
-    console.error("Erro ao criar checkout Stripe embutido:", error);
+    console.error("Error creating Stripe checkout:", error);
 
     return NextResponse.json(
       {
         error:
           error instanceof Error
             ? error.message
-            : "Erro interno ao criar checkout Stripe.",
+            : "Internal error while creating Stripe checkout.",
       },
       { status: 500 },
     );
