@@ -9,6 +9,7 @@ import {
   normalizeEmail,
 } from "@/lib/email-verification";
 import { sendVerificationCodeEmail } from "@/lib/email";
+import { sendOwnerNewUserSignupEmail } from "@/lib/owner-notifications";
 import { validateSignupEmailDomain } from "@/lib/disposable-email";
 import { prisma } from "@/lib/prisma";
 import {
@@ -125,7 +126,15 @@ export async function POST(request: Request) {
         emailVerificationSentAt: new Date(),
         emailVerificationAttempts: 0,
       },
-      select: { name: true, email: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        workspaces: {
+          select: { id: true, name: true },
+          take: 1,
+        },
+      },
     });
 
     const emailResult = await sendVerificationCodeEmail({
@@ -133,6 +142,19 @@ export async function POST(request: Request) {
       name: user.name,
       code,
     });
+
+    if (!existingUser) {
+      const workspace = user.workspaces[0];
+
+      void sendOwnerNewUserSignupEmail({
+        name: user.name,
+        email: user.email,
+        artistName,
+        workspaceName: workspace?.name,
+        workspaceId: workspace?.id,
+        ip,
+      });
+    }
 
     return NextResponse.json(
       {

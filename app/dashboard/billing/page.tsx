@@ -25,14 +25,20 @@ const planMeta: Record<
   PlanKey,
   {
     title: string;
+    price: string;
+    priceSuffix: string;
     monthlyCredits: string;
+    costPerBanner: string;
     description: string;
     highlights: string[];
   }
 > = {
   FREE: {
     title: "Free",
+    price: "$0",
+    priceSuffix: "para começar",
     monthlyCredits: "2 créditos/mês",
+    costPerBanner: "Teste grátis com 2 banners iniciais",
     description: "Ideal para testar a plataforma e criar as primeiras artes.",
     highlights: [
       "Geração rápida disponível",
@@ -42,31 +48,37 @@ const planMeta: Record<
   },
   PRO: {
     title: "Pro",
+    price: "$12.99",
+    priceSuffix: "por mês",
     monthlyCredits: "20 créditos/mês",
+    costPerBanner: "Cada banner sai por aprox. $0.64",
     description: "Plano equilibrado para DJs e criadores com uso recorrente.",
     highlights: [
-      "Mais créditos mensais",
       "Qualidade rápida e equilibrada",
       "Bom para campanhas e eventos recorrentes",
     ],
   },
   PROFESSIONAL: {
     title: "Professional",
+    price: "$24.99",
+    priceSuffix: "por mês",
     monthlyCredits: "40 créditos/mês",
+    costPerBanner: "Cada banner sai por aprox. $0.62",
     description:
       "Para quem precisa de mais fôlego para gerar, ajustar e testar artes.",
     highlights: [
-      "Mais créditos para produção recorrente",
       "Alta qualidade liberada",
       "Mais margem para alterações e refinamentos",
     ],
   },
   STUDIO: {
     title: "Studio",
+    price: "$39.99",
+    priceSuffix: "por mês",
     monthlyCredits: "80 créditos/mês",
+    costPerBanner: "Cada banner sai por aprox. $0.49",
     description: "Pensado para operação intensa e produção em maior volume.",
     highlights: [
-      "Alto volume de criação",
       "Alta qualidade liberada",
       "Ótimo para operação profissional contínua",
     ],
@@ -219,7 +231,15 @@ export default async function BillingPage() {
                       <p className="text-[11px] uppercase tracking-[0.18em] text-white/55">
                         {meta.title}
                       </p>
-                      <h3 className="mt-2 text-[19px] font-semibold text-white">
+                      <div className="mt-2 flex flex-wrap items-end gap-x-2 gap-y-1">
+                        <span className="text-[30px] font-semibold leading-none tracking-[-0.04em] text-white">
+                          {meta.price}
+                        </span>
+                        <span className="pb-1 text-xs font-medium text-white/50">
+                          {meta.priceSuffix}
+                        </span>
+                      </div>
+                      <h3 className="mt-2 text-sm font-semibold text-cyan-100/85">
                         {meta.monthlyCredits}
                       </h3>
                     </div>
@@ -242,6 +262,10 @@ export default async function BillingPage() {
                   <p className="mt-3 text-sm leading-5 text-white/65">
                     {meta.description}
                   </p>
+
+                  <div className="mt-3 rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.07] px-3 py-2 text-sm font-semibold text-cyan-100">
+                    {meta.costPerBanner}
+                  </div>
 
                   {isPremium ? (
                     <div className="mt-3 inline-flex w-fit rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
