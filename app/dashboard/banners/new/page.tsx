@@ -6,19 +6,41 @@ import {
 
 import { isAdminEmail } from "@/lib/admin";
 import { NewBannerForm } from "@/components/new-banner-form";
-import { buildBillingSummary } from "@/lib/plans";
+import {
+  buildBillingSummary,
+  getBillingPeriodRange,
+  hasCreditCyclePaymentConfirmation,
+  requiresCreditCyclePaymentConfirmation,
+} from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
 export default async function NewBannerPage() {
   const workspace = await requireCurrentWorkspace();
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const currentPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
+
+  const billingPeriod = getBillingPeriodRange({
+    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+    currentPeriodStart: workspace.subscription?.currentPeriodStart,
+    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+    now,
+  });
+
+  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
+    plan: currentPlan,
+    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+    currentPeriodStart: workspace.subscription?.currentPeriodStart,
+    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+  });
 
   const usageEvents = await prisma.usageEvent.findMany({
     where: {
       workspaceId: workspace.id,
-      createdAt: { gte: monthStart },
+      createdAt: {
+        gte: billingPeriod.start,
+        lt: billingPeriod.end,
+      },
       type: {
         in: [
           UsageEventType.BANNER_GENERATION,
@@ -35,9 +57,11 @@ export default async function NewBannerPage() {
   });
 
   const summary = buildBillingSummary({
-    plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
+    plan: currentPlan,
     status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
     usageEvents,
+    requiresPaymentConfirmation,
+    creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
   });
 
   const isAdmin = isAdminEmail(workspace.user?.email);
@@ -180,7 +204,7 @@ function PlanUsageCard({
 
       <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
         <div className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
-          <span>{isAdmin ? "Uso ilimitado para testes" : "Consumo mensal"}</span>
+          <span>{isAdmin ? "Uso ilimitado para testes" : "Consumo do período"}</span>
           <strong className="text-white/85">
             {isAdmin ? "∞" : `${usagePercent}%`}
           </strong>
@@ -222,7 +246,6 @@ function PlanMetric({
     </div>
   );
 }
-
 
 function EmailVerificationRequiredCard({ email }: { email: string }) {
   return (

@@ -36,7 +36,6 @@ export async function POST(request: Request) {
         email: true,
         role: true,
         isActive: true,
-        emailVerifiedAt: true,
         passwordHash: true,
         workspaces: {
           select: {
@@ -74,14 +73,6 @@ export async function POST(request: Request) {
         { error: "E-mail ou senha inválidos." },
         { status: 400 },
       );
-    }
-
-    if (!user.emailVerifiedAt) {
-      return NextResponse.json({
-        success: true,
-        requiresEmailVerification: true,
-        redirectTo: `/verify-email?email=${encodeURIComponent(user.email)}`,
-      });
     }
 
     const activeWorkspace =
