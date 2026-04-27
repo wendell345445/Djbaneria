@@ -7,8 +7,8 @@ import { verifyPassword } from "@/lib/auth";
 import { normalizeEmail } from "@/lib/email-verification";
 
 const schema = z.object({
-  email: z.string().trim().email("Informe um e-mail válido."),
-  password: z.string().min(1, "Informe sua senha."),
+  email: z.string().trim().email("Enter a valid email address."),
+  password: z.string().min(1, "Enter your password."),
   rememberSession: z.boolean().optional().default(true),
 });
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       const firstIssue = parsed.error.issues[0];
       return NextResponse.json(
-        { error: firstIssue?.message ?? "Dados inválidos." },
+        { error: firstIssue?.message ?? "Invalid data." },
         { status: 400 },
       );
     }
@@ -54,14 +54,14 @@ export async function POST(request: Request) {
 
     if (!user || !user.passwordHash) {
       return NextResponse.json(
-        { error: "E-mail ou senha inválidos." },
+        { error: "Invalid email or password." },
         { status: 400 },
       );
     }
 
     if (user.isActive === false) {
       return NextResponse.json(
-        { error: "Sua conta está desativada." },
+        { error: "Your account is disabled." },
         { status: 403 },
       );
     }
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 
     if (!passwordIsValid) {
       return NextResponse.json(
-        { error: "E-mail ou senha inválidos." },
+        { error: "Invalid email or password." },
         { status: 400 },
       );
     }
@@ -93,10 +93,10 @@ export async function POST(request: Request) {
       redirectTo: "/dashboard",
     });
   } catch (error) {
-    console.error("Erro ao efetuar login:", error);
+    console.error("Login error:", error);
 
     return NextResponse.json(
-      { error: "Não foi possível entrar." },
+      { error: "We could not sign you in." },
       { status: 500 },
     );
   }

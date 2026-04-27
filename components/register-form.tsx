@@ -165,11 +165,11 @@ const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim();
 
 function normalizeRegisterLocale(locale?: string): RegisterFormLocale {
   if (locale === "pt-BR" || locale === "en" || locale === "es") return locale;
-  return "pt-BR";
+  return "en";
 }
 
 export function RegisterForm({
-  locale = "pt-BR",
+  locale = "en",
 }: {
   locale?: RegisterFormLocale;
 }) {

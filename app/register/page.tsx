@@ -1,16 +1,88 @@
+import Link from "next/link";
 import { RegisterForm } from "@/components/register-form";
 
 export default function RegisterPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050916] text-white">
-      <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-20 left-10 h-72 w-72 rounded-full bg-violet-400/10 blur-3xl" />
+    <main className="min-h-screen bg-[#050916] text-white">
+      <div className="mx-auto grid min-h-screen max-w-[1280px] items-center gap-8 px-5 py-8 lg:grid-cols-[minmax(0,1.05fr)_520px]">
+        <section className="relative hidden overflow-hidden rounded-[36px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-8 shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:block">
+          <div className="absolute -right-12 -top-12 h-56 w-56 rounded-full bg-sky-400/10 blur-3xl" />
+          <div className="absolute -bottom-16 left-8 h-56 w-56 rounded-full bg-violet-400/10 blur-3xl" />
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-[1280px] items-center justify-center px-5 py-8">
-        <section className="w-full max-w-[520px]">
-          <RegisterForm />
+          <div className="relative z-10 flex h-full flex-col justify-between gap-8">
+            <div className="max-w-2xl">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-white/45">
+                DJ Banner AI
+              </p>
+              <h1 className="mt-4 text-[42px] font-semibold leading-[1.02] text-white">
+                Create your account and start generating premium AI banners
+              </h1>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-white/68">
+                Set up your workspace, confirm your email, and access a simple
+                workflow to create banners, request AI edits, and download
+                ready-to-use artwork.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <FeatureCard
+                number="01"
+                title="Create account"
+                description="Add your name, email, password, and artist name."
+              />
+              <FeatureCard
+                number="02"
+                title="Verify email"
+                description="Confirm your email with a short verification code."
+              />
+              <FeatureCard
+                number="03"
+                title="Start creating"
+                description="Access your dashboard and generate your first banner."
+              />
+            </div>
+
+            <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm font-semibold text-white">
+                Already have an account?
+              </p>
+              <p className="mt-2 text-sm leading-6 text-white/60">
+                Sign in to continue creating banners and managing your credits.
+              </p>
+              <Link
+                href="/login"
+                className="mt-4 inline-flex min-h-[46px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-5 text-sm font-semibold text-white transition hover:bg-white/[0.1]"
+              >
+                Sign in
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-[520px]">
+          <RegisterForm locale="en" />
         </section>
       </div>
     </main>
+  );
+}
+
+function FeatureCard({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-white/40">
+        {number}
+      </p>
+      <h2 className="mt-2 text-sm font-semibold text-white">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-white/60">{description}</p>
+    </div>
   );
 }

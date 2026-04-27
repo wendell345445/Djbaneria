@@ -35,12 +35,11 @@ export function LoginForm() {
       const data = (await response.json().catch(() => ({}))) as {
         error?: string;
         redirectTo?: string;
-        requiresEmailVerification?: boolean;
       };
 
       if (!response.ok) {
         throw new Error(
-          data?.error || "Não foi possível entrar. Verifique seus dados.",
+          data?.error || "We could not sign you in. Please check your details.",
         );
       }
 
@@ -50,7 +49,7 @@ export function LoginForm() {
       setError(
         err instanceof Error
           ? err.message
-          : "Não foi possível entrar. Tente novamente.",
+          : "We could not sign you in. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -61,22 +60,22 @@ export function LoginForm() {
     <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.32)] sm:p-7">
       <div className="mb-7">
         <p className="text-[11px] uppercase tracking-[0.22em] text-white/45">
-          Acesso
+          Access
         </p>
         <h1 className="mt-3 text-[28px] font-semibold leading-tight text-white">
-          Entrar no painel
+          Sign in to your dashboard
         </h1>
         <p className="mt-2 text-sm leading-6 text-white/60">
-          Use seu e-mail e senha para acessar sua área de criação.
+          Use your email and password to access your creative workspace.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="grid gap-5">
-        <Field label="E-mail">
+        <Field label="Email">
           <input
             type="email"
             className={inputClassName}
-            placeholder="seuemail@exemplo.com"
+            placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
@@ -84,12 +83,12 @@ export function LoginForm() {
           />
         </Field>
 
-        <Field label="Senha">
+        <Field label="Password">
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               className={`${inputClassName} pr-12`}
-              placeholder="Digite sua senha"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -100,7 +99,7 @@ export function LoginForm() {
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-white/45 transition hover:text-white/80"
-              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -114,7 +113,7 @@ export function LoginForm() {
             onChange={(e) => setRememberSession(e.target.checked)}
             className="h-4 w-4 rounded border-white/20 bg-transparent"
           />
-          <span>Manter conectado neste dispositivo</span>
+          <span>Keep me signed in on this device</span>
         </label>
 
         <button
@@ -122,7 +121,7 @@ export function LoginForm() {
           disabled={loading}
           className="inline-flex min-h-[52px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-80"
         >
-          {loading ? "Entrando..." : "Entrar"}
+          {loading ? "Signing in..." : "Sign in"}
         </button>
 
         {error ? <p className="text-sm text-rose-300">{error}</p> : null}
@@ -133,7 +132,7 @@ export function LoginForm() {
           href="/register"
           className="text-sm font-medium text-sky-200 transition hover:text-sky-100"
         >
-          Ainda não tem conta? Criar cadastro
+          Don&apos;t have an account yet? Create one
         </Link>
       </div>
     </div>

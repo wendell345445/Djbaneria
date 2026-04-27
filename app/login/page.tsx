@@ -14,29 +14,30 @@ export default function LoginPage() {
                 DJ Banner AI
               </p>
               <h1 className="mt-4 text-[42px] font-semibold leading-[1.02] text-white">
-                Entre no painel e crie banners profissionais com IA
+                Sign in and create professional AI banners for your events
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-7 text-white/68">
-                Um fluxo pensado para DJs e criadores que querem gerar artes com rapidez,
-                fazer ajustes por IA e baixar a versão final sem complicação.
+                A workflow designed for DJs and creators who want to generate
+                artwork quickly, request AI adjustments, and download final
+                versions without friction.
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               <FeatureCard
                 number="01"
-                title="Briefing simples"
-                description="Preencha título, nome do DJ, data e local do evento."
+                title="Simple briefing"
+                description="Add the title, DJ name, event date, and location."
               />
               <FeatureCard
                 number="02"
-                title="Preview com IA"
-                description="Visualize a arte no formato escolhido antes de baixar."
+                title="AI preview"
+                description="Preview your artwork in the selected format before downloading."
               />
               <FeatureCard
                 number="03"
-                title="Ajustes rápidos"
-                description="Solicite alterações da arte e gere novas versões."
+                title="Fast edits"
+                description="Request artwork changes and create refined versions."
               />
             </div>
           </div>
