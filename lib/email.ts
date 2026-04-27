@@ -38,13 +38,13 @@ function buildVerificationEmailHtml(params: SendVerificationCodeParams) {
   const safeCode = escapeHtml(params.code);
 
   return `<!doctype html>
-<html lang="pt-BR" style="margin:0;padding:0;background:#ffffff!important;background-color:#ffffff!important;color-scheme:light supported-color-schemes:light;">
+<html lang="en" style="margin:0;padding:0;background:#ffffff!important;background-color:#ffffff!important;color-scheme:light supported-color-schemes:light;">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <meta name="supported-color-schemes" content="light" />
-    <title>Confirme sua conta</title>
+    <title>Confirm your account</title>
     <style>
       :root {
         color-scheme: light;
@@ -136,22 +136,22 @@ function buildVerificationEmailHtml(params: SendVerificationCodeParams) {
             <tr>
               <td bgcolor="#ffffff" style="padding:30px 28px 26px;background:#ffffff!important;background-color:#ffffff!important;">
                 <p class="email-muted" style="margin:0 0 14px;font-size:11px;line-height:1.4;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#6b7280!important;background:#ffffff!important;background-color:#ffffff!important;">
-                  Verificação de e-mail
+                  Email verification
                 </p>
 
                 <h1 class="email-title" style="margin:0 0 12px;font-size:25px;line-height:1.2;font-weight:800;color:#111827!important;background:#ffffff!important;background-color:#ffffff!important;">
-                  Confirme sua conta no ${appName}
+                  Confirm your ${appName} account
                 </h1>
 
                 <p class="email-text" style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#4b5563!important;background:#ffffff!important;background-color:#ffffff!important;">
-                  Olá, ${safeName}. Use o código abaixo para confirmar seu e-mail e liberar o acesso à geração de banners.
+                  Hi, ${safeName}. Use the code below to confirm your email and unlock access to AI banner generation.
                 </p>
 
                 <table class="email-code-box" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff" style="margin:24px 0;border-collapse:separate;background:#ffffff!important;background-color:#ffffff!important;border-radius:18px;">
                   <tr>
                     <td align="center" bgcolor="#ffffff" style="padding:20px 18px;background:#ffffff!important;background-color:#ffffff!important;">
                       <p class="email-muted" style="margin:0 0 9px;font-size:11px;line-height:1.4;letter-spacing:0.16em;text-transform:uppercase;color:#6b7280!important;font-weight:700;background:#ffffff!important;background-color:#ffffff!important;">
-                        Seu código
+                        Your code
                       </p>
                       <strong class="email-code" style="display:block;font-size:36px;line-height:1.1;letter-spacing:0.22em;color:#111827!important;font-weight:900;background:#ffffff!important;background-color:#ffffff!important;">
                         ${safeCode}
@@ -161,14 +161,14 @@ function buildVerificationEmailHtml(params: SendVerificationCodeParams) {
                 </table>
 
                 <p class="email-muted" style="margin:0;font-size:13px;line-height:1.7;color:#6b7280!important;background:#ffffff!important;background-color:#ffffff!important;">
-                  Esse código expira em 15 minutos. Se você não solicitou esse cadastro, ignore este e-mail.
+                  This code expires in 15 minutes. If you did not request this account, you can safely ignore this email.
                 </p>
               </td>
             </tr>
             <tr>
               <td class="email-footer" bgcolor="#ffffff" style="padding:18px 28px;background:#ffffff!important;background-color:#ffffff!important;">
                 <p class="email-muted" style="margin:0;font-size:12px;line-height:1.6;color:#9ca3af!important;text-align:center;background:#ffffff!important;background-color:#ffffff!important;">
-                  ${appName} • Geração de banners profissionais com IA
+                  ${appName} • AI-powered professional banner generation
                 </p>
               </td>
             </tr>
@@ -186,7 +186,7 @@ export async function sendVerificationCodeEmail(
   const apiKey = process.env.RESEND_API_KEY?.trim();
 
   if (!apiKey) {
-    console.log(`[email-verification] Código para ${params.to}: ${params.code}`);
+    console.log(`[email-verification] Code for ${params.to}: ${params.code}`);
     return { sent: false, devMode: true };
   }
 
@@ -199,15 +199,15 @@ export async function sendVerificationCodeEmail(
     body: JSON.stringify({
       from: getEmailFrom(),
       to: [params.to],
-      subject: `Seu código de verificação - ${getAppName()}`,
+      subject: `Your verification code - ${getAppName()}`,
       html: buildVerificationEmailHtml(params),
     }),
   });
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    console.error("Erro ao enviar e-mail de verificação:", text);
-    throw new Error("Não foi possível enviar o código de verificação.");
+    console.error("Error sending verification email:", text);
+    throw new Error("Could not send the verification code.");
   }
 
   return { sent: true, devMode: false };

@@ -304,12 +304,9 @@ function SidebarLink({
 
 function BrandBlock({ studioLabel }: { studioLabel: string }) {
   return (
-    <Link
-      href="/dashboard"
-      className="block rounded-3xl border border-white/10 bg-white/[0.04] p-4"
-    >
+    <Link href="/dashboard" className="block rounded-3xl  p-4">
       <div className="flex items-center gap-3">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-violet-300 to-amber-200 text-slate-950 shadow-[0_0_28px_rgba(125,211,252,0.22)]">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-violet-300 to-amber-200 text-slate-950 ">
           <Sparkles className="h-5 w-5" />
         </span>
         <div>

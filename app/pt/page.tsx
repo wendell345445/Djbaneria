@@ -556,6 +556,21 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <footer className="border-t border-white/8 bg-[#060816]">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-8 text-sm text-white/50 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <p>© 2026 DJ Banner AI. All rights reserved.</p>
+
+          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="/terms" className="transition hover:text-white">
+              Terms of Use
+            </Link>
+            <Link href="/privacy" className="transition hover:text-white">
+              Privacy Policy
+            </Link>
+          </nav>
+        </div>
+      </footer>
+
     </main>
   );
 }
