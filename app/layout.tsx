@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
+import Script from "next/script";
 import { MetaPixelProvider } from "@/components/meta-pixel-provider";
 import "./globals.css";
 
@@ -15,6 +16,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <Script
+          id="google-adsense"
+          async
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1749884996022733"
+          crossOrigin="anonymous"
+        />
+      </head>
+
       <body
         style={{
           margin: 0,
