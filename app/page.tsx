@@ -378,47 +378,6 @@ export default function HomePage() {
         className="border-t border-white/8 bg-white/[0.02]"
       >
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-              Start now
-            </p>
-            <h2 className="mt-4 max-w-xl text-[30px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[46px]">
-              Create your account and try a new way to promote your events.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-white/66">
-              Sign up, confirm your email, and enter the dashboard to start
-              generating AI banners. Ideal for DJs who want more speed, visual
-              presence, and more professional promotion.
-            </p>
-
-            <div className="mt-8 space-y-4 text-sm text-white/72">
-              {[
-                "Online access and a simple flow to start fast",
-                "Built for feed and story, the most used promotion formats",
-                "Signup with extra protection and email confirmation",
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
-                    <BadgeCheck size={12} />
-                  </span>
-                  <span>{item}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 rounded-[28px] border border-white/10 bg-[#0b1020] p-6">
-              <p className="text-sm font-semibold text-white">
-                What you get inside
-              </p>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <MiniPill icon={Sparkles} label="AI banner generation" />
-                <MiniPill icon={Wand2} label="Editing and refinement" />
-                <MiniPill icon={Gauge} label="Intuitive workflow" />
-                <MiniPill icon={MailCheck} label="Email-verified access" />
-              </div>
-            </div>
-          </div>
-
           <div
             id="formulario-cadastro"
             className="min-w-0 scroll-mt-28 lg:scroll-mt-32"
