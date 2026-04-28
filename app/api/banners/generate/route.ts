@@ -19,6 +19,7 @@ import {
   isBannerQualityAllowed,
   type BannerImageQuality,
 } from "@/lib/plans";
+import { isBannerStyleAllowedForPlan } from "@/lib/banner-style-access";
 import { prisma } from "@/lib/prisma";
 import {
   buildRateLimitHeaders,
@@ -67,6 +68,12 @@ const schema = z.object({
   eventLocation: z.string().trim().min(2, "Informe o local do evento."),
   stylePreset: z.enum([
     "NEON_CLUB",
+    "FESTIVAL_MAINSTAGE",
+    "CYBER_RAVE",
+    "DARK_TECHNO",
+    "CHROME_FUTURE",
+    "AFRO_HOUSE_SUNSET",
+    "Y2K_CLUB",
     "PREMIUM_BLACK",
     "SUMMER_VIBES",
     "MINIMAL_TECHNO",
@@ -363,24 +370,25 @@ export async function POST(request: Request) {
 
     const payload = parsed.data;
     const isAdmin = isAdminEmail(workspace.user?.email);
+    const subscriptionPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
+    const requestedQuality =
+      payload.quality || getDefaultBannerQuality(subscriptionPlan, isAdmin);
 
-    if (!isAdmin && !workspace.user?.emailVerifiedAt) {
+    if (
+      !isBannerStyleAllowedForPlan({
+        stylePreset: payload.stylePreset,
+        plan: subscriptionPlan,
+        isAdmin,
+      })
+    ) {
       return NextResponse.json(
         {
           error:
-            "Confirme seu e-mail antes de gerar banners. Enviamos um código de verificação para sua caixa de entrada.",
-          requiresEmailVerification: true,
-          redirectTo: `/verify-email?email=${encodeURIComponent(
-            workspace.user?.email || "",
-          )}`,
+            "Premium visual styles are available from the Pro plan and higher.",
         },
         { status: 403, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
-
-    const subscriptionPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
-    const requestedQuality =
-      payload.quality || getDefaultBannerQuality(subscriptionPlan, isAdmin);
 
     if (!isBannerQualityAllowed(subscriptionPlan, requestedQuality, isAdmin)) {
       return NextResponse.json(

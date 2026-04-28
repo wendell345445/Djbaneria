@@ -1,16 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import type { SubscriptionPlan } from "@/generated/prisma/enums";
 import {
   getAllowedBannerQualities,
   getDefaultBannerQuality,
   type BannerImageQuality,
 } from "@/lib/plans";
+import { isBannerStyleProOnly } from "@/lib/banner-style-access";
 
 const stylePresets = [
   { value: "NEON_CLUB", label: "Neon Club" },
+  { value: "FESTIVAL_MAINSTAGE", label: "Festival Mainstage" },
+  { value: "CYBER_RAVE", label: "Cyber Rave" },
+  { value: "DARK_TECHNO", label: "Dark Techno" },
+  { value: "CHROME_FUTURE", label: "Chrome Future" },
+  { value: "AFRO_HOUSE_SUNSET", label: "Afro House Sunset" },
+  { value: "Y2K_CLUB", label: "Y2K Club" },
   { value: "PREMIUM_BLACK", label: "Premium Black" },
   { value: "SUMMER_VIBES", label: "Summer Vibes" },
   { value: "MINIMAL_TECHNO", label: "Minimal Techno" },
@@ -54,85 +61,12 @@ const qualityOptions: {
   },
 ];
 
-
-type NewBannerLocale = "pt-BR" | "en" | "es";
-
-function normalizeNewBannerLocale(locale?: string | null): NewBannerLocale {
-  if (locale === "pt-BR" || locale === "en" || locale === "es") return locale;
-  return "en";
-}
-
-const newBannerCopy = {
-  "pt-BR": {
-    generateSteps: ["Preparando os dados do banner", "Enviando composição para a IA", "Gerando o preview visual", "Finalizando o resultado"],
-    editSteps: ["Analisando a arte atual", "Aplicando suas instruções na composição", "Renderizando a nova versão", "Finalizando os ajustes da arte"],
-    qualityLabels: { low: "Rápido", medium: "Equilibrado", high: "Alta qualidade" },
-    unavailableInPlan: "indisponível no seu plano",
-    loading: {
-      generate: { title: "A IA está montando sua composição", badge: "Processando", chip: "Render IA", helper: "A IA está preparando seu banner com base no briefing informado." },
-      edit: { title: "A IA está aplicando sua alteração", badge: "Alterando", chip: "Edit IA", helper: "A imagem atual está sendo usada como base para criar uma nova versão." },
-    },
-    messages: {
-      cannotReadImage: "Não foi possível ler a imagem enviada.", cannotTrack: "Não foi possível acompanhar a geração.", completedWithoutImage: "O banner foi concluído, mas a imagem final não foi encontrada.",
-      editSuccess: "Alteração aplicada com sucesso.", bannerSuccess: "Banner gerado e salvo com sucesso.", editFailed: "Não foi possível concluir a alteração da arte.", generateFailed: "Não foi possível concluir a geração do banner.",
-      editProcessing: "Sua alteração ainda está sendo processada pela IA...", generateProcessing: "Seu banner ainda está sendo processado pela IA...", resumeEdit: "Retomando acompanhamento da alteração em andamento...", resumeGenerate: "Retomando acompanhamento do banner em andamento...",
-      noCredits: "Você usou todos os seus créditos deste mês.", preparing: "Preparando os dados do banner...", sending: "Enviando composição para a IA...", drawing: "A IA está desenhando o preview do banner...", finishing: "Ajustando o resultado final. Aguarde mais alguns instantes...",
-      cannotGenerate: "Não foi possível gerar o banner.", testPreviewSuccess: "Preview gerado com sucesso no modo de teste.", generateError: "Erro ao gerar banner.", editPromptTooShort: "Descreva a alteração desejada com um pouco mais de detalhe.", analyzing: "Analisando a arte atual para aplicar a alteração...", applying: "Aplicando suas instruções na composição...", rendering: "Renderizando a nova versão da arte...", editFinishing: "Finalizando os ajustes da alteração. Aguarde mais alguns instantes...", cannotEdit: "Não foi possível editar a arte.", editError: "Erro ao editar a arte.", generationStarted: "Geração iniciada. Você pode sair da página e voltar para acompanhar.", editStarted: "Alteração iniciada. Você pode sair da página e voltar para acompanhar.",
-    },
-    form: { eyebrow: "Briefing criativo", title: "Preencha os dados do banner", description: "Uma estrutura clara para gerar flyers premium sem confusão entre texto principal, nome do DJ e informações do evento.", completionLabel: "Briefing", mainContent: "Conteúdo principal", mainText: "Texto principal do banner", mainTextPlaceholder: "Ex.: Pull Party Fest", djName: "Nome do DJ", djNamePlaceholder: "Ex.: DJ Vitor", secondaryText: "Chamada secundária (opcional)", secondaryTextPlaceholder: "Ex.: Edição especial", eventInfo: "Informações do evento", eventDate: "Data do evento", eventDatePlaceholder: "Ex.: 19/09/2026", eventLocation: "Local do evento", eventLocationPlaceholder: "Ex.: São Paulo Hall - São Paulo", visualDirection: "Direção visual", visualStyle: "Estilo visual", format: "Formato", quality: "Qualidade de geração", djPhoto: "Foto do DJ (opcional)", djPhotoHelper: "Envie uma imagem para a IA usar como referência visual.", noFile: "Nenhum arquivo selecionado", chooseFile: "Escolher arquivo", changeFile: "Trocar arquivo", professionalStructure: "Estrutura profissional", structureDescription: "O texto principal será o maior destaque da arte. O nome do DJ ficará em segundo nível e o bloco complementar será mais discreto e elegante.", remainingCredits: "Créditos restantes", creditsExhausted: "Créditos esgotados", generating: "Gerando preview...", editing: "Aplicando alteração...", submit: "Gerar banner premium" },
-    preview: { eyebrow: "Preview", readyTitle: "Preview pronto para revisão", emptyTitle: "Seu banner aparecerá aqui", selectedFormat: "Formato selecionado", completed: "Concluído", waiting: "Aguardando", applyingChanges: "Aplicando alterações", composingLayers: "Compondo camadas", generatingNewVersion: "Gerando nova versão", processingVisual: "Processando visual", imageAlt: "Banner gerado", testPreviewTitle: "Preview gerado no modo de teste", successTitle: "Seu banner foi criado com sucesso", testPreviewDescription: "Neste modo o sistema prioriza velocidade e mostra o preview imediatamente.", successDescription: "A imagem já pode ser baixada ou aberta em uma nova guia.", download: "Baixar imagem", open: "Abrir imagem", editTitle: "Solicitar alteração da arte", editDescription: "Descreva a mudança desejada. Cada alteração consome 1 crédito.", oneCredit: "1 crédito", editPlaceholder: "Ex.: deixe o fundo mais escuro, aumente o destaque do título principal e use um clima mais neon.", editHelper: "A IA usará a imagem atual como base e criará uma nova versão da arte.", editButton: "Solicitar alteração", editingButton: "Alterando arte...", smartPreview: "Preview inteligente", emptyDescription: "Seu banner será gerado aqui.", waitingGeneration: "Aguardando geração" },
-    upgrade: { close: "Fechar popup", eyebrow: "Créditos esgotados", title: "Você chegou ao limite de banners deste mês", description: "Faça upgrade do seu plano para liberar mais créditos mensais e continuar criando banners profissionais com IA sem interromper seu fluxo de trabalho.", proBenefit: "O plano Pro aumenta seus créditos, enquanto o Professional libera créditos extras e qualidade superior.", continueBenefit: "Continue gerando banners para eventos, stories e posts de divulgação.", plans: "Ver planos", notNow: "Agora não" },
-  },
-  en: {
-    generateSteps: ["Preparing banner data", "Sending composition to AI", "Generating visual preview", "Finalizing result"],
-    editSteps: ["Analyzing current artwork", "Applying your instructions", "Rendering the new version", "Finalizing artwork adjustments"],
-    qualityLabels: { low: "Fast", medium: "Balanced", high: "High quality" },
-    unavailableInPlan: "unavailable on your plan",
-    loading: { generate: { title: "AI is building your composition", badge: "Processing", chip: "AI render", helper: "AI is preparing your banner based on the briefing you provided." }, edit: { title: "AI is applying your change", badge: "Editing", chip: "AI edit", helper: "The current image is being used as the base for a new version." } },
-    messages: { cannotReadImage: "Could not read the uploaded image.", cannotTrack: "Could not track the generation.", completedWithoutImage: "The banner was completed, but the final image was not found.", editSuccess: "Change applied successfully.", bannerSuccess: "Banner generated and saved successfully.", editFailed: "Could not complete the artwork edit.", generateFailed: "Could not complete the banner generation.", editProcessing: "Your edit is still being processed by AI...", generateProcessing: "Your banner is still being processed by AI...", resumeEdit: "Resuming the edit in progress...", resumeGenerate: "Resuming the banner generation in progress...", noCredits: "You have used all your credits for this month.", preparing: "Preparing banner data...", sending: "Sending composition to AI...", drawing: "AI is drawing the banner preview...", finishing: "Adjusting the final result. Please wait a little longer...", cannotGenerate: "Could not generate the banner.", testPreviewSuccess: "Preview generated successfully in test mode.", generateError: "Error generating banner.", editPromptTooShort: "Describe the requested change with a bit more detail.", analyzing: "Analyzing the current artwork to apply the change...", applying: "Applying your instructions to the composition...", rendering: "Rendering the new artwork version...", editFinishing: "Finalizing the edit adjustments. Please wait a little longer...", cannotEdit: "Could not edit the artwork.", editError: "Error editing artwork.", generationStarted: "Generation started. You can leave this page and come back to track progress.", editStarted: "Edit started. You can leave this page and come back to track progress." },
-    form: { eyebrow: "Creative briefing", title: "Fill in the banner details", description: "A clear structure to generate premium flyers without mixing up the main text, DJ name and event information.", completionLabel: "Briefing", mainContent: "Main content", mainText: "Main banner text", mainTextPlaceholder: "E.g. Pull Party Fest", djName: "DJ name", djNamePlaceholder: "E.g. DJ Vitor", secondaryText: "Secondary headline (optional)", secondaryTextPlaceholder: "E.g. Special edition", eventInfo: "Event information", eventDate: "Event date", eventDatePlaceholder: "E.g. 09/19/2026", eventLocation: "Event location", eventLocationPlaceholder: "E.g. São Paulo Hall - São Paulo", visualDirection: "Visual direction", visualStyle: "Visual style", format: "Format", quality: "Generation quality", djPhoto: "DJ photo (optional)", djPhotoHelper: "Upload an image for AI to use as a visual reference.", noFile: "No file selected", chooseFile: "Choose file", changeFile: "Change file", professionalStructure: "Professional structure", structureDescription: "The main text will be the strongest highlight. The DJ name will be secondary, and the complementary block will be more discreet and elegant.", remainingCredits: "Remaining credits", creditsExhausted: "Credits exhausted", generating: "Generating preview...", editing: "Applying change...", submit: "Generate premium banner" },
-    preview: { eyebrow: "Preview", readyTitle: "Preview ready for review", emptyTitle: "Your banner will appear here", selectedFormat: "Selected format", completed: "Completed", waiting: "Waiting", applyingChanges: "Applying changes", composingLayers: "Composing layers", generatingNewVersion: "Generating new version", processingVisual: "Processing visual", imageAlt: "Generated banner", testPreviewTitle: "Preview generated in test mode", successTitle: "Your banner was created successfully", testPreviewDescription: "In this mode, the system prioritizes speed and shows the preview immediately.", successDescription: "The image can now be downloaded or opened in a new tab.", download: "Download image", open: "Open image", editTitle: "Request artwork change", editDescription: "Describe the desired change. Each edit consumes 1 credit.", oneCredit: "1 credit", editPlaceholder: "E.g. make the background darker, highlight the main title more and use a stronger neon mood.", editHelper: "AI will use the current image as the base and create a new version of the artwork.", editButton: "Request change", editingButton: "Editing artwork...", smartPreview: "Smart preview", emptyDescription: "Your banner will be generated here.", waitingGeneration: "Waiting for generation" },
-    upgrade: { close: "Close popup", eyebrow: "Credits exhausted", title: "You reached this month's banner limit", description: "Upgrade your plan to unlock more monthly credits and keep creating professional AI banners without interrupting your workflow.", proBenefit: "The Pro plan increases your credits, while Professional unlocks extra credits and higher quality.", continueBenefit: "Keep generating banners for events, stories and promotional posts.", plans: "View plans", notNow: "Not now" },
-  },
-  es: {
-    generateSteps: ["Preparando los datos del banner", "Enviando la composición a la IA", "Generando la vista previa visual", "Finalizando el resultado"], editSteps: ["Analizando el arte actual", "Aplicando tus instrucciones", "Renderizando la nueva versión", "Finalizando los ajustes del arte"], qualityLabels: { low: "Rápido", medium: "Equilibrado", high: "Alta calidad" }, unavailableInPlan: "no disponible en tu plan",
-    loading: { generate: { title: "La IA está creando tu composición", badge: "Procesando", chip: "Render IA", helper: "La IA está preparando tu banner según el briefing informado." }, edit: { title: "La IA está aplicando tu cambio", badge: "Editando", chip: "Edit IA", helper: "La imagen actual se está usando como base para crear una nueva versión." } },
-    messages: { cannotReadImage: "No fue posible leer la imagen enviada.", cannotTrack: "No fue posible seguir la generación.", completedWithoutImage: "El banner fue concluido, pero no se encontró la imagen final.", editSuccess: "Cambio aplicado con éxito.", bannerSuccess: "Banner generado y guardado con éxito.", editFailed: "No fue posible concluir la edición del arte.", generateFailed: "No fue posible concluir la generación del banner.", editProcessing: "Tu edición todavía está siendo procesada por la IA...", generateProcessing: "Tu banner todavía está siendo procesado por la IA...", resumeEdit: "Retomando el seguimiento de la edición en curso...", resumeGenerate: "Retomando el seguimiento del banner en curso...", noCredits: "Has usado todos tus créditos de este mes.", preparing: "Preparando los datos del banner...", sending: "Enviando la composición a la IA...", drawing: "La IA está dibujando la vista previa del banner...", finishing: "Ajustando el resultado final. Espera unos instantes más...", cannotGenerate: "No fue posible generar el banner.", testPreviewSuccess: "Vista previa generada con éxito en modo de prueba.", generateError: "Error al generar el banner.", editPromptTooShort: "Describe el cambio deseado con un poco más de detalle.", analyzing: "Analizando el arte actual para aplicar el cambio...", applying: "Aplicando tus instrucciones en la composición...", rendering: "Renderizando la nueva versión del arte...", editFinishing: "Finalizando los ajustes de la edición. Espera unos instantes más...", cannotEdit: "No fue posible editar el arte.", editError: "Error al editar el arte.", generationStarted: "Generación iniciada. Puedes salir de la página y volver para seguir el progreso.", editStarted: "Edición iniciada. Puedes salir de la página y volver para seguir el progreso." },
-    form: { eyebrow: "Briefing creativo", title: "Completa los datos del banner", description: "Una estructura clara para generar flyers premium sin confundir el texto principal, el nombre del DJ y la información del evento.", completionLabel: "Briefing", mainContent: "Contenido principal", mainText: "Texto principal del banner", mainTextPlaceholder: "Ej.: Pull Party Fest", djName: "Nombre del DJ", djNamePlaceholder: "Ej.: DJ Vitor", secondaryText: "Llamada secundaria (opcional)", secondaryTextPlaceholder: "Ej.: Edición especial", eventInfo: "Información del evento", eventDate: "Fecha del evento", eventDatePlaceholder: "Ej.: 19/09/2026", eventLocation: "Lugar del evento", eventLocationPlaceholder: "Ej.: São Paulo Hall - São Paulo", visualDirection: "Dirección visual", visualStyle: "Estilo visual", format: "Formato", quality: "Calidad de generación", djPhoto: "Foto del DJ (opcional)", djPhotoHelper: "Envía una imagen para que la IA la use como referencia visual.", noFile: "Ningún archivo seleccionado", chooseFile: "Elegir archivo", changeFile: "Cambiar archivo", professionalStructure: "Estructura profesional", structureDescription: "El texto principal será el mayor destaque del arte. El nombre del DJ quedará en segundo nivel y el bloque complementario será más discreto y elegante.", remainingCredits: "Créditos restantes", creditsExhausted: "Créditos agotados", generating: "Generando vista previa...", editing: "Aplicando cambio...", submit: "Generar banner premium" },
-    preview: { eyebrow: "Vista previa", readyTitle: "Vista previa lista para revisión", emptyTitle: "Tu banner aparecerá aquí", selectedFormat: "Formato seleccionado", completed: "Concluido", waiting: "Esperando", applyingChanges: "Aplicando cambios", composingLayers: "Componiendo capas", generatingNewVersion: "Generando nueva versión", processingVisual: "Procesando visual", imageAlt: "Banner generado", testPreviewTitle: "Vista previa generada en modo de prueba", successTitle: "Tu banner fue creado con éxito", testPreviewDescription: "En este modo, el sistema prioriza la velocidad y muestra la vista previa inmediatamente.", successDescription: "La imagen ya puede descargarse o abrirse en una nueva pestaña.", download: "Descargar imagen", open: "Abrir imagen", editTitle: "Solicitar cambio del arte", editDescription: "Describe el cambio deseado. Cada edición consume 1 crédito.", oneCredit: "1 crédito", editPlaceholder: "Ej.: deja el fondo más oscuro, destaca más el título principal y usa un clima más neón.", editHelper: "La IA usará la imagen actual como base y creará una nueva versión del arte.", editButton: "Solicitar cambio", editingButton: "Editando arte...", smartPreview: "Vista previa inteligente", emptyDescription: "Tu banner será generado aquí.", waitingGeneration: "Esperando generación" },
-    upgrade: { close: "Cerrar popup", eyebrow: "Créditos agotados", title: "Llegaste al límite de banners de este mes", description: "Haz upgrade de tu plan para liberar más créditos mensuales y seguir creando banners profesionales con IA sin interrumpir tu flujo de trabajo.", proBenefit: "El plan Pro aumenta tus créditos, mientras que Professional libera créditos extra y calidad superior.", continueBenefit: "Sigue generando banners para eventos, stories y publicaciones de divulgación.", plans: "Ver planes", notNow: "Ahora no" },
-  },
-} as const;
-
-type NewBannerFormCopy = (typeof newBannerCopy)[NewBannerLocale];
-
 type GenerationResult = {
   imageUrl: string;
   bannerId?: string | null;
   bannerUrl?: string | null;
   saved?: boolean;
 };
-
-type BannerFormState = {
-  mainText: string;
-  djName: string;
-  secondaryText: string;
-  eventDate: string;
-  eventLocation: string;
-  stylePreset: string;
-  format: string;
-  quality: BannerImageQuality;
-};
-
-type ActiveBannerJob = {
-  bannerId: string;
-  mode: "generate" | "edit";
-  bannerUrl?: string | null;
-  startedAt: number;
-  form: BannerFormState;
-};
-
-const ACTIVE_BANNER_JOB_KEY = "dj-banner-active-job";
 
 function readFileAsDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -189,8 +123,23 @@ function getLoadingProgress(activeStep: number) {
   }
 }
 
-function buildLoadingTexts(mode: "generate" | "edit" | null, copy: NewBannerFormCopy) {
-  return mode === "edit" ? copy.loading.edit : copy.loading.generate;
+function buildLoadingTexts(mode: "generate" | "edit" | null) {
+  if (mode === "edit") {
+    return {
+      title: "A IA está aplicando sua alteração",
+      badge: "Alterando",
+      chip: "Edit IA",
+      helper:
+        "A imagem atual está sendo usada como base para criar uma nova versão.",
+    };
+  }
+
+  return {
+    title: "A IA está montando sua composição",
+    badge: "Processando",
+    chip: "Render IA",
+    helper: "A IA está preparando seu banner com base no briefing informado.",
+  };
 }
 
 function isCreditExhaustedMessage(message: string) {
@@ -209,16 +158,13 @@ export function NewBannerForm({
   isAdmin = false,
   canGenerateBanner = true,
   initialRemainingCredits = null,
-  locale = "en",
 }: {
   currentPlan: SubscriptionPlan;
   isAdmin?: boolean;
   canGenerateBanner?: boolean;
   initialRemainingCredits?: number | null;
-  locale?: string | null;
 }) {
   const router = useRouter();
-  const copy = newBannerCopy[normalizeNewBannerLocale(locale)];
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [error, setError] = useState("");
@@ -235,22 +181,21 @@ export function NewBannerForm({
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState("");
-  const [showCreditUpgrade, setShowCreditUpgrade] = useState(false);
-  const [jobProgress, setJobProgress] = useState<number | null>(null);
-  const pollingTimerRef = useRef<number | null>(null);
-  const referenceFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [showCreditUpgrade, setShowCreditUpgrade] = useState(
+    !isAdmin && !canGenerateBanner,
+  );
   const allowedQualities = useMemo(
     () => getAllowedBannerQualities(currentPlan, isAdmin),
     [currentPlan, isAdmin],
   );
 
-  const [form, setForm] = useState<BannerFormState>({
+  const [form, setForm] = useState({
     mainText: "",
     djName: "",
     secondaryText: "",
     eventDate: "",
     eventLocation: "",
-    stylePreset: "LUXURY_GOLD",
+    stylePreset: "NEON_CLUB",
     format: "POST_FEED",
     quality: getDefaultBannerQuality(currentPlan, isAdmin),
   });
@@ -277,252 +222,25 @@ export function NewBannerForm({
   );
 
   const loadingProgress = useMemo(
-    () => jobProgress ?? getLoadingProgress(activeStep),
-    [activeStep, jobProgress],
+    () => getLoadingProgress(activeStep),
+    [activeStep],
   );
 
   const displayLoading = loading || editLoading;
-  const currentSteps = loadingMode === "edit" ? copy.editSteps : copy.generateSteps;
-  const loadingTexts = buildLoadingTexts(loadingMode, copy);
+  const currentSteps = loadingMode === "edit" ? editSteps : generateSteps;
+  const loadingTexts = buildLoadingTexts(loadingMode);
   const hasNoCredits =
     !isAdmin &&
     (!canGenerateBanner ||
       (typeof remainingCredits === "number" && remainingCredits <= 0));
-
-  function clearPollingTimer() {
-    if (pollingTimerRef.current !== null) {
-      window.clearInterval(pollingTimerRef.current);
-      pollingTimerRef.current = null;
-    }
-  }
-
-  function clearActiveBannerJob() {
-    clearPollingTimer();
-    window.localStorage.removeItem(ACTIVE_BANNER_JOB_KEY);
-  }
-
-  function saveActiveBannerJob(job: ActiveBannerJob) {
-    window.localStorage.setItem(ACTIVE_BANNER_JOB_KEY, JSON.stringify(job));
-  }
-
-  function startBannerJob(params: {
-    bannerId: string;
-    mode: "generate" | "edit";
-    bannerUrl?: string | null;
-  }) {
-    const job: ActiveBannerJob = {
-      bannerId: params.bannerId,
-      mode: params.mode,
-      bannerUrl: params.bannerUrl || null,
-      startedAt: Date.now(),
-      form,
-    };
-
-    saveActiveBannerJob(job);
-    setResult(null);
-    setJobProgress(18);
-    setActiveStep(1);
-    setLoadingMode(params.mode);
-    setStatusText(
-      params.mode === "edit"
-        ? copy.messages.editStarted
-        : copy.messages.generationStarted,
-    );
-
-    if (params.mode === "edit") {
-      setEditLoading(true);
-      setLoading(false);
-    } else {
-      setLoading(true);
-      setEditLoading(false);
-    }
-
-    pollBannerJob(params.bannerId, params.mode, params.bannerUrl || null);
-  }
-
-  async function checkBannerJobStatus(
-    bannerId: string,
-    mode: "generate" | "edit",
-    bannerUrl?: string | null,
-  ) {
-    const response = await fetch(`/api/banners/status/${bannerId}`, {
-      cache: "no-store",
-    });
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || copy.messages.cannotTrack);
-    }
-
-    if (typeof data.remainingCredits === "number") {
-      setRemainingCredits(data.remainingCredits);
-    }
-
-    if (data.status === "COMPLETED") {
-      if (!data.imageUrl) {
-        throw new Error(copy.messages.completedWithoutImage);
-      }
-
-      clearActiveBannerJob();
-      setJobProgress(100);
-      setActiveStep(3);
-      setLoading(false);
-      setEditLoading(false);
-      setLoadingMode(null);
-      setStatusText(
-        mode === "edit"
-          ? copy.messages.editSuccess
-          : copy.messages.bannerSuccess,
-      );
-      setError("");
-      setEditError("");
-      setResult({
-        imageUrl: data.imageUrl,
-        bannerId: data.bannerId || bannerId,
-        bannerUrl: data.bannerUrl || bannerUrl || null,
-        saved: true,
-      });
-
-      if (mode === "edit") {
-        setEditSuccess(copy.messages.editSuccess);
-        setEditPrompt("");
-      }
-
-      router.refresh();
-      return;
-    }
-
-    if (data.status === "FAILED") {
-      clearActiveBannerJob();
-      setJobProgress(null);
-      setActiveStep(0);
-      setLoading(false);
-      setEditLoading(false);
-      setLoadingMode(null);
-      setStatusText("");
-
-      const failedMessage =
-        data.message ||
-        (mode === "edit"
-          ? copy.messages.editFailed
-          : copy.messages.generateFailed);
-
-      if (mode === "edit") {
-        setEditError(failedMessage);
-      } else {
-        setError(failedMessage);
-      }
-
-      router.refresh();
-      return;
-    }
-
-    const nextProgress =
-      typeof data.progress === "number" ? Math.min(data.progress, 94) : null;
-    const nextStep =
-      typeof data.activeStep === "number" ? data.activeStep : activeStep;
-
-    setJobProgress(nextProgress);
-    setActiveStep(nextStep);
-    setLoadingMode(mode);
-    setStatusText(
-      mode === "edit"
-        ? copy.messages.editProcessing
-        : copy.messages.generateProcessing,
-    );
-
-    if (mode === "edit") {
-      setEditLoading(true);
-    } else {
-      setLoading(true);
-    }
-  }
-
-  function pollBannerJob(
-    bannerId: string,
-    mode: "generate" | "edit",
-    bannerUrl?: string | null,
-  ) {
-    clearPollingTimer();
-
-    void checkBannerJobStatus(bannerId, mode, bannerUrl).catch((err) => {
-      const message =
-        err instanceof Error ? err.message : copy.messages.cannotTrack;
-      if (mode === "edit") {
-        setEditError(message);
-      } else {
-        setError(message);
-      }
-    });
-
-    pollingTimerRef.current = window.setInterval(() => {
-      void checkBannerJobStatus(bannerId, mode, bannerUrl).catch((err) => {
-        const message =
-          err instanceof Error
-            ? err.message
-            : copy.messages.cannotTrack;
-        if (mode === "edit") {
-          setEditError(message);
-        } else {
-          setError(message);
-        }
-      });
-    }, 2500);
-  }
-
-  useEffect(() => {
-    const storedJob = window.localStorage.getItem(ACTIVE_BANNER_JOB_KEY);
-
-    if (!storedJob) {
-      return () => clearPollingTimer();
-    }
-
-    try {
-      const job = JSON.parse(storedJob) as ActiveBannerJob;
-
-      if (!job?.bannerId || !job?.mode) {
-        window.localStorage.removeItem(ACTIVE_BANNER_JOB_KEY);
-        return () => clearPollingTimer();
-      }
-
-      if (job.form) {
-        setForm(job.form);
-      }
-
-      setResult(null);
-      setError("");
-      setEditError("");
-      setEditSuccess("");
-      setShowCreditUpgrade(false);
-      setJobProgress(24);
-      setActiveStep(1);
-      setLoadingMode(job.mode);
-      setStatusText(
-        job.mode === "edit"
-          ? copy.messages.resumeEdit
-          : copy.messages.resumeGenerate,
-      );
-
-      if (job.mode === "edit") {
-        setEditLoading(true);
-      } else {
-        setLoading(true);
-      }
-
-      pollBannerJob(job.bannerId, job.mode, job.bannerUrl || null);
-    } catch {
-      window.localStorage.removeItem(ACTIVE_BANNER_JOB_KEY);
-    }
-
-    return () => clearPollingTimer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const shouldShowCreditUpgrade = showCreditUpgrade || hasNoCredits;
+  const shouldLockProStyles = !isAdmin && currentPlan === "FREE";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (hasNoCredits) {
-      setError(copy.messages.noCredits);
+      setError("Você usou todos os seus créditos deste mês.");
       setShowCreditUpgrade(true);
       setStatusText("");
       setActiveStep(0);
@@ -532,7 +250,7 @@ export function NewBannerForm({
     setLoading(true);
     setLoadingMode("generate");
     setActiveStep(0);
-    setStatusText(copy.messages.preparing);
+    setStatusText("Preparando os dados do banner...");
     setError("");
     setResult(null);
     setShowCreditUpgrade(false);
@@ -543,7 +261,6 @@ export function NewBannerForm({
     let progressTimerA: number | undefined;
     let progressTimerB: number | undefined;
     let progressTimerC: number | undefined;
-    let keepLoadingForPolling = false;
 
     try {
       const referenceImageDataUrl = referenceFile
@@ -552,18 +269,18 @@ export function NewBannerForm({
 
       progressTimerA = window.setTimeout(() => {
         setActiveStep(1);
-        setStatusText(copy.messages.sending);
+        setStatusText("Enviando composição para a IA...");
       }, 900);
 
       progressTimerB = window.setTimeout(() => {
         setActiveStep(2);
-        setStatusText(copy.messages.drawing);
+        setStatusText("A IA está desenhando o preview do banner...");
       }, 4200);
 
       progressTimerC = window.setTimeout(() => {
         setActiveStep(3);
         setStatusText(
-          copy.messages.finishing,
+          "Ajustando o resultado final. Aguarde mais alguns instantes...",
         );
       }, 9000);
 
@@ -589,38 +306,25 @@ export function NewBannerForm({
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || copy.messages.cannotGenerate);
-      }
-
-      if (data.status === "PENDING" && data.bannerId) {
-        const nextRemainingCredits =
-          typeof data.remainingCredits === "number" ? data.remainingCredits : null;
-
-        setRemainingCredits(nextRemainingCredits);
-        setShowCreditUpgrade(false);
-
-        keepLoadingForPolling = true;
-        startBannerJob({
-          bannerId: data.bannerId,
-          mode: "generate",
-          bannerUrl: data.bannerUrl || null,
-        });
-        router.refresh();
-        return;
+        throw new Error(data.error || "Não foi possível gerar o banner.");
       }
 
       setActiveStep(3);
       setStatusText(
         data.saved === false
-          ? copy.messages.testPreviewSuccess
-          : copy.messages.bannerSuccess,
+          ? "Preview gerado com sucesso no modo de teste."
+          : "Banner gerado e salvo com sucesso.",
       );
 
       const nextRemainingCredits =
         typeof data.remainingCredits === "number" ? data.remainingCredits : null;
 
       setRemainingCredits(nextRemainingCredits);
-      setShowCreditUpgrade(false);
+      setShowCreditUpgrade(
+        !isAdmin &&
+          typeof nextRemainingCredits === "number" &&
+          nextRemainingCredits <= 0,
+      );
 
       setResult({
         imageUrl: data.previewImageUrl || data.imageUrl,
@@ -634,7 +338,7 @@ export function NewBannerForm({
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
-      const message = err instanceof Error ? err.message : copy.messages.generateError;
+      const message = err instanceof Error ? err.message : "Erro ao gerar banner.";
       setError(message);
       if (isCreditExhaustedMessage(message)) {
         setRemainingCredits(0);
@@ -643,11 +347,8 @@ export function NewBannerForm({
       setStatusText("");
       setActiveStep(0);
     } finally {
-      if (!keepLoadingForPolling) {
-        setLoading(false);
-        setLoadingMode(null);
-        setJobProgress(null);
-      }
+      setLoading(false);
+      setLoadingMode(null);
     }
   }
 
@@ -655,14 +356,14 @@ export function NewBannerForm({
     if (!result?.imageUrl) return;
 
     if (hasNoCredits) {
-      setEditError(copy.messages.noCredits);
+      setEditError("Você usou todos os seus créditos deste mês.");
       setShowCreditUpgrade(true);
       return;
     }
 
     if (editPrompt.trim().length < 4) {
       setEditError(
-        copy.messages.editPromptTooShort,
+        "Descreva a alteração desejada com um pouco mais de detalhe.",
       );
       return;
     }
@@ -672,28 +373,27 @@ export function NewBannerForm({
     setActiveStep(0);
     setEditError("");
     setEditSuccess("");
-    setStatusText(copy.messages.analyzing);
+    setStatusText("Analisando a arte atual para aplicar a alteração...");
 
     let progressTimerA: number | undefined;
     let progressTimerB: number | undefined;
     let progressTimerC: number | undefined;
-    let keepLoadingForPolling = false;
 
     try {
       progressTimerA = window.setTimeout(() => {
         setActiveStep(1);
-        setStatusText(copy.messages.applying);
+        setStatusText("Aplicando suas instruções na composição...");
       }, 900);
 
       progressTimerB = window.setTimeout(() => {
         setActiveStep(2);
-        setStatusText(copy.messages.rendering);
+        setStatusText("Renderizando a nova versão da arte...");
       }, 4200);
 
       progressTimerC = window.setTimeout(() => {
         setActiveStep(3);
         setStatusText(
-          copy.messages.editFinishing,
+          "Finalizando os ajustes da alteração. Aguarde mais alguns instantes...",
         );
       }, 9000);
 
@@ -721,28 +421,11 @@ export function NewBannerForm({
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || copy.messages.cannotEdit);
-      }
-
-      if (data.status === "PENDING" && data.bannerId) {
-        const nextRemainingAfterEdit =
-          typeof data.remainingCredits === "number" ? data.remainingCredits : null;
-
-        setRemainingCredits(nextRemainingAfterEdit);
-        setShowCreditUpgrade(false);
-
-        keepLoadingForPolling = true;
-        startBannerJob({
-          bannerId: data.bannerId,
-          mode: "edit",
-          bannerUrl: data.bannerUrl || null,
-        });
-        router.refresh();
-        return;
+        throw new Error(data.error || "Não foi possível editar a arte.");
       }
 
       setActiveStep(3);
-      setStatusText(copy.messages.editSuccess);
+      setStatusText("Alteração aplicada com sucesso.");
 
       setResult({
         imageUrl: data.previewImageUrl || data.imageUrl,
@@ -759,8 +442,12 @@ export function NewBannerForm({
             : null;
 
       setRemainingCredits(nextRemainingAfterEdit);
-      setShowCreditUpgrade(false);
-      setEditSuccess(copy.messages.editSuccess);
+      setShowCreditUpgrade(
+        !isAdmin &&
+          typeof nextRemainingAfterEdit === "number" &&
+          nextRemainingAfterEdit <= 0,
+      );
+      setEditSuccess("Alteração aplicada com sucesso.");
       setEditPrompt("");
 
       router.refresh();
@@ -768,7 +455,7 @@ export function NewBannerForm({
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
-      const message = err instanceof Error ? err.message : copy.messages.editError;
+      const message = err instanceof Error ? err.message : "Erro ao editar a arte.";
       setEditError(message);
       if (isCreditExhaustedMessage(message)) {
         setRemainingCredits(0);
@@ -777,11 +464,8 @@ export function NewBannerForm({
       setStatusText("");
       setActiveStep(0);
     } finally {
-      if (!keepLoadingForPolling) {
-        setEditLoading(false);
-        setLoadingMode(null);
-        setJobProgress(null);
-      }
+      setEditLoading(false);
+      setLoadingMode(null);
     }
   }
 
@@ -793,20 +477,21 @@ export function NewBannerForm({
       >
         <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
-              {copy.form.eyebrow}
+            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50 Briefing criativo">
+              Briefing criativo
             </p>
             <h2 className="text-[23px] font-semibold leading-tight text-white ">
-              {copy.form.title}
+              Preencha os dados do banner
             </h2>
             <p className="mt-3 text-[13px] leading-6 text-gray-200">
-              {copy.form.description}
+              Uma estrutura clara para gerar flyers premium sem confusão entre
+              texto principal, nome do DJ e informações do evento.
             </p>
           </div>
 
           <div className="px-1 py-1 text-left text-blue-400 md:min-w-[112px] md:text-right">
             <span className="block text-[10px] uppercase tracking-[0.18em] text-white/40 text-center">
-              {copy.form.completionLabel}
+              Briefing
             </span>
             <strong className="mt-1 block text-xl font-semibold text-center">
               {completion}%
@@ -814,12 +499,12 @@ export function NewBannerForm({
           </div>
         </div>
 
-        <Section title={copy.form.mainContent}>
+        <Section title="Conteúdo principal">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label={copy.form.mainText}>
+            <Field label="Texto principal do banner">
               <input
                 className={inputClassName}
-                placeholder={copy.form.mainTextPlaceholder}
+                placeholder="Ex.: Pull Party Fest"
                 value={form.mainText}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, mainText: e.target.value }))
@@ -828,10 +513,10 @@ export function NewBannerForm({
               />
             </Field>
 
-            <Field label={copy.form.djName}>
+            <Field label="Nome do DJ">
               <input
                 className={inputClassName}
-                placeholder={copy.form.djNamePlaceholder}
+                placeholder="Ex.: DJ Vitor"
                 value={form.djName}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, djName: e.target.value }))
@@ -841,10 +526,10 @@ export function NewBannerForm({
             </Field>
           </div>
 
-          <Field label={copy.form.secondaryText}>
+          <Field label="Chamada secundária (opcional)">
             <input
               className={inputClassName}
-              placeholder={copy.form.secondaryTextPlaceholder}
+              placeholder="Ex.: Edição especial"
               value={form.secondaryText}
               onChange={(e) =>
                 setForm((c) => ({ ...c, secondaryText: e.target.value }))
@@ -853,12 +538,12 @@ export function NewBannerForm({
           </Field>
         </Section>
 
-        <Section title={copy.form.eventInfo}>
+        <Section title="Informações do evento">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label={copy.form.eventDate}>
+            <Field label="Data do evento">
               <input
                 className={inputClassName}
-                placeholder={copy.form.eventDatePlaceholder}
+                placeholder="Ex.: 19/09/2026"
                 value={form.eventDate}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, eventDate: e.target.value }))
@@ -867,10 +552,10 @@ export function NewBannerForm({
               />
             </Field>
 
-            <Field label={copy.form.eventLocation}>
+            <Field label="Local do evento">
               <input
                 className={inputClassName}
-                placeholder={copy.form.eventLocationPlaceholder}
+                placeholder="Ex.: São Paulo Hall - São Paulo"
                 value={form.eventLocation}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, eventLocation: e.target.value }))
@@ -881,29 +566,53 @@ export function NewBannerForm({
           </div>
         </Section>
 
-        <Section title={copy.form.visualDirection}>
+        <Section title="Direção visual">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <Field label={copy.form.visualStyle}>
+            <Field label="Estilo visual">
               <select
                 className={selectClassName}
                 value={form.stylePreset}
-                onChange={(e) =>
-                  setForm((c) => ({ ...c, stylePreset: e.target.value }))
-                }
+                onChange={(e) => {
+                  const nextStylePreset = e.target.value;
+
+                  if (
+                    shouldLockProStyles &&
+                    isBannerStyleProOnly(nextStylePreset)
+                  ) {
+                    setShowCreditUpgrade(true);
+                    return;
+                  }
+
+                  setForm((c) => ({ ...c, stylePreset: nextStylePreset }));
+                }}
               >
-                {stylePresets.map((preset) => (
-                  <option
-                    key={preset.value}
-                    value={preset.value}
-                    className="bg-black text-white"
-                  >
-                    {preset.label}
-                  </option>
-                ))}
+                {stylePresets.map((preset) => {
+                  const locked =
+                    shouldLockProStyles && isBannerStyleProOnly(preset.value);
+
+                  return (
+                    <option
+                      key={preset.value}
+                      value={preset.value}
+                      disabled={locked}
+                      className="bg-black text-white"
+                    >
+                      {preset.label}
+                      {locked ? " — Pro+" : ""}
+                    </option>
+                  );
+                })}
               </select>
+
+              {shouldLockProStyles ? (
+                <p className="text-xs leading-5 text-white/55">
+                  Premium visual styles are available from the Pro plan and
+                  higher.
+                </p>
+              ) : null}
             </Field>
 
-            <Field label={copy.form.format}>
+            <Field label="Formato">
               <select
                 className={selectClassName}
                 value={form.format}
@@ -923,7 +632,7 @@ export function NewBannerForm({
               </select>
             </Field>
 
-            <Field label={copy.form.quality}>
+            <Field label="Qualidade de geração">
               <select
                 className={selectClassName}
                 value={form.quality}
@@ -943,8 +652,8 @@ export function NewBannerForm({
                       disabled={!enabled}
                       className="bg-black text-white"
                     >
-                      {copy.qualityLabels[quality.value]}
-                      {enabled ? "" : ` — ${copy.unavailableInPlan}`}
+                      {quality.label}
+                      {enabled ? "" : " — indisponível no seu plano"}
                     </option>
                   );
                 })}
@@ -952,33 +661,22 @@ export function NewBannerForm({
             </Field>
           </div>
 
-          <Field label={copy.form.djPhoto}>
+          <Field label="Foto do DJ (opcional)">
             <input
-              ref={referenceFileInputRef}
               type="file"
               accept="image/png,image/jpeg,image/jpg,image/webp"
-              className="sr-only"
+              className={`${inputClassName} file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15`}
               onChange={(e) => setReferenceFile(e.target.files?.[0] || null)}
             />
-
-            <div className="grid gap-3">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <button
-                  type="button"
-                  onClick={() => referenceFileInputRef.current?.click()}
-                  className="inline-flex min-h-[46px] shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] px-4 text-sm font-semibold text-white transition hover:bg-white/[0.1]"
-                >
-                  {referenceFile ? copy.form.changeFile : copy.form.chooseFile}
-                </button>
-
-                <strong className="block min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm text-white/85 sm:max-w-[220px] sm:text-right lg:max-w-[280px]">
-                  {referenceFile ? referenceFile.name : copy.form.noFile}
-                </strong>
-              </div>
-
-              <p className="text-xs leading-5 text-white/60">
-                {copy.form.djPhotoHelper}
-              </p>
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
+              <span>
+                Envie uma imagem para a IA usar como referência visual.
+              </span>
+              <strong className="text-white/85">
+                {referenceFile
+                  ? referenceFile.name
+                  : "Nenhum arquivo selecionado"}
+              </strong>
             </div>
           </Field>
         </Section>
@@ -986,30 +684,38 @@ export function NewBannerForm({
         <div className="mt-4 flex flex-col gap-3 rounded-[22px] border border-white/10 bg-gradient-to-br from-blue-500/10 to-cyan-400/5 p-4 md:flex-row md:items-start md:justify-between">
           <div>
             <span className="mb-2 inline-flex rounded-full bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/75">
-              {copy.form.professionalStructure}
+              Estrutura profissional
             </span>
             <p className="text-sm leading-6 text-white/80">
-              {copy.form.structureDescription}
+              O texto principal será o maior destaque da arte. O nome do DJ
+              ficará em segundo nível e o bloco complementar será mais discreto
+              e elegante.
             </p>
           </div>
 
           {remainingCredits !== null ? (
             <div className="shrink-0 rounded-xl bg-white/8 px-3 py-2 text-sm text-white">
-              {copy.form.remainingCredits}: <strong>{remainingCredits}</strong>
+              Créditos restantes: <strong>{remainingCredits}</strong>
             </div>
           ) : null}
         </div>
 
+        {shouldShowCreditUpgrade ? (
+          <CreditUpgradeCard currentPlan={currentPlan} />
+        ) : null}
+
         <button
           type="submit"
-          disabled={displayLoading}
-          className="mt-5 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-wait disabled:opacity-70"
+          disabled={displayLoading || hasNoCredits}
+          className="mt-5 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading
-            ? copy.form.generating
-            : editLoading
-              ? copy.form.editing
-              : copy.form.submit}
+          {hasNoCredits
+            ? "Créditos esgotados"
+            : loading
+              ? "Gerando preview..."
+              : editLoading
+                ? "Aplicando alteração..."
+                : "Gerar banner premium"}
         </button>
 
         {statusText ? (
@@ -1025,17 +731,17 @@ export function NewBannerForm({
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
-              {copy.preview.eyebrow}
+              Preview
             </p>
             <h3 className="text-lg font-semibold leading-snug text-white">
               {displayLoading
                 ? loadingTexts.title
                 : result
-                  ? copy.preview.readyTitle
-                  : copy.preview.emptyTitle}
+                  ? "Preview pronto para revisão"
+                  : "Seu banner aparecerá aqui"}
             </h3>
             <p className="mt-2 text-xs uppercase tracking-[0.18em] text-white/45">
-              {copy.preview.selectedFormat}: {previewFormatLabel}
+              Formato selecionado: {previewFormatLabel}
             </p>
           </div>
 
@@ -1049,8 +755,8 @@ export function NewBannerForm({
             {displayLoading
               ? loadingTexts.badge
               : result
-                ? copy.preview.completed
-                : copy.preview.waiting}
+                ? "Concluído"
+                : "Aguardando"}
           </div>
         </div>
 
@@ -1091,13 +797,13 @@ export function NewBannerForm({
                 <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-white/45">
                   <span>
                     {loadingMode === "edit"
-                      ? copy.preview.applyingChanges
-                      : copy.preview.composingLayers}
+                      ? "Aplicando alterações"
+                      : "Compondo camadas"}
                   </span>
                   <span>
                     {loadingMode === "edit"
-                      ? copy.preview.generatingNewVersion
-                      : copy.preview.processingVisual}
+                      ? "Gerando nova versão"
+                      : "Processando visual"}
                   </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -1158,20 +864,20 @@ export function NewBannerForm({
               <img
                 className="h-full w-full object-cover"
                 src={result.imageUrl}
-                alt={copy.preview.imageAlt}
+                alt="Banner gerado"
               />
             </div>
 
             <div className="grid gap-2">
               <p className="text-xl font-semibold text-white">
                 {result.saved === false
-                  ? copy.preview.testPreviewTitle
-                  : copy.preview.successTitle}
+                  ? "Preview gerado no modo de teste"
+                  : "Seu banner foi criado com sucesso"}
               </p>
               <p className="text-sm leading-6 text-white/70">
                 {result.saved === false
-                  ? copy.preview.testPreviewDescription
-                  : copy.preview.successDescription}
+                  ? "Neste modo o sistema prioriza velocidade e mostra o preview imediatamente."
+                  : "A imagem já pode ser baixada ou aberta em uma nova guia."}
               </p>
             </div>
 
@@ -1181,7 +887,7 @@ export function NewBannerForm({
                 download
                 className="inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-white/10 bg-white/8 px-4 text-sm font-medium text-white transition hover:bg-white/12"
               >
-                {copy.preview.download}
+                Baixar imagem
               </a>
 
               <a
@@ -1190,7 +896,7 @@ export function NewBannerForm({
                 rel="noreferrer"
                 className="inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-sky-300/15 bg-sky-300/8 px-4 text-sm font-medium text-white transition hover:bg-sky-300/12"
               >
-                {copy.preview.open}
+                Abrir imagem
               </a>
             </div>
 
@@ -1198,36 +904,42 @@ export function NewBannerForm({
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-white">
-                    {copy.preview.editTitle}
+                    Solicitar alteração da arte
                   </p>
                   <p className="mt-1 text-xs leading-5 text-white/60">
-                    {copy.preview.editDescription}
+                    Descreva a mudança desejada. Cada alteração consome 1
+                    crédito.
                   </p>
                 </div>
                 <span className="shrink-0 rounded-full border border-amber-300/15 bg-amber-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-amber-100">
-                  {copy.preview.oneCredit}
+                  1 crédito
                 </span>
               </div>
 
               <textarea
                 className="min-h-[110px] w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35"
-                placeholder={copy.preview.editPlaceholder}
+                placeholder="Ex.: deixe o fundo mais escuro, aumente o destaque do título principal e use um clima mais neon."
                 value={editPrompt}
                 onChange={(e) => setEditPrompt(e.target.value)}
               />
 
               <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs text-white/55">
-                  {copy.preview.editHelper}
+                  A IA usará a imagem atual como base e criará uma nova versão
+                  da arte.
                 </p>
 
                 <button
                   type="button"
                   onClick={handleEdit}
-                  disabled={displayLoading}
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-2xl border border-sky-300/20 bg-sky-300/10 px-4 text-sm font-medium text-white transition hover:bg-sky-300/15 disabled:cursor-wait disabled:opacity-70"
+                  disabled={displayLoading || hasNoCredits}
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-2xl border border-sky-300/20 bg-sky-300/10 px-4 text-sm font-medium text-white transition hover:bg-sky-300/15 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {editLoading ? copy.preview.editingButton : copy.preview.editButton}
+                  {hasNoCredits
+                    ? "Créditos esgotados"
+                    : editLoading
+                      ? "Alterando arte..."
+                      : "Solicitar alteração"}
                 </button>
               </div>
 
@@ -1255,17 +967,17 @@ export function NewBannerForm({
                 </div>
                 <div className="grid gap-3">
                   <p className="text-xl font-semibold text-white">
-                    {copy.preview.smartPreview}
+                    Preview inteligente
                   </p>
                   <p className="max-w-sm text-sm leading-6 text-white/70">
-                    {copy.preview.emptyDescription}
+                    Seu baner será gerado aqui.
                   </p>
                   <div className="mx-auto grid w-full max-w-[220px] gap-2">
                     <span className="h-2 overflow-hidden rounded-full bg-white/10">
                       <span className="block h-full w-1/2 rounded-full bg-gradient-to-r from-sky-300 via-violet-300 to-cyan-200 animate-pulse" />
                     </span>
                     <span className="text-[11px] uppercase tracking-[0.18em] text-white/45">
-                      {copy.preview.waitingGeneration}
+                      Aguardando geração
                     </span>
                   </div>
                 </div>
@@ -1274,77 +986,41 @@ export function NewBannerForm({
           </div>
         )}
       </aside>
-
-      {showCreditUpgrade ? (
-        <CreditUpgradeModal copy={copy} onClose={() => setShowCreditUpgrade(false)} />
-      ) : null}
     </div>
   );
 }
 
-function CreditUpgradeModal({
-  copy,
-  onClose,
-}: {
-  copy: NewBannerFormCopy;
-  onClose: () => void;
-}) {
+function CreditUpgradeCard({ currentPlan }: { currentPlan: SubscriptionPlan }) {
+  const isFreePlan = currentPlan === "FREE";
+
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-black/70 px-4 py-6 backdrop-blur-md">
-      <div className="relative w-full max-w-[520px] overflow-hidden rounded-[30px] border border-amber-200/20 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.16),transparent_38%),linear-gradient(135deg,rgba(18,24,38,0.98),rgba(7,11,22,0.98))] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg leading-none text-white/70 transition hover:bg-white/10 hover:text-white"
-          aria-label={copy.upgrade.close}
-        >
-          ×
-        </button>
-
-        <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-amber-200/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-14 left-8 h-32 w-32 rounded-full bg-sky-300/10 blur-3xl" />
-
-        <div className="relative z-10 pr-8">
+    <div className="mt-5 overflow-hidden rounded-[26px] border border-amber-200/20 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.14),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="max-w-xl">
           <span className="inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-100">
-            {copy.upgrade.eyebrow}
+            Créditos esgotados
           </span>
-
-          <h3 className="mt-4 text-2xl font-semibold leading-tight text-white">
-            {copy.upgrade.title}
+          <h3 className="mt-3 text-lg font-semibold leading-tight text-white">
+            Libere mais banners e continue criando sem pausa
           </h3>
-
-          <p className="mt-3 text-sm leading-6 text-white/70">
-            {copy.upgrade.description}
+          <p className="mt-2 text-sm leading-6 text-white/68">
+            Faça upgrade do seu plano para receber mais créditos mensais e
+            desbloquear opções melhores de geração para seus banners.
           </p>
         </div>
 
-        <div className="relative z-10 mt-5 grid gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
-          <div className="flex items-start gap-3 text-sm text-white/75">
-            <span className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-amber-200 shadow-[0_0_16px_rgba(251,191,36,0.7)]" />
-            <p>
-              {copy.upgrade.proBenefit}
-            </p>
-          </div>
-          <div className="flex items-start gap-3 text-sm text-white/75">
-            <span className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-sky-300 shadow-[0_0_16px_rgba(125,211,252,0.7)]" />
-            <p>{copy.upgrade.continueBenefit}</p>
-          </div>
-        </div>
-
-        <div className="relative z-10 mt-6 flex flex-col gap-3 sm:flex-row">
+        <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:flex-col">
           <a
             href="/dashboard/billing"
-            className="inline-flex min-h-[50px] flex-1 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-200 via-sky-200 to-violet-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
+            className="inline-flex min-h-[46px] items-center justify-center rounded-2xl bg-gradient-to-r from-amber-200 via-sky-200 to-violet-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
           >
-            {copy.upgrade.plans}
+            Ver planos
           </a>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex min-h-[50px] flex-1 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-5 text-sm font-medium text-white transition hover:bg-white/[0.08]"
-          >
-            {copy.upgrade.notNow}
-          </button>
+          <span className="text-center text-[11px] leading-5 text-white/50">
+            {isFreePlan
+              ? "Pro libera mais créditos. Professional libera alta qualidade."
+              : "Escolha um plano maior para aumentar seus créditos."}
+          </span>
         </div>
       </div>
     </div>

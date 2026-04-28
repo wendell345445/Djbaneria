@@ -1,6 +1,6 @@
 import sharp from "sharp";
 
-import type { BannerImageQuality } from "@/lib/plans";
+export type BannerImageQuality = "low" | "medium" | "high";
 
 export type GenerateBannerInput = {
   prompt: string;
@@ -17,16 +17,104 @@ export type EditBannerInput = {
 };
 
 const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2";
-const OPENAI_DEFAULT_IMAGE_QUALITY =
-  (process.env.OPENAI_IMAGE_QUALITY?.trim().toLowerCase() as BannerImageQuality | undefined) ||
-  "medium";
 
-function resolveImageQuality(quality?: BannerImageQuality) {
-  if (quality === "low" || quality === "medium" || quality === "high") {
-    return quality;
+function getOpenAiQuality(quality?: BannerImageQuality) {
+  return quality || "high";
+}
+
+export function getBannerStyleDirection(stylePreset: string) {
+  switch (stylePreset) {
+    case "NEON_CLUB":
+      return [
+        "Style direction: premium neon nightclub flyer.",
+        "Visual atmosphere: dark club environment, cyan and magenta neon beams, glossy reflections, smoke haze, energetic nightlife mood.",
+        "Typography direction: luminous 3D club lettering, strong glow, clean hierarchy, premium social media flyer finish.",
+        "Avoid: cheap rainbow colors, messy text placement, childish neon effects.",
+      ].join(" ");
+
+    case "FESTIVAL_MAINSTAGE":
+      return [
+        "Style direction: massive EDM festival mainstage poster.",
+        "Visual atmosphere: huge LED stage, lasers, crowd energy, pyrotechnics, dramatic spotlights, epic scale, international festival mood.",
+        "Typography direction: bold headline like a major festival lineup poster, powerful cinematic lighting, high-impact commercial finish.",
+        "Avoid: small local party look, empty background, weak stage presence.",
+      ].join(" ");
+
+    case "CYBER_RAVE":
+      return [
+        "Style direction: cyberpunk rave flyer.",
+        "Visual atmosphere: futuristic warehouse rave, electric blue, violet, acid green and red accents, glitch particles, laser grids, digital distortion, high-energy underground mood.",
+        "Typography direction: futuristic chrome/neon 3D text, glitch accents, sharp tech shapes, premium rave poster composition.",
+        "Avoid: cartoon sci-fi, excessive clutter, unreadable text.",
+      ].join(" ");
+
+    case "DARK_TECHNO":
+      return [
+        "Style direction: dark techno and industrial club poster.",
+        "Visual atmosphere: black concrete, red strobes, smoky underground warehouse, brutalist lighting, minimal but intense composition, European techno mood.",
+        "Typography direction: strong condensed type, clean geometry, aggressive contrast, refined underground editorial finish.",
+        "Avoid: colorful summer mood, luxury gold styling, commercial EDM festival look.",
+      ].join(" ");
+
+    case "CHROME_FUTURE":
+      return [
+        "Style direction: chrome futuristic premium artist poster.",
+        "Visual atmosphere: black and silver palette, reflective metallic surfaces, holographic blue highlights, clean digital space, polished high-fashion club aesthetic.",
+        "Typography direction: shiny chrome 3D lettering, futuristic premium spacing, glossy reflections, editorial sci-fi finish.",
+        "Avoid: grunge texture, warm beach colors, overly busy neon background.",
+      ].join(" ");
+
+    case "AFRO_HOUSE_SUNSET":
+      return [
+        "Style direction: Afro house sunset and beach club flyer.",
+        "Visual atmosphere: golden sunset, warm amber and terracotta tones, ocean or rooftop ambience, organic elegant lighting, premium Ibiza/Tulum/Miami nightlife mood.",
+        "Typography direction: elegant modern lettering with warm glow, refined spacing, tasteful tropical luxury finish.",
+        "Avoid: generic summer cartoon style, childish beach icons, excessive neon.",
+      ].join(" ");
+
+    case "Y2K_CLUB":
+      return [
+        "Style direction: Y2K club poster with premium 2000s energy.",
+        "Visual atmosphere: glossy pink, blue and silver accents, lens flares, plastic chrome, digital stickers, fashion-club aesthetic, youthful nightlife mood.",
+        "Typography direction: bold shiny 3D lettering, playful but polished, social media-ready Y2K flyer composition.",
+        "Avoid: cheap retro template, unreadable bubble text, overcrowded sticker layout.",
+      ].join(" ");
+
+    case "PREMIUM_BLACK":
+      return [
+        "Style direction: luxury black editorial flyer.",
+        "Visual atmosphere: deep black background, elegant low-key lighting, clean premium nightlife mood, subtle highlights, sophisticated event branding.",
+        "Typography direction: refined modern type, strong contrast, minimal premium spacing, high-end club finish.",
+        "Avoid: excessive neon, messy textures, casual party style.",
+      ].join(" ");
+
+    case "SUMMER_VIBES":
+      return [
+        "Style direction: vibrant summer party flyer.",
+        "Visual atmosphere: warm sunlit energy, saturated colors, beach or rooftop nightlife, tropical highlights, upbeat social party mood.",
+        "Typography direction: bold friendly headline, bright premium color accents, energetic but clean composition.",
+        "Avoid: dark techno mood, heavy industrial textures, luxury black minimalism.",
+      ].join(" ");
+
+    case "MINIMAL_TECHNO":
+      return [
+        "Style direction: minimal techno poster.",
+        "Visual atmosphere: refined dark tones, abstract geometric elements, clean underground layout, negative space, modern electronic mood.",
+        "Typography direction: sharp minimal typography, precise alignment, editorial poster hierarchy, very clean premium finish.",
+        "Avoid: busy festival lighting, excessive 3D effects, tropical palette.",
+      ].join(" ");
+
+    case "LUXURY_GOLD":
+      return [
+        "Style direction: black and gold luxury event flyer.",
+        "Visual atmosphere: premium gold highlights, elegant dark background, champagne glow, exclusive VIP club mood, refined reflections.",
+        "Typography direction: gold-accented premium lettering, sophisticated hierarchy, luxury nightlife finish.",
+        "Avoid: cheap gold glitter, excessive ornaments, hard-to-read text.",
+      ].join(" ");
+
+    default:
+      return "Style direction: professional premium DJ promotional flyer, clean hierarchy, strong visual impact, polished international event design.";
   }
-
-  return OPENAI_DEFAULT_IMAGE_QUALITY;
 }
 
 export function buildBannerPrompt(params: {
@@ -40,7 +128,8 @@ export function buildBannerPrompt(params: {
 }) {
   return [
     "Crie um banner promocional premium para DJ, pronto para divulgação profissional.",
-    `Estilo visual: ${params.stylePreset}.`,
+    `Estilo visual selecionado: ${params.stylePreset}.`,
+    getBannerStyleDirection(params.stylePreset),
     `Formato do banner: ${params.format}.`,
     "Use estética de flyer profissional premium, com aparência forte, sofisticada, visual de alto nível e acabamento publicitário.",
     "Renderize todos os textos diretamente na arte, com excelente legibilidade, hierarquia visual forte e composição refinada.",
@@ -75,7 +164,8 @@ export function buildBannerEditPrompt(params: {
 }) {
   return [
     "Edite este banner existente mantendo a mesma peça como base visual.",
-    `Estilo visual base: ${params.stylePreset}.`,
+    `Estilo visual base selecionado: ${params.stylePreset}.`,
+    getBannerStyleDirection(params.stylePreset),
     `Formato do banner: ${params.format}.`,
     `Texto principal do banner: ${params.mainText}.`,
     `Nome do DJ: ${params.djName}.`,
@@ -128,13 +218,12 @@ async function loadImageBufferFromInput(source: string) {
 async function callImageEditApi(input: EditBannerInput) {
   const sourceImageBuffer = await loadImageBufferFromInput(input.sourceImageUrl);
   const preparedImage = await prepareImage(sourceImageBuffer, input.size);
-  const quality = resolveImageQuality(input.quality);
 
   const formData = new FormData();
   formData.append("model", OPENAI_IMAGE_MODEL);
   formData.append("prompt", input.prompt);
   formData.append("size", input.size);
-  formData.append("quality", quality);
+  formData.append("quality", getOpenAiQuality(input.quality));
   formData.append("n", "1");
   formData.append(
     "image",
@@ -177,8 +266,6 @@ export async function generateBannerImage(input: GenerateBannerInput) {
     });
   }
 
-  const quality = resolveImageQuality(input.quality);
-
   const response = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
     headers: {
@@ -189,7 +276,7 @@ export async function generateBannerImage(input: GenerateBannerInput) {
       model: OPENAI_IMAGE_MODEL,
       prompt: input.prompt,
       size: input.size,
-      quality,
+      quality: getOpenAiQuality(input.quality),
       n: 1,
     }),
   });

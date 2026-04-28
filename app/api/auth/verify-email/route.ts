@@ -13,6 +13,7 @@ import {
   getClientIp,
 } from "@/lib/rate-limit";
 import { validateMutationOrigin } from "@/lib/request-security";
+import { setSessionCookie, signSessionToken } from "@/lib/session";
 
 const schema = z.object({
   email: z.string().trim().email("Enter a valid email address."),
@@ -54,10 +55,22 @@ export async function POST(request: Request) {
       where: { email },
       select: {
         id: true,
+        email: true,
+        isActive: true,
         emailVerifiedAt: true,
         emailVerificationCodeHash: true,
         emailVerificationExpiresAt: true,
         emailVerificationAttempts: true,
+        workspaces: {
+          select: {
+            id: true,
+            isActive: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
       },
     });
 
@@ -65,6 +78,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Account not found." },
         { status: 404, headers: buildRateLimitHeaders(rateLimit) },
+      );
+    }
+
+    if (user.isActive === false) {
+      return NextResponse.json(
+        { error: "Your account is disabled." },
+        { status: 403, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
 
@@ -118,8 +138,21 @@ export async function POST(request: Request) {
       },
     });
 
+    const activeWorkspace =
+      user.workspaces.find((workspace) => workspace.isActive !== false) ??
+      user.workspaces[0] ??
+      null;
+
+    const token = await signSessionToken({
+      userId: user.id,
+      email: user.email,
+      workspaceId: activeWorkspace?.id ?? null,
+    });
+
+    await setSessionCookie(token, true);
+
     return NextResponse.json(
-      { success: true, redirectTo: "/login?verified=1" },
+      { success: true, redirectTo: "/dashboard" },
       { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
