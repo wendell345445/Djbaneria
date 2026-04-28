@@ -153,17 +153,22 @@ function isCreditExhaustedMessage(message: string) {
   );
 }
 
+type NewBannerFormLocale = "pt-BR" | "en" | "es";
+
 export function NewBannerForm({
   currentPlan,
   isAdmin = false,
   canGenerateBanner = true,
   initialRemainingCredits = null,
+  locale = "en",
 }: {
   currentPlan: SubscriptionPlan;
   isAdmin?: boolean;
   canGenerateBanner?: boolean;
   initialRemainingCredits?: number | null;
+  locale?: NewBannerFormLocale;
 }) {
+  void locale;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
@@ -317,7 +322,9 @@ export function NewBannerForm({
       );
 
       const nextRemainingCredits =
-        typeof data.remainingCredits === "number" ? data.remainingCredits : null;
+        typeof data.remainingCredits === "number"
+          ? data.remainingCredits
+          : null;
 
       setRemainingCredits(nextRemainingCredits);
       setShowCreditUpgrade(
@@ -338,7 +345,8 @@ export function NewBannerForm({
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
-      const message = err instanceof Error ? err.message : "Erro ao gerar banner.";
+      const message =
+        err instanceof Error ? err.message : "Erro ao gerar banner.";
       setError(message);
       if (isCreditExhaustedMessage(message)) {
         setRemainingCredits(0);
@@ -455,7 +463,8 @@ export function NewBannerForm({
       if (progressTimerA) window.clearTimeout(progressTimerA);
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
-      const message = err instanceof Error ? err.message : "Erro ao editar a arte.";
+      const message =
+        err instanceof Error ? err.message : "Erro ao editar a arte.";
       setEditError(message);
       if (isCreditExhaustedMessage(message)) {
         setRemainingCredits(0);
