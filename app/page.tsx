@@ -109,7 +109,9 @@ const faqs = [
 
 export default function HomePage() {
   return (
-    <main className={`${poppins.className} min-h-screen bg-[#060816] text-white`}>
+    <main
+      className={`${poppins.className} min-h-screen bg-[#060816] text-white`}
+    >
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(66,153,225,0.18),transparent_26%),radial-gradient(circle_at_80%_10%,rgba(236,72,153,0.14),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(251,191,36,0.1),transparent_28%)]" />
 
@@ -164,14 +166,15 @@ export default function HomePage() {
             </div>
 
             <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
-              Create premium-looking DJ banners in minutes with AI.
+              Create professional banners for your events in just a few minutes
+              using AI.
             </h1>
 
             <p className="mt-5 max-w-2xl text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
-              Generate high-impact visuals for feed and story, elevate your image,
-              promote events faster, and use a simple workflow to create
-              professional banners without relying on a designer for every
-              new campaign.
+              Generate high-impact visuals for feed and story, elevate your
+              image, promote events faster, and use a simple workflow to create
+              professional banners without relying on a designer for every new
+              campaign.
             </p>
 
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
@@ -261,8 +264,8 @@ export default function HomePage() {
                         Less friction to promote your event
                       </p>
                       <p className="mt-1 leading-6 text-white/60">
-                        Always have a new visual ready to promote,
-                        reposition your ad, and keep your communication active.
+                        Always have a new visual ready to promote, reposition
+                        your ad, and keep your communication active.
                       </p>
                     </div>
                     <div>
@@ -270,8 +273,8 @@ export default function HomePage() {
                         More visual consistency
                       </p>
                       <p className="mt-1 leading-5 text-white/60">
-                        Create banners with an aesthetic aligned with the DJ universe,
-                        strengthening your perceived value online.
+                        Create banners with an aesthetic aligned with the DJ
+                        universe, strengthening your perceived value online.
                       </p>
                     </div>
                   </div>
@@ -315,12 +318,11 @@ export default function HomePage() {
               Platform benefits
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              Everything you need to create banners faster and
-              with more impact.
+              Everything you need to create banners faster and with more impact.
             </h2>
             <p className="mt-4 text-base leading-6 text-white/66">
-              The platform was designed to reduce friction in creation,
-              improve your presentation, and make it easier to promote events and
+              The platform was designed to reduce friction in creation, improve
+              your presentation, and make it easier to promote events and
               schedules.
             </p>
           </div>
@@ -425,8 +427,8 @@ export default function HomePage() {
             </h2>
             <p className="mt-4 text-base leading-7 text-white/66">
               When your promotion looks professional, your digital presence
-              becomes stronger. This helps attract more attention, strengthen your
-              positioning, and make your communication more consistent.
+              becomes stronger. This helps attract more attention, strengthen
+              your positioning, and make your communication more consistent.
             </p>
           </div>
 
@@ -469,8 +471,8 @@ export default function HomePage() {
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-white/66">
               Sign up, confirm your email, and enter the dashboard to start
-              generating AI banners. Ideal for DJs who want more speed,
-              visual presence, and more professional promotion.
+              generating AI banners. Ideal for DJs who want more speed, visual
+              presence, and more professional promotion.
             </p>
 
             <div className="mt-8 space-y-4 text-sm text-white/72">
@@ -552,7 +554,6 @@ export default function HomePage() {
           </nav>
         </div>
       </footer>
-
     </main>
   );
 }
