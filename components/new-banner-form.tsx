@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import type { SubscriptionPlan } from "@/generated/prisma/enums";
 import {
   getAllowedBannerQualities,
@@ -66,6 +66,20 @@ type GenerationResult = {
   bannerId?: string | null;
   bannerUrl?: string | null;
   saved?: boolean;
+};
+
+type BannerStatusResponse = {
+  success?: boolean;
+  bannerId?: string;
+  status?: string;
+  imageUrl?: string | null;
+  bannerUrl?: string | null;
+  progress?: number;
+  activeStep?: number;
+  remainingCredits?: number | null;
+  isAdminUnlimited?: boolean;
+  message?: string;
+  error?: string;
 };
 
 function readFileAsDataUrl(file: File) {
@@ -189,6 +203,7 @@ export function NewBannerForm({
   const [showCreditUpgrade, setShowCreditUpgrade] = useState(
     !isAdmin && !canGenerateBanner,
   );
+  const previewRef = useRef<HTMLElement | null>(null);
   const allowedQualities = useMemo(
     () => getAllowedBannerQualities(currentPlan, isAdmin),
     [currentPlan, isAdmin],
@@ -241,6 +256,77 @@ export function NewBannerForm({
   const shouldShowCreditUpgrade = showCreditUpgrade || hasNoCredits;
   const shouldLockProStyles = !isAdmin && currentPlan === "FREE";
 
+  function scrollToPreview() {
+    window.setTimeout(() => {
+      previewRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  }
+
+  async function waitForGeneratedBanner(
+    bannerId: string,
+  ): Promise<GenerationResult> {
+    const maxAttempts = 90;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      await new Promise((resolve) =>
+        window.setTimeout(resolve, attempt === 0 ? 1200 : 2000),
+      );
+
+      const response = await fetch(`/api/banners/status/${bannerId}`, {
+        cache: "no-store",
+      });
+      const data = (await response.json()) as BannerStatusResponse;
+
+      if (!response.ok) {
+        throw new Error(data.error || "Não foi possível acompanhar a geração.");
+      }
+
+      if (typeof data.activeStep === "number") {
+        setActiveStep(Math.min(Math.max(data.activeStep, 0), 3));
+      }
+
+      if (typeof data.remainingCredits === "number") {
+        setRemainingCredits(data.remainingCredits);
+        setShowCreditUpgrade(!isAdmin && data.remainingCredits <= 0);
+      }
+
+      if (data.status === "COMPLETED") {
+        const imageUrl = data.imageUrl || null;
+
+        if (!imageUrl) {
+          throw new Error(
+            "O banner foi marcado como concluído, mas a URL da imagem não foi retornada.",
+          );
+        }
+
+        return {
+          imageUrl,
+          bannerId: data.bannerId || bannerId,
+          bannerUrl: data.bannerUrl || `/dashboard/banners/${bannerId}`,
+          saved: true,
+        };
+      }
+
+      if (data.status === "FAILED") {
+        throw new Error(
+          data.message || "Não foi possível concluir a geração do banner.",
+        );
+      }
+
+      setStatusText(
+        data.message ||
+          "Banner enviado para a IA. Aguardando a finalização da imagem...",
+      );
+    }
+
+    throw new Error(
+      "A geração ainda está em andamento. Abra Meus banners em alguns instantes para conferir o resultado.",
+    );
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -262,6 +348,7 @@ export function NewBannerForm({
     setEditPrompt("");
     setEditError("");
     setEditSuccess("");
+    scrollToPreview();
 
     let progressTimerA: number | undefined;
     let progressTimerB: number | undefined;
@@ -314,17 +401,8 @@ export function NewBannerForm({
         throw new Error(data.error || "Não foi possível gerar o banner.");
       }
 
-      setActiveStep(3);
-      setStatusText(
-        data.saved === false
-          ? "Preview gerado com sucesso no modo de teste."
-          : "Banner gerado e salvo com sucesso.",
-      );
-
       const nextRemainingCredits =
-        typeof data.remainingCredits === "number"
-          ? data.remainingCredits
-          : null;
+        typeof data.remainingCredits === "number" ? data.remainingCredits : null;
 
       setRemainingCredits(nextRemainingCredits);
       setShowCreditUpgrade(
@@ -333,8 +411,41 @@ export function NewBannerForm({
           nextRemainingCredits <= 0,
       );
 
+      if (response.status === 202 || data.status === "PENDING") {
+        if (!data.bannerId) {
+          throw new Error(
+            "A geração foi iniciada, mas a API não retornou o ID do banner.",
+          );
+        }
+
+        setStatusText("Banner criado. Aguardando a IA finalizar a imagem...");
+
+        const completedBanner = await waitForGeneratedBanner(data.bannerId);
+
+        setActiveStep(3);
+        setStatusText("Banner gerado e salvo com sucesso.");
+        setResult(completedBanner);
+        router.refresh();
+        return;
+      }
+
+      const imageUrl = data.previewImageUrl || data.imageUrl || null;
+
+      if (!imageUrl) {
+        throw new Error(
+          "A API retornou sucesso, mas não enviou a URL da imagem gerada.",
+        );
+      }
+
+      setActiveStep(3);
+      setStatusText(
+        data.saved === false
+          ? "Preview gerado com sucesso no modo de teste."
+          : "Banner gerado e salvo com sucesso.",
+      );
+
       setResult({
-        imageUrl: data.previewImageUrl || data.imageUrl,
+        imageUrl,
         bannerId: data.bannerId,
         bannerUrl: data.bannerUrl || null,
         saved: data.saved !== false,
@@ -736,7 +847,10 @@ export function NewBannerForm({
         {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
       </form>
 
-      <aside className="rounded-[28px] p-5 xl:sticky xl:top-5">
+      <aside
+        ref={previewRef}
+        className="rounded-[28px] p-5 xl:sticky xl:top-5"
+      >
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
