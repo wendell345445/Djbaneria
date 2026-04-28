@@ -4,7 +4,6 @@ import { Poppins } from "next/font/google";
 import {
   BadgeCheck,
   Clock3,
-  CreditCard,
   Gauge,
   ImageIcon,
   Layers3,
@@ -29,7 +28,7 @@ const advantages = [
     icon: Zap,
     title: "Much faster creation",
     description:
-      "Build your brief, choose the style, and get a polished visual in minutes to promote your event.",
+      "Add your event details, choose the style, and get a polished visual in minutes to promote your event.",
   },
   {
     icon: Sparkles,
@@ -60,27 +59,6 @@ const advantages = [
     title: "Access control and security",
     description:
       "Email verification, protected signup, and a structure built to scale with more confidence.",
-  },
-];
-
-const steps = [
-  {
-    step: "01",
-    title: "Build your brief",
-    description:
-      "Add the main title, date, venue, visual style, and format. You can also upload your photo.",
-  },
-  {
-    step: "02",
-    title: "Generate and refine with AI",
-    description:
-      "Get your banner, test new versions, and make edits in just a few clicks until the visual feels right.",
-  },
-  {
-    step: "03",
-    title: "Download and publish",
-    description:
-      "Use your banner for feed posts, stories, paid ads, WhatsApp, weekly schedules, and event promotion.",
   },
 ];
 
@@ -136,7 +114,10 @@ export default function HomePage() {
               <a href="#como-funciona" className="transition hover:text-white">
                 How it works
               </a>
-              <a href="#cadastro" className="transition hover:text-white">
+              <a
+                href="#formulario-cadastro"
+                className="transition hover:text-white"
+              >
                 Create account
               </a>
             </nav>
@@ -149,7 +130,7 @@ export default function HomePage() {
                 Log in
               </Link>
               <a
-                href="#cadastro"
+                href="#formulario-cadastro"
                 className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-slate-950 transition hover:opacity-95 sm:px-4 sm:text-sm"
               >
                 Start free
@@ -167,7 +148,7 @@ export default function HomePage() {
 
             <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
               Create professional banners for your events in just a few minutes
-              using AI.
+              using AI
             </h1>
 
             <p className="mt-5 max-w-2xl text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
@@ -179,7 +160,7 @@ export default function HomePage() {
 
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
               <a
-                href="#cadastro"
+                href="#formulario-cadastro"
                 className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:min-h-[54px] sm:px-6"
               >
                 Create my free account
@@ -215,7 +196,7 @@ export default function HomePage() {
           <div className="relative min-w-0 lg:pl-6">
             <div className="absolute left-1/2 top-0 h-56 w-56 -translate-x-1/2 rounded-full bg-cyan-400/15 blur-3xl" />
             <div className="relative mx-auto flex w-full max-w-[560px] min-w-0 flex-col gap-4 sm:gap-5">
-              <div className="rounded-[24px]  sm:rounded-[32px] sm:p-5">
+              <div className="rounded-[24px] sm:rounded-[32px] sm:p-5">
                 <div className="flex flex-col gap-3 border-b border-white/8 pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4"></div>
 
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -296,7 +277,7 @@ export default function HomePage() {
           <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
             See banners generated on our platform
           </h2>
-          <p className="mt-4  max-w-2xl text-base leading-5 text-white/66">
+          <p className="mt-4 max-w-2xl text-base leading-5 text-white/66">
             Present your events with a more professional aesthetic, highlight
             your identity as a DJ, and publish high-impact visuals in just a few
             minutes.
@@ -367,92 +348,27 @@ export default function HomePage() {
               No complicated process. You provide what you need, AI creates the
               artwork, and you move to promotion much faster.
             </p>
-
-            <div className="mt-8 rounded-[28px] border border-white/10 bg-[#0b1020] p-6">
-              <p className="text-sm font-semibold text-white">
-                Ideal for anyone who wants to:
-              </p>
-              <div className="mt-5 space-y-4 text-sm text-white/70">
-                {[
-                  "promote parties with a more professional look",
-                  "post more often without getting stuck on design",
-                  "test campaigns and creatives quickly",
-                  "save time producing social media visuals",
-                ].map((item) => (
-                  <div key={item} className="flex gap-3">
-                    <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
-                      <BadgeCheck size={12} />
-                    </span>
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
-          <div className="grid gap-5">
-            {steps.map((item) => (
-              <div
-                key={item.step}
-                className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.96),rgba(7,12,24,0.98))] p-6 sm:p-7"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <span className="text-[13px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-                    Step {item.step}
+          <div className="rounded-[28px] border border-white/10 bg-[#0b1020] p-6">
+            <p className="text-sm font-semibold text-white">
+              Ideal for anyone who wants to:
+            </p>
+            <div className="mt-5 space-y-4 text-sm text-white/70">
+              {[
+                "promote parties with a more professional look",
+                "post more often without getting stuck on design",
+                "test campaigns and creatives quickly",
+                "save time producing social media visuals",
+              ].map((item) => (
+                <div key={item} className="flex gap-3">
+                  <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                    <BadgeCheck size={12} />
                   </span>
-                  <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-white/55">
-                    Guided process
-                  </span>
+                  <span>{item}</span>
                 </div>
-                <h3 className="mt-5 text-2xl font-semibold text-white">
-                  {item.title}
-                </h3>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/62">
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-white/8 bg-[linear-gradient(180deg,rgba(10,16,32,0.92),rgba(7,12,24,0.95))]">
-        <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-              Why this converts better
-            </p>
-            <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              Strong visuals increase the perceived value of your DJ brand.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-white/66">
-              When your promotion looks professional, your digital presence
-              becomes stronger. This helps attract more attention, strengthen
-              your positioning, and make your communication more consistent.
-            </p>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <BenefitCallout
-              icon={CreditCard}
-              title="Save on visual production"
-              description="Use an accessible workflow to generate banners quickly without hiring someone for every new promotion."
-            />
-            <BenefitCallout
-              icon={MailCheck}
-              title="Start securely"
-              description="Signup flow with email verification to build a more reliable user base from the start."
-            />
-            <BenefitCallout
-              icon={Clock3}
-              title="Gain operational speed"
-              description="Create faster and use the time saved to focus on your schedule, promotion, and audience relationships."
-            />
-            <BenefitCallout
-              icon={Zap}
-              title="Test more ideas"
-              description="Validate visual ideas, campaigns, and new ads without the delay of starting every piece from scratch."
-            />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -503,11 +419,15 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="min-w-0">
+          <div
+            id="formulario-cadastro"
+            className="min-w-0 scroll-mt-28 lg:scroll-mt-32"
+          >
             <RegisterForm locale="en" />
           </div>
         </div>
       </section>
+
       <section className="mx-auto w-full max-w-5xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
         <div className="text-center">
           <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
@@ -574,26 +494,6 @@ function FeatureMiniCard({
       </div>
       <h3 className="mt-4 text-sm font-semibold text-white">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-white/58">{description}</p>
-    </div>
-  );
-}
-
-function BenefitCallout({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: ComponentType<{ size?: number; className?: string }>;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
-      <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/[0.05] text-cyan-200">
-        <Icon size={20} />
-      </div>
-      <h3 className="mt-4 text-lg font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-7 text-white/62">{description}</p>
     </div>
   );
 }

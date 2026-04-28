@@ -108,10 +108,9 @@ const registerCopy: Record<
   },
   en: {
     eyebrow: "Sign up",
-    title: "Create account",
-    description:
-      "Create your account and confirm your email to unlock your free credits.",
-    fullName: "Full name",
+    title: "Create your free account",
+    description: "",
+    fullName: "Name",
     fullNamePlaceholder: "Your name",
     artistName: "Artist name",
     artistNamePlaceholder: "Ex.: DJ Vision",
@@ -202,20 +201,23 @@ export function RegisterForm({
     if (!turnstileRef.current || !window.turnstile) return;
     if (turnstileWidgetIdRef.current) return;
 
-    turnstileWidgetIdRef.current = window.turnstile.render(turnstileRef.current, {
-      sitekey: turnstileSiteKey!,
-      theme: "dark",
-      callback: (token) => {
-        setTurnstileToken(token);
+    turnstileWidgetIdRef.current = window.turnstile.render(
+      turnstileRef.current,
+      {
+        sitekey: turnstileSiteKey!,
+        theme: "dark",
+        callback: (token) => {
+          setTurnstileToken(token);
+        },
+        "expired-callback": () => {
+          setTurnstileToken("");
+        },
+        "error-callback": () => {
+          setTurnstileToken("");
+          setError(copy.turnstileError);
+        },
       },
-      "expired-callback": () => {
-        setTurnstileToken("");
-      },
-      "error-callback": () => {
-        setTurnstileToken("");
-        setError(copy.turnstileError);
-      },
-    });
+    );
 
     return () => {
       if (turnstileWidgetIdRef.current && window.turnstile) {
@@ -319,9 +321,7 @@ export function RegisterForm({
       router.push(data.redirectTo ?? "/verify-email");
       router.refresh();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : copy.unexpectedCreateError,
-      );
+      setError(err instanceof Error ? err.message : copy.unexpectedCreateError);
     } finally {
       setLoading(false);
     }
@@ -402,7 +402,9 @@ export function RegisterForm({
                 type="button"
                 onClick={() => setShowPasswords((prev) => !prev)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-white/45 transition hover:text-white/80"
-                aria-label={showPasswords ? copy.hidePassword : copy.showPassword}
+                aria-label={
+                  showPasswords ? copy.hidePassword : copy.showPassword
+                }
               >
                 {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -477,13 +479,7 @@ export function RegisterForm({
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="grid gap-3">
       <label className="text-sm font-medium text-white/90">{label}</label>
