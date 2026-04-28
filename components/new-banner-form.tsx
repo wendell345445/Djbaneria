@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { SubscriptionPlan } from "@/generated/prisma/enums";
 import {
   getAllowedBannerQualities,
@@ -11,37 +11,89 @@ import {
 import { isBannerStyleProOnly } from "@/lib/banner-style-access";
 
 const stylePresets = [
-  { value: "NEON_CLUB", label: "Neon Club" },
-  { value: "FESTIVAL_MAINSTAGE", label: "Festival Mainstage" },
-  { value: "CYBER_RAVE", label: "Cyber Rave" },
-  { value: "DARK_TECHNO", label: "Dark Techno" },
-  { value: "CHROME_FUTURE", label: "Chrome Future" },
-  { value: "AFRO_HOUSE_SUNSET", label: "Afro House Sunset" },
-  { value: "Y2K_CLUB", label: "Y2K Club" },
-  { value: "PREMIUM_BLACK", label: "Premium Black" },
-  { value: "SUMMER_VIBES", label: "Summer Vibes" },
-  { value: "MINIMAL_TECHNO", label: "Minimal Techno" },
-  { value: "LUXURY_GOLD", label: "Luxury Gold" },
+  {
+    value: "NEON_CLUB",
+    label: "Neon Club",
+    description: "Glow forte, energia de pista e visual vibrante.",
+    badge: "Popular",
+    image: "/examples/banner-01.webp",
+  },
+  {
+    value: "PREMIUM_BLACK",
+    label: "Premium Black",
+    description: "Elegante, escuro e com aparência mais refinada.",
+    badge: "Novo",
+    image: "/examples/card/Premium Black.webp",
+  },
+  {
+    value: "SUMMER_VIBES",
+    label: "Summer Vibes",
+    description: "Leve, iluminado e ideal para eventos mais abertos.",
+    badge: "Novo",
+    image: "/examples/card/Summer Vibes.webp",
+  },
+  {
+    value: "MINIMAL_TECHNO",
+    label: "Minimal Techno",
+    description: "Mais limpo, moderno e com informação bem organizada.",
+    badge: "Novo",
+    image: "/examples/card/Minimal Techno.webp",
+  },
+  {
+    value: "LUXURY_GOLD",
+    label: "Luxury Gold",
+    description: "Luxuoso, dourado e com sensação premium.",
+    badge: "Novo",
+    image: "/examples/banner-05.webp",
+  },
+  {
+    value: "FESTIVAL_MAINSTAGE",
+    label: "Festival Mainstage",
+    description: "Aparência de grande palco, luzes intensas e impacto premium.",
+    badge: "Pro",
+    image: "/examples/card/Festival Mainstage.webp",
+  },
+  {
+    value: "CYBER_RAVE",
+    label: "Cyber Rave",
+    description: "Clima futurista, digital e cheio de personalidade.",
+    badge: "Pro",
+    image: "/examples/card/Cyber Rave.webp",
+  },
+  {
+    value: "DARK_TECHNO",
+    label: "Dark Techno",
+    description: "Estética underground, contraste forte e atmosfera noturna.",
+    badge: "Pro",
+    image: "/examples/card/Dark Techno.webp",
+  },
+  {
+    value: "CHROME_FUTURE",
+    label: "Chrome Future",
+    description: "Visual metálico, moderno e mais tecnológico.",
+    badge: "Pro",
+    image: "/examples/card/Chrome Future.webp",
+  },
+  {
+    value: "AFRO_HOUSE_SUNSET",
+    label: "Afro House Sunset",
+    description: "Tons quentes, vibe sunset e presença sofisticada.",
+    badge: "Pro",
+    image: "/examples/card/Afro-house.webp",
+  },
+  {
+    value: "Y2K_CLUB",
+    label: "Y2K Club",
+    description: "Visual jovem, chamativo e com pegada club moderna.",
+    badge: "Pro",
+    image: "/examples/card/y2k-club.webp",
+  },
 ] as const;
 
 const formats = [
   { value: "POST_FEED", label: "Feed" },
   { value: "STORY", label: "Story" },
 ] as const;
-
-const generateSteps = [
-  "Preparando os dados do banner",
-  "Enviando composição para a IA",
-  "Gerando o preview visual",
-  "Finalizando o resultado",
-];
-
-const editSteps = [
-  "Analisando a arte atual",
-  "Aplicando suas instruções na composição",
-  "Renderizando a nova versão",
-  "Finalizando os ajustes da arte",
-];
 
 const qualityOptions: {
   value: BannerImageQuality;
@@ -60,6 +112,521 @@ const qualityOptions: {
     label: "Alta qualidade",
   },
 ];
+
+const newBannerFormCopy = {
+  "pt-BR": {
+    briefingEyebrow: "Briefing criativo",
+    briefingTitle: "Preencha os dados do banner",
+    briefingDescription:
+      "Uma estrutura clara para gerar flyers premium sem confusão entre texto principal, nome do DJ e informações do evento.",
+    briefingProgress: "Briefing",
+    mainSection: "Conteúdo principal",
+    mainTextLabel: "Texto principal do banner",
+    mainTextPlaceholder: "Ex.: Pull Party Fest",
+    djNameLabel: "Nome do DJ",
+    djNamePlaceholder: "Ex.: DJ Vitor",
+    secondaryTextLabel: "Chamada secundária (opcional)",
+    secondaryTextPlaceholder: "Ex.: Edição especial",
+    eventSection: "Informações do evento",
+    eventDateLabel: "Data do evento",
+    eventDatePlaceholder: "Ex.: 19/09/2026",
+    eventLocationLabel: "Local do evento",
+    eventLocationPlaceholder: "Ex.: São Paulo Hall - São Paulo",
+    visualSection: "Direção visual",
+    visualStyleLabel: "Estilo visual",
+    previousStyles: "Ver estilos anteriores",
+    nextStyles: "Ver próximos estilos",
+    selected: "Selecionado",
+    proOnly: "🔒 Somente Pro",
+    availableFromPro: "Disponível a partir do Pro",
+    activeStyle: "Estilo ativo",
+    tapToChoose: "Toque para escolher",
+    upgrade: "Faça upgrade",
+    slideMore: "Deslize para ver mais",
+    carouselHint:
+      "No computador, use as setas ou a roda do mouse. No celular, deslize para o lado.",
+    proHint:
+      "Os estilos Pro continuam visíveis para gerar desejo, mas só podem ser usados no plano Pro ou superior.",
+    formatLabel: "Formato",
+    qualityLabel: "Qualidade de geração",
+    unavailablePlan: " — indisponível no seu plano",
+    photoLabel: "Foto do DJ (opcional)",
+    photoHelper: "Envie uma imagem para a IA usar como referência visual.",
+    noFileSelected: "Nenhum arquivo selecionado",
+    professionalStructure: "Estrutura profissional",
+    professionalStructureText:
+      "O texto principal será o maior destaque da arte. O nome do DJ ficará em segundo nível e o bloco complementar será mais discreto e elegante.",
+    remainingCredits: "Créditos restantes",
+    noCreditsButton: "Créditos esgotados",
+    generatingButton: "Gerando preview...",
+    editingButton: "Aplicando alteração...",
+    generateButton: "Gerar banner premium",
+    previewEyebrow: "Preview",
+    previewLoadingTitle: "A IA está montando sua composição",
+    previewEditTitle: "A IA está aplicando sua alteração",
+    previewReadyTitle: "Preview pronto para revisão",
+    previewEmptyTitle: "Seu banner aparecerá aqui",
+    selectedFormat: "Formato selecionado",
+    processingBadge: "Processando",
+    editingBadge: "Alterando",
+    completedBadge: "Concluído",
+    waitingBadge: "Aguardando",
+    renderChip: "Render IA",
+    editChip: "Edit IA",
+    composingLayers: "Compondo camadas",
+    applyingChanges: "Aplicando alterações",
+    processingVisual: "Processando visual",
+    generatingNewVersion: "Gerando nova versão",
+    loadingHelper:
+      "A IA está preparando seu banner com base no briefing informado.",
+    editLoadingHelper:
+      "A imagem atual está sendo usada como base para criar uma nova versão.",
+    generatedAlt: "Banner gerado",
+    testPreviewTitle: "Preview gerado no modo de teste",
+    successTitle: "Seu banner foi criado com sucesso",
+    testPreviewDescription:
+      "Neste modo o sistema prioriza velocidade e mostra o preview imediatamente.",
+    successDescription:
+      "A imagem já pode ser baixada ou aberta em uma nova guia.",
+    downloadImage: "Baixar imagem",
+    openImage: "Abrir imagem",
+    editTitle: "Solicitar alteração da arte",
+    editDescription:
+      "Descreva a mudança desejada. Cada alteração consome 1 crédito.",
+    oneCredit: "1 crédito",
+    editPlaceholder:
+      "Ex.: deixe o fundo mais escuro, aumente o destaque do título principal e use um clima mais neon.",
+    editHelper:
+      "A IA usará a imagem atual como base e criará uma nova versão da arte.",
+    editButton: "Solicitar alteração",
+    editingButtonShort: "Alterando arte...",
+    smartPreview: "Preview inteligente",
+    smartPreviewDescription: "Seu banner será gerado aqui.",
+    awaitingGeneration: "Aguardando geração",
+    generateSteps: [
+      "Preparando os dados do banner",
+      "Enviando composição para a IA",
+      "Gerando o preview visual",
+      "Finalizando o resultado",
+    ],
+    editSteps: [
+      "Analisando a arte atual",
+      "Aplicando suas instruções na composição",
+      "Renderizando a nova versão",
+      "Finalizando os ajustes da arte",
+    ],
+    qualityLabels: {
+      low: "Rápido",
+      medium: "Equilibrado",
+      high: "Alta qualidade",
+    },
+    badges: {
+      Popular: "Popular",
+      Novo: "Novo",
+      Pro: "Pro",
+    },
+    styleDescriptions: {
+      NEON_CLUB: "Glow forte, energia de pista e visual vibrante.",
+      PREMIUM_BLACK: "Elegante, escuro e com aparência mais refinada.",
+      SUMMER_VIBES: "Leve, iluminado e ideal para eventos mais abertos.",
+      MINIMAL_TECHNO: "Mais limpo, moderno e com informação bem organizada.",
+      LUXURY_GOLD: "Luxuoso, dourado e com sensação premium.",
+      FESTIVAL_MAINSTAGE:
+        "Aparência de grande palco, luzes intensas e impacto premium.",
+      CYBER_RAVE: "Clima futurista, digital e cheio de personalidade.",
+      DARK_TECHNO: "Estética underground, contraste forte e atmosfera noturna.",
+      CHROME_FUTURE: "Visual metálico, moderno e mais tecnológico.",
+      AFRO_HOUSE_SUNSET: "Tons quentes, vibe sunset e presença sofisticada.",
+      Y2K_CLUB: "Visual jovem, chamativo e com pegada club moderna.",
+    },
+    errors: {
+      fileRead: "Não foi possível ler a imagem enviada.",
+      trackGeneration: "Não foi possível acompanhar a geração.",
+      completedNoImage:
+        "O banner foi marcado como concluído, mas a URL da imagem não foi retornada.",
+      failedGeneration: "Não foi possível concluir a geração do banner.",
+      timeout:
+        "A geração ainda está em andamento. Abra Meus banners em alguns instantes para conferir o resultado.",
+      noCredits: "Você usou todos os seus créditos deste mês.",
+      generate: "Não foi possível gerar o banner.",
+      missingBannerId:
+        "A geração foi iniciada, mas a API não retornou o ID do banner.",
+      missingImage:
+        "A API retornou sucesso, mas não enviou a URL da imagem gerada.",
+      generateFallback: "Erro ao gerar banner.",
+      editPrompt: "Descreva a alteração desejada com um pouco mais de detalhe.",
+      edit: "Não foi possível editar a arte.",
+      editFallback: "Erro ao editar a arte.",
+    },
+    status: {
+      waitingAi:
+        "Banner enviado para a IA. Aguardando a finalização da imagem...",
+      preparing: "Preparando os dados do banner...",
+      sending: "Enviando composição para a IA...",
+      drawing: "A IA está desenhando o preview do banner...",
+      finishing:
+        "Ajustando o resultado final. Aguarde mais alguns instantes...",
+      created: "Banner criado. Aguardando a IA finalizar a imagem...",
+      success: "Banner gerado e salvo com sucesso.",
+      testSuccess: "Preview gerado com sucesso no modo de teste.",
+      editAnalyzing: "Analisando a arte atual para aplicar a alteração...",
+      editApplying: "Aplicando suas instruções na composição...",
+      editRendering: "Renderizando a nova versão da arte...",
+      editFinishing:
+        "Finalizando os ajustes da alteração. Aguarde mais alguns instantes...",
+      editSuccess: "Alteração aplicada com sucesso.",
+    },
+
+    upgradeCard: {
+      label: "Créditos esgotados",
+      title: "Libere mais banners e continue criando sem pausa",
+      description:
+        "Faça upgrade do seu plano para receber mais créditos mensais e desbloquear opções melhores de geração para seus banners.",
+      button: "Ver planos",
+      freeHelp: "Pro libera mais créditos. Professional libera alta qualidade.",
+      paidHelp: "Escolha um plano maior para aumentar seus créditos.",
+    },
+  },
+  en: {
+    briefingEyebrow: "Creative brief",
+    briefingTitle: "Fill in your banner details",
+    briefingDescription:
+      "A clear structure to generate premium flyers without mixing up the main title, DJ name, and event details.",
+    briefingProgress: "Briefing",
+    mainSection: "Main content",
+    mainTextLabel: "Main banner text",
+    mainTextPlaceholder: "Ex.: Pull Party Fest",
+    djNameLabel: "DJ name",
+    djNamePlaceholder: "Ex.: DJ Vitor",
+    secondaryTextLabel: "Secondary line (optional)",
+    secondaryTextPlaceholder: "Ex.: Special edition",
+    eventSection: "Event information",
+    eventDateLabel: "Event date",
+    eventDatePlaceholder: "Ex.: 09/19/2026",
+    eventLocationLabel: "Event location",
+    eventLocationPlaceholder: "Ex.: São Paulo Hall - São Paulo",
+    visualSection: "Visual direction",
+    visualStyleLabel: "Visual style",
+    previousStyles: "View previous styles",
+    nextStyles: "View next styles",
+    selected: "Selected",
+    proOnly: "🔒 Pro only",
+    availableFromPro: "Available from Pro",
+    activeStyle: "Active style",
+    tapToChoose: "Tap to choose",
+    upgrade: "Upgrade",
+    slideMore: "Swipe for more",
+    carouselHint:
+      "On desktop, use the arrows or mouse wheel. On mobile, swipe sideways.",
+    proHint:
+      "Pro styles stay visible to create desire, but can only be used on the Pro plan or higher.",
+    formatLabel: "Format",
+    qualityLabel: "Generation quality",
+    unavailablePlan: " — unavailable on your plan",
+    photoLabel: "DJ photo (optional)",
+    photoHelper: "Upload an image for the AI to use as a visual reference.",
+    noFileSelected: "No file selected",
+    professionalStructure: "Professional structure",
+    professionalStructureText:
+      "The main text will be the biggest visual highlight. The DJ name will appear as a secondary element and the complementary details will be more discreet and elegant.",
+    remainingCredits: "Remaining credits",
+    noCreditsButton: "No credits left",
+    generatingButton: "Generating preview...",
+    editingButton: "Applying edit...",
+    generateButton: "Generate premium banner",
+    previewEyebrow: "Preview",
+    previewLoadingTitle: "AI is building your composition",
+    previewEditTitle: "AI is applying your edit",
+    previewReadyTitle: "Preview ready for review",
+    previewEmptyTitle: "Your banner will appear here",
+    selectedFormat: "Selected format",
+    processingBadge: "Processing",
+    editingBadge: "Editing",
+    completedBadge: "Completed",
+    waitingBadge: "Waiting",
+    renderChip: "AI render",
+    editChip: "AI edit",
+    composingLayers: "Composing layers",
+    applyingChanges: "Applying changes",
+    processingVisual: "Processing visual",
+    generatingNewVersion: "Generating new version",
+    loadingHelper: "AI is preparing your banner from the brief you provided.",
+    editLoadingHelper:
+      "The current image is being used as the base to create a new version.",
+    generatedAlt: "Generated banner",
+    testPreviewTitle: "Preview generated in test mode",
+    successTitle: "Your banner was created successfully",
+    testPreviewDescription:
+      "In this mode, the system prioritizes speed and shows the preview immediately.",
+    successDescription:
+      "The image can now be downloaded or opened in a new tab.",
+    downloadImage: "Download image",
+    openImage: "Open image",
+    editTitle: "Request an artwork edit",
+    editDescription: "Describe the change you want. Each edit uses 1 credit.",
+    oneCredit: "1 credit",
+    editPlaceholder:
+      "Ex.: make the background darker, highlight the main title more, and use a more neon mood.",
+    editHelper:
+      "AI will use the current image as the base and create a new version of the artwork.",
+    editButton: "Request edit",
+    editingButtonShort: "Editing artwork...",
+    smartPreview: "Smart preview",
+    smartPreviewDescription: "Your banner will be generated here.",
+    awaitingGeneration: "Waiting for generation",
+    generateSteps: [
+      "Preparing banner data",
+      "Sending composition to AI",
+      "Generating visual preview",
+      "Finalizing the result",
+    ],
+    editSteps: [
+      "Analyzing current artwork",
+      "Applying your instructions",
+      "Rendering the new version",
+      "Finalizing artwork edits",
+    ],
+    qualityLabels: {
+      low: "Fast",
+      medium: "Balanced",
+      high: "High quality",
+    },
+    badges: {
+      Popular: "Popular",
+      Novo: "New",
+      Pro: "Pro",
+    },
+    styleDescriptions: {
+      NEON_CLUB: "Strong glow, club energy, and a vibrant look.",
+      PREMIUM_BLACK: "Elegant, dark, and more refined.",
+      SUMMER_VIBES: "Light, bright, and ideal for open-air events.",
+      MINIMAL_TECHNO: "Cleaner, modern, and well organized.",
+      LUXURY_GOLD: "Luxurious, golden, and premium-looking.",
+      FESTIVAL_MAINSTAGE: "Mainstage look, intense lights, and premium impact.",
+      CYBER_RAVE: "Futuristic, digital, and full of personality.",
+      DARK_TECHNO: "Underground aesthetic, heavy contrast, and night mood.",
+      CHROME_FUTURE: "Metallic, modern, and more technological.",
+      AFRO_HOUSE_SUNSET: "Warm tones, sunset vibe, and sophisticated presence.",
+      Y2K_CLUB: "Young, bold, and modern club-inspired look.",
+    },
+    errors: {
+      fileRead: "Could not read the uploaded image.",
+      trackGeneration: "Could not track the generation.",
+      completedNoImage:
+        "The banner was marked as completed, but the image URL was not returned.",
+      failedGeneration: "Could not complete banner generation.",
+      timeout:
+        "Generation is still running. Open My banners in a few moments to check the result.",
+      noCredits: "You have used all your credits for this month.",
+      generate: "Could not generate the banner.",
+      missingBannerId:
+        "Generation was started, but the API did not return the banner ID.",
+      missingImage:
+        "The API returned success, but did not send the generated image URL.",
+      generateFallback: "Error generating banner.",
+      editPrompt: "Describe the desired edit with a little more detail.",
+      edit: "Could not edit the artwork.",
+      editFallback: "Error editing artwork.",
+    },
+    status: {
+      waitingAi: "Banner sent to AI. Waiting for the image to finish...",
+      preparing: "Preparing banner data...",
+      sending: "Sending composition to AI...",
+      drawing: "AI is drawing the banner preview...",
+      finishing:
+        "Adjusting the final result. Please wait a few more moments...",
+      created: "Banner created. Waiting for AI to finish the image...",
+      success: "Banner generated and saved successfully.",
+      testSuccess: "Preview generated successfully in test mode.",
+      editAnalyzing: "Analyzing the current artwork to apply your edit...",
+      editApplying: "Applying your instructions to the composition...",
+      editRendering: "Rendering the new artwork version...",
+      editFinishing: "Finalizing the edit. Please wait a few more moments...",
+      editSuccess: "Edit applied successfully.",
+    },
+    upgradeCard: {
+      label: "No credits left",
+      title: "Unlock more banners and keep creating without pauses",
+      description:
+        "Upgrade your plan to receive more monthly credits and unlock better generation options for your banners.",
+      button: "View plans",
+      freeHelp: "Pro unlocks more credits. Professional unlocks high quality.",
+      paidHelp: "Choose a larger plan to increase your credits.",
+    },
+  },
+  es: {
+    briefingEyebrow: "Brief creativo",
+    briefingTitle: "Completa los datos del banner",
+    briefingDescription:
+      "Una estructura clara para generar flyers premium sin confundir el texto principal, el nombre del DJ y los datos del evento.",
+    briefingProgress: "Briefing",
+    mainSection: "Contenido principal",
+    mainTextLabel: "Texto principal del banner",
+    mainTextPlaceholder: "Ej.: Pull Party Fest",
+    djNameLabel: "Nombre del DJ",
+    djNamePlaceholder: "Ej.: DJ Vitor",
+    secondaryTextLabel: "Frase secundaria (opcional)",
+    secondaryTextPlaceholder: "Ej.: Edición especial",
+    eventSection: "Información del evento",
+    eventDateLabel: "Fecha del evento",
+    eventDatePlaceholder: "Ej.: 19/09/2026",
+    eventLocationLabel: "Lugar del evento",
+    eventLocationPlaceholder: "Ej.: São Paulo Hall - São Paulo",
+    visualSection: "Dirección visual",
+    visualStyleLabel: "Estilo visual",
+    previousStyles: "Ver estilos anteriores",
+    nextStyles: "Ver siguientes estilos",
+    selected: "Seleccionado",
+    proOnly: "🔒 Solo Pro",
+    availableFromPro: "Disponible desde Pro",
+    activeStyle: "Estilo activo",
+    tapToChoose: "Toca para elegir",
+    upgrade: "Actualizar",
+    slideMore: "Desliza para ver más",
+    carouselHint:
+      "En computadora, usa las flechas o la rueda del mouse. En celular, desliza hacia los lados.",
+    proHint:
+      "Los estilos Pro siguen visibles para generar deseo, pero solo se pueden usar en el plan Pro o superior.",
+    formatLabel: "Formato",
+    qualityLabel: "Calidad de generación",
+    unavailablePlan: " — no disponible en tu plan",
+    photoLabel: "Foto del DJ (opcional)",
+    photoHelper:
+      "Sube una imagen para que la IA la use como referencia visual.",
+    noFileSelected: "Ningún archivo seleccionado",
+    professionalStructure: "Estructura profesional",
+    professionalStructureText:
+      "El texto principal será el mayor destaque visual. El nombre del DJ quedará en segundo nivel y el bloque complementario será más discreto y elegante.",
+    remainingCredits: "Créditos restantes",
+    noCreditsButton: "Créditos agotados",
+    generatingButton: "Generando preview...",
+    editingButton: "Aplicando edición...",
+    generateButton: "Generar banner premium",
+    previewEyebrow: "Preview",
+    previewLoadingTitle: "La IA está montando tu composición",
+    previewEditTitle: "La IA está aplicando tu edición",
+    previewReadyTitle: "Preview listo para revisar",
+    previewEmptyTitle: "Tu banner aparecerá aquí",
+    selectedFormat: "Formato seleccionado",
+    processingBadge: "Procesando",
+    editingBadge: "Editando",
+    completedBadge: "Concluido",
+    waitingBadge: "Esperando",
+    renderChip: "Render IA",
+    editChip: "Edit IA",
+    composingLayers: "Componiendo capas",
+    applyingChanges: "Aplicando cambios",
+    processingVisual: "Procesando visual",
+    generatingNewVersion: "Generando nueva versión",
+    loadingHelper:
+      "La IA está preparando tu banner con base en el brief informado.",
+    editLoadingHelper:
+      "La imagen actual se está usando como base para crear una nueva versión.",
+    generatedAlt: "Banner generado",
+    testPreviewTitle: "Preview generado en modo de prueba",
+    successTitle: "Tu banner fue creado con éxito",
+    testPreviewDescription:
+      "En este modo el sistema prioriza velocidad y muestra el preview inmediatamente.",
+    successDescription:
+      "La imagen ya se puede descargar o abrir en una nueva pestaña.",
+    downloadImage: "Descargar imagen",
+    openImage: "Abrir imagen",
+    editTitle: "Solicitar edición del arte",
+    editDescription:
+      "Describe el cambio deseado. Cada edición consume 1 crédito.",
+    oneCredit: "1 crédito",
+    editPlaceholder:
+      "Ej.: deja el fondo más oscuro, aumenta el destaque del título principal y usa un clima más neón.",
+    editHelper:
+      "La IA usará la imagen actual como base y creará una nueva versión del arte.",
+    editButton: "Solicitar edición",
+    editingButtonShort: "Editando arte...",
+    smartPreview: "Preview inteligente",
+    smartPreviewDescription: "Tu banner se generará aquí.",
+    awaitingGeneration: "Esperando generación",
+    generateSteps: [
+      "Preparando los datos del banner",
+      "Enviando composición a la IA",
+      "Generando el preview visual",
+      "Finalizando el resultado",
+    ],
+    editSteps: [
+      "Analizando el arte actual",
+      "Aplicando tus instrucciones",
+      "Renderizando la nueva versión",
+      "Finalizando los ajustes del arte",
+    ],
+    qualityLabels: {
+      low: "Rápido",
+      medium: "Equilibrado",
+      high: "Alta calidad",
+    },
+    badges: {
+      Popular: "Popular",
+      Novo: "Nuevo",
+      Pro: "Pro",
+    },
+    styleDescriptions: {
+      NEON_CLUB: "Glow fuerte, energía de pista y visual vibrante.",
+      PREMIUM_BLACK: "Elegante, oscuro y con apariencia más refinada.",
+      SUMMER_VIBES: "Ligero, iluminado e ideal para eventos al aire libre.",
+      MINIMAL_TECHNO: "Más limpio, moderno y con información bien organizada.",
+      LUXURY_GOLD: "Lujoso, dorado y con sensación premium.",
+      FESTIVAL_MAINSTAGE:
+        "Apariencia de gran escenario, luces intensas e impacto premium.",
+      CYBER_RAVE: "Futurista, digital y lleno de personalidad.",
+      DARK_TECHNO: "Estética underground, contraste fuerte y clima nocturno.",
+      CHROME_FUTURE: "Visual metálico, moderno y más tecnológico.",
+      AFRO_HOUSE_SUNSET: "Tonos cálidos, vibe sunset y presencia sofisticada.",
+      Y2K_CLUB: "Visual joven, llamativo y con estilo club moderno.",
+    },
+    errors: {
+      fileRead: "No fue posible leer la imagen enviada.",
+      trackGeneration: "No fue posible acompañar la generación.",
+      completedNoImage:
+        "El banner fue marcado como concluido, pero no se devolvió la URL de la imagen.",
+      failedGeneration: "No fue posible concluir la generación del banner.",
+      timeout:
+        "La generación aún está en curso. Abre Mis banners en unos instantes para ver el resultado.",
+      noCredits: "Usaste todos tus créditos de este mes.",
+      generate: "No fue posible generar el banner.",
+      missingBannerId:
+        "La generación fue iniciada, pero la API no devolvió el ID del banner.",
+      missingImage:
+        "La API devolvió éxito, pero no envió la URL de la imagen generada.",
+      generateFallback: "Error al generar banner.",
+      editPrompt: "Describe la edición deseada con un poco más de detalle.",
+      edit: "No fue posible editar el arte.",
+      editFallback: "Error al editar el arte.",
+    },
+    status: {
+      waitingAi:
+        "Banner enviado a la IA. Esperando la finalización de la imagen...",
+      preparing: "Preparando los datos del banner...",
+      sending: "Enviando composición a la IA...",
+      drawing: "La IA está dibujando el preview del banner...",
+      finishing: "Ajustando el resultado final. Espera unos instantes más...",
+      created: "Banner creado. Esperando que la IA finalice la imagen...",
+      success: "Banner generado y guardado con éxito.",
+      testSuccess: "Preview generado con éxito en modo de prueba.",
+      editAnalyzing: "Analizando el arte actual para aplicar la edición...",
+      editApplying: "Aplicando tus instrucciones en la composición...",
+      editRendering: "Renderizando la nueva versión del arte...",
+      editFinishing:
+        "Finalizando los ajustes de la edición. Espera unos instantes más...",
+      editSuccess: "Edición aplicada con éxito.",
+    },
+    upgradeCard: {
+      label: "Créditos agotados",
+      title: "Libera más banners y sigue creando sin pausa",
+      description:
+        "Actualiza tu plan para recibir más créditos mensuales y desbloquear mejores opciones de generación para tus banners.",
+      button: "Ver planes",
+      freeHelp: "Pro libera más créditos. Professional libera alta calidad.",
+      paidHelp: "Elige un plan mayor para aumentar tus créditos.",
+    },
+  },
+} as const;
 
 type GenerationResult = {
   imageUrl: string;
@@ -82,21 +649,102 @@ type BannerStatusResponse = {
   error?: string;
 };
 
-function readFileAsDataUrl(file: File) {
+const PENDING_BANNER_STORAGE_KEY = "djproia_pending_banner_generation";
+const PENDING_BANNER_MAX_AGE_MS = 1000 * 60 * 60 * 3;
+
+type PendingBannerGeneration = {
+  bannerId: string;
+  createdAt: number;
+  format?: string;
+};
+
+function savePendingBannerGeneration({
+  bannerId,
+  format,
+}: {
+  bannerId: string;
+  format?: string;
+}) {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.setItem(
+    PENDING_BANNER_STORAGE_KEY,
+    JSON.stringify({
+      bannerId,
+      createdAt: Date.now(),
+      format,
+    }),
+  );
+}
+
+function readPendingBannerGeneration(): PendingBannerGeneration | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(PENDING_BANNER_STORAGE_KEY);
+    if (!raw) return null;
+
+    const pending = JSON.parse(raw) as Partial<PendingBannerGeneration>;
+    if (!pending.bannerId || typeof pending.bannerId !== "string") {
+      window.localStorage.removeItem(PENDING_BANNER_STORAGE_KEY);
+      return null;
+    }
+
+    const createdAt =
+      typeof pending.createdAt === "number" ? pending.createdAt : Date.now();
+
+    if (Date.now() - createdAt > PENDING_BANNER_MAX_AGE_MS) {
+      window.localStorage.removeItem(PENDING_BANNER_STORAGE_KEY);
+      return null;
+    }
+
+    return {
+      bannerId: pending.bannerId,
+      createdAt,
+      format: typeof pending.format === "string" ? pending.format : undefined,
+    };
+  } catch {
+    window.localStorage.removeItem(PENDING_BANNER_STORAGE_KEY);
+    return null;
+  }
+}
+
+function clearPendingBannerGeneration(bannerId?: string) {
+  if (typeof window === "undefined") return;
+
+  if (!bannerId) {
+    window.localStorage.removeItem(PENDING_BANNER_STORAGE_KEY);
+    return;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(PENDING_BANNER_STORAGE_KEY);
+    if (!raw) return;
+
+    const pending = JSON.parse(raw) as Partial<PendingBannerGeneration>;
+    if (pending.bannerId === bannerId) {
+      window.localStorage.removeItem(PENDING_BANNER_STORAGE_KEY);
+    }
+  } catch {
+    window.localStorage.removeItem(PENDING_BANNER_STORAGE_KEY);
+  }
+}
+
+function readFileAsDataUrl(file: File, errorMessage: string) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = () => {
       const result = reader.result;
       if (typeof result !== "string") {
-        reject(new Error("Não foi possível ler a imagem enviada."));
+        reject(new Error(errorMessage));
         return;
       }
       resolve(result);
     };
 
     reader.onerror = () => {
-      reject(new Error("Não foi possível ler a imagem enviada."));
+      reject(new Error(errorMessage));
     };
 
     reader.readAsDataURL(file);
@@ -137,25 +785,6 @@ function getLoadingProgress(activeStep: number) {
   }
 }
 
-function buildLoadingTexts(mode: "generate" | "edit" | null) {
-  if (mode === "edit") {
-    return {
-      title: "A IA está aplicando sua alteração",
-      badge: "Alterando",
-      chip: "Edit IA",
-      helper:
-        "A imagem atual está sendo usada como base para criar uma nova versão.",
-    };
-  }
-
-  return {
-    title: "A IA está montando sua composição",
-    badge: "Processando",
-    chip: "Render IA",
-    helper: "A IA está preparando seu banner com base no briefing informado.",
-  };
-}
-
 function isCreditExhaustedMessage(message: string) {
   const normalized = message.toLowerCase();
 
@@ -182,7 +811,7 @@ export function NewBannerForm({
   initialRemainingCredits?: number | null;
   locale?: NewBannerFormLocale;
 }) {
-  void locale;
+  const copy = newBannerFormCopy[locale] ?? newBannerFormCopy.en;
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
@@ -204,6 +833,8 @@ export function NewBannerForm({
     !isAdmin && !canGenerateBanner,
   );
   const previewRef = useRef<HTMLElement | null>(null);
+  const styleCarouselRef = useRef<HTMLDivElement | null>(null);
+  const restoringPendingRef = useRef(false);
   const allowedQualities = useMemo(
     () => getAllowedBannerQualities(currentPlan, isAdmin),
     [currentPlan, isAdmin],
@@ -247,8 +878,22 @@ export function NewBannerForm({
   );
 
   const displayLoading = loading || editLoading;
-  const currentSteps = loadingMode === "edit" ? editSteps : generateSteps;
-  const loadingTexts = buildLoadingTexts(loadingMode);
+  const currentSteps =
+    loadingMode === "edit" ? copy.editSteps : copy.generateSteps;
+  const loadingTexts =
+    loadingMode === "edit"
+      ? {
+          title: copy.previewEditTitle,
+          badge: copy.editingBadge,
+          chip: copy.editChip,
+          helper: copy.editLoadingHelper,
+        }
+      : {
+          title: copy.previewLoadingTitle,
+          badge: copy.processingBadge,
+          chip: copy.renderChip,
+          helper: copy.loadingHelper,
+        };
   const hasNoCredits =
     !isAdmin &&
     (!canGenerateBanner ||
@@ -263,6 +908,16 @@ export function NewBannerForm({
         block: "start",
       });
     }, 120);
+  }
+
+  function scrollStyleCarousel(direction: "left" | "right") {
+    const carousel = styleCarouselRef.current;
+    if (!carousel) return;
+
+    carousel.scrollBy({
+      left: direction === "left" ? -320 : 320,
+      behavior: "smooth",
+    });
   }
 
   async function waitForGeneratedBanner(
@@ -281,7 +936,7 @@ export function NewBannerForm({
       const data = (await response.json()) as BannerStatusResponse;
 
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível acompanhar a geração.");
+        throw new Error(data.error || copy.errors.trackGeneration);
       }
 
       if (typeof data.activeStep === "number") {
@@ -297,10 +952,10 @@ export function NewBannerForm({
         const imageUrl = data.imageUrl || null;
 
         if (!imageUrl) {
-          throw new Error(
-            "O banner foi marcado como concluído, mas a URL da imagem não foi retornada.",
-          );
+          throw new Error(copy.errors.completedNoImage);
         }
+
+        clearPendingBannerGeneration(bannerId);
 
         return {
           imageUrl,
@@ -311,27 +966,87 @@ export function NewBannerForm({
       }
 
       if (data.status === "FAILED") {
-        throw new Error(
-          data.message || "Não foi possível concluir a geração do banner.",
-        );
+        clearPendingBannerGeneration(bannerId);
+        throw new Error(copy.errors.failedGeneration);
       }
 
-      setStatusText(
-        data.message ||
-          "Banner enviado para a IA. Aguardando a finalização da imagem...",
-      );
+      setStatusText(copy.status.waitingAi);
     }
 
-    throw new Error(
-      "A geração ainda está em andamento. Abra Meus banners em alguns instantes para conferir o resultado.",
-    );
+    throw new Error(copy.errors.timeout);
   }
+
+  useEffect(() => {
+    if (restoringPendingRef.current || loading || editLoading || result) return;
+
+    const pending = readPendingBannerGeneration();
+    if (!pending) return;
+
+    restoringPendingRef.current = true;
+
+    if (pending.format === "POST_FEED" || pending.format === "STORY") {
+      setForm((current) => ({
+        ...current,
+        format: pending.format || current.format,
+      }));
+    }
+
+    setLoading(true);
+    setLoadingMode("generate");
+    setActiveStep(0);
+    setStatusText(copy.status.created);
+    setError("");
+    setResult(null);
+    setEditPrompt("");
+    setEditError("");
+    setEditSuccess("");
+    scrollToPreview();
+
+    let cancelled = false;
+
+    waitForGeneratedBanner(pending.bannerId)
+      .then((completedBanner) => {
+        if (cancelled) return;
+
+        setActiveStep(3);
+        setStatusText(copy.status.success);
+        setResult(completedBanner);
+        router.refresh();
+      })
+      .catch((err) => {
+        if (cancelled) return;
+
+        const message =
+          err instanceof Error ? err.message : copy.errors.generateFallback;
+
+        setError(message);
+        if (isCreditExhaustedMessage(message)) {
+          setRemainingCredits(0);
+          setShowCreditUpgrade(true);
+        }
+        setStatusText("");
+        setActiveStep(0);
+      })
+      .finally(() => {
+        if (cancelled) return;
+
+        setLoading(false);
+        setLoadingMode(null);
+        restoringPendingRef.current = false;
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // This effect should only try to restore the pending banner once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (hasNoCredits) {
-      setError("Você usou todos os seus créditos deste mês.");
+      setError(copy.errors.noCredits);
       setShowCreditUpgrade(true);
       setStatusText("");
       setActiveStep(0);
@@ -341,7 +1056,7 @@ export function NewBannerForm({
     setLoading(true);
     setLoadingMode("generate");
     setActiveStep(0);
-    setStatusText("Preparando os dados do banner...");
+    setStatusText(copy.status.preparing);
     setError("");
     setResult(null);
     setShowCreditUpgrade(false);
@@ -356,24 +1071,22 @@ export function NewBannerForm({
 
     try {
       const referenceImageDataUrl = referenceFile
-        ? await readFileAsDataUrl(referenceFile)
+        ? await readFileAsDataUrl(referenceFile, copy.errors.fileRead)
         : null;
 
       progressTimerA = window.setTimeout(() => {
         setActiveStep(1);
-        setStatusText("Enviando composição para a IA...");
+        setStatusText(copy.status.sending);
       }, 900);
 
       progressTimerB = window.setTimeout(() => {
         setActiveStep(2);
-        setStatusText("A IA está desenhando o preview do banner...");
+        setStatusText(copy.status.drawing);
       }, 4200);
 
       progressTimerC = window.setTimeout(() => {
         setActiveStep(3);
-        setStatusText(
-          "Ajustando o resultado final. Aguarde mais alguns instantes...",
-        );
+        setStatusText(copy.status.finishing);
       }, 9000);
 
       const response = await fetch("/api/banners/generate", {
@@ -398,11 +1111,13 @@ export function NewBannerForm({
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível gerar o banner.");
+        throw new Error(data.error || copy.errors.generate);
       }
 
       const nextRemainingCredits =
-        typeof data.remainingCredits === "number" ? data.remainingCredits : null;
+        typeof data.remainingCredits === "number"
+          ? data.remainingCredits
+          : null;
 
       setRemainingCredits(nextRemainingCredits);
       setShowCreditUpgrade(
@@ -413,17 +1128,19 @@ export function NewBannerForm({
 
       if (response.status === 202 || data.status === "PENDING") {
         if (!data.bannerId) {
-          throw new Error(
-            "A geração foi iniciada, mas a API não retornou o ID do banner.",
-          );
+          throw new Error(copy.errors.missingBannerId);
         }
 
-        setStatusText("Banner criado. Aguardando a IA finalizar a imagem...");
+        setStatusText(copy.status.created);
+        savePendingBannerGeneration({
+          bannerId: data.bannerId,
+          format: form.format,
+        });
 
         const completedBanner = await waitForGeneratedBanner(data.bannerId);
 
         setActiveStep(3);
-        setStatusText("Banner gerado e salvo com sucesso.");
+        setStatusText(copy.status.success);
         setResult(completedBanner);
         router.refresh();
         return;
@@ -432,17 +1149,17 @@ export function NewBannerForm({
       const imageUrl = data.previewImageUrl || data.imageUrl || null;
 
       if (!imageUrl) {
-        throw new Error(
-          "A API retornou sucesso, mas não enviou a URL da imagem gerada.",
-        );
+        throw new Error(copy.errors.missingImage);
       }
 
       setActiveStep(3);
       setStatusText(
-        data.saved === false
-          ? "Preview gerado com sucesso no modo de teste."
-          : "Banner gerado e salvo com sucesso.",
+        data.saved === false ? copy.status.testSuccess : copy.status.success,
       );
+
+      if (data.bannerId) {
+        clearPendingBannerGeneration(data.bannerId);
+      }
 
       setResult({
         imageUrl,
@@ -457,7 +1174,7 @@ export function NewBannerForm({
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
       const message =
-        err instanceof Error ? err.message : "Erro ao gerar banner.";
+        err instanceof Error ? err.message : copy.errors.generateFallback;
       setError(message);
       if (isCreditExhaustedMessage(message)) {
         setRemainingCredits(0);
@@ -475,15 +1192,13 @@ export function NewBannerForm({
     if (!result?.imageUrl) return;
 
     if (hasNoCredits) {
-      setEditError("Você usou todos os seus créditos deste mês.");
+      setEditError(copy.errors.noCredits);
       setShowCreditUpgrade(true);
       return;
     }
 
     if (editPrompt.trim().length < 4) {
-      setEditError(
-        "Descreva a alteração desejada com um pouco mais de detalhe.",
-      );
+      setEditError(copy.errors.editPrompt);
       return;
     }
 
@@ -492,7 +1207,7 @@ export function NewBannerForm({
     setActiveStep(0);
     setEditError("");
     setEditSuccess("");
-    setStatusText("Analisando a arte atual para aplicar a alteração...");
+    setStatusText(copy.status.editAnalyzing);
 
     let progressTimerA: number | undefined;
     let progressTimerB: number | undefined;
@@ -501,19 +1216,17 @@ export function NewBannerForm({
     try {
       progressTimerA = window.setTimeout(() => {
         setActiveStep(1);
-        setStatusText("Aplicando suas instruções na composição...");
+        setStatusText(copy.status.editApplying);
       }, 900);
 
       progressTimerB = window.setTimeout(() => {
         setActiveStep(2);
-        setStatusText("Renderizando a nova versão da arte...");
+        setStatusText(copy.status.editRendering);
       }, 4200);
 
       progressTimerC = window.setTimeout(() => {
         setActiveStep(3);
-        setStatusText(
-          "Finalizando os ajustes da alteração. Aguarde mais alguns instantes...",
-        );
+        setStatusText(copy.status.editFinishing);
       }, 9000);
 
       const response = await fetch("/api/banners/edit", {
@@ -540,11 +1253,11 @@ export function NewBannerForm({
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Não foi possível editar a arte.");
+        throw new Error(data.error || copy.errors.edit);
       }
 
       setActiveStep(3);
-      setStatusText("Alteração aplicada com sucesso.");
+      setStatusText(copy.status.editSuccess);
 
       setResult({
         imageUrl: data.previewImageUrl || data.imageUrl,
@@ -566,7 +1279,7 @@ export function NewBannerForm({
           typeof nextRemainingAfterEdit === "number" &&
           nextRemainingAfterEdit <= 0,
       );
-      setEditSuccess("Alteração aplicada com sucesso.");
+      setEditSuccess(copy.status.editSuccess);
       setEditPrompt("");
 
       router.refresh();
@@ -575,7 +1288,7 @@ export function NewBannerForm({
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
       const message =
-        err instanceof Error ? err.message : "Erro ao editar a arte.";
+        err instanceof Error ? err.message : copy.errors.editFallback;
       setEditError(message);
       if (isCreditExhaustedMessage(message)) {
         setRemainingCredits(0);
@@ -597,21 +1310,20 @@ export function NewBannerForm({
       >
         <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50 Briefing criativo">
-              Briefing criativo
+            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
+              {copy.briefingEyebrow}
             </p>
             <h2 className="text-[23px] font-semibold leading-tight text-white ">
-              Preencha os dados do banner
+              {copy.briefingTitle}
             </h2>
             <p className="mt-3 text-[13px] leading-6 text-gray-200">
-              Uma estrutura clara para gerar flyers premium sem confusão entre
-              texto principal, nome do DJ e informações do evento.
+              {copy.briefingDescription}
             </p>
           </div>
 
           <div className="px-1 py-1 text-left text-blue-400 md:min-w-[112px] md:text-right">
             <span className="block text-[10px] uppercase tracking-[0.18em] text-white/40 text-center">
-              Briefing
+              {copy.briefingProgress}
             </span>
             <strong className="mt-1 block text-xl font-semibold text-center">
               {completion}%
@@ -619,12 +1331,12 @@ export function NewBannerForm({
           </div>
         </div>
 
-        <Section title="Conteúdo principal">
+        <Section title={copy.mainSection}>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Texto principal do banner">
+            <Field label={copy.mainTextLabel}>
               <input
                 className={inputClassName}
-                placeholder="Ex.: Pull Party Fest"
+                placeholder={copy.mainTextPlaceholder}
                 value={form.mainText}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, mainText: e.target.value }))
@@ -633,10 +1345,10 @@ export function NewBannerForm({
               />
             </Field>
 
-            <Field label="Nome do DJ">
+            <Field label={copy.djNameLabel}>
               <input
                 className={inputClassName}
-                placeholder="Ex.: DJ Vitor"
+                placeholder={copy.djNamePlaceholder}
                 value={form.djName}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, djName: e.target.value }))
@@ -646,10 +1358,10 @@ export function NewBannerForm({
             </Field>
           </div>
 
-          <Field label="Chamada secundária (opcional)">
+          <Field label={copy.secondaryTextLabel}>
             <input
               className={inputClassName}
-              placeholder="Ex.: Edição especial"
+              placeholder={copy.secondaryTextPlaceholder}
               value={form.secondaryText}
               onChange={(e) =>
                 setForm((c) => ({ ...c, secondaryText: e.target.value }))
@@ -658,12 +1370,12 @@ export function NewBannerForm({
           </Field>
         </Section>
 
-        <Section title="Informações do evento">
+        <Section title={copy.eventSection}>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Data do evento">
+            <Field label={copy.eventDateLabel}>
               <input
                 className={inputClassName}
-                placeholder="Ex.: 19/09/2026"
+                placeholder={copy.eventDatePlaceholder}
                 value={form.eventDate}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, eventDate: e.target.value }))
@@ -672,10 +1384,10 @@ export function NewBannerForm({
               />
             </Field>
 
-            <Field label="Local do evento">
+            <Field label={copy.eventLocationLabel}>
               <input
                 className={inputClassName}
-                placeholder="Ex.: São Paulo Hall - São Paulo"
+                placeholder={copy.eventLocationPlaceholder}
                 value={form.eventLocation}
                 onChange={(e) =>
                   setForm((c) => ({ ...c, eventLocation: e.target.value }))
@@ -686,53 +1398,163 @@ export function NewBannerForm({
           </div>
         </Section>
 
-        <Section title="Direção visual">
+        <Section title={copy.visualSection}>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <Field label="Estilo visual">
-              <select
-                className={selectClassName}
-                value={form.stylePreset}
-                onChange={(e) => {
-                  const nextStylePreset = e.target.value;
+            <div className="lg:col-span-3">
+              <Field label={copy.visualStyleLabel}>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => scrollStyleCarousel("left")}
+                    className="absolute left-0 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-lg font-semibold text-white shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/90 md:inline-flex"
+                    aria-label={copy.previousStyles}
+                  >
+                    ‹
+                  </button>
 
-                  if (
-                    shouldLockProStyles &&
-                    isBannerStyleProOnly(nextStylePreset)
-                  ) {
-                    setShowCreditUpgrade(true);
-                    return;
-                  }
+                  <div
+                    ref={styleCarouselRef}
+                    onWheel={(event) => {
+                      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX))
+                        return;
+                      event.currentTarget.scrollLeft += event.deltaY;
+                    }}
+                    className="-mx-1 overflow-x-auto scroll-smooth pb-2 pl-1 pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:px-12"
+                  >
+                    <div className="flex min-w-max gap-3 pr-1">
+                      {stylePresets.map((preset) => {
+                        const locked =
+                          shouldLockProStyles &&
+                          isBannerStyleProOnly(preset.value);
+                        const selected =
+                          !locked && form.stylePreset === preset.value;
 
-                  setForm((c) => ({ ...c, stylePreset: nextStylePreset }));
-                }}
-              >
-                {stylePresets.map((preset) => {
-                  const locked =
-                    shouldLockProStyles && isBannerStyleProOnly(preset.value);
+                        return (
+                          <button
+                            key={preset.value}
+                            type="button"
+                            onClick={() => {
+                              if (locked) {
+                                router.push("/dashboard/billing");
+                                return;
+                              }
 
-                  return (
-                    <option
-                      key={preset.value}
-                      value={preset.value}
-                      disabled={locked}
-                      className="bg-black text-white"
-                    >
-                      {preset.label}
-                      {locked ? " — Pro+" : ""}
-                    </option>
-                  );
-                })}
-              </select>
+                              setForm((current) => ({
+                                ...current,
+                                stylePreset: preset.value,
+                              }));
+                            }}
+                            className={`group relative min-w-[250px] max-w-[250px] overflow-hidden rounded-[24px] border text-left transition sm:min-w-[285px] sm:max-w-[285px] ${
+                              selected
+                                ? "border-sky-300/45 bg-sky-300/10 shadow-[0_0_0_1px_rgba(125,211,252,0.18)]"
+                                : locked
+                                  ? "cursor-pointer border-amber-300/35 bg-white/[0.045] hover:border-amber-300/55 hover:bg-amber-300/[0.06]"
+                                  : "border-white/10 bg-white/[0.045] hover:border-white/20 hover:bg-white/[0.07]"
+                            }`}
+                            aria-label={
+                              locked
+                                ? `${preset.label} ${copy.availableFromPro}. ${copy.upgrade}.`
+                                : `${copy.tapToChoose}: ${preset.label}`
+                            }
+                          >
+                            <div className="relative aspect-[4/5] overflow-hidden">
+                              <img
+                                src={preset.image}
+                                alt={preset.label}
+                                className={`h-full w-full object-cover transition duration-500 ${
+                                  locked
+                                    ? "brightness-[0.82]"
+                                    : "group-hover:scale-[1.03]"
+                                }`}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(125,211,252,0.16),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(168,85,247,0.12),transparent_34%)]" />
 
-              {shouldLockProStyles ? (
-                <p className="text-xs leading-5 text-white/55">
-                  Premium visual styles are available from the Pro plan and
-                  higher.
-                </p>
-              ) : null}
-            </Field>
+                              <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-3">
+                                <span
+                                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] backdrop-blur ${
+                                    selected
+                                      ? "bg-sky-300/18 text-sky-100"
+                                      : locked
+                                        ? "bg-amber-200/18 text-amber-100"
+                                        : "bg-black/35 text-white/80"
+                                  }`}
+                                >
+                                  {locked ? "Pro+" : copy.badges[preset.badge]}
+                                </span>
 
-            <Field label="Formato">
+                                {selected ? (
+                                  <span className="rounded-full bg-sky-300/18 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-100 backdrop-blur">
+                                    {copy.selected}
+                                  </span>
+                                ) : locked ? (
+                                  <span className="px-1 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
+                                    {copy.proOnly}
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <div className="absolute inset-x-0 bottom-0 p-4">
+                                <p className="text-base font-semibold text-white">
+                                  {preset.label}
+                                </p>
+                                <p className="mt-1 text-xs leading-5 text-white/70">
+                                  {copy.styleDescriptions[preset.value]}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="relative z-10 flex items-center justify-between gap-3 p-4">
+                              <span
+                                className={`inline-flex rounded-full px-2.5 py-1 text-xs ${
+                                  selected
+                                    ? "border border-sky-300/30 bg-sky-300/10 text-sky-100"
+                                    : locked
+                                      ? "text-amber-100/90"
+                                      : "text-white/60"
+                                }`}
+                              >
+                                {locked
+                                  ? copy.availableFromPro
+                                  : selected
+                                    ? copy.activeStyle
+                                    : copy.tapToChoose}
+                              </span>
+
+                              {locked ? (
+                                <span className="text-xs font-medium text-amber-100/90">
+                                  {copy.upgrade}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-white/45">
+                                  {copy.slideMore}
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollStyleCarousel("right")}
+                    className="absolute right-0 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-lg font-semibold text-white shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/90 md:inline-flex"
+                    aria-label={copy.nextStyles}
+                  >
+                    ›
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs leading-5 text-white/55">
+                  <p>{copy.carouselHint}</p>
+                  {shouldLockProStyles ? <p>{copy.proHint}</p> : null}
+                </div>
+              </Field>
+            </div>
+
+            <Field label={copy.formatLabel}>
               <select
                 className={selectClassName}
                 value={form.format}
@@ -752,7 +1574,7 @@ export function NewBannerForm({
               </select>
             </Field>
 
-            <Field label="Qualidade de geração">
+            <Field label={copy.qualityLabel}>
               <select
                 className={selectClassName}
                 value={form.quality}
@@ -772,8 +1594,8 @@ export function NewBannerForm({
                       disabled={!enabled}
                       className="bg-black text-white"
                     >
-                      {quality.label}
-                      {enabled ? "" : " — indisponível no seu plano"}
+                      {copy.qualityLabels[quality.value]}
+                      {enabled ? "" : copy.unavailablePlan}
                     </option>
                   );
                 })}
@@ -781,7 +1603,7 @@ export function NewBannerForm({
             </Field>
           </div>
 
-          <Field label="Foto do DJ (opcional)">
+          <Field label={copy.photoLabel}>
             <input
               type="file"
               accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -789,13 +1611,9 @@ export function NewBannerForm({
               onChange={(e) => setReferenceFile(e.target.files?.[0] || null)}
             />
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
-              <span>
-                Envie uma imagem para a IA usar como referência visual.
-              </span>
+              <span>{copy.photoHelper}</span>
               <strong className="text-white/85">
-                {referenceFile
-                  ? referenceFile.name
-                  : "Nenhum arquivo selecionado"}
+                {referenceFile ? referenceFile.name : copy.noFileSelected}
               </strong>
             </div>
           </Field>
@@ -804,24 +1622,22 @@ export function NewBannerForm({
         <div className="mt-4 flex flex-col gap-3 rounded-[22px] border border-white/10 bg-gradient-to-br from-blue-500/10 to-cyan-400/5 p-4 md:flex-row md:items-start md:justify-between">
           <div>
             <span className="mb-2 inline-flex rounded-full bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/75">
-              Estrutura profissional
+              {copy.professionalStructure}
             </span>
             <p className="text-sm leading-6 text-white/80">
-              O texto principal será o maior destaque da arte. O nome do DJ
-              ficará em segundo nível e o bloco complementar será mais discreto
-              e elegante.
+              {copy.professionalStructureText}
             </p>
           </div>
 
           {remainingCredits !== null ? (
             <div className="shrink-0 rounded-xl bg-white/8 px-3 py-2 text-sm text-white">
-              Créditos restantes: <strong>{remainingCredits}</strong>
+              {copy.remainingCredits}: <strong>{remainingCredits}</strong>
             </div>
           ) : null}
         </div>
 
         {shouldShowCreditUpgrade ? (
-          <CreditUpgradeCard currentPlan={currentPlan} />
+          <CreditUpgradeCard currentPlan={currentPlan} locale={locale} />
         ) : null}
 
         <button
@@ -830,12 +1646,12 @@ export function NewBannerForm({
           className="mt-5 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {hasNoCredits
-            ? "Créditos esgotados"
+            ? copy.noCreditsButton
             : loading
-              ? "Gerando preview..."
+              ? copy.generatingButton
               : editLoading
-                ? "Aplicando alteração..."
-                : "Gerar banner premium"}
+                ? copy.editingButton
+                : copy.generateButton}
         </button>
 
         {statusText ? (
@@ -847,24 +1663,21 @@ export function NewBannerForm({
         {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
       </form>
 
-      <aside
-        ref={previewRef}
-        className="rounded-[28px] p-5 xl:sticky xl:top-5"
-      >
+      <aside ref={previewRef} className="rounded-[28px] p-5 xl:sticky xl:top-5">
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
-              Preview
+              {copy.previewEyebrow}
             </p>
             <h3 className="text-lg font-semibold leading-snug text-white">
               {displayLoading
                 ? loadingTexts.title
                 : result
-                  ? "Preview pronto para revisão"
-                  : "Seu banner aparecerá aqui"}
+                  ? copy.previewReadyTitle
+                  : copy.previewEmptyTitle}
             </h3>
             <p className="mt-2 text-xs uppercase tracking-[0.18em] text-white/45">
-              Formato selecionado: {previewFormatLabel}
+              {copy.selectedFormat}: {previewFormatLabel}
             </p>
           </div>
 
@@ -878,8 +1691,8 @@ export function NewBannerForm({
             {displayLoading
               ? loadingTexts.badge
               : result
-                ? "Concluído"
-                : "Aguardando"}
+                ? copy.completedBadge
+                : copy.waitingBadge}
           </div>
         </div>
 
@@ -920,13 +1733,13 @@ export function NewBannerForm({
                 <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-white/45">
                   <span>
                     {loadingMode === "edit"
-                      ? "Aplicando alterações"
-                      : "Compondo camadas"}
+                      ? copy.applyingChanges
+                      : copy.composingLayers}
                   </span>
                   <span>
                     {loadingMode === "edit"
-                      ? "Gerando nova versão"
-                      : "Processando visual"}
+                      ? copy.generatingNewVersion
+                      : copy.processingVisual}
                   </span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -987,20 +1800,20 @@ export function NewBannerForm({
               <img
                 className="h-full w-full object-cover"
                 src={result.imageUrl}
-                alt="Banner gerado"
+                alt={copy.generatedAlt}
               />
             </div>
 
             <div className="grid gap-2">
               <p className="text-xl font-semibold text-white">
                 {result.saved === false
-                  ? "Preview gerado no modo de teste"
-                  : "Seu banner foi criado com sucesso"}
+                  ? copy.testPreviewTitle
+                  : copy.successTitle}
               </p>
               <p className="text-sm leading-6 text-white/70">
                 {result.saved === false
-                  ? "Neste modo o sistema prioriza velocidade e mostra o preview imediatamente."
-                  : "A imagem já pode ser baixada ou aberta em uma nova guia."}
+                  ? copy.testPreviewDescription
+                  : copy.successDescription}
               </p>
             </div>
 
@@ -1010,7 +1823,7 @@ export function NewBannerForm({
                 download
                 className="inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-white/10 bg-white/8 px-4 text-sm font-medium text-white transition hover:bg-white/12"
               >
-                Baixar imagem
+                {copy.downloadImage}
               </a>
 
               <a
@@ -1019,7 +1832,7 @@ export function NewBannerForm({
                 rel="noreferrer"
                 className="inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-sky-300/15 bg-sky-300/8 px-4 text-sm font-medium text-white transition hover:bg-sky-300/12"
               >
-                Abrir imagem
+                {copy.openImage}
               </a>
             </div>
 
@@ -1027,30 +1840,26 @@ export function NewBannerForm({
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-white">
-                    Solicitar alteração da arte
+                    {copy.editTitle}
                   </p>
                   <p className="mt-1 text-xs leading-5 text-white/60">
-                    Descreva a mudança desejada. Cada alteração consome 1
-                    crédito.
+                    {copy.editDescription}
                   </p>
                 </div>
                 <span className="shrink-0 rounded-full border border-amber-300/15 bg-amber-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-amber-100">
-                  1 crédito
+                  {copy.oneCredit}
                 </span>
               </div>
 
               <textarea
                 className="min-h-[110px] w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35"
-                placeholder="Ex.: deixe o fundo mais escuro, aumente o destaque do título principal e use um clima mais neon."
+                placeholder={copy.editPlaceholder}
                 value={editPrompt}
                 onChange={(e) => setEditPrompt(e.target.value)}
               />
 
               <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-white/55">
-                  A IA usará a imagem atual como base e criará uma nova versão
-                  da arte.
-                </p>
+                <p className="text-xs text-white/55">{copy.editHelper}</p>
 
                 <button
                   type="button"
@@ -1059,10 +1868,10 @@ export function NewBannerForm({
                   className="inline-flex min-h-[44px] items-center justify-center rounded-2xl border border-sky-300/20 bg-sky-300/10 px-4 text-sm font-medium text-white transition hover:bg-sky-300/15 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {hasNoCredits
-                    ? "Créditos esgotados"
+                    ? copy.noCreditsButton
                     : editLoading
-                      ? "Alterando arte..."
-                      : "Solicitar alteração"}
+                      ? copy.editingButtonShort
+                      : copy.editButton}
                 </button>
               </div>
 
@@ -1090,17 +1899,17 @@ export function NewBannerForm({
                 </div>
                 <div className="grid gap-3">
                   <p className="text-xl font-semibold text-white">
-                    Preview inteligente
+                    {copy.smartPreview}
                   </p>
                   <p className="max-w-sm text-sm leading-6 text-white/70">
-                    Seu baner será gerado aqui.
+                    {copy.smartPreviewDescription}
                   </p>
                   <div className="mx-auto grid w-full max-w-[220px] gap-2">
                     <span className="h-2 overflow-hidden rounded-full bg-white/10">
                       <span className="block h-full w-1/2 rounded-full bg-gradient-to-r from-sky-300 via-violet-300 to-cyan-200 animate-pulse" />
                     </span>
                     <span className="text-[11px] uppercase tracking-[0.18em] text-white/45">
-                      Aguardando geração
+                      {copy.awaitingGeneration}
                     </span>
                   </div>
                 </div>
@@ -1113,7 +1922,14 @@ export function NewBannerForm({
   );
 }
 
-function CreditUpgradeCard({ currentPlan }: { currentPlan: SubscriptionPlan }) {
+function CreditUpgradeCard({
+  currentPlan,
+  locale,
+}: {
+  currentPlan: SubscriptionPlan;
+  locale: NewBannerFormLocale;
+}) {
+  const copy = newBannerFormCopy[locale] ?? newBannerFormCopy.en;
   const isFreePlan = currentPlan === "FREE";
 
   return (
@@ -1121,14 +1937,13 @@ function CreditUpgradeCard({ currentPlan }: { currentPlan: SubscriptionPlan }) {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="max-w-xl">
           <span className="inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-100">
-            Créditos esgotados
+            {copy.upgradeCard.label}
           </span>
           <h3 className="mt-3 text-lg font-semibold leading-tight text-white">
-            Libere mais banners e continue criando sem pausa
+            {copy.upgradeCard.title}
           </h3>
           <p className="mt-2 text-sm leading-6 text-white/68">
-            Faça upgrade do seu plano para receber mais créditos mensais e
-            desbloquear opções melhores de geração para seus banners.
+            {copy.upgradeCard.description}
           </p>
         </div>
 
@@ -1137,12 +1952,10 @@ function CreditUpgradeCard({ currentPlan }: { currentPlan: SubscriptionPlan }) {
             href="/dashboard/billing"
             className="inline-flex min-h-[46px] items-center justify-center rounded-2xl bg-gradient-to-r from-amber-200 via-sky-200 to-violet-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
           >
-            Ver planos
+            {copy.upgradeCard.button}
           </a>
           <span className="text-center text-[11px] leading-5 text-white/50">
-            {isFreePlan
-              ? "Pro libera mais créditos. Professional libera alta qualidade."
-              : "Escolha um plano maior para aumentar seus créditos."}
+            {isFreePlan ? copy.upgradeCard.freeHelp : copy.upgradeCard.paidHelp}
           </span>
         </div>
       </div>
