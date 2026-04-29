@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Poppins } from "next/font/google";
 import {
   BadgeCheck,
@@ -7,14 +8,11 @@ import {
   Gauge,
   ImageIcon,
   Layers3,
-  MailCheck,
   ShieldCheck,
   Sparkles,
   Wand2,
   Zap,
 } from "lucide-react";
-import { RegisterForm } from "@/components/register-form";
-import { LandingBannerCarousel } from "@/components/landing-banner-carousel";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
 
 const poppins = Poppins({
@@ -22,6 +20,23 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
+
+const RegisterForm = dynamic(
+  () => import("@/components/register-form").then((mod) => mod.RegisterForm),
+  {
+    loading: () => <RegisterFormLoading />,
+  },
+);
+
+const LandingBannerCarousel = dynamic(
+  () =>
+    import("@/components/landing-banner-carousel").then(
+      (mod) => mod.LandingBannerCarousel,
+    ),
+  {
+    loading: () => <LandingCarouselLoading />,
+  },
+);
 
 const advantages = [
   {
@@ -88,7 +103,7 @@ const faqs = [
 export default function HomePage() {
   return (
     <main
-      className={`${poppins.className} min-h-screen bg-[#060816] text-white`}
+      className={`${poppins.className} min-h-screen overflow-x-hidden bg-[#060816] bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_28%),linear-gradient(180deg,#060816_0%,#060816_45%,#070a18_100%)] text-white`}
     >
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(66,153,225,0.18),transparent_26%),radial-gradient(circle_at_80%_10%,rgba(236,72,153,0.14),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(251,191,36,0.1),transparent_28%)]" />
@@ -284,7 +299,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 min-h-[520px] sm:min-h-[640px] lg:min-h-[720px]">
           <LandingBannerCarousel examples={landingBannerExamples} />
         </div>
       </section>
@@ -382,7 +397,9 @@ export default function HomePage() {
             id="formulario-cadastro"
             className="min-w-0 scroll-mt-28 lg:scroll-mt-32"
           >
-            <RegisterForm locale="en" />
+            <div className="min-h-[620px]">
+              <RegisterForm locale="en" />
+            </div>
           </div>
         </div>
       </section>
@@ -453,6 +470,36 @@ function FeatureMiniCard({
       </div>
       <h3 className="mt-4 text-sm font-semibold text-white">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-white/58">{description}</p>
+    </div>
+  );
+}
+
+function LandingCarouselLoading() {
+  return (
+    <div className="mx-auto w-full max-w-[1120px]">
+      <div className="relative mx-auto w-full max-w-[420px] sm:max-w-[520px] lg:max-w-[620px]">
+        <div className="aspect-[4/5] max-h-[76vh] overflow-hidden rounded-[26px] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.18),transparent_34%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.16),transparent_34%),linear-gradient(135deg,rgba(15,23,42,1),rgba(2,6,23,1))] shadow-[0_28px_90px_rgba(0,0,0,0.35)] sm:rounded-[34px]">
+          <div className="h-full w-full animate-pulse bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegisterFormLoading() {
+  return (
+    <div className="w-full max-w-[560px] rounded-[30px] border border-white/10 bg-[#0b1020] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
+      <div className="h-4 w-32 rounded-full bg-white/10" />
+      <div className="mt-5 h-8 w-3/4 rounded-2xl bg-white/10" />
+      <div className="mt-6 grid gap-4">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-12 rounded-2xl border border-white/8 bg-white/[0.045]"
+          />
+        ))}
+      </div>
+      <div className="mt-5 h-12 rounded-2xl bg-gradient-to-r from-cyan-300/40 via-sky-300/35 to-violet-300/40" />
     </div>
   );
 }
