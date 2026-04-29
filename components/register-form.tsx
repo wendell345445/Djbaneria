@@ -263,7 +263,8 @@ export function RegisterForm({
     }
 
     try {
-      const metaEventId = createMetaEventId("CompleteRegistration");
+      const completeRegistrationEventId = createMetaEventId("CompleteRegistration");
+      const leadEventId = createMetaEventId("Lead");
 
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -277,7 +278,7 @@ export function RegisterForm({
           artistName: form.artistName,
           turnstileToken,
           locale,
-          metaEventId,
+          metaEventId: completeRegistrationEventId,
         }),
       });
 
@@ -298,7 +299,7 @@ export function RegisterForm({
           content_category: "signup",
           registration_method: "email",
         },
-        metaEventId,
+        leadEventId,
       );
 
       trackMetaCompleteRegistration(
@@ -308,7 +309,7 @@ export function RegisterForm({
           registration_method: "email",
           status: "completed",
         },
-        metaEventId,
+        completeRegistrationEventId,
       );
 
       if (data.devVerificationCode) {

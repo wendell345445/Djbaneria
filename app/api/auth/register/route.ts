@@ -28,7 +28,11 @@ const schema = z.object({
   artistName: z.string().trim().optional(),
   turnstileToken: z.string().trim().optional().default(""),
   locale: z.enum(["pt-BR", "en", "es"]).optional().default("en"),
-  metaEventId: z.string().trim().optional(),
+  metaEventId: z
+    .string()
+    .trim()
+    .min(8, "Identificador do evento inválido.")
+    .max(128, "Identificador do evento inválido."),
 });
 
 export async function POST(request: Request) {
@@ -79,7 +83,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, password, artistName, locale } = parsed.data;
+    const { name, password, artistName, locale, metaEventId } = parsed.data;
     const email = normalizeEmail(parsed.data.email);
 
     const emailDomainValidation = validateSignupEmailDomain(email);
@@ -170,7 +174,7 @@ export async function POST(request: Request) {
 
     void sendMetaConversionEvent({
       eventName: "CompleteRegistration",
-      eventId: parsed.data.metaEventId,
+      eventId: metaEventId,
       email: user.email,
       contentName: "DJ Pro IA Account",
       contentCategory: "signup",

@@ -30,15 +30,36 @@ type MetaCapiResponse = {
 };
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
-const META_CAPI_ACCESS_TOKEN = process.env.META_CAPI_ACCESS_TOKEN?.trim();
-const META_GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION?.trim() || "v25.0";
+const META_CAPI_ACCESS_TOKEN =
+  process.env.META_CAPI_ACCESS_TOKEN?.trim() ||
+  process.env.META_ACCESS_TOKEN?.trim();
+const META_GRAPH_API_VERSION =
+  process.env.META_GRAPH_API_VERSION?.trim() || "v25.0";
 const META_TEST_EVENT_CODE = process.env.META_TEST_EVENT_CODE?.trim();
 
 export async function sendMetaConversionEvent(
   input: MetaConversionEventInput,
 ): Promise<MetaCapiResponse> {
   if (!META_PIXEL_ID || !META_CAPI_ACCESS_TOKEN) {
-    return { success: false, skipped: true, error: "Meta CAPI is not configured." };
+    return {
+      success: false,
+      skipped: true,
+      error: "Meta CAPI is not configured.",
+    };
+  }
+
+  const eventId = input.eventId?.trim() || null;
+
+  if (input.eventName === "CompleteRegistration" && !eventId) {
+    console.warn(
+      "Meta CAPI CompleteRegistration skipped: missing eventId for Pixel/CAPI deduplication.",
+    );
+
+    return {
+      success: false,
+      skipped: true,
+      error: "CompleteRegistration requires eventId for Pixel/CAPI deduplication.",
+    };
   }
 
   const customData: Record<string, unknown> = {
@@ -48,16 +69,19 @@ export async function sendMetaConversionEvent(
   if (typeof input.value === "number") customData.value = input.value;
   if (input.currency) customData.currency = input.currency;
   if (input.contentName) customData.content_name = input.contentName;
-  if (input.contentCategory) customData.content_category = input.contentCategory;
+  if (input.contentCategory) {
+    customData.content_category = input.contentCategory;
+  }
 
   const payload: Record<string, unknown> = {
     data: [
       {
         event_name: input.eventName,
         event_time: Math.floor(Date.now() / 1000),
-        event_id: input.eventId || createServerMetaEventId(input.eventName),
+        event_id: eventId || createServerMetaEventId(input.eventName),
         action_source: "website",
-        event_source_url: input.eventSourceUrl || process.env.NEXT_PUBLIC_APP_URL || undefined,
+        event_source_url:
+          input.eventSourceUrl || process.env.NEXT_PUBLIC_APP_URL || undefined,
         user_data: removeEmptyObjectValues({
           em: input.email ? [sha256(input.email)] : undefined,
           client_ip_address: input.clientIpAddress || undefined,
@@ -90,7 +114,10 @@ export async function sendMetaConversionEvent(
       console.error("Meta CAPI failed:", data || response.statusText);
       return {
         success: false,
-        error: typeof data?.error?.message === "string" ? data.error.message : response.statusText,
+        error:
+          typeof data?.error?.message === "string"
+            ? data.error.message
+            : response.statusText,
       };
     }
 
@@ -108,7 +135,8 @@ export function getMetaRequestContext(request: Request) {
   const cookies = parseCookieHeader(request.headers.get("cookie"));
 
   return {
-    eventSourceUrl: request.headers.get("referer") || process.env.NEXT_PUBLIC_APP_URL || null,
+    eventSourceUrl:
+      request.headers.get("referer") || process.env.NEXT_PUBLIC_APP_URL || null,
     clientIpAddress:
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       request.headers.get("x-real-ip") ||
