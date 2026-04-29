@@ -316,10 +316,8 @@ const newBannerFormCopy = {
     tapToChoose: "Tap to choose",
     upgrade: "Upgrade",
     slideMore: "Swipe for more",
-    carouselHint:
-      "On desktop, use the arrows or mouse wheel. On mobile, swipe sideways.",
-    proHint:
-      "Pro styles stay visible to create desire, but can only be used on the Pro plan or higher.",
+    carouselHint: "",
+    proHint: "",
     formatLabel: "Format",
     qualityLabel: "Generation quality",
     unavailablePlan: " — unavailable on your plan",
