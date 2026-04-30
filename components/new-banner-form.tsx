@@ -1091,6 +1091,7 @@ export function NewBannerForm({
   const previewRef = useRef<HTMLElement | null>(null);
   const styleCarouselRef = useRef<HTMLDivElement | null>(null);
   const mainContentScrollAnchorRef = useRef<HTMLDivElement | null>(null);
+  const eventInfoScrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const detailsSectionRef = useRef<HTMLDivElement | null>(null);
   const visualSectionRef = useRef<HTMLDivElement | null>(null);
   const mainTextFieldRef = useRef<HTMLDivElement | null>(null);
@@ -1098,6 +1099,7 @@ export function NewBannerForm({
   const eventDateFieldRef = useRef<HTMLDivElement | null>(null);
   const eventLocationFieldRef = useRef<HTMLDivElement | null>(null);
   const photoFieldRef = useRef<HTMLDivElement | null>(null);
+  const generateButtonContainerRef = useRef<HTMLDivElement | null>(null);
   const generateButtonRef = useRef<HTMLButtonElement | null>(null);
   const restoringPendingRef = useRef(false);
   const [showFirstAccessTour, setShowFirstAccessTour] = useState(false);
@@ -1242,7 +1244,7 @@ export function NewBannerForm({
         target: "generate" as const,
         title: copy.tourGenerateTitle,
         description: copy.tourGenerateDescription,
-        ref: generateButtonRef,
+        ref: generateButtonContainerRef,
       },
     ],
     [copy],
@@ -1312,15 +1314,17 @@ export function NewBannerForm({
     !showFirstAccessTour || activeTourTarget === "visual" || activeTourTarget === "photo";
 
   function scrollTourTargetToTop(
-    ref: RefObject<HTMLElement | HTMLDivElement | null>,
+    ref: RefObject<HTMLElement | HTMLDivElement | HTMLButtonElement | null>,
     delay = 120,
+    target?: FirstAccessTourTarget,
   ) {
     window.setTimeout(() => {
       const element = ref.current;
       if (!element) return;
 
       const isMobile = window.matchMedia("(max-width: 640px)").matches;
-      const topOffset = isMobile ? 12 : 72;
+      const topOffset =
+        target === "generate" && isMobile ? 54 : isMobile ? 12 : 72;
       const elementTop = element.getBoundingClientRect().top + window.scrollY;
 
       window.scrollTo({
@@ -1339,11 +1343,15 @@ export function NewBannerForm({
     }
 
     if (target === "eventDate" || target === "eventLocation") {
-      return detailsSectionRef;
+      return eventInfoScrollAnchorRef;
     }
 
     if (target === "visual" || target === "photo") {
       return visualSectionRef;
+    }
+
+    if (target === "generate") {
+      return generateButtonContainerRef;
     }
 
     return fallback;
@@ -1362,6 +1370,7 @@ export function NewBannerForm({
         scrollTourTargetToTop(
           getTourScrollRef(currentStep.target, currentStep.ref),
           80,
+          currentStep.target,
         );
       }
       return;
@@ -1560,6 +1569,7 @@ export function NewBannerForm({
     scrollTourTargetToTop(
       getTourScrollRef(currentStep.target, currentStep.ref),
       160,
+      currentStep.target,
     );
   }, [firstAccessTourSteps, showFirstAccessTour, tourStepIndex]);
 
@@ -1591,6 +1601,10 @@ export function NewBannerForm({
     setTourError("");
     setShowFirstAccessTour(false);
     notifyFirstAccessTourCompleted();
+
+    window.setTimeout(() => {
+      scrollToPreview();
+    }, 180);
   }
 
   function closeFirstAccessTour() {
@@ -1992,6 +2006,14 @@ export function NewBannerForm({
             </Section>
           ) : null}
 
+          {showFirstAccessTour && (activeTourTarget === "eventDate" || activeTourTarget === "eventLocation") ? (
+            <div
+              ref={eventInfoScrollAnchorRef}
+              className="h-20 scroll-mt-0"
+              aria-hidden="true"
+            />
+          ) : null}
+
           {shouldShowEventSection ? (
             <Section title={copy.eventSection}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -2053,7 +2075,13 @@ export function NewBannerForm({
         <div
           ref={visualSectionRef}
           className={
-            shouldShowVisualSection ? "scroll-mt-28 transition" : "hidden"
+            shouldShowVisualSection
+              ? `${
+                  showFirstAccessTour && activeTourTarget === "photo"
+                    ? "scroll-mt-16"
+                    : "scroll-mt-28"
+                } transition`
+              : "hidden"
           }
         >
           <Section title={copy.visualSection}>
@@ -2279,6 +2307,12 @@ export function NewBannerForm({
 
             {shouldShowTourTarget("photo") ? (
               <div ref={photoFieldRef} className={getTourTargetClass("photo")}>
+                {showFirstAccessTour && activeTourTarget === "photo" ? (
+                  <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs leading-5 text-white/65">
+                    {copy.photoHelper}
+                  </div>
+                ) : null}
+
                 <Field label={copy.photoLabel}>
                   <input
                     type="file"
@@ -2327,28 +2361,42 @@ export function NewBannerForm({
           <CreditUpgradeCard currentPlan={currentPlan} locale={locale} />
         ) : null}
 
-        <button
-          ref={generateButtonRef}
-          type="submit"
-          disabled={displayLoading || hasNoCredits}
-          className={`mt-5 min-h-[52px] w-full scroll-mt-28 items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70 ${
-            showFirstAccessTour && activeTourTarget !== "generate"
-              ? "hidden"
-              : "inline-flex"
-          } ${
-            activeTourTarget === "generate"
-              ? "shadow-[0_0_0_1px_rgba(125,211,252,0.18)]"
+        <div
+          ref={generateButtonContainerRef}
+          className={`${
+            showFirstAccessTour && activeTourTarget === "generate"
+              ? "pt-8 sm:pt-0"
               : ""
           }`}
         >
-          {hasNoCredits
-            ? copy.noCreditsButton
-            : loading
-              ? copy.generatingButton
-              : editLoading
-                ? copy.editingButton
-                : copy.generateButton}
-        </button>
+          <button
+            ref={generateButtonRef}
+            type="submit"
+            onClick={() => {
+              if (!displayLoading && !hasNoCredits) {
+                window.setTimeout(scrollToPreview, 80);
+              }
+            }}
+            disabled={displayLoading || hasNoCredits}
+            className={`mt-5 min-h-[52px] w-full scroll-mt-28 items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70 ${
+              showFirstAccessTour && activeTourTarget !== "generate"
+                ? "hidden"
+                : "inline-flex"
+            } ${
+              activeTourTarget === "generate"
+                ? "shadow-[0_0_0_1px_rgba(125,211,252,0.18)]"
+                : ""
+            }`}
+          >
+            {hasNoCredits
+              ? copy.noCreditsButton
+              : loading
+                ? copy.generatingButton
+                : editLoading
+                  ? copy.editingButton
+                  : copy.generateButton}
+          </button>
+        </div>
 
         {statusText ? (
           <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/85">
