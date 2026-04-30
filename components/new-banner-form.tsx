@@ -983,7 +983,7 @@ function readFileAsDataUrl(file: File, errorMessage: string) {
 }
 
 const inputClassName =
-  "w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35";
+  "w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-base text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35 sm:text-sm";
 
 const selectClassName = `${inputClassName} [color-scheme:dark]`;
 
@@ -2317,7 +2317,7 @@ export function NewBannerForm({
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/jpg,image/webp"
-                    className={`${getInputClassForTour("photo")} file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15`}
+                    className={`${getInputClassForTour("photo")} file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-base file:font-medium sm:file:text-sm file:text-white hover:file:bg-white/15`}
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       setReferenceFile(file);
@@ -2596,7 +2596,7 @@ export function NewBannerForm({
               </div>
 
               <textarea
-                className="min-h-[110px] w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35"
+                className="min-h-[110px] w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-base text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35 sm:text-sm"
                 placeholder={copy.editPlaceholder}
                 value={editPrompt}
                 onChange={(e) => setEditPrompt(e.target.value)}
