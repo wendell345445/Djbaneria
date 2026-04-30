@@ -36,6 +36,14 @@ type NewSaleNotificationParams = {
   stripeSubscriptionId?: string | null;
 };
 
+type TourCompletedNotificationParams = {
+  name?: string | null;
+  email: string;
+  workspaceName?: string | null;
+  workspaceId?: string | null;
+  ip?: string | null;
+};
+
 type OwnerNotificationResult = {
   sent: boolean;
   skipped: boolean;
@@ -257,6 +265,31 @@ export async function sendOwnerNewSaleEmail(params: NewSaleNotificationParams) {
     });
   } catch (error) {
     console.error("Erro inesperado ao notificar nova venda:", error);
+    return { sent: false, skipped: false };
+  }
+}
+
+export async function sendOwnerTourCompletedEmail(
+  params: TourCompletedNotificationParams,
+) {
+  try {
+    return await sendOwnerNotificationEmail({
+      subject: "Usuário concluiu o tour inicial - DJ Pro IA",
+      title: "Tour inicial concluído",
+      intro:
+        "Um usuário concluiu o guia inicial da tela de criação de banner. Esse é um sinal importante de ativação depois do cadastro.",
+      badge: "Tour concluído",
+      rows: [
+        { label: "Nome", value: params.name },
+        { label: "E-mail", value: params.email },
+        { label: "Workspace", value: params.workspaceName },
+        { label: "Workspace ID", value: params.workspaceId },
+        { label: "IP", value: params.ip },
+        { label: "Data", value: new Date().toLocaleString("pt-BR") },
+      ],
+    });
+  } catch (error) {
+    console.error("Erro inesperado ao notificar tour concluído:", error);
     return { sent: false, skipped: false };
   }
 }
