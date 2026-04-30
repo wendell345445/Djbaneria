@@ -42,6 +42,8 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         alreadyTracked: true,
+        emailSent: false,
+        reason: "Tour completion was already tracked for this workspace.",
       });
     }
 
@@ -59,7 +61,7 @@ export async function POST(request: Request) {
       },
     });
 
-    void sendOwnerTourCompletedEmail({
+    const emailResult = await sendOwnerTourCompletedEmail({
       name: user.name,
       email: user.email,
       workspaceName: workspace.name,
@@ -69,6 +71,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
+      alreadyTracked: false,
+      emailSent: emailResult.sent,
+      emailSkipped: emailResult.skipped,
     });
   } catch (error) {
     console.error("Error tracking new banner tour completion:", error);

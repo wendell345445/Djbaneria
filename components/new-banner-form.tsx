@@ -1090,6 +1090,7 @@ export function NewBannerForm({
   >({});
   const previewRef = useRef<HTMLElement | null>(null);
   const styleCarouselRef = useRef<HTMLDivElement | null>(null);
+  const mainContentScrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const detailsSectionRef = useRef<HTMLDivElement | null>(null);
   const visualSectionRef = useRef<HTMLDivElement | null>(null);
   const mainTextFieldRef = useRef<HTMLDivElement | null>(null);
@@ -1284,7 +1285,7 @@ export function NewBannerForm({
   function getTourTargetClass(target: FirstAccessTourTarget) {
     const shouldHide = showFirstAccessTour && activeTourTarget !== target;
 
-    return `${shouldHide ? "hidden" : ""} scroll-mt-28 transition`;
+    return `${shouldHide ? "hidden" : ""} scroll-mt-24 sm:scroll-mt-28 transition`;
   }
 
   function getInputClassForTour(target: FirstAccessTourTarget) {
@@ -1310,6 +1311,44 @@ export function NewBannerForm({
   const shouldShowVisualSection =
     !showFirstAccessTour || activeTourTarget === "visual" || activeTourTarget === "photo";
 
+  function scrollTourTargetToTop(
+    ref: RefObject<HTMLElement | HTMLDivElement | null>,
+    delay = 120,
+  ) {
+    window.setTimeout(() => {
+      const element = ref.current;
+      if (!element) return;
+
+      const isMobile = window.matchMedia("(max-width: 640px)").matches;
+      const topOffset = isMobile ? 12 : 72;
+      const elementTop = element.getBoundingClientRect().top + window.scrollY;
+
+      window.scrollTo({
+        top: Math.max(elementTop - topOffset, 0),
+        behavior: "smooth",
+      });
+    }, delay);
+  }
+
+  function getTourScrollRef(
+    target: FirstAccessTourTarget,
+    fallback: RefObject<HTMLElement | HTMLDivElement | HTMLButtonElement | null>,
+  ) {
+    if (target === "mainText" || target === "djName") {
+      return mainContentScrollAnchorRef;
+    }
+
+    if (target === "eventDate" || target === "eventLocation") {
+      return detailsSectionRef;
+    }
+
+    if (target === "visual" || target === "photo") {
+      return visualSectionRef;
+    }
+
+    return fallback;
+  }
+
   function goToTourStep(stepIndex: number) {
     setTourError("");
     setTourStepIndex(stepIndex);
@@ -1319,17 +1358,19 @@ export function NewBannerForm({
     if (!tourStepCompletion[tourStepIndex]) {
       setTourError(getTourIncompleteMessage(tourStepIndex));
       const currentStep = firstAccessTourSteps[tourStepIndex];
-      currentStep?.ref.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      if (currentStep) {
+        scrollTourTargetToTop(
+          getTourScrollRef(currentStep.target, currentStep.ref),
+          80,
+        );
+      }
       return;
     }
 
     setTourError("");
 
     if (tourStepIndex >= firstAccessTourSteps.length - 1) {
-      closeFirstAccessTour();
+      completeFirstAccessTour();
       return;
     }
 
@@ -1516,12 +1557,10 @@ export function NewBannerForm({
     const currentStep = firstAccessTourSteps[tourStepIndex];
     if (!currentStep) return;
 
-    window.setTimeout(() => {
-      currentStep.ref.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }, 160);
+    scrollTourTargetToTop(
+      getTourScrollRef(currentStep.target, currentStep.ref),
+      160,
+    );
   }, [firstAccessTourSteps, showFirstAccessTour, tourStepIndex]);
 
   useEffect(() => {
@@ -1532,11 +1571,30 @@ export function NewBannerForm({
     }
   }, [showFirstAccessTour, tourError, tourStepCompletion, tourStepIndex]);
 
-  function closeFirstAccessTour() {
+  function markFirstAccessTourAsSeen() {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(FIRST_ACCESS_TOUR_STORAGE_KEY, "1");
     }
+  }
 
+  function notifyFirstAccessTourCompleted() {
+    void fetch("/api/onboarding/tour-completed", {
+      method: "POST",
+      keepalive: true,
+    }).catch((err) => {
+      console.error("Error notifying tour completion:", err);
+    });
+  }
+
+  function completeFirstAccessTour() {
+    markFirstAccessTourAsSeen();
+    setTourError("");
+    setShowFirstAccessTour(false);
+    notifyFirstAccessTourCompleted();
+  }
+
+  function closeFirstAccessTour() {
+    markFirstAccessTourAsSeen();
     setTourError("");
     setShowFirstAccessTour(false);
   }
@@ -1814,33 +1872,47 @@ export function NewBannerForm({
   }
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+    <div
+      className={`grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px] ${
+        showFirstAccessTour ? "pb-[150px] sm:pb-0" : ""
+      }`}
+    >
       <form
         onSubmit={handleSubmit}
         className="rounded-[28px]  border-white/10 "
       >
-        <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="max-w-2xl">
-            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
-              {copy.briefingEyebrow}
-            </p>
-            <h2 className="text-[23px] font-semibold leading-tight text-white ">
-              {copy.briefingTitle}
-            </h2>
-            <p className="mt-3 text-[13px] leading-6 text-gray-200">
-              {copy.briefingDescription}
-            </p>
-          </div>
+        {!showFirstAccessTour ? (
+          <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="max-w-2xl">
+              <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
+                {copy.briefingEyebrow}
+              </p>
+              <h2 className="text-[23px] font-semibold leading-tight text-white ">
+                {copy.briefingTitle}
+              </h2>
+              <p className="mt-3 text-[13px] leading-6 text-gray-200">
+                {copy.briefingDescription}
+              </p>
+            </div>
 
-          <div className="px-1 py-1 text-left text-blue-400 md:min-w-[112px] md:text-right">
-            <span className="block text-[10px] uppercase tracking-[0.18em] text-white/40 text-center">
-              {copy.briefingProgress}
-            </span>
-            <strong className="mt-1 block text-xl font-semibold text-center">
-              {completion}%
-            </strong>
+            <div className="px-1 py-1 text-left text-blue-400 md:min-w-[112px] md:text-right">
+              <span className="block text-[10px] uppercase tracking-[0.18em] text-white/40 text-center">
+                {copy.briefingProgress}
+              </span>
+              <strong className="mt-1 block text-xl font-semibold text-center">
+                {completion}%
+              </strong>
+            </div>
           </div>
-        </div>
+        ) : null}
+
+        {showFirstAccessTour && (activeTourTarget === "mainText" || activeTourTarget === "djName") ? (
+          <div
+            ref={mainContentScrollAnchorRef}
+            className="h-20 scroll-mt-0"
+            aria-hidden="true"
+          />
+        ) : null}
 
         <div
           ref={detailsSectionRef}
@@ -2587,20 +2659,20 @@ function FirstAccessTourPopup({
   const isLastStep = currentStep >= totalSteps - 1;
 
   return (
-    <div className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-md rounded-[28px] border border-sky-300/20 bg-[#08111f]/95 p-5 text-white shadow-[0_24px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl md:bottom-6 md:right-6 md:left-auto md:mx-0">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <span className="inline-flex rounded-full border border-sky-200/20 bg-sky-200/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-100">
+    <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] z-50 mx-auto max-h-[34dvh] max-w-md overflow-y-auto rounded-[18px] border border-sky-300/12 bg-[#08111f]/96 p-3 text-white shadow-[0_16px_55px_rgba(0,0,0,0.46)] backdrop-blur-xl sm:inset-x-4 sm:bottom-4 sm:max-h-[52dvh] sm:rounded-[26px] sm:p-5 md:bottom-6 md:left-auto md:right-6 md:mx-0 md:max-h-none md:rounded-[28px]">
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="min-w-0">
+          <span className="inline-flex rounded-full border border-sky-200/15 bg-sky-200/8 px-2 py-0.5 text-[8px] font-semibold uppercase tracking-[0.12em] text-sky-100 sm:px-3 sm:py-1 sm:text-[10px]">
             {copy.tourStepLabel} {currentStep + 1}/{totalSteps}
           </span>
-          <h3 className="mt-3 text-lg font-semibold leading-tight text-white">
+          <h3 className="mt-2 text-sm font-semibold leading-tight text-white sm:mt-3 sm:text-lg">
             {title}
           </h3>
-          <p className="mt-2 text-sm leading-6 text-white/68">
+          <p className="mt-1.5 text-[11px] leading-4 text-white/68 sm:mt-2 sm:text-sm sm:leading-6">
             {description}
           </p>
           {error ? (
-            <p className="mt-3 rounded-2xl border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-xs leading-5 text-amber-100">
+            <p className="mt-2 rounded-xl border border-amber-300/20 bg-amber-300/10 px-2.5 py-1.5 text-[11px] leading-4 text-amber-100 sm:mt-3 sm:rounded-2xl sm:px-3 sm:py-2 sm:text-xs sm:leading-5">
               {error}
             </p>
           ) : null}
@@ -2609,41 +2681,39 @@ function FirstAccessTourPopup({
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-lg leading-none text-white/70 transition hover:bg-white/[0.1] hover:text-white"
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-sm leading-none text-white/70 transition hover:bg-white/[0.1] hover:text-white sm:h-9 sm:w-9 sm:text-lg"
           aria-label={copy.tourSkip}
         >
           ×
         </button>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3">
+      <div className="mt-2.5 flex items-center justify-center gap-1 sm:mt-5 sm:gap-1.5">
+        {Array.from({ length: totalSteps }).map((_, index) => (
+          <span
+            key={index}
+            className={`h-1 rounded-full transition-all sm:h-1.5 ${
+              index === currentStep ? "w-5 bg-sky-300 sm:w-6" : "w-1 bg-white/20 sm:w-1.5"
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="mt-2.5 grid grid-cols-2 gap-2 sm:mt-4 sm:gap-3">
         <button
           type="button"
           onClick={onBack}
           disabled={currentStep === 0}
-          className="inline-flex min-h-[42px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm font-medium text-white transition hover:bg-white/[0.09] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex min-h-[36px] items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] px-2.5 text-xs font-medium text-white transition hover:bg-white/[0.09] disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-[42px] sm:rounded-2xl sm:px-3 sm:text-sm"
         >
           {copy.tourBack}
         </button>
 
-        <div className="flex items-center gap-1.5">
-          {Array.from({ length: totalSteps }).map((_, index) => (
-            <span
-              key={index}
-              className={`h-1.5 rounded-full transition-all ${
-                index === currentStep
-                  ? "w-6 bg-sky-300"
-                  : "w-1.5 bg-white/20"
-              }`}
-            />
-          ))}
-        </div>
-
         <button
           type="button"
           onClick={onNext}
-          className={`inline-flex min-h-[42px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-4 text-sm font-bold text-slate-950 transition hover:opacity-95 ${
-            canContinue ? "" : "ring-2 ring-amber-200/25"
+          className={`inline-flex min-h-[36px] items-center justify-center rounded-xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-2.5 text-xs font-bold text-slate-950 transition hover:opacity-95 sm:min-h-[42px] sm:rounded-2xl sm:px-3 sm:text-sm ${
+            canContinue ? "" : "ring-1 ring-amber-200/25 sm:ring-2"
           }`}
         >
           {isLastStep ? copy.tourDone : copy.tourNext}
@@ -2653,7 +2723,7 @@ function FirstAccessTourPopup({
       <button
         type="button"
         onClick={onClose}
-        className="mt-3 w-full text-center text-xs font-medium text-white/45 transition hover:text-white/75"
+        className="mt-2 w-full text-center text-[11px] font-medium text-white/42 transition hover:text-white/75 sm:mt-3 sm:text-xs"
       >
         {copy.tourSkip}
       </button>
