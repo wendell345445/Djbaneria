@@ -20,6 +20,8 @@ const schema = z.object({
   code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code."),
 });
 
+const AFTER_VERIFY_REDIRECT = "/dashboard/banners/new?tour=1";
+
 export async function POST(request: Request) {
   const originError = validateMutationOrigin(request);
   if (originError) return originError;
@@ -152,7 +154,7 @@ export async function POST(request: Request) {
     await setSessionCookie(token, true);
 
     return NextResponse.json(
-      { success: true, redirectTo: "/dashboard" },
+      { success: true, redirectTo: AFTER_VERIFY_REDIRECT },
       { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {

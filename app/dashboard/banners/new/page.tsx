@@ -102,7 +102,8 @@ const newBannerPageCopy = {
     verifyTitle: "Confirma tu email para liberar la generación",
     verifyDescriptionStart:
       "Para proteger los créditos gratis contra abuso, confirma el código enviado a",
-    verifyDescriptionEnd: "Después de eso, podrás generar tus banners normalmente.",
+    verifyDescriptionEnd:
+      "Después de eso, podrás generar tus banners normalmente.",
     verifyButton: "Confirmar email",
   },
 } as const;
@@ -175,7 +176,9 @@ export default async function NewBannerPage() {
   const usageLabel = isAdmin
     ? `${summary.usedThisMonth} / ∞`
     : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
-  const remainingLabel = isAdmin ? copy.unlimited : String(summary.remainingCredits);
+  const remainingLabel = isAdmin
+    ? copy.unlimited
+    : String(summary.remainingCredits);
   const usagePercent = isAdmin
     ? 100
     : summary.monthlyLimit > 0
@@ -187,19 +190,6 @@ export default async function NewBannerPage() {
 
   return (
     <main className="mx-auto max-w-[1320px] px-5 py-7">
-      <div className="mb-7 flex justify-center xl:justify-end">
-        <PlanUsageCard
-          plan={summary.plan}
-          planLabel={planLabel}
-          usageLabel={usageLabel}
-          remainingLabel={remainingLabel}
-          usagePercent={usagePercent}
-          status={summary.status}
-          isAdmin={isAdmin}
-          copy={copy}
-        />
-      </div>
-
       {!isAdmin && !workspace.user?.emailVerifiedAt ? (
         <EmailVerificationRequiredCard
           email={workspace.user?.email || ""}
@@ -368,7 +358,9 @@ function EmailVerificationRequiredCard({
           {copy.verifyTitle}
         </h2>
         <p className="mt-3 text-sm leading-7 text-white/70">
-          {copy.verifyDescriptionStart} <strong className="text-white">{email}</strong>. {copy.verifyDescriptionEnd}
+          {copy.verifyDescriptionStart}{" "}
+          <strong className="text-white">{email}</strong>.{" "}
+          {copy.verifyDescriptionEnd}
         </p>
         <a
           href={`/verify-email?email=${encodeURIComponent(email)}`}

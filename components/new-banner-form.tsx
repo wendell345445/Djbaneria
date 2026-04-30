@@ -1,7 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import type { SubscriptionPlan } from "@/generated/prisma/enums";
 import {
   getAllowedBannerQualities,
@@ -120,6 +128,78 @@ const newBannerFormCopy = {
     briefingDescription:
       "Uma estrutura clara para gerar flyers premium sem confusão entre texto principal, nome do DJ e informações do evento.",
     briefingProgress: "Briefing",
+    guidedEyebrow: "Comece mais rápido",
+    guidedTitle: "Crie seu primeiro banner grátis em poucos cliques",
+    guidedDescription:
+      "Use o passo a passo abaixo ou gere um banner de exemplo agora para ver o resultado da plataforma sem travar no preenchimento.",
+    guidedSteps: [
+      {
+        title: "Escolha um estilo",
+        description: "Selecione um visual pronto para festa, agenda ou divulgação.",
+        helper:
+          "Role os cards de estilo abaixo e toque em um card para ativá-lo. Se aparecer cadeado, aquele estilo exige plano Pro.",
+      },
+      {
+        title: "Preencha os dados",
+        description: "Informe evento, DJ, data e local. Você também pode usar o exemplo automático.",
+        helper:
+          "Complete o texto principal, nome do DJ, data e local. Se quiser acelerar, use o botão de preencher exemplo.",
+      },
+      {
+        title: "Envie sua foto e gere",
+        description: "Adicione sua foto para a IA usar como referência e gere o preview.",
+        helper:
+          "Na seção Foto do DJ, envie uma imagem nítida do seu rosto. O teste guiado vai usar a sua própria foto para gerar o banner.",
+      },
+    ],
+    stepStatusDone: "Concluído",
+    stepStatusCurrent: "Etapa atual",
+    stepStatusPending: "Próxima etapa",
+    stepActionGo: "Ir para esta etapa",
+    guidedPhotoHint:
+      "Para o teste guiado, envie sua própria foto do DJ. Assim a IA cria um preview mais próximo da sua identidade.",
+    tourGenerateTitle: "Clique para gerar",
+    tourGenerateDescription:
+      "Depois de escolher o estilo, preencher os dados e enviar a foto, clique no botão de gerar. O preview aparecerá ao lado.",
+    tourSkip: "Pular guia",
+    tourBack: "Voltar",
+    tourNext: "Próximo",
+    tourDone: "Concluir",
+    tourStepLabel: "Passo",
+    tourIncompleteDefault:
+      "Conclua esta etapa antes de continuar.",
+    tourIncompleteStyle:
+      "Escolha um estilo visual para continuar.",
+    tourIncompleteDetails:
+      "Preencha texto principal, nome do DJ, data e local para continuar.",
+    tourIncompleteMainText:
+      "Preencha o texto principal do banner para continuar.",
+    tourIncompleteDjName:
+      "Preencha o nome do DJ para continuar.",
+    tourIncompleteEventDate:
+      "Preencha a data do evento para continuar.",
+    tourIncompleteEventLocation:
+      "Preencha o local do evento para continuar.",
+    tourMainTextDescription:
+      "Digite o título principal que deve aparecer com maior destaque no banner.",
+    tourDjNameDescription:
+      "Digite o nome artístico do DJ que será usado na composição.",
+    tourEventDateDescription:
+      "Informe quando o evento acontece. Pode ser uma data exata ou algo como Este sábado.",
+    tourEventLocationDescription:
+      "Informe o local, cidade ou nome da casa onde o evento será divulgado.",
+    tourIncompletePhoto:
+      "Envie sua foto do DJ para continuar.",
+    typingSuggestions: {
+      mainText: "Ex.: Neon Friday Party",
+      djName: "Ex.: DJ Vision",
+      secondaryText: "Ex.: Special AI Edition",
+      eventDate: "Ex.: Este sábado",
+      eventLocation: "Ex.: Downtown Club",
+    },
+    sampleButton: "Gerar banner de teste grátis",
+    fillSampleButton: "Preencher exemplo",
+    sampleBadge: "Recomendado para primeiro acesso",
     mainSection: "Conteúdo principal",
     mainTextLabel: "Texto principal do banner",
     mainTextPlaceholder: "Ex.: Pull Party Fest",
@@ -253,6 +333,8 @@ const newBannerFormCopy = {
         "A geração foi iniciada, mas a API não retornou o ID do banner.",
       missingImage:
         "A API retornou sucesso, mas não enviou a URL da imagem gerada.",
+      sampleNeedsPhoto:
+        "Envie sua foto do DJ antes de usar o teste guiado.",
       generateFallback: "Erro ao gerar banner.",
       editPrompt: "Descreva a alteração desejada com um pouco mais de detalhe.",
       edit: "Não foi possível editar a arte.",
@@ -293,6 +375,78 @@ const newBannerFormCopy = {
     briefingDescription:
       "A clear structure to generate premium flyers without mixing up the main title, DJ name, and event details.",
     briefingProgress: "Briefing",
+    guidedEyebrow: "Start faster",
+    guidedTitle: "Create your first free banner in a few clicks",
+    guidedDescription:
+      "Follow the steps below or generate a sample banner now to see the platform result without getting stuck on the form.",
+    guidedSteps: [
+      {
+        title: "Choose a style",
+        description: "Select a ready-made visual direction for a party, schedule, or promotion.",
+        helper:
+          "Scroll through the style cards below and click one to activate it. If you see a lock, that style requires a Pro plan.",
+      },
+      {
+        title: "Add event details",
+        description: "Enter the event, DJ, date, and location. You can also use the automatic example.",
+        helper:
+          "Fill in the main title, DJ name, date, and venue. If you want to move faster, use the fill example button.",
+      },
+      {
+        title: "Upload your photo and generate",
+        description: "Add your photo so AI can use it as a reference and generate the preview.",
+        helper:
+          "In the DJ Photo section, upload a clear photo of your face. The guided test will use your own photo to generate the banner.",
+      },
+    ],
+    stepStatusDone: "Done",
+    stepStatusCurrent: "Current step",
+    stepStatusPending: "Next step",
+    stepActionGo: "Go to this step",
+    guidedPhotoHint:
+      "For the guided test, upload your own DJ photo so AI can create a preview closer to your identity.",
+    tourGenerateTitle: "Click generate",
+    tourGenerateDescription:
+      "After choosing the style, filling in the details, and uploading your photo, click the generate button. The preview will appear on the side.",
+    tourSkip: "Skip guide",
+    tourBack: "Back",
+    tourNext: "Next",
+    tourDone: "Done",
+    tourStepLabel: "Step",
+    tourIncompleteDefault:
+      "Complete this step before continuing.",
+    tourIncompleteStyle:
+      "Choose a visual style to continue.",
+    tourIncompleteDetails:
+      "Fill in the main title, DJ name, date, and location to continue.",
+    tourIncompleteMainText:
+      "Fill in the main banner text to continue.",
+    tourIncompleteDjName:
+      "Fill in the DJ name to continue.",
+    tourIncompleteEventDate:
+      "Fill in the event date to continue.",
+    tourIncompleteEventLocation:
+      "Fill in the event location to continue.",
+    tourMainTextDescription:
+      "Type the main title that should stand out most in the banner.",
+    tourDjNameDescription:
+      "Type the DJ artist name that will appear in the composition.",
+    tourEventDateDescription:
+      "Enter when the event happens. It can be an exact date or something like This Saturday.",
+    tourEventLocationDescription:
+      "Enter the venue, city, or club name for the event promotion.",
+    tourIncompletePhoto:
+      "Upload your DJ photo to continue.",
+    typingSuggestions: {
+      mainText: "Ex.: Neon Friday Party",
+      djName: "Ex.: DJ Vision",
+      secondaryText: "Ex.: Special AI Edition",
+      eventDate: "Ex.: This Saturday",
+      eventLocation: "Ex.: Downtown Club",
+    },
+    sampleButton: "Generate free sample banner",
+    fillSampleButton: "Fill example",
+    sampleBadge: "Recommended for first visit",
     mainSection: "Main content",
     mainTextLabel: "Main banner text",
     mainTextPlaceholder: "Ex.: Pull Party Fest",
@@ -316,8 +470,10 @@ const newBannerFormCopy = {
     tapToChoose: "Tap to choose",
     upgrade: "Upgrade",
     slideMore: "Swipe for more",
-    carouselHint: "",
-    proHint: "",
+    carouselHint:
+      "On desktop, use the arrows or mouse wheel. On mobile, swipe sideways.",
+    proHint:
+      "Pro styles stay visible to create desire, but can only be used on the Pro plan or higher.",
     formatLabel: "Format",
     qualityLabel: "Generation quality",
     unavailablePlan: " — unavailable on your plan",
@@ -421,6 +577,8 @@ const newBannerFormCopy = {
         "Generation was started, but the API did not return the banner ID.",
       missingImage:
         "The API returned success, but did not send the generated image URL.",
+      sampleNeedsPhoto:
+        "Upload your DJ photo before using the guided test.",
       generateFallback: "Error generating banner.",
       editPrompt: "Describe the desired edit with a little more detail.",
       edit: "Could not edit the artwork.",
@@ -458,6 +616,78 @@ const newBannerFormCopy = {
     briefingDescription:
       "Una estructura clara para generar flyers premium sin confundir el texto principal, el nombre del DJ y los datos del evento.",
     briefingProgress: "Briefing",
+    guidedEyebrow: "Empieza más rápido",
+    guidedTitle: "Crea tu primer banner gratis en pocos clics",
+    guidedDescription:
+      "Sigue el paso a paso o genera un banner de ejemplo ahora para ver el resultado de la plataforma sin quedarte atascado en el formulario.",
+    guidedSteps: [
+      {
+        title: "Elige un estilo",
+        description: "Selecciona una dirección visual lista para fiesta, agenda o promoción.",
+        helper:
+          "Desliza las tarjetas de estilo de abajo y toca una para activarla. Si ves un candado, ese estilo requiere plan Pro.",
+      },
+      {
+        title: "Agrega los datos",
+        description: "Informa evento, DJ, fecha y lugar. También puedes usar el ejemplo automático.",
+        helper:
+          "Completa el título principal, nombre del DJ, fecha y lugar. Si quieres ir más rápido, usa el botón de completar ejemplo.",
+      },
+      {
+        title: "Sube tu foto y genera",
+        description: "Agrega tu foto para que la IA la use como referencia y genere el preview.",
+        helper:
+          "En la sección Foto del DJ, sube una imagen clara de tu rostro. La prueba guiada usará tu propia foto para generar el banner.",
+      },
+    ],
+    stepStatusDone: "Completado",
+    stepStatusCurrent: "Paso actual",
+    stepStatusPending: "Siguiente paso",
+    stepActionGo: "Ir a este paso",
+    guidedPhotoHint:
+      "Para la prueba guiada, sube tu propia foto de DJ. Así la IA crea un preview más cercano a tu identidad.",
+    tourGenerateTitle: "Haz clic para generar",
+    tourGenerateDescription:
+      "Después de elegir el estilo, completar los datos y subir tu foto, haz clic en generar. El preview aparecerá al lado.",
+    tourSkip: "Saltar guía",
+    tourBack: "Volver",
+    tourNext: "Siguiente",
+    tourDone: "Finalizar",
+    tourStepLabel: "Paso",
+    tourIncompleteDefault:
+      "Completa este paso antes de continuar.",
+    tourIncompleteStyle:
+      "Elige un estilo visual para continuar.",
+    tourIncompleteDetails:
+      "Completa el título principal, nombre del DJ, fecha y lugar para continuar.",
+    tourIncompleteMainText:
+      "Completa el texto principal del banner para continuar.",
+    tourIncompleteDjName:
+      "Completa el nombre del DJ para continuar.",
+    tourIncompleteEventDate:
+      "Completa la fecha del evento para continuar.",
+    tourIncompleteEventLocation:
+      "Completa el lugar del evento para continuar.",
+    tourMainTextDescription:
+      "Escribe el título principal que debe tener más destaque en el banner.",
+    tourDjNameDescription:
+      "Escribe el nombre artístico del DJ que aparecerá en la composición.",
+    tourEventDateDescription:
+      "Indica cuándo será el evento. Puede ser una fecha exacta o algo como Este sábado.",
+    tourEventLocationDescription:
+      "Indica el local, ciudad o nombre del club para la promoción del evento.",
+    tourIncompletePhoto:
+      "Sube tu foto de DJ para continuar.",
+    typingSuggestions: {
+      mainText: "Ej.: Neon Friday Party",
+      djName: "Ej.: DJ Vision",
+      secondaryText: "Ej.: Special AI Edition",
+      eventDate: "Ej.: Este sábado",
+      eventLocation: "Ej.: Downtown Club",
+    },
+    sampleButton: "Generar banner de prueba gratis",
+    fillSampleButton: "Completar ejemplo",
+    sampleBadge: "Recomendado para primer acceso",
     mainSection: "Contenido principal",
     mainTextLabel: "Texto principal del banner",
     mainTextPlaceholder: "Ej.: Pull Party Fest",
@@ -592,6 +822,8 @@ const newBannerFormCopy = {
         "La generación fue iniciada, pero la API no devolvió el ID del banner.",
       missingImage:
         "La API devolvió éxito, pero no envió la URL de la imagen generada.",
+      sampleNeedsPhoto:
+        "Sube tu foto de DJ antes de usar la prueba guiada.",
       generateFallback: "Error al generar banner.",
       editPrompt: "Describe la edición deseada con un poco más de detalle.",
       edit: "No fue posible editar el arte.",
@@ -648,6 +880,7 @@ type BannerStatusResponse = {
 };
 
 const PENDING_BANNER_STORAGE_KEY = "djproia_pending_banner_generation";
+const FIRST_ACCESS_TOUR_STORAGE_KEY = "djproia_new_banner_first_access_tour_seen";
 const PENDING_BANNER_MAX_AGE_MS = 1000 * 60 * 60 * 3;
 
 type PendingBannerGeneration = {
@@ -796,6 +1029,26 @@ function isCreditExhaustedMessage(message: string) {
 
 type NewBannerFormLocale = "pt-BR" | "en" | "es";
 
+type FirstAccessTourTarget =
+  | "visual"
+  | "mainText"
+  | "djName"
+  | "eventDate"
+  | "eventLocation"
+  | "photo"
+  | "generate";
+
+type BannerFormState = {
+  mainText: string;
+  djName: string;
+  secondaryText: string;
+  eventDate: string;
+  eventLocation: string;
+  stylePreset: string;
+  format: string;
+  quality: BannerImageQuality;
+};
+
 export function NewBannerForm({
   currentPlan,
   isAdmin = false,
@@ -830,15 +1083,30 @@ export function NewBannerForm({
   const [showCreditUpgrade, setShowCreditUpgrade] = useState(
     !isAdmin && !canGenerateBanner,
   );
+  const [tourError, setTourError] = useState("");
+  const [typingIndex, setTypingIndex] = useState(0);
+  const [dismissedSuggestionFields, setDismissedSuggestionFields] = useState<
+    Partial<Record<keyof BannerFormState, boolean>>
+  >({});
   const previewRef = useRef<HTMLElement | null>(null);
   const styleCarouselRef = useRef<HTMLDivElement | null>(null);
+  const detailsSectionRef = useRef<HTMLDivElement | null>(null);
+  const visualSectionRef = useRef<HTMLDivElement | null>(null);
+  const mainTextFieldRef = useRef<HTMLDivElement | null>(null);
+  const djNameFieldRef = useRef<HTMLDivElement | null>(null);
+  const eventDateFieldRef = useRef<HTMLDivElement | null>(null);
+  const eventLocationFieldRef = useRef<HTMLDivElement | null>(null);
+  const photoFieldRef = useRef<HTMLDivElement | null>(null);
+  const generateButtonRef = useRef<HTMLButtonElement | null>(null);
   const restoringPendingRef = useRef(false);
+  const [showFirstAccessTour, setShowFirstAccessTour] = useState(false);
+  const [tourStepIndex, setTourStepIndex] = useState(0);
   const allowedQualities = useMemo(
     () => getAllowedBannerQualities(currentPlan, isAdmin),
     [currentPlan, isAdmin],
   );
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<BannerFormState>({
     mainText: "",
     djName: "",
     secondaryText: "",
@@ -898,10 +1166,188 @@ export function NewBannerForm({
       (typeof remainingCredits === "number" && remainingCredits <= 0));
   const shouldShowCreditUpgrade = showCreditUpgrade || hasNoCredits;
   const shouldLockProStyles = !isAdmin && currentPlan === "FREE";
+  const hasSelectedStyle = Boolean(form.stylePreset);
+  const hasMainText = Boolean(form.mainText.trim());
+  const hasDjName = Boolean(form.djName.trim());
+  const hasEventDate = Boolean(form.eventDate.trim());
+  const hasEventLocation = Boolean(form.eventLocation.trim());
+  const hasRequiredDetails = Boolean(
+    hasMainText && hasDjName && hasEventDate && hasEventLocation,
+  );
+  const hasUploadedPhoto = Boolean(referenceFile);
+  const canFinishTour =
+    hasSelectedStyle && hasRequiredDetails && hasUploadedPhoto;
+
+  const tourStepCompletion = useMemo(
+    () => [
+      hasSelectedStyle,
+      hasMainText,
+      hasDjName,
+      hasEventDate,
+      hasEventLocation,
+      hasUploadedPhoto,
+      canFinishTour,
+    ],
+    [
+      hasSelectedStyle,
+      hasMainText,
+      hasDjName,
+      hasEventDate,
+      hasEventLocation,
+      hasUploadedPhoto,
+      canFinishTour,
+    ],
+  );
+
+  const firstAccessTourSteps = useMemo(
+    () => [
+      {
+        target: "visual" as const,
+        title: copy.guidedSteps[0].title,
+        description: copy.guidedSteps[0].helper,
+        ref: visualSectionRef,
+      },
+      {
+        target: "mainText" as const,
+        title: copy.mainTextLabel,
+        description: copy.tourMainTextDescription,
+        ref: mainTextFieldRef,
+      },
+      {
+        target: "djName" as const,
+        title: copy.djNameLabel,
+        description: copy.tourDjNameDescription,
+        ref: djNameFieldRef,
+      },
+      {
+        target: "eventDate" as const,
+        title: copy.eventDateLabel,
+        description: copy.tourEventDateDescription,
+        ref: eventDateFieldRef,
+      },
+      {
+        target: "eventLocation" as const,
+        title: copy.eventLocationLabel,
+        description: copy.tourEventLocationDescription,
+        ref: eventLocationFieldRef,
+      },
+      {
+        target: "photo" as const,
+        title: copy.guidedSteps[2].title,
+        description: copy.guidedSteps[2].helper,
+        ref: photoFieldRef,
+      },
+      {
+        target: "generate" as const,
+        title: copy.tourGenerateTitle,
+        description: copy.tourGenerateDescription,
+        ref: generateButtonRef,
+      },
+    ],
+    [copy],
+  );
+
+  const activeTourTarget = showFirstAccessTour
+    ? firstAccessTourSteps[tourStepIndex]?.target
+    : null;
+
+  function dismissTypingSuggestion(field: keyof BannerFormState) {
+    setDismissedSuggestionFields((current) => ({
+      ...current,
+      [field]: true,
+    }));
+  }
+
+  function getTypedPlaceholder(field: keyof BannerFormState, fallback: string) {
+    const suggestion = copy.typingSuggestions[field as keyof typeof copy.typingSuggestions];
+
+    if (!suggestion || form[field] || dismissedSuggestionFields[field]) {
+      return dismissedSuggestionFields[field] ? "" : fallback;
+    }
+
+    return suggestion.slice(0, Math.max(1, Math.min(typingIndex, suggestion.length)));
+  }
+
+  function getTourIncompleteMessage(stepIndex: number) {
+    const target = firstAccessTourSteps[stepIndex]?.target;
+
+    if (target === "visual") return copy.tourIncompleteStyle;
+    if (target === "mainText") return copy.tourIncompleteMainText;
+    if (target === "djName") return copy.tourIncompleteDjName;
+    if (target === "eventDate") return copy.tourIncompleteEventDate;
+    if (target === "eventLocation") return copy.tourIncompleteEventLocation;
+    if (target === "photo") return copy.tourIncompletePhoto;
+
+    return copy.tourIncompleteDefault;
+  }
+
+  function getTourTargetClass(target: FirstAccessTourTarget) {
+    const shouldHide = showFirstAccessTour && activeTourTarget !== target;
+
+    return `${shouldHide ? "hidden" : ""} scroll-mt-28 transition`;
+  }
+
+  function getInputClassForTour(target: FirstAccessTourTarget) {
+    const isActive = showFirstAccessTour && activeTourTarget === target;
+
+    return `${inputClassName} ${
+      isActive
+        ? "border-sky-200/35 bg-white/[0.065] shadow-[0_0_0_1px_rgba(125,211,252,0.16)]"
+        : ""
+    }`;
+  }
+
+  function shouldShowTourTarget(target: FirstAccessTourTarget) {
+    return !showFirstAccessTour || activeTourTarget === target;
+  }
+
+  const shouldShowMainSection =
+    !showFirstAccessTour || activeTourTarget === "mainText" || activeTourTarget === "djName";
+  const shouldShowEventSection =
+    !showFirstAccessTour ||
+    activeTourTarget === "eventDate" ||
+    activeTourTarget === "eventLocation";
+  const shouldShowVisualSection =
+    !showFirstAccessTour || activeTourTarget === "visual" || activeTourTarget === "photo";
+
+  function goToTourStep(stepIndex: number) {
+    setTourError("");
+    setTourStepIndex(stepIndex);
+  }
+
+  function advanceFirstAccessTour() {
+    if (!tourStepCompletion[tourStepIndex]) {
+      setTourError(getTourIncompleteMessage(tourStepIndex));
+      const currentStep = firstAccessTourSteps[tourStepIndex];
+      currentStep?.ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      return;
+    }
+
+    setTourError("");
+
+    if (tourStepIndex >= firstAccessTourSteps.length - 1) {
+      closeFirstAccessTour();
+      return;
+    }
+
+    goToTourStep(Math.min(tourStepIndex + 1, firstAccessTourSteps.length - 1));
+  }
 
   function scrollToPreview() {
     window.setTimeout(() => {
       previewRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+  }
+
+  function scrollToSection(ref: RefObject<HTMLElement | HTMLDivElement | null>) {
+    window.setTimeout(() => {
+      ref.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
@@ -965,7 +1411,7 @@ export function NewBannerForm({
 
       if (data.status === "FAILED") {
         clearPendingBannerGeneration(bannerId);
-        throw new Error(copy.errors.failedGeneration);
+        throw new Error(data.message || copy.errors.failedGeneration);
       }
 
       setStatusText(copy.status.waitingAi);
@@ -1040,9 +1486,68 @@ export function NewBannerForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
+    const tourAlreadySeen = window.localStorage.getItem(
+      FIRST_ACCESS_TOUR_STORAGE_KEY,
+    );
+    const forceTour = new URLSearchParams(window.location.search).get("tour") === "1";
+
+    if (forceTour || !tourAlreadySeen) {
+      setShowFirstAccessTour(true);
+      setTourStepIndex(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    const values = Object.values(copy.typingSuggestions);
+    const maxLength = Math.max(...values.map((value) => value.length));
+    const timer = window.setTimeout(() => {
+      setTypingIndex((current) => (current >= maxLength + 18 ? 0 : current + 1));
+    }, typingIndex > maxLength ? 80 : 45);
+
+    return () => window.clearTimeout(timer);
+  }, [copy.typingSuggestions, typingIndex]);
+
+  useEffect(() => {
+    if (!showFirstAccessTour) return;
+
+    const currentStep = firstAccessTourSteps[tourStepIndex];
+    if (!currentStep) return;
+
+    window.setTimeout(() => {
+      currentStep.ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 160);
+  }, [firstAccessTourSteps, showFirstAccessTour, tourStepIndex]);
+
+  useEffect(() => {
+    if (!showFirstAccessTour || !tourError) return;
+
+    if (tourStepCompletion[tourStepIndex]) {
+      setTourError("");
+    }
+  }, [showFirstAccessTour, tourError, tourStepCompletion, tourStepIndex]);
+
+  function closeFirstAccessTour() {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(FIRST_ACCESS_TOUR_STORAGE_KEY, "1");
+    }
+
+    setTourError("");
+    setShowFirstAccessTour(false);
+  }
+
+  async function runBannerGeneration({
+    formSnapshot,
+    referenceFileForGeneration,
+  }: {
+    formSnapshot: BannerFormState;
+    referenceFileForGeneration: File | null;
+  }) {
     if (hasNoCredits) {
       setError(copy.errors.noCredits);
       setShowCreditUpgrade(true);
@@ -1068,8 +1573,8 @@ export function NewBannerForm({
     let progressTimerC: number | undefined;
 
     try {
-      const referenceImageDataUrl = referenceFile
-        ? await readFileAsDataUrl(referenceFile, copy.errors.fileRead)
+      const referenceImageDataUrl = referenceFileForGeneration
+        ? await readFileAsDataUrl(referenceFileForGeneration, copy.errors.fileRead)
         : null;
 
       progressTimerA = window.setTimeout(() => {
@@ -1091,15 +1596,15 @@ export function NewBannerForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mainText: form.mainText,
-          djName: form.djName,
-          secondaryText: form.secondaryText,
-          eventDate: form.eventDate,
-          eventLocation: form.eventLocation,
-          stylePreset: form.stylePreset,
-          format: form.format,
-          quality: form.quality,
-          referenceImageUrl: referenceFile ? referenceImageDataUrl : null,
+          mainText: formSnapshot.mainText,
+          djName: formSnapshot.djName,
+          secondaryText: formSnapshot.secondaryText,
+          eventDate: formSnapshot.eventDate,
+          eventLocation: formSnapshot.eventLocation,
+          stylePreset: formSnapshot.stylePreset,
+          format: formSnapshot.format,
+          quality: formSnapshot.quality,
+          referenceImageUrl: referenceFileForGeneration ? referenceImageDataUrl : null,
         }),
       });
 
@@ -1132,7 +1637,7 @@ export function NewBannerForm({
         setStatusText(copy.status.created);
         savePendingBannerGeneration({
           bannerId: data.bannerId,
-          format: form.format,
+          format: formSnapshot.format,
         });
 
         const completedBanner = await waitForGeneratedBanner(data.bannerId);
@@ -1184,6 +1689,14 @@ export function NewBannerForm({
       setLoading(false);
       setLoadingMode(null);
     }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await runBannerGeneration({
+      formSnapshot: form,
+      referenceFileForGeneration: referenceFile,
+    });
   }
 
   async function handleEdit() {
@@ -1329,319 +1842,432 @@ export function NewBannerForm({
           </div>
         </div>
 
-        <Section title={copy.mainSection}>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label={copy.mainTextLabel}>
-              <input
-                className={inputClassName}
-                placeholder={copy.mainTextPlaceholder}
-                value={form.mainText}
-                onChange={(e) =>
-                  setForm((c) => ({ ...c, mainText: e.target.value }))
-                }
-                required
-              />
-            </Field>
-
-            <Field label={copy.djNameLabel}>
-              <input
-                className={inputClassName}
-                placeholder={copy.djNamePlaceholder}
-                value={form.djName}
-                onChange={(e) =>
-                  setForm((c) => ({ ...c, djName: e.target.value }))
-                }
-                required
-              />
-            </Field>
-          </div>
-
-          <Field label={copy.secondaryTextLabel}>
-            <input
-              className={inputClassName}
-              placeholder={copy.secondaryTextPlaceholder}
-              value={form.secondaryText}
-              onChange={(e) =>
-                setForm((c) => ({ ...c, secondaryText: e.target.value }))
-              }
-            />
-          </Field>
-        </Section>
-
-        <Section title={copy.eventSection}>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label={copy.eventDateLabel}>
-              <input
-                className={inputClassName}
-                placeholder={copy.eventDatePlaceholder}
-                value={form.eventDate}
-                onChange={(e) =>
-                  setForm((c) => ({ ...c, eventDate: e.target.value }))
-                }
-                required
-              />
-            </Field>
-
-            <Field label={copy.eventLocationLabel}>
-              <input
-                className={inputClassName}
-                placeholder={copy.eventLocationPlaceholder}
-                value={form.eventLocation}
-                onChange={(e) =>
-                  setForm((c) => ({ ...c, eventLocation: e.target.value }))
-                }
-                required
-              />
-            </Field>
-          </div>
-        </Section>
-
-        <Section title={copy.visualSection}>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <div className="lg:col-span-3">
-              <Field label={copy.visualStyleLabel}>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => scrollStyleCarousel("left")}
-                    className="absolute left-0 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-lg font-semibold text-white shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/90 md:inline-flex"
-                    aria-label={copy.previousStyles}
-                  >
-                    ‹
-                  </button>
-
-                  <div
-                    ref={styleCarouselRef}
-                    onWheel={(event) => {
-                      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX))
-                        return;
-                      event.currentTarget.scrollLeft += event.deltaY;
-                    }}
-                    className="-mx-1 overflow-x-auto scroll-smooth pb-2 pl-1 pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:px-12"
-                  >
-                    <div className="flex min-w-max gap-3 pr-1">
-                      {stylePresets.map((preset) => {
-                        const locked =
-                          shouldLockProStyles &&
-                          isBannerStyleProOnly(preset.value);
-                        const selected =
-                          !locked && form.stylePreset === preset.value;
-
-                        return (
-                          <button
-                            key={preset.value}
-                            type="button"
-                            onClick={() => {
-                              if (locked) {
-                                router.push("/dashboard/billing");
-                                return;
-                              }
-
-                              setForm((current) => ({
-                                ...current,
-                                stylePreset: preset.value,
-                              }));
-                            }}
-                            className={`group relative min-w-[250px] max-w-[250px] overflow-hidden rounded-[24px] border text-left transition sm:min-w-[285px] sm:max-w-[285px] ${
-                              selected
-                                ? "border-sky-300/45 bg-sky-300/10 shadow-[0_0_0_1px_rgba(125,211,252,0.18)]"
-                                : locked
-                                  ? "cursor-pointer border-amber-300/35 bg-white/[0.045] hover:border-amber-300/55 hover:bg-amber-300/[0.06]"
-                                  : "border-white/10 bg-white/[0.045] hover:border-white/20 hover:bg-white/[0.07]"
-                            }`}
-                            aria-label={
-                              locked
-                                ? `${preset.label} ${copy.availableFromPro}. ${copy.upgrade}.`
-                                : `${copy.tapToChoose}: ${preset.label}`
-                            }
-                          >
-                            <div className="relative aspect-[4/5] overflow-hidden">
-                              <img
-                                src={preset.image}
-                                alt={preset.label}
-                                className={`h-full w-full object-cover transition duration-500 ${
-                                  locked
-                                    ? "brightness-[0.82]"
-                                    : "group-hover:scale-[1.03]"
-                                }`}
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(125,211,252,0.16),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(168,85,247,0.12),transparent_34%)]" />
-
-                              <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-3">
-                                <span
-                                  className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] backdrop-blur ${
-                                    selected
-                                      ? "bg-sky-300/18 text-sky-100"
-                                      : locked
-                                        ? "bg-amber-200/18 text-amber-100"
-                                        : "bg-black/35 text-white/80"
-                                  }`}
-                                >
-                                  {locked ? "Pro+" : copy.badges[preset.badge]}
-                                </span>
-
-                                {selected ? (
-                                  <span className="rounded-full bg-sky-300/18 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-100 backdrop-blur">
-                                    {copy.selected}
-                                  </span>
-                                ) : locked ? (
-                                  <span className="px-1 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
-                                    {copy.proOnly}
-                                  </span>
-                                ) : null}
-                              </div>
-
-                              <div className="absolute inset-x-0 bottom-0 p-4">
-                                <p className="text-base font-semibold text-white">
-                                  {preset.label}
-                                </p>
-                                <p className="mt-1 text-xs leading-5 text-white/70">
-                                  {copy.styleDescriptions[preset.value]}
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="relative z-10 flex items-center justify-between gap-3 p-4">
-                              <span
-                                className={`inline-flex rounded-full px-2.5 py-1 text-xs ${
-                                  selected
-                                    ? "border border-sky-300/30 bg-sky-300/10 text-sky-100"
-                                    : locked
-                                      ? "text-amber-100/90"
-                                      : "text-white/60"
-                                }`}
-                              >
-                                {locked
-                                  ? copy.availableFromPro
-                                  : selected
-                                    ? copy.activeStyle
-                                    : copy.tapToChoose}
-                              </span>
-
-                              {locked ? (
-                                <span className="text-xs font-medium text-amber-100/90">
-                                  {copy.upgrade}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-white/45">
-                                  {copy.slideMore}
-                                </span>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => scrollStyleCarousel("right")}
-                    className="absolute right-0 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-lg font-semibold text-white shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/90 md:inline-flex"
-                    aria-label={copy.nextStyles}
-                  >
-                    ›
-                  </button>
+        <div
+          ref={detailsSectionRef}
+          className={
+            shouldShowMainSection || shouldShowEventSection
+              ? "scroll-mt-28 transition"
+              : "hidden"
+          }
+        >
+          {shouldShowMainSection ? (
+            <Section title={copy.mainSection}>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div
+                  ref={mainTextFieldRef}
+                  className={getTourTargetClass("mainText")}
+                >
+                  <Field label={copy.mainTextLabel}>
+                    <input
+                      className={getInputClassForTour("mainText")}
+                      placeholder={getTypedPlaceholder(
+                        "mainText",
+                        copy.mainTextPlaceholder,
+                      )}
+                      value={form.mainText}
+                      onFocus={() => dismissTypingSuggestion("mainText")}
+                      onClick={() => dismissTypingSuggestion("mainText")}
+                      onChange={(e) => {
+                        setForm((c) => ({ ...c, mainText: e.target.value }));
+                        if (activeTourTarget === "mainText") setTourError("");
+                      }}
+                      required
+                    />
+                  </Field>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs leading-5 text-white/55">
-                  <p>{copy.carouselHint}</p>
-                  {shouldLockProStyles ? <p>{copy.proHint}</p> : null}
+                <div
+                  ref={djNameFieldRef}
+                  className={getTourTargetClass("djName")}
+                >
+                  <Field label={copy.djNameLabel}>
+                    <input
+                      className={getInputClassForTour("djName")}
+                      placeholder={getTypedPlaceholder(
+                        "djName",
+                        copy.djNamePlaceholder,
+                      )}
+                      value={form.djName}
+                      onFocus={() => dismissTypingSuggestion("djName")}
+                      onClick={() => dismissTypingSuggestion("djName")}
+                      onChange={(e) => {
+                        setForm((c) => ({ ...c, djName: e.target.value }));
+                        if (activeTourTarget === "djName") setTourError("");
+                      }}
+                      required
+                    />
+                  </Field>
                 </div>
-              </Field>
-            </div>
+              </div>
 
-            <Field label={copy.formatLabel}>
-              <select
-                className={selectClassName}
-                value={form.format}
-                onChange={(e) =>
-                  setForm((c) => ({ ...c, format: e.target.value }))
-                }
-              >
-                {formats.map((format) => (
-                  <option
-                    key={format.value}
-                    value={format.value}
-                    className="bg-black text-white"
-                  >
-                    {format.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
+              {!showFirstAccessTour ? (
+                <Field label={copy.secondaryTextLabel}>
+                  <input
+                    className={inputClassName}
+                    placeholder={getTypedPlaceholder(
+                      "secondaryText",
+                      copy.secondaryTextPlaceholder,
+                    )}
+                    value={form.secondaryText}
+                    onFocus={() => dismissTypingSuggestion("secondaryText")}
+                    onClick={() => dismissTypingSuggestion("secondaryText")}
+                    onChange={(e) =>
+                      setForm((c) => ({ ...c, secondaryText: e.target.value }))
+                    }
+                  />
+                </Field>
+              ) : null}
+            </Section>
+          ) : null}
 
-            <Field label={copy.qualityLabel}>
-              <select
-                className={selectClassName}
-                value={form.quality}
-                onChange={(e) =>
-                  setForm((current) => ({
-                    ...current,
-                    quality: e.target.value as BannerImageQuality,
-                  }))
-                }
-              >
-                {qualityOptions.map((quality) => {
-                  const enabled = allowedQualities.includes(quality.value);
-                  return (
-                    <option
-                      key={quality.value}
-                      value={quality.value}
-                      disabled={!enabled}
-                      className="bg-black text-white"
-                    >
-                      {copy.qualityLabels[quality.value]}
-                      {enabled ? "" : copy.unavailablePlan}
-                    </option>
-                  );
-                })}
-              </select>
-            </Field>
-          </div>
+          {shouldShowEventSection ? (
+            <Section title={copy.eventSection}>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div
+                  ref={eventDateFieldRef}
+                  className={getTourTargetClass("eventDate")}
+                >
+                  <Field label={copy.eventDateLabel}>
+                    <input
+                      className={getInputClassForTour("eventDate")}
+                      placeholder={getTypedPlaceholder(
+                        "eventDate",
+                        copy.eventDatePlaceholder,
+                      )}
+                      value={form.eventDate}
+                      onFocus={() => dismissTypingSuggestion("eventDate")}
+                      onClick={() => dismissTypingSuggestion("eventDate")}
+                      onChange={(e) => {
+                        setForm((c) => ({ ...c, eventDate: e.target.value }));
+                        if (activeTourTarget === "eventDate") setTourError("");
+                      }}
+                      required
+                    />
+                  </Field>
+                </div>
 
-          <Field label={copy.photoLabel}>
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/jpg,image/webp"
-              className={`${inputClassName} file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15`}
-              onChange={(e) => setReferenceFile(e.target.files?.[0] || null)}
-            />
-            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
-              <span>{copy.photoHelper}</span>
-              <strong className="text-white/85">
-                {referenceFile ? referenceFile.name : copy.noFileSelected}
-              </strong>
-            </div>
-          </Field>
-        </Section>
-
-        <div className="mt-4 flex flex-col gap-3 rounded-[22px] border border-white/10 bg-gradient-to-br from-blue-500/10 to-cyan-400/5 p-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <span className="mb-2 inline-flex rounded-full bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/75">
-              {copy.professionalStructure}
-            </span>
-            <p className="text-sm leading-6 text-white/80">
-              {copy.professionalStructureText}
-            </p>
-          </div>
-
-          {remainingCredits !== null ? (
-            <div className="shrink-0 rounded-xl bg-white/8 px-3 py-2 text-sm text-white">
-              {copy.remainingCredits}: <strong>{remainingCredits}</strong>
-            </div>
+                <div
+                  ref={eventLocationFieldRef}
+                  className={getTourTargetClass("eventLocation")}
+                >
+                  <Field label={copy.eventLocationLabel}>
+                    <input
+                      className={getInputClassForTour("eventLocation")}
+                      placeholder={getTypedPlaceholder(
+                        "eventLocation",
+                        copy.eventLocationPlaceholder,
+                      )}
+                      value={form.eventLocation}
+                      onFocus={() => dismissTypingSuggestion("eventLocation")}
+                      onClick={() => dismissTypingSuggestion("eventLocation")}
+                      onChange={(e) => {
+                        setForm((c) => ({
+                          ...c,
+                          eventLocation: e.target.value,
+                        }));
+                        if (activeTourTarget === "eventLocation") {
+                          setTourError("");
+                        }
+                      }}
+                      required
+                    />
+                  </Field>
+                </div>
+              </div>
+            </Section>
           ) : null}
         </div>
+
+        <div
+          ref={visualSectionRef}
+          className={
+            shouldShowVisualSection ? "scroll-mt-28 transition" : "hidden"
+          }
+        >
+          <Section title={copy.visualSection}>
+            {shouldShowTourTarget("visual") ? (
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-3">
+                  <Field label={copy.visualStyleLabel}>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => scrollStyleCarousel("left")}
+                        className="absolute left-0 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-lg font-semibold text-white shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/90 md:inline-flex"
+                        aria-label={copy.previousStyles}
+                      >
+                        ‹
+                      </button>
+
+                      <div
+                        ref={styleCarouselRef}
+                        onWheel={(event) => {
+                          if (
+                            Math.abs(event.deltaY) <= Math.abs(event.deltaX)
+                          ) {
+                            return;
+                          }
+                          event.currentTarget.scrollLeft += event.deltaY;
+                        }}
+                        className="-mx-1 overflow-x-auto scroll-smooth pb-2 pl-1 pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:px-12"
+                      >
+                        <div className="flex min-w-max gap-3 pr-1">
+                          {stylePresets.map((preset) => {
+                            const locked =
+                              shouldLockProStyles &&
+                              isBannerStyleProOnly(preset.value);
+                            const selected =
+                              !locked && form.stylePreset === preset.value;
+
+                            return (
+                              <button
+                                key={preset.value}
+                                type="button"
+                                onClick={() => {
+                                  if (locked) {
+                                    router.push("/dashboard/billing");
+                                    return;
+                                  }
+
+                                  setForm((current) => ({
+                                    ...current,
+                                    stylePreset: preset.value,
+                                  }));
+                                  if (activeTourTarget === "visual") {
+                                    setTourError("");
+                                  }
+                                }}
+                                className={`group relative min-w-[250px] max-w-[250px] overflow-hidden rounded-[24px] border text-left transition sm:min-w-[285px] sm:max-w-[285px] ${
+                                  selected
+                                    ? "border-sky-300/45 bg-sky-300/10 shadow-[0_0_0_1px_rgba(125,211,252,0.18)]"
+                                    : locked
+                                      ? "cursor-pointer border-amber-300/35 bg-white/[0.045] hover:border-amber-300/55 hover:bg-amber-300/[0.06]"
+                                      : "border-white/10 bg-white/[0.045] hover:border-white/20 hover:bg-white/[0.07]"
+                                }`}
+                                aria-label={
+                                  locked
+                                    ? `${preset.label} ${copy.availableFromPro}. ${copy.upgrade}.`
+                                    : `${copy.tapToChoose}: ${preset.label}`
+                                }
+                              >
+                                <div className="relative aspect-[4/5] overflow-hidden">
+                                  <img
+                                    src={preset.image}
+                                    alt={preset.label}
+                                    className={`h-full w-full object-cover transition duration-500 ${
+                                      locked
+                                        ? "brightness-[0.82]"
+                                        : "group-hover:scale-[1.03]"
+                                    }`}
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(125,211,252,0.16),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(168,85,247,0.12),transparent_34%)]" />
+
+                                  <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-3">
+                                    <span
+                                      className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] backdrop-blur ${
+                                        selected
+                                          ? "bg-sky-300/18 text-sky-100"
+                                          : locked
+                                            ? "bg-amber-200/18 text-amber-100"
+                                            : "bg-black/35 text-white/80"
+                                      }`}
+                                    >
+                                      {locked
+                                        ? "Pro+"
+                                        : copy.badges[preset.badge]}
+                                    </span>
+
+                                    {selected ? (
+                                      <span className="rounded-full bg-sky-300/18 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sky-100 backdrop-blur">
+                                        {copy.selected}
+                                      </span>
+                                    ) : locked ? (
+                                      <span className="px-1 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100">
+                                        {copy.proOnly}
+                                      </span>
+                                    ) : null}
+                                  </div>
+
+                                  <div className="absolute inset-x-0 bottom-0 p-4">
+                                    <p className="text-base font-semibold text-white">
+                                      {preset.label}
+                                    </p>
+                                    <p className="mt-1 text-xs leading-5 text-white/70">
+                                      {copy.styleDescriptions[preset.value]}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="relative z-10 flex items-center justify-between gap-3 p-4">
+                                  <span
+                                    className={`inline-flex rounded-full px-2.5 py-1 text-xs ${
+                                      selected
+                                        ? "border border-sky-300/30 bg-sky-300/10 text-sky-100"
+                                        : locked
+                                          ? "text-amber-100/90"
+                                          : "text-white/60"
+                                    }`}
+                                  >
+                                    {locked
+                                      ? copy.availableFromPro
+                                      : selected
+                                        ? copy.activeStyle
+                                        : copy.tapToChoose}
+                                  </span>
+
+                                  {locked ? (
+                                    <span className="text-xs font-medium text-amber-100/90">
+                                      {copy.upgrade}
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-white/45">
+                                      {copy.slideMore}
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => scrollStyleCarousel("right")}
+                        className="absolute right-0 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/70 text-lg font-semibold text-white shadow-[0_18px_40px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/90 md:inline-flex"
+                        aria-label={copy.nextStyles}
+                      >
+                        ›
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs leading-5 text-white/55">
+                      <p>{copy.carouselHint}</p>
+                      {shouldLockProStyles ? <p>{copy.proHint}</p> : null}
+                    </div>
+                  </Field>
+                </div>
+
+                {!showFirstAccessTour ? (
+                  <>
+                    <Field label={copy.formatLabel}>
+                      <select
+                        className={selectClassName}
+                        value={form.format}
+                        onChange={(e) =>
+                          setForm((c) => ({ ...c, format: e.target.value }))
+                        }
+                      >
+                        {formats.map((format) => (
+                          <option
+                            key={format.value}
+                            value={format.value}
+                            className="bg-black text-white"
+                          >
+                            {format.label}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+
+                    <Field label={copy.qualityLabel}>
+                      <select
+                        className={selectClassName}
+                        value={form.quality}
+                        onChange={(e) =>
+                          setForm((current) => ({
+                            ...current,
+                            quality: e.target.value as BannerImageQuality,
+                          }))
+                        }
+                      >
+                        {qualityOptions.map((quality) => {
+                          const enabled = allowedQualities.includes(
+                            quality.value,
+                          );
+                          return (
+                            <option
+                              key={quality.value}
+                              value={quality.value}
+                              disabled={!enabled}
+                              className="bg-black text-white"
+                            >
+                              {copy.qualityLabels[quality.value]}
+                              {enabled ? "" : copy.unavailablePlan}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </Field>
+                  </>
+                ) : null}
+              </div>
+            ) : null}
+
+            {shouldShowTourTarget("photo") ? (
+              <div ref={photoFieldRef} className={getTourTargetClass("photo")}>
+                <Field label={copy.photoLabel}>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    className={`${getInputClassForTour("photo")} file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/15`}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setReferenceFile(file);
+                      if (file && activeTourTarget === "photo") {
+                        setTourError("");
+                      }
+                    }}
+                  />
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
+                    <span>{copy.photoHelper}</span>
+                    <strong className="text-white/85">
+                      {referenceFile ? referenceFile.name : copy.noFileSelected}
+                    </strong>
+                  </div>
+                </Field>
+              </div>
+            ) : null}
+          </Section>
+        </div>
+
+        {!showFirstAccessTour ? (
+          <div className="mt-4 flex flex-col gap-3 rounded-[22px] border border-white/10 bg-gradient-to-br from-blue-500/10 to-cyan-400/5 p-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <span className="mb-2 inline-flex rounded-full bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-white/75">
+                {copy.professionalStructure}
+              </span>
+              <p className="text-sm leading-6 text-white/80">
+                {copy.professionalStructureText}
+              </p>
+            </div>
+
+            {remainingCredits !== null ? (
+              <div className="shrink-0 rounded-xl bg-white/8 px-3 py-2 text-sm text-white">
+                {copy.remainingCredits}: <strong>{remainingCredits}</strong>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         {shouldShowCreditUpgrade ? (
           <CreditUpgradeCard currentPlan={currentPlan} locale={locale} />
         ) : null}
 
         <button
+          ref={generateButtonRef}
           type="submit"
           disabled={displayLoading || hasNoCredits}
-          className="mt-5 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
+          className={`mt-5 min-h-[52px] w-full scroll-mt-28 items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70 ${
+            showFirstAccessTour && activeTourTarget !== "generate"
+              ? "hidden"
+              : "inline-flex"
+          } ${
+            activeTourTarget === "generate"
+              ? "shadow-[0_0_0_1px_rgba(125,211,252,0.18)]"
+              : ""
+          }`}
         >
           {hasNoCredits
             ? copy.noCreditsButton
@@ -1916,6 +2542,121 @@ export function NewBannerForm({
           </div>
         )}
       </aside>
+
+      {showFirstAccessTour ? (
+        <FirstAccessTourPopup
+          copy={copy}
+          currentStep={tourStepIndex}
+          totalSteps={firstAccessTourSteps.length}
+          title={firstAccessTourSteps[tourStepIndex]?.title ?? ""}
+          description={firstAccessTourSteps[tourStepIndex]?.description ?? ""}
+          error={tourError}
+          canContinue={Boolean(tourStepCompletion[tourStepIndex])}
+          onBack={() => goToTourStep(Math.max(tourStepIndex - 1, 0))}
+          onNext={advanceFirstAccessTour}
+          onClose={closeFirstAccessTour}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function FirstAccessTourPopup({
+  copy,
+  currentStep,
+  totalSteps,
+  title,
+  description,
+  error,
+  canContinue,
+  onBack,
+  onNext,
+  onClose,
+}: {
+  copy: (typeof newBannerFormCopy)[NewBannerFormLocale];
+  currentStep: number;
+  totalSteps: number;
+  title: string;
+  description: string;
+  error: string;
+  canContinue: boolean;
+  onBack: () => void;
+  onNext: () => void;
+  onClose: () => void;
+}) {
+  const isLastStep = currentStep >= totalSteps - 1;
+
+  return (
+    <div className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-md rounded-[28px] border border-sky-300/20 bg-[#08111f]/95 p-5 text-white shadow-[0_24px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl md:bottom-6 md:right-6 md:left-auto md:mx-0">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <span className="inline-flex rounded-full border border-sky-200/20 bg-sky-200/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-100">
+            {copy.tourStepLabel} {currentStep + 1}/{totalSteps}
+          </span>
+          <h3 className="mt-3 text-lg font-semibold leading-tight text-white">
+            {title}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-white/68">
+            {description}
+          </p>
+          {error ? (
+            <p className="mt-3 rounded-2xl border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-xs leading-5 text-amber-100">
+              {error}
+            </p>
+          ) : null}
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-lg leading-none text-white/70 transition hover:bg-white/[0.1] hover:text-white"
+          aria-label={copy.tourSkip}
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={currentStep === 0}
+          className="inline-flex min-h-[42px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm font-medium text-white transition hover:bg-white/[0.09] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {copy.tourBack}
+        </button>
+
+        <div className="flex items-center gap-1.5">
+          {Array.from({ length: totalSteps }).map((_, index) => (
+            <span
+              key={index}
+              className={`h-1.5 rounded-full transition-all ${
+                index === currentStep
+                  ? "w-6 bg-sky-300"
+                  : "w-1.5 bg-white/20"
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={onNext}
+          className={`inline-flex min-h-[42px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-4 text-sm font-bold text-slate-950 transition hover:opacity-95 ${
+            canContinue ? "" : "ring-2 ring-amber-200/25"
+          }`}
+        >
+          {isLastStep ? copy.tourDone : copy.tourNext}
+        </button>
+      </div>
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="mt-3 w-full text-center text-xs font-medium text-white/45 transition hover:text-white/75"
+      >
+        {copy.tourSkip}
+      </button>
     </div>
   );
 }

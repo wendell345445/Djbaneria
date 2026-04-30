@@ -47,8 +47,8 @@ export function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: string }
         throw new Error(data.error || "We could not verify your code.");
       }
 
-      setMessage("Email confirmed successfully. Opening your dashboard...");
-      router.push(data.redirectTo || "/dashboard");
+      setMessage("Email confirmed successfully. Opening your first banner setup...");
+      router.push(data.redirectTo && data.redirectTo !== "/dashboard" ? data.redirectTo : "/dashboard/banners/new?tour=1");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error verifying code.");
