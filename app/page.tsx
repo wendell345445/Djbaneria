@@ -11,6 +11,8 @@ import {
   Zap,
   Camera,
   ArrowRight,
+  Quote,
+  Star,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
 import { PublicPlanCheckoutButton } from "@/components/public-plan-checkout-button";
@@ -153,6 +155,39 @@ const pricingPlans = [
       "High-quality image generation",
       "Ideal for teams and promoters",
     ],
+  },
+] as const;
+
+const testimonials = [
+  {
+    initials: "AR",
+    quote:
+      "I never thought it was possible to create flyers at this level this quickly. I’m genuinely impressed by the power of this tool. It’s been helping me a lot with my social media presence.",
+    name: "Alex Rivera",
+    role: "Open format DJ",
+    location: "Miami, FL",
+    outcome: "Premium flyer quality",
+    metric: "Stronger social presence",
+  },
+  {
+    initials: "JM",
+    quote:
+      "This tool changed the way I promote my events. The flyers look premium, the process is fast, and I don’t have to wait on a designer every time I need to post something.",
+    name: "Jordan Miles",
+    role: "House & club DJ",
+    location: "Austin, TX",
+    outcome: "Faster event promotion",
+    metric: "Designer-level look",
+  },
+  {
+    initials: "TC",
+    quote:
+      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Pro AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it. Thank you, DJ Pro AI.",
+    name: "Tyler Carter",
+    role: "Event DJ",
+    location: "Los Angeles, CA",
+    outcome: "Lower design costs",
+    metric: "Higher-quality flyers",
   },
 ] as const;
 
@@ -571,6 +606,94 @@ export default function HomePage() {
 
         <div className="mt-10 min-h-[520px] sm:min-h-[640px] lg:min-h-[720px]">
           <LandingBannerCarousel examples={landingBannerExamples} />
+        </div>
+      </section>
+
+
+      <section className="relative overflow-hidden border-b border-white/8">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(34,211,238,0.11),transparent_25%),radial-gradient(circle_at_82%_18%,rgba(168,85,247,0.11),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.018),transparent_36%)]" />
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-cyan-400/8 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-violet-400/10 blur-3xl" />
+
+        <div className="relative mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-4 py-2 text-xs font-semibold text-cyan-100">
+              <Sparkles size={14} />
+              Built for DJs who care about brand perception
+            </div>
+
+            <h2 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.05em] text-white sm:text-[46px]">
+              Premium promo visuals that make your DJ brand feel more established.
+            </h2>
+
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/62">
+              DJs use the platform to create cleaner event promos, stronger
+              profile visuals, and social content that feels ready for bookings,
+              ads, and higher-value opportunities.
+            </p>
+          </div>
+
+          <div className="mt-11 grid gap-5 lg:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <article
+                key={testimonial.name}
+                className="group relative overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.065),rgba(255,255,255,0.026))] p-6 shadow-[0_26px_100px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-cyan-200/24 hover:bg-white/[0.07]"
+              >
+                <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-cyan-300/10 blur-2xl transition duration-300 group-hover:bg-cyan-300/16" />
+                <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent" />
+
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-cyan-200/18 bg-[linear-gradient(135deg,rgba(34,211,238,0.22),rgba(168,85,247,0.2))] shadow-[0_14px_45px_rgba(34,211,238,0.14)]">
+                        <div className="absolute inset-x-3 top-3 h-7 rounded-full bg-white/18 blur-sm" />
+                        <div className="absolute bottom-0 h-8 w-12 rounded-t-full bg-slate-950/35" />
+                        <span className="relative z-10 text-sm font-black text-white">
+                          {testimonial.initials}
+                        </span>
+                      </div>
+
+                      <div>
+                        <p className="font-semibold text-white">
+                          {testimonial.name}
+                        </p>
+                        <p className="mt-1 text-xs text-white/45">
+                          {testimonial.role}
+                        </p>
+                        <p className="mt-1 text-xs text-cyan-100/70">
+                          {testimonial.location}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Quote size={22} className="mt-1 shrink-0 text-cyan-100/55" />
+                  </div>
+
+                  <div className="mt-5 flex items-center gap-1 text-amber-200">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star key={index} size={15} fill="currentColor" />
+                    ))}
+                  </div>
+
+                  <p className="mt-5 min-h-[176px] text-[15px] leading-7 text-white/76">
+                    “{testimonial.quote}”
+                  </p>
+
+                  <div className="mt-6 grid gap-3 border-t border-white/10 pt-5">
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-full border border-cyan-300/14 bg-cyan-300/8 px-3 py-1 text-[11px] font-semibold text-cyan-100">
+                        {testimonial.outcome}
+                      </span>
+                      <span className="rounded-full border border-violet-300/14 bg-violet-300/8 px-3 py-1 text-[11px] font-semibold text-violet-100">
+                        {testimonial.metric}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
         </div>
       </section>
 
