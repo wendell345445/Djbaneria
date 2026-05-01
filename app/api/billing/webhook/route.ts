@@ -15,6 +15,7 @@ import {
   requiresCreditCyclePaymentConfirmation,
 } from "@/lib/plans";
 import { sendMetaConversionEvent } from "@/lib/meta-capi";
+import { ensurePaidSignupAccountFromCheckoutSession } from "@/lib/paid-signup";
 import { prisma } from "@/lib/prisma";
 import {
   getPlanFromPriceId,
@@ -413,16 +414,43 @@ async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
   stripeEventId: string,
 ) {
-  const workspaceId =
+  let workspaceId =
     getMetadataValue(session.metadata?.workspaceId) ||
     getMetadataValue(session.client_reference_id);
   const planFromMetadata = getPlanFromMetadata(session.metadata?.plan);
+  const checkoutFlow = getMetadataValue(session.metadata?.checkoutFlow);
   const subscriptionId =
     typeof session.subscription === "string"
       ? session.subscription
       : session.subscription?.id || null;
   const customerId =
     typeof session.customer === "string" ? session.customer : session.customer?.id || null;
+
+  if (!workspaceId && checkoutFlow === "public_paid_signup") {
+    if (!planFromMetadata || planFromMetadata === SubscriptionPlan.FREE) {
+      console.warn("Checkout público concluído sem plano pago válido.", session.id);
+      return;
+    }
+
+    const paidSignup = await ensurePaidSignupAccountFromCheckoutSession({
+      session,
+      plan: planFromMetadata,
+      stripeCustomerId: customerId,
+    });
+
+    workspaceId = paidSignup.workspaceId;
+
+    if (subscriptionId) {
+      await stripe.subscriptions.update(subscriptionId, {
+        metadata: {
+          checkoutFlow: "public_paid_signup",
+          workspaceId: paidSignup.workspaceId,
+          userId: paidSignup.userId,
+          plan: planFromMetadata,
+        },
+      });
+    }
+  }
 
   if (!workspaceId) {
     console.warn("Checkout concluído sem workspaceId.", session.id);

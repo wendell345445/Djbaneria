@@ -89,6 +89,9 @@ export const UserScalarFieldEnum = {
   languageOnboardingCompleted: 'languageOnboardingCompleted',
   emailVerificationSentAt: 'emailVerificationSentAt',
   emailVerificationAttempts: 'emailVerificationAttempts',
+  passwordSetupTokenHash: 'passwordSetupTokenHash',
+  passwordSetupExpiresAt: 'passwordSetupExpiresAt',
+  passwordSetupSentAt: 'passwordSetupSentAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

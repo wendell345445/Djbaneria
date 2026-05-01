@@ -48,6 +48,9 @@ export type UserMinAggregateOutputType = {
   languageOnboardingCompleted: boolean | null
   emailVerificationSentAt: Date | null
   emailVerificationAttempts: number | null
+  passwordSetupTokenHash: string | null
+  passwordSetupExpiresAt: Date | null
+  passwordSetupSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +69,9 @@ export type UserMaxAggregateOutputType = {
   languageOnboardingCompleted: boolean | null
   emailVerificationSentAt: Date | null
   emailVerificationAttempts: number | null
+  passwordSetupTokenHash: string | null
+  passwordSetupExpiresAt: Date | null
+  passwordSetupSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -84,6 +90,9 @@ export type UserCountAggregateOutputType = {
   languageOnboardingCompleted: number
   emailVerificationSentAt: number
   emailVerificationAttempts: number
+  passwordSetupTokenHash: number
+  passwordSetupExpiresAt: number
+  passwordSetupSentAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -112,6 +121,9 @@ export type UserMinAggregateInputType = {
   languageOnboardingCompleted?: true
   emailVerificationSentAt?: true
   emailVerificationAttempts?: true
+  passwordSetupTokenHash?: true
+  passwordSetupExpiresAt?: true
+  passwordSetupSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -130,6 +142,9 @@ export type UserMaxAggregateInputType = {
   languageOnboardingCompleted?: true
   emailVerificationSentAt?: true
   emailVerificationAttempts?: true
+  passwordSetupTokenHash?: true
+  passwordSetupExpiresAt?: true
+  passwordSetupSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -148,6 +163,9 @@ export type UserCountAggregateInputType = {
   languageOnboardingCompleted?: true
   emailVerificationSentAt?: true
   emailVerificationAttempts?: true
+  passwordSetupTokenHash?: true
+  passwordSetupExpiresAt?: true
+  passwordSetupSentAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -253,6 +271,9 @@ export type UserGroupByOutputType = {
   languageOnboardingCompleted: boolean
   emailVerificationSentAt: Date | null
   emailVerificationAttempts: number
+  passwordSetupTokenHash: string | null
+  passwordSetupExpiresAt: Date | null
+  passwordSetupSentAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -294,6 +315,9 @@ export type UserWhereInput = {
   languageOnboardingCompleted?: Prisma.BoolFilter<"User"> | boolean
   emailVerificationSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerificationAttempts?: Prisma.IntFilter<"User"> | number
+  passwordSetupTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
+  passwordSetupExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  passwordSetupSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   workspaces?: Prisma.WorkspaceListRelationFilter
@@ -313,6 +337,9 @@ export type UserOrderByWithRelationInput = {
   languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
+  passwordSetupTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordSetupExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordSetupSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   workspaces?: Prisma.WorkspaceOrderByRelationAggregateInput
@@ -335,6 +362,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   languageOnboardingCompleted?: Prisma.BoolFilter<"User"> | boolean
   emailVerificationSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   emailVerificationAttempts?: Prisma.IntFilter<"User"> | number
+  passwordSetupTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
+  passwordSetupExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  passwordSetupSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   workspaces?: Prisma.WorkspaceListRelationFilter
@@ -354,6 +384,9 @@ export type UserOrderByWithAggregationInput = {
   languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
+  passwordSetupTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordSetupExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordSetupSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -380,6 +413,9 @@ export type UserScalarWhereWithAggregatesInput = {
   languageOnboardingCompleted?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   emailVerificationSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   emailVerificationAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  passwordSetupTokenHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  passwordSetupExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  passwordSetupSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -398,6 +434,9 @@ export type UserCreateInput = {
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
+  passwordSetupTokenHash?: string | null
+  passwordSetupExpiresAt?: Date | string | null
+  passwordSetupSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspaces?: Prisma.WorkspaceCreateNestedManyWithoutUserInput
@@ -417,6 +456,9 @@ export type UserUncheckedCreateInput = {
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
+  passwordSetupTokenHash?: string | null
+  passwordSetupExpiresAt?: Date | string | null
+  passwordSetupSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspaces?: Prisma.WorkspaceUncheckedCreateNestedManyWithoutUserInput
@@ -436,6 +478,9 @@ export type UserUpdateInput = {
   languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  passwordSetupTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordSetupSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaces?: Prisma.WorkspaceUpdateManyWithoutUserNestedInput
@@ -455,6 +500,9 @@ export type UserUncheckedUpdateInput = {
   languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  passwordSetupTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordSetupSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaces?: Prisma.WorkspaceUncheckedUpdateManyWithoutUserNestedInput
@@ -474,6 +522,9 @@ export type UserCreateManyInput = {
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
+  passwordSetupTokenHash?: string | null
+  passwordSetupExpiresAt?: Date | string | null
+  passwordSetupSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -492,6 +543,9 @@ export type UserUpdateManyMutationInput = {
   languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  passwordSetupTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordSetupSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -510,6 +564,9 @@ export type UserUncheckedUpdateManyInput = {
   languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  passwordSetupTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordSetupSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -528,6 +585,9 @@ export type UserCountOrderByAggregateInput = {
   languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
+  passwordSetupTokenHash?: Prisma.SortOrder
+  passwordSetupExpiresAt?: Prisma.SortOrder
+  passwordSetupSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -550,6 +610,9 @@ export type UserMaxOrderByAggregateInput = {
   languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
+  passwordSetupTokenHash?: Prisma.SortOrder
+  passwordSetupExpiresAt?: Prisma.SortOrder
+  passwordSetupSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -568,6 +631,9 @@ export type UserMinOrderByAggregateInput = {
   languageOnboardingCompleted?: Prisma.SortOrder
   emailVerificationSentAt?: Prisma.SortOrder
   emailVerificationAttempts?: Prisma.SortOrder
+  passwordSetupTokenHash?: Prisma.SortOrder
+  passwordSetupExpiresAt?: Prisma.SortOrder
+  passwordSetupSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -641,6 +707,9 @@ export type UserCreateWithoutWorkspacesInput = {
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
+  passwordSetupTokenHash?: string | null
+  passwordSetupExpiresAt?: Date | string | null
+  passwordSetupSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -659,6 +728,9 @@ export type UserUncheckedCreateWithoutWorkspacesInput = {
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: Date | string | null
   emailVerificationAttempts?: number
+  passwordSetupTokenHash?: string | null
+  passwordSetupExpiresAt?: Date | string | null
+  passwordSetupSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -693,6 +765,9 @@ export type UserUpdateWithoutWorkspacesInput = {
   languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  passwordSetupTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordSetupSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -711,6 +786,9 @@ export type UserUncheckedUpdateWithoutWorkspacesInput = {
   languageOnboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  passwordSetupTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordSetupExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  passwordSetupSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -760,6 +838,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
+  passwordSetupTokenHash?: boolean
+  passwordSetupExpiresAt?: boolean
+  passwordSetupSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspaces?: boolean | Prisma.User$workspacesArgs<ExtArgs>
@@ -780,6 +861,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
+  passwordSetupTokenHash?: boolean
+  passwordSetupExpiresAt?: boolean
+  passwordSetupSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -798,6 +882,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
+  passwordSetupTokenHash?: boolean
+  passwordSetupExpiresAt?: boolean
+  passwordSetupSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -816,11 +903,14 @@ export type UserSelectScalar = {
   languageOnboardingCompleted?: boolean
   emailVerificationSentAt?: boolean
   emailVerificationAttempts?: boolean
+  passwordSetupTokenHash?: boolean
+  passwordSetupExpiresAt?: boolean
+  passwordSetupSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "isActive" | "emailVerifiedAt" | "emailVerificationCodeHash" | "emailVerificationExpiresAt" | "preferredLocale" | "languageOnboardingCompleted" | "emailVerificationSentAt" | "emailVerificationAttempts" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "role" | "isActive" | "emailVerifiedAt" | "emailVerificationCodeHash" | "emailVerificationExpiresAt" | "preferredLocale" | "languageOnboardingCompleted" | "emailVerificationSentAt" | "emailVerificationAttempts" | "passwordSetupTokenHash" | "passwordSetupExpiresAt" | "passwordSetupSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspaces?: boolean | Prisma.User$workspacesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -847,6 +937,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     languageOnboardingCompleted: boolean
     emailVerificationSentAt: Date | null
     emailVerificationAttempts: number
+    passwordSetupTokenHash: string | null
+    passwordSetupExpiresAt: Date | null
+    passwordSetupSentAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1286,6 +1379,9 @@ export interface UserFieldRefs {
   readonly languageOnboardingCompleted: Prisma.FieldRef<"User", 'Boolean'>
   readonly emailVerificationSentAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly emailVerificationAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly passwordSetupTokenHash: Prisma.FieldRef<"User", 'String'>
+  readonly passwordSetupExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly passwordSetupSentAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

@@ -1,21 +1,19 @@
-import type { ComponentType } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Poppins } from "next/font/google";
 import {
   BadgeCheck,
-  Clock3,
   Gauge,
   ImageIcon,
   Layers3,
   ShieldCheck,
   Sparkles,
-  Wand2,
   Zap,
   Camera,
   ArrowRight,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
+import { PublicPlanCheckoutButton } from "@/components/public-plan-checkout-button";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -23,12 +21,6 @@ const poppins = Poppins({
   display: "swap",
 });
 
-const RegisterForm = dynamic(
-  () => import("@/components/register-form").then((mod) => mod.RegisterForm),
-  {
-    loading: () => <RegisterFormLoading />,
-  },
-);
 
 const LandingBannerCarousel = dynamic(
   () =>
@@ -103,9 +95,66 @@ const faqs = [
   {
     question: "What happens after I sign up?",
     answer:
-      "After creating your account and verifying your email, you can access the dashboard and start creating AI-powered promo visuals.",
+      "After checkout, you receive a secure email link to create your password. Then you can access the dashboard and start the guided tour.",
   },
 ];
+
+const pricingPlans = [
+  {
+    plan: "PRO",
+    name: "Pro",
+    price: "$12.99",
+    period: "/month",
+    description:
+      "For DJs who need professional visuals for regular event promotion.",
+    credits: "20 credits / month",
+    cta: "Start Pro",
+    highlighted: false,
+    features: [
+      "20 AI generations per month",
+      "Premium DJ banner creation",
+      "AI promo photo enhancement",
+      "Feed and story formats",
+      "Low and medium quality",
+    ],
+  },
+  {
+    plan: "PROFESSIONAL",
+    name: "Professional",
+    price: "$24.99",
+    period: "/month",
+    description:
+      "The best option for DJs running ads, events, stories, and frequent promos.",
+    credits: "40 credits / month",
+    cta: "Start Professional",
+    highlighted: true,
+    features: [
+      "40 AI generations per month",
+      "Premium and pro visual styles",
+      "High-quality image generation",
+      "Professional DJ photo enhancement",
+      "Built for paid ads and social media",
+    ],
+  },
+  {
+    plan: "STUDIO",
+    name: "Studio",
+    price: "$39.99",
+    period: "/month",
+    description:
+      "For agencies, DJ collectives, promoters, and creators with higher volume.",
+    credits: "80 credits / month",
+    cta: "Start Studio",
+    highlighted: false,
+    features: [
+      "80 AI generations per month",
+      "High-volume creative output",
+      "Premium banners and promo photos",
+      "High-quality image generation",
+      "Ideal for teams and promoters",
+    ],
+  },
+] as const;
 
 export default function HomePage() {
   return (
@@ -308,11 +357,8 @@ export default function HomePage() {
               <a href="#como-funciona" className="transition hover:text-white">
                 How it works
               </a>
-              <a
-                href="#formulario-cadastro"
-                className="transition hover:text-white"
-              >
-                Create account
+              <a href="#pricing" className="transition hover:text-white">
+                Pricing
               </a>
             </nav>
 
@@ -324,12 +370,12 @@ export default function HomePage() {
                 Log in
               </Link>
               <a
-                href="#formulario-cadastro"
+                href="#pricing"
                 className="cta-animated group inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_46px_rgba(34,211,238,0.26)] sm:px-4 sm:text-sm"
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
-                <span className="relative z-10">Start free</span>
+                <span className="relative z-10">Choose plan</span>
                 <ArrowRight
                   size={15}
                   className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
@@ -343,7 +389,7 @@ export default function HomePage() {
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-4 py-2 text-xs font-medium text-cyan-100">
               <BadgeCheck size={14} className="text-cyan-200" />
-              For DJs who need better promo visuals, faster
+              For DJs ready to upgrade their promo visuals
             </div>
 
             <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
@@ -358,12 +404,12 @@ export default function HomePage() {
 
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
               <a
-                href="#formulario-cadastro"
+                href="#pricing"
                 className="cta-animated group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-slate-950 px-5 text-sm font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_64px_rgba(34,211,238,0.32)] sm:w-auto sm:min-h-[54px] sm:px-6"
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
-                <span className="relative z-10">Start free</span>
+                <span className="relative z-10">Choose your plan</span>
                 <ArrowRight
                   size={17}
                   className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
@@ -423,10 +469,10 @@ export default function HomePage() {
               </div>
 
               <a
-                href="#formulario-cadastro"
+                href="#pricing"
                 className="mt-7 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:px-6"
               >
-                Improve your photo with AI
+                See plans
                 <ArrowRight size={16} className="ml-2" />
               </a>
             </div>
@@ -612,18 +658,84 @@ export default function HomePage() {
       </section>
 
       <section
-        id="cadastro"
-        className="border-t border-white/8 bg-white/[0.02]"
+        id="pricing"
+        className="scroll-mt-28 border-y border-white/8 bg-white/[0.02]"
       >
-        <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
-          <div
-            id="formulario-cadastro"
-            className="min-w-0 scroll-mt-28 lg:scroll-mt-32"
-          >
-            <div className="min-h-[620px]">
-              <RegisterForm locale="en" />
-            </div>
+        <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
+              Pricing
+            </p>
+            <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
+              Choose a plan and start after payment.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/64">
+ Select a paid plan, complete checkout, then receive
+              a secure email link to create your password and access the guided
+              tour.
+            </p>
           </div>
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            {pricingPlans.map((plan) => (
+              <div
+                key={plan.plan}
+                className={`relative overflow-hidden rounded-[30px] border p-5 shadow-[0_24px_90px_rgba(0,0,0,0.24)] sm:p-6 ${
+                  plan.highlighted
+                    ? "border-cyan-300/28 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),transparent_36%),linear-gradient(180deg,rgba(14,21,42,0.98),rgba(8,13,28,0.96))]"
+                    : "border-white/10 bg-white/[0.035]"
+                }`}
+              >
+                {plan.highlighted ? (
+                  <div className="absolute right-5 top-5 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-100">
+                    Most popular
+                  </div>
+                ) : null}
+
+                <div className="pr-24 lg:pr-0">
+                  <h3 className="text-xl font-semibold text-white">
+                    {plan.name}
+                  </h3>
+                  <p className="mt-3 min-h-[52px] text-sm leading-6 text-white/60">
+                    {plan.description}
+                  </p>
+                </div>
+
+                <div className="mt-6 flex items-end gap-1">
+                  <span className="text-[38px] font-semibold tracking-[-0.05em] text-white">
+                    {plan.price}
+                  </span>
+                  <span className="pb-2 text-sm text-white/45">
+                    {plan.period}
+                  </span>
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-cyan-100">
+                  {plan.credits}
+                </div>
+
+                <div className="mt-6">
+                  <PublicPlanCheckoutButton plan={plan.plan} label={plan.cta} />
+                </div>
+
+                <div className="mt-6 grid gap-3">
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-white/68">
+                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                        <BadgeCheck size={12} />
+                      </span>
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-6 text-white/42">
+            After payment, your account is created from the email used at
+            checkout. You will receive a secure link to create your password.
+          </p>
         </div>
       </section>
 
@@ -677,25 +789,6 @@ export default function HomePage() {
   );
 }
 
-function FeatureMiniCard({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: ComponentType<{ size?: number; className?: string }>;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-[24px] border border-white/8 bg-white/[0.03] p-4">
-      <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/[0.05] text-cyan-200">
-        <Icon size={18} />
-      </div>
-      <h3 className="mt-4 text-sm font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-white/58">{description}</p>
-    </div>
-  );
-}
 
 function LandingCarouselLoading() {
   return (
@@ -709,37 +802,4 @@ function LandingCarouselLoading() {
   );
 }
 
-function RegisterFormLoading() {
-  return (
-    <div className="w-full max-w-[560px] rounded-[30px] border border-white/10 bg-[#0b1020] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
-      <div className="h-4 w-32 rounded-full bg-white/10" />
-      <div className="mt-5 h-8 w-3/4 rounded-2xl bg-white/10" />
-      <div className="mt-6 grid gap-4">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-12 rounded-2xl border border-white/8 bg-white/[0.045]"
-          />
-        ))}
-      </div>
-      <div className="mt-5 h-12 rounded-2xl bg-gradient-to-r from-cyan-300/40 via-sky-300/35 to-violet-300/40" />
-    </div>
-  );
-}
 
-function MiniPill({
-  icon: Icon,
-  label,
-}: {
-  icon: ComponentType<{ size?: number; className?: string }>;
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/75">
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] text-cyan-200">
-        <Icon size={17} />
-      </span>
-      <span>{label}</span>
-    </div>
-  );
-}
