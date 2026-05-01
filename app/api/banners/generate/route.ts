@@ -15,8 +15,11 @@ import { isAdminEmail } from "@/lib/admin";
 import { buildBannerPrompt, generateBannerImage } from "@/lib/openai-image";
 import {
   buildBillingSummary,
+  getCreditCycleUsageDateFilter,
   getDefaultBannerQuality,
+  hasCreditCyclePaymentConfirmation,
   isBannerQualityAllowed,
+  requiresCreditCyclePaymentConfirmation,
   type BannerImageQuality,
 } from "@/lib/plans";
 import { isBannerStyleAllowedForPlan } from "@/lib/banner-style-access";
@@ -130,8 +133,19 @@ async function reserveGenerationCredit(params: {
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   isAdmin: boolean;
+  providerSubscriptionId?: string | null;
+  currentPeriodStart?: Date | string | null;
+  currentPeriodEnd?: Date | string | null;
 }) {
-  const { workspaceId, plan, status, isAdmin } = params;
+  const {
+    workspaceId,
+    plan,
+    status,
+    isAdmin,
+    providerSubscriptionId,
+    currentPeriodStart,
+    currentPeriodEnd,
+  } = params;
 
   if (isAdmin) {
     return {
@@ -141,30 +155,50 @@ async function reserveGenerationCredit(params: {
     };
   }
 
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const usageDateFilter = getCreditCycleUsageDateFilter({
+    providerSubscriptionId,
+    currentPeriodStart,
+    currentPeriodEnd,
+  });
+
+  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
+    plan,
+    providerSubscriptionId,
+    currentPeriodStart,
+    currentPeriodEnd,
+  });
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
       return await prisma.$transaction(
         async (tx) => {
-          const usedThisMonthResult = await tx.usageEvent.aggregate({
+          const usageEvents = await tx.usageEvent.findMany({
             where: {
               workspaceId,
-              createdAt: { gte: monthStart },
+              createdAt: usageDateFilter,
               type: { in: [...CREDIT_EVENT_TYPES] },
             },
-            _sum: { units: true },
+            select: {
+              units: true,
+              createdAt: true,
+              metadata: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
           });
 
           const summary = buildBillingSummary({
             plan,
             status,
-            usedThisMonth: usedThisMonthResult._sum.units || 0,
+            usageEvents,
+            requiresPaymentConfirmation,
+            creditCyclePaymentConfirmed:
+              hasCreditCyclePaymentConfirmation(usageEvents),
           });
 
           if (!summary.canGenerateBanner) {
-            throw new Error("Você usou todos os seus créditos deste mês.");
+            throw new Error("Você usou todos os seus créditos deste ciclo.");
           }
 
           const usageEvent = await tx.usageEvent.create({
@@ -407,6 +441,9 @@ export async function POST(request: Request) {
       plan: subscriptionPlan,
       status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
       isAdmin,
+      providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+      currentPeriodStart: workspace.subscription?.currentPeriodStart,
+      currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
     });
 
     reservedUsageEventId = reservation.usageEventId;

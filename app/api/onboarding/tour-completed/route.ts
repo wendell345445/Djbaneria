@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 
+import { UsageEventType } from "@/generated/prisma/enums";
 import { requireUser } from "@/lib/auth";
 import { sendOwnerTourCompletedEmail } from "@/lib/owner-notifications";
 import { prisma } from "@/lib/prisma";
 import { getClientIp } from "@/lib/rate-limit";
 import { validateMutationOrigin } from "@/lib/request-security";
 
-const TOUR_COMPLETED_EVENT_TYPE = "BANNER_EDIT";
+const TOUR_COMPLETED_EVENT_TYPE = UsageEventType.ONBOARDING_TOUR_COMPLETED;
 const TOUR_COMPLETED_METADATA_KIND = "NEW_BANNER_TOUR_COMPLETED";
 
 export async function POST(request: Request) {

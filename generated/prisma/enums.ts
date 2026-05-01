@@ -69,7 +69,8 @@ export type BannerStylePreset = (typeof BannerStylePreset)[keyof typeof BannerSt
 export const UsageEventType = {
   BANNER_GENERATION: 'BANNER_GENERATION',
   BANNER_VARIATION: 'BANNER_VARIATION',
-  BANNER_EDIT: 'BANNER_EDIT'
+  BANNER_EDIT: 'BANNER_EDIT',
+  ONBOARDING_TOUR_COMPLETED: 'ONBOARDING_TOUR_COMPLETED'
 } as const
 
 export type UsageEventType = (typeof UsageEventType)[keyof typeof UsageEventType]

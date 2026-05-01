@@ -1856,8 +1856,18 @@ export function NewBannerForm({
     });
   }
 
+  function removeFirstAccessTourQueryParam() {
+    if (typeof window === "undefined") return;
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("tour");
+
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
   function completeFirstAccessTour() {
     markFirstAccessTourAsSeen();
+    removeFirstAccessTourQueryParam();
     setTourError("");
     setShowFirstAccessTour(false);
     notifyFirstAccessTourCompleted();
@@ -1869,6 +1879,7 @@ export function NewBannerForm({
 
   function closeFirstAccessTour() {
     markFirstAccessTourAsSeen();
+    removeFirstAccessTourQueryParam();
     setTourError("");
     setShowFirstAccessTour(false);
   }
