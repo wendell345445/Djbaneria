@@ -191,6 +191,8 @@ const newBannerFormCopy = {
       "Informe o local, cidade ou nome da casa onde o evento será divulgado.",
     tourIncompletePhoto:
       "Envie sua foto do DJ para continuar.",
+    tourIncompleteGenerate:
+      "Clique no botão Gerar banner para finalizar o guia.",
     typingSuggestions: {
       mainText: "Ex.: Neon Friday Party",
       djName: "Ex.: DJ Vision",
@@ -508,6 +510,8 @@ const newBannerFormCopy = {
       "Enter the venue, city, or club name for the event promotion.",
     tourIncompletePhoto:
       "Upload your DJ photo to continue.",
+    tourIncompleteGenerate:
+      "Click the Generate banner button to finish the guide.",
     typingSuggestions: {
       mainText: "Ex.: Neon Friday Party",
       djName: "Ex.: DJ Vision",
@@ -819,6 +823,8 @@ const newBannerFormCopy = {
       "Indica el local, ciudad o nombre del club para la promoción del evento.",
     tourIncompletePhoto:
       "Sube tu foto de DJ para continuar.",
+    tourIncompleteGenerate:
+      "Haz clic en el botón Generar banner para finalizar la guía.",
     typingSuggestions: {
       mainText: "Ej.: Neon Friday Party",
       djName: "Ej.: DJ Vision",
@@ -1343,6 +1349,8 @@ export function NewBannerForm({
   const restoringPendingRef = useRef(false);
   const [showFirstAccessTour, setShowFirstAccessTour] = useState(false);
   const [tourStepIndex, setTourStepIndex] = useState(0);
+  const [tourBannerGenerationStarted, setTourBannerGenerationStarted] =
+    useState(false);
   const allowedQualities = useMemo(
     () => getAllowedBannerQualities(currentPlan, isAdmin),
     [currentPlan, isAdmin],
@@ -1418,7 +1426,10 @@ export function NewBannerForm({
   );
   const hasUploadedPhoto = Boolean(referenceFile || connectedProfessionalImageUrl);
   const canFinishTour =
-    hasSelectedStyle && hasRequiredDetails && hasUploadedPhoto;
+    hasSelectedStyle &&
+    hasRequiredDetails &&
+    hasUploadedPhoto &&
+    tourBannerGenerationStarted;
 
   const tourStepCompletion = useMemo(
     () => [
@@ -1519,6 +1530,7 @@ export function NewBannerForm({
     if (target === "eventDate") return copy.tourIncompleteEventDate;
     if (target === "eventLocation") return copy.tourIncompleteEventLocation;
     if (target === "photo") return copy.tourIncompletePhoto;
+    if (target === "generate") return copy.tourIncompleteGenerate;
 
     return copy.tourIncompleteDefault;
   }
@@ -1792,6 +1804,7 @@ export function NewBannerForm({
       new URLSearchParams(window.location.search).get("tour") === "1";
 
     if (forceTour) {
+      setTourBannerGenerationStarted(false);
       setShowFirstAccessTour(true);
       setTourStepIndex(0);
     }
@@ -1888,6 +1901,11 @@ export function NewBannerForm({
     setEditError("");
     setEditSuccess("");
     scrollToPreview();
+
+    if (showFirstAccessTour && activeTourTarget === "generate") {
+      setTourBannerGenerationStarted(true);
+      completeFirstAccessTour();
+    }
 
     let progressTimerA: number | undefined;
     let progressTimerB: number | undefined;
@@ -3405,7 +3423,8 @@ function FirstAccessTourPopup({
         <button
           type="button"
           onClick={onNext}
-          className={`inline-flex min-h-[36px] items-center justify-center rounded-xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-2.5 text-xs font-bold text-slate-950 transition hover:opacity-95 sm:min-h-[42px] sm:rounded-2xl sm:px-3 sm:text-sm ${
+          disabled={isLastStep && !canContinue}
+          className={`inline-flex min-h-[36px] items-center justify-center rounded-xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-2.5 text-xs font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-55 sm:min-h-[42px] sm:rounded-2xl sm:px-3 sm:text-sm ${
             canContinue ? "" : "ring-1 ring-amber-200/25 sm:ring-2"
           }`}
         >
