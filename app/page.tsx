@@ -163,14 +163,69 @@ export default function HomePage() {
             .dj-after-label {
               animation: djAfterLabel 4.8s ease-in-out infinite;
             }
+
+            @keyframes ambientFloatOne {
+              0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+                opacity: 0.24;
+              }
+              50% {
+                transform: translate3d(20px, 16px, 0) scale(1.06);
+                opacity: 0.36;
+              }
+            }
+
+            @keyframes ambientFloatTwo {
+              0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+                opacity: 0.16;
+              }
+              50% {
+                transform: translate3d(-18px, 14px, 0) scale(1.08);
+                opacity: 0.26;
+              }
+            }
+
+            @keyframes ambientPulseLine {
+              0%, 100% {
+                opacity: 0.18;
+                transform: scaleY(1);
+              }
+              50% {
+                opacity: 0.30;
+                transform: scaleY(1.06);
+              }
+            }
+
+            .ambient-float-one {
+              animation: ambientFloatOne 14s ease-in-out infinite;
+              will-change: transform, opacity;
+            }
+
+            .ambient-float-two {
+              animation: ambientFloatTwo 18s ease-in-out infinite;
+              will-change: transform, opacity;
+            }
+
+            .ambient-pulse-line {
+              animation: ambientPulseLine 10s ease-in-out infinite;
+              will-change: transform, opacity;
+              transform-origin: top center;
+            }
           `,
         }}
       />
 
       <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(66,153,225,0.18),transparent_26%),radial-gradient(circle_at_80%_10%,rgba(236,72,153,0.14),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(251,191,36,0.1),transparent_28%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_18%),radial-gradient(circle_at_18%_0%,rgba(34,211,238,0.13),transparent_22%),radial-gradient(circle_at_82%_12%,rgba(192,132,252,0.11),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(59,130,246,0.06),transparent_24%)]" />
+        <div className="ambient-float-one pointer-events-none absolute -left-16 top-20 h-72 w-72 rounded-full bg-cyan-400/12 blur-3xl" />
+        <div className="ambient-float-two pointer-events-none absolute right-[-4rem] top-24 h-80 w-80 rounded-full bg-fuchsia-400/10 blur-3xl" />
+        <div className="pointer-events-none absolute left-[12%] top-24 h-32 w-32 rounded-full border border-cyan-300/8 bg-cyan-300/[0.03] blur-2xl" />
+        <div className="pointer-events-none absolute right-[14%] top-28 h-28 w-28 rounded-full border border-fuchsia-300/8 bg-fuchsia-300/[0.03] blur-2xl" />
+        <div className="ambient-pulse-line pointer-events-none absolute left-1/2 top-0 h-[380px] w-px -translate-x-1/2 bg-gradient-to-b from-cyan-200/24 via-white/8 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/14 to-transparent" />
 
-        <header className="sticky top-0 z-30 border-b border-white/8 bg-[#060816]/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-cyan-300/10 bg-[#060816]/76 backdrop-blur-xl">
           <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
             <div>
               <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-200/80">
@@ -248,96 +303,10 @@ export default function HomePage() {
               </a>
             </div>
 
-            <div className="mt-7 grid gap-3 text-sm text-white/72 sm:mt-8 sm:grid-cols-2">
-              {[
-                "Premium visuals for events, ads, and social media",
-                "No design skills required",
-                "Test new creative directions fast",
-                "Improve casual DJ photos with AI",
-                "Start creating online in minutes",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3"
-                >
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
-                    <BadgeCheck size={14} />
-                  </span>
-                  <span>{item}</span>
-                </div>
-              ))}
-            </div>
           </div>
 
-          <div className="relative min-w-0 lg:pl-6">
+          <div className="relative hidden min-w-0 lg:block lg:pl-6">
             <div className="absolute left-1/2 top-0 h-56 w-56 -translate-x-1/2 rounded-full bg-cyan-400/15 blur-3xl" />
-            <div className="relative mx-auto flex w-full max-w-[560px] min-w-0 flex-col gap-4 sm:gap-5">
-              <div className="rounded-[24px] sm:rounded-[32px] sm:p-5">
-                <div className="flex flex-col gap-3 border-b border-white/8 pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4"></div>
-
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <FeatureMiniCard
-                    icon={Wand2}
-                    title="AI built for DJ marketing"
-                    description="Create banners, story visuals, and promo graphics built for the way DJs market online."
-                  />
-                  <FeatureMiniCard
-                    icon={Clock3}
-                    title="Move faster"
-                    description="Go from a rough idea to a polished visual without waiting days for design work."
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
-                    Best for
-                  </p>
-                  <ul className="mt-4 space-y-3 text-sm text-white/70">
-                    {[
-                      "Club nights and event flyers",
-                      "Lineups, schedules, and stories",
-                      "Paid ads and promo graphics",
-                      "DJ, producer, and artist branding",
-                    ].map((item) => (
-                      <li key={item} className="flex items-start gap-3">
-                        <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-200">
-                          <BadgeCheck size={12} />
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
-                    Why it matters
-                  </p>
-                  <div className="mt-4 space-y-4 text-sm text-white/72">
-                    <div>
-                      <p className="font-semibold text-white">
-                        Promote without design delays
-                      </p>
-                      <p className="mt-1 leading-6 text-white/60">
-                        Create fresh visuals when you need to announce an event,
-                        test a campaign, or keep your social channels active.
-                      </p>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white">
-                        A more polished online presence
-                      </p>
-                      <p className="mt-1 leading-5 text-white/60">
-                        Keep your flyers, artist photos, and promo graphics looking
-                        consistent, credible, and premium.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
       </div>
