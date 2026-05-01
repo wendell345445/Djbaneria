@@ -2209,20 +2209,10 @@ export function NewBannerForm({
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(data.error || copy.errors.edit);
       }
-
-      setActiveStep(3);
-      setStatusText(copy.status.editSuccess);
-
-      setResult({
-        imageUrl: data.previewImageUrl || data.imageUrl,
-        bannerId: data.bannerId ?? result.bannerId,
-        bannerUrl: data.bannerUrl ?? result.bannerUrl,
-        saved: data.saved !== false,
-      });
 
       const nextRemainingAfterEdit =
         typeof data.remainingCredits === "number"
@@ -2237,6 +2227,58 @@ export function NewBannerForm({
           typeof nextRemainingAfterEdit === "number" &&
           nextRemainingAfterEdit <= 0,
       );
+
+      if (response.status === 202 || data.status === "PENDING") {
+        if (!data.bannerId) {
+          throw new Error(copy.errors.missingBannerId);
+        }
+
+        setActiveStep(2);
+        setStatusText(copy.status.waitingAi);
+        savePendingBannerGeneration({
+          bannerId: data.bannerId,
+          format: form.format,
+        });
+
+        const completedBanner = await waitForGeneratedBanner(data.bannerId);
+
+        setActiveStep(3);
+        setStatusText(copy.status.editSuccess);
+        setResult({
+          ...completedBanner,
+          bannerUrl: completedBanner.bannerUrl || data.bannerUrl || result.bannerUrl,
+        });
+        setEditSuccess(copy.status.editSuccess);
+        setEditPrompt("");
+        router.refresh();
+        return;
+      }
+
+      const editedImageUrl =
+        data.previewImageUrl ||
+        data.imageUrl ||
+        data.outputImageUrl ||
+        data.banner?.outputImageUrl ||
+        null;
+
+      if (!editedImageUrl) {
+        throw new Error(copy.errors.missingImage);
+      }
+
+      setActiveStep(3);
+      setStatusText(copy.status.editSuccess);
+
+      if (data.bannerId) {
+        clearPendingBannerGeneration(data.bannerId);
+      }
+
+      setResult({
+        imageUrl: editedImageUrl,
+        bannerId: data.bannerId ?? result.bannerId,
+        bannerUrl: data.bannerUrl ?? result.bannerUrl,
+        saved: data.saved !== false,
+      });
+
       setEditSuccess(copy.status.editSuccess);
       setEditPrompt("");
 
