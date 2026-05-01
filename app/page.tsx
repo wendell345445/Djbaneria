@@ -212,6 +212,68 @@ export default function HomePage() {
               will-change: transform, opacity;
               transform-origin: top center;
             }
+
+            @keyframes ctaGlowPulse {
+              0%, 100% {
+                box-shadow: 0 10px 34px rgba(34, 211, 238, 0.18);
+                transform: translateY(0);
+              }
+              50% {
+                box-shadow: 0 16px 44px rgba(34, 211, 238, 0.28);
+                transform: translateY(-1px);
+              }
+            }
+
+            @keyframes ctaShineSweep {
+              0% {
+                transform: translateX(-140%) skewX(-20deg);
+                opacity: 0;
+              }
+              10% {
+                opacity: 0.18;
+              }
+              35% {
+                transform: translateX(220%) skewX(-20deg);
+                opacity: 0;
+              }
+              100% {
+                transform: translateX(220%) skewX(-20deg);
+                opacity: 0;
+              }
+            }
+
+            .cta-animated {
+              position: relative;
+              overflow: hidden;
+              isolation: isolate;
+              animation: ctaGlowPulse 3.6s ease-in-out infinite;
+              will-change: transform, box-shadow;
+            }
+
+            .cta-animated-shine {
+              position: absolute;
+              inset: 0;
+              pointer-events: none;
+              overflow: hidden;
+            }
+
+            .cta-animated-shine::before {
+              content: "";
+              position: absolute;
+              top: -20%;
+              left: 0;
+              width: 38%;
+              height: 140%;
+              background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255,255,255,0.08) 30%,
+                rgba(255,255,255,0.28) 50%,
+                rgba(255,255,255,0.08) 70%,
+                transparent 100%
+              );
+              animation: ctaShineSweep 4.8s ease-in-out infinite;
+            }
           `,
         }}
       />
@@ -263,9 +325,15 @@ export default function HomePage() {
               </Link>
               <a
                 href="#formulario-cadastro"
-                className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-slate-950 transition hover:opacity-95 sm:px-4 sm:text-sm"
+                className="cta-animated group inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_46px_rgba(34,211,238,0.26)] sm:px-4 sm:text-sm"
               >
-                Start free
+                <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
+                <span className="cta-animated-shine" />
+                <span className="relative z-10">Start free</span>
+                <ArrowRight
+                  size={15}
+                  className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
+                />
               </a>
             </div>
           </div>
@@ -291,9 +359,15 @@ export default function HomePage() {
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
               <a
                 href="#formulario-cadastro"
-                className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:min-h-[54px] sm:px-6"
+                className="cta-animated group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-slate-950 px-5 text-sm font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_64px_rgba(34,211,238,0.32)] sm:w-auto sm:min-h-[54px] sm:px-6"
               >
-                Start free
+                <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
+                <span className="cta-animated-shine" />
+                <span className="relative z-10">Start free</span>
+                <ArrowRight
+                  size={17}
+                  className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
+                />
               </a>
               <a
                 href="#exemplos"
