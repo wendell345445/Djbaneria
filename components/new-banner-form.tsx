@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useEffect,
   useMemo,
   useRef,
   useState,
+  type ChangeEvent,
   type FormEvent,
   type ReactNode,
   type RefObject,
@@ -233,6 +234,76 @@ const newBannerFormCopy = {
     photoLabel: "Foto do DJ (opcional)",
     photoHelper: "Envie uma imagem para a IA usar como referência visual.",
     noFileSelected: "Nenhum arquivo selecionado",
+    importedProfessionalPhoto: "Imagem profissional conectada",
+    importedProfessionalPhotoHelp:
+      "Essa imagem foi trazida da tela Imagem profissional e será usada como referência no banner. Se quiser, você pode enviar outro arquivo para substituir.",
+    createProfessionalPhotoCta: "Melhorar minha foto com IA",
+    professionalPhotoModalTitle: "Melhorar foto com IA",
+    professionalPhotoModalDescription:
+      "Envie sua foto, gere uma versão mais profissional e depois escolha se quer usar no banner ou baixar a imagem.",
+    professionalPhotoSelectLabel: "Escolha a foto base",
+    professionalPhotoSelectHelper:
+      "Use uma foto nítida do rosto para obter um resultado melhor.",
+    professionalPhotoDirectionTitle: "Escolha o tipo de foto profissional",
+    professionalPhotoDirectionDescription:
+      "Selecione como você quer aparecer online. A IA usa essa direção para melhorar sua foto com um resultado mais adequado ao seu objetivo.",
+    professionalPhotoDirections: [
+      {
+        id: "artist_press",
+        title: "Artist Press Photo",
+        description: "Foto oficial para divulgação, release, booking e perfil profissional.",
+        badge: "Press",
+      },
+      {
+        id: "studio_portrait",
+        title: "Studio Portrait",
+        description: "Retrato limpo com iluminação de estúdio e aparência premium.",
+        badge: "Clean",
+      },
+      {
+        id: "profile_picture",
+        title: "Profile Picture",
+        description: "Imagem forte para Instagram, TikTok, Spotify e redes sociais.",
+        badge: "Social",
+      },
+      {
+        id: "booking_promo",
+        title: "Booking Promo Photo",
+        description: "Visual profissional para aumentar valor percebido em contratações.",
+        badge: "Booking",
+      },
+      {
+        id: "editorial_artist",
+        title: "Editorial Artist Photo",
+        description: "Retrato sofisticado com aparência de revista e portfólio.",
+        badge: "Premium",
+      },
+      {
+        id: "lifestyle_dj",
+        title: "Lifestyle DJ Photo",
+        description: "Foto mais natural, moderna e autêntica para redes sociais.",
+        badge: "Natural",
+      },
+    ],
+    professionalPhotoGenerateButton: "Gerar imagem profissional",
+    professionalPhotoGeneratingButton: "Gerando imagem...",
+    professionalPhotoUseButton: "Usar imagem no banner",
+    professionalPhotoDownloadButton: "Baixar imagem",
+    professionalPhotoCloseButton: "Fechar",
+    professionalPhotoReadyTitle: "Imagem profissional pronta",
+    professionalPhotoReadyDescription:
+      "Agora você pode usar essa imagem no banner ou baixar o arquivo.",
+    professionalPhotoSourceTitle: "Foto enviada",
+    professionalPhotoResultTitle: "Resultado gerado",
+    professionalPhotoChooseButton: "Escolher foto",
+    professionalPhotoChangeButton: "Trocar foto",
+    professionalPhotoGenerateHint:
+      "Envie a foto dentro deste modal e gere a versão aprimorada sem sair do fluxo.",
+    professionalPhotoStepUpload: "1. Envie sua foto",
+    professionalPhotoStepGenerate: "2. Gere a versão profissional",
+    professionalPhotoStepApply: "3. Use no banner ou baixe",
+    professionalPhotoUseHint:
+      "Se gostar do resultado, conecte a imagem ao banner com um clique.",
     professionalStructure: "Estrutura profissional",
     professionalStructureText:
       "O texto principal será o maior destaque da arte. O nome do DJ ficará em segundo nível e o bloco complementar será mais discreto e elegante.",
@@ -480,6 +551,76 @@ const newBannerFormCopy = {
     photoLabel: "DJ photo (optional)",
     photoHelper: "Upload an image for the AI to use as a visual reference.",
     noFileSelected: "No file selected",
+    importedProfessionalPhoto: "Professional image connected",
+    importedProfessionalPhotoHelp:
+      "This image was imported from the Professional image page and will be used as the banner reference. If you want, upload another file to replace it.",
+    createProfessionalPhotoCta: "Improve my photo with AI",
+    professionalPhotoModalTitle: "Improve photo with AI",
+    professionalPhotoModalDescription:
+      "Upload your photo, generate a more professional version, then choose whether to use it in the banner or download it.",
+    professionalPhotoSelectLabel: "Choose the source photo",
+    professionalPhotoSelectHelper:
+      "Use a clear face photo to get a better result.",
+    professionalPhotoDirectionTitle: "Choose the type of professional photo",
+    professionalPhotoDirectionDescription:
+      "Select how you want to appear online. AI uses this direction to enhance your photo with a result that fits your goal.",
+    professionalPhotoDirections: [
+      {
+        id: "artist_press",
+        title: "Artist Press Photo",
+        description: "Official photo for promotion, press kits, booking and professional profiles.",
+        badge: "Press",
+      },
+      {
+        id: "studio_portrait",
+        title: "Studio Portrait",
+        description: "Clean portrait with studio lighting and a premium look.",
+        badge: "Clean",
+      },
+      {
+        id: "profile_picture",
+        title: "Profile Picture",
+        description: "Strong image for Instagram, TikTok, Spotify and social media.",
+        badge: "Social",
+      },
+      {
+        id: "booking_promo",
+        title: "Booking Promo Photo",
+        description: "Professional visual to increase perceived value for bookings.",
+        badge: "Booking",
+      },
+      {
+        id: "editorial_artist",
+        title: "Editorial Artist Photo",
+        description: "Sophisticated portrait with a magazine and portfolio look.",
+        badge: "Premium",
+      },
+      {
+        id: "lifestyle_dj",
+        title: "Lifestyle DJ Photo",
+        description: "Natural, modern and authentic photo for social media.",
+        badge: "Natural",
+      },
+    ],
+    professionalPhotoGenerateButton: "Generate professional image",
+    professionalPhotoGeneratingButton: "Generating image...",
+    professionalPhotoUseButton: "Use image in banner",
+    professionalPhotoDownloadButton: "Download image",
+    professionalPhotoCloseButton: "Close",
+    professionalPhotoReadyTitle: "Professional image ready",
+    professionalPhotoReadyDescription:
+      "You can now use this image in the banner or download the file.",
+    professionalPhotoSourceTitle: "Uploaded photo",
+    professionalPhotoResultTitle: "Generated result",
+    professionalPhotoChooseButton: "Choose photo",
+    professionalPhotoChangeButton: "Change photo",
+    professionalPhotoGenerateHint:
+      "Upload the photo inside this modal and generate the enhanced version without leaving the flow.",
+    professionalPhotoStepUpload: "1. Upload your photo",
+    professionalPhotoStepGenerate: "2. Generate the professional version",
+    professionalPhotoStepApply: "3. Use it in the banner or download it",
+    professionalPhotoUseHint:
+      "If you like the result, connect the image to the banner with one click.",
     professionalStructure: "Professional structure",
     professionalStructureText:
       "The main text will be the biggest visual highlight. The DJ name will appear as a secondary element and the complementary details will be more discreet and elegant.",
@@ -722,6 +863,76 @@ const newBannerFormCopy = {
     photoHelper:
       "Sube una imagen para que la IA la use como referencia visual.",
     noFileSelected: "Ningún archivo seleccionado",
+    importedProfessionalPhoto: "Imagen profesional conectada",
+    importedProfessionalPhotoHelp:
+      "Esta imagen fue importada desde la pantalla Imagen profesional y se usará como referencia del banner. Si quieres, puedes subir otro archivo para reemplazarla.",
+    createProfessionalPhotoCta: "Mejorar mi foto con IA",
+    professionalPhotoModalTitle: "Mejorar foto con IA",
+    professionalPhotoModalDescription:
+      "Sube tu foto, genera una versión más profesional y luego elige si quieres usarla en el banner o descargar la imagen.",
+    professionalPhotoSelectLabel: "Elige la foto base",
+    professionalPhotoSelectHelper:
+      "Usa una foto clara del rostro para obtener un mejor resultado.",
+    professionalPhotoDirectionTitle: "Elige el tipo de foto profesional",
+    professionalPhotoDirectionDescription:
+      "Selecciona cómo quieres aparecer online. La IA usa esta dirección para mejorar tu foto con un resultado más adecuado a tu objetivo.",
+    professionalPhotoDirections: [
+      {
+        id: "artist_press",
+        title: "Artist Press Photo",
+        description: "Foto oficial para promoción, press kit, booking y perfil profesional.",
+        badge: "Press",
+      },
+      {
+        id: "studio_portrait",
+        title: "Studio Portrait",
+        description: "Retrato limpio con iluminación de estudio y apariencia premium.",
+        badge: "Clean",
+      },
+      {
+        id: "profile_picture",
+        title: "Profile Picture",
+        description: "Imagen fuerte para Instagram, TikTok, Spotify y redes sociales.",
+        badge: "Social",
+      },
+      {
+        id: "booking_promo",
+        title: "Booking Promo Photo",
+        description: "Visual profesional para aumentar el valor percibido en contrataciones.",
+        badge: "Booking",
+      },
+      {
+        id: "editorial_artist",
+        title: "Editorial Artist Photo",
+        description: "Retrato sofisticado con apariencia de revista y portafolio.",
+        badge: "Premium",
+      },
+      {
+        id: "lifestyle_dj",
+        title: "Lifestyle DJ Photo",
+        description: "Foto más natural, moderna y auténtica para redes sociales.",
+        badge: "Natural",
+      },
+    ],
+    professionalPhotoGenerateButton: "Generar imagen profesional",
+    professionalPhotoGeneratingButton: "Generando imagen...",
+    professionalPhotoUseButton: "Usar imagen en el banner",
+    professionalPhotoDownloadButton: "Descargar imagen",
+    professionalPhotoCloseButton: "Cerrar",
+    professionalPhotoReadyTitle: "Imagen profesional lista",
+    professionalPhotoReadyDescription:
+      "Ahora puedes usar esta imagen en el banner o descargar el archivo.",
+    professionalPhotoSourceTitle: "Foto subida",
+    professionalPhotoResultTitle: "Resultado generado",
+    professionalPhotoChooseButton: "Elegir foto",
+    professionalPhotoChangeButton: "Cambiar foto",
+    professionalPhotoGenerateHint:
+      "Sube la foto dentro de este modal y genera la versión mejorada sin salir del flujo.",
+    professionalPhotoStepUpload: "1. Sube tu foto",
+    professionalPhotoStepGenerate: "2. Genera la versión profesional",
+    professionalPhotoStepApply: "3. Úsala en el banner o descárgala",
+    professionalPhotoUseHint:
+      "Si te gusta el resultado, conecta la imagen al banner con un clic.",
     professionalStructure: "Estructura profesional",
     professionalStructureText:
       "El texto principal será el mayor destaque visual. El nombre del DJ quedará en segundo nivel y el bloque complementario será más discreto y elegante.",
@@ -982,6 +1193,7 @@ function readFileAsDataUrl(file: File, errorMessage: string) {
   });
 }
 
+
 const inputClassName =
   "w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-base text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35 sm:text-sm";
 
@@ -1038,6 +1250,17 @@ type FirstAccessTourTarget =
   | "photo"
   | "generate";
 
+type ProfessionalPhotoDirectionId =
+  | "artist_press"
+  | "studio_portrait"
+  | "profile_picture"
+  | "booking_promo"
+  | "editorial_artist"
+  | "lifestyle_dj";
+
+const defaultProfessionalPhotoDirection: ProfessionalPhotoDirectionId =
+  "artist_press";
+
 type BannerFormState = {
   mainText: string;
   djName: string;
@@ -1064,6 +1287,7 @@ export function NewBannerForm({
 }) {
   const copy = newBannerFormCopy[locale] ?? newBannerFormCopy.en;
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [error, setError] = useState("");
@@ -1071,6 +1295,21 @@ export function NewBannerForm({
     initialRemainingCredits,
   );
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
+  const [connectedProfessionalImageUrl, setConnectedProfessionalImageUrl] =
+    useState<string | null>(null);
+  const [showProfessionalImageModal, setShowProfessionalImageModal] =
+    useState(false);
+  const [professionalImageSourceFile, setProfessionalImageSourceFile] =
+    useState<File | null>(null);
+  const [professionalImageSourcePreview, setProfessionalImageSourcePreview] =
+    useState<string>("");
+  const [professionalImageResultUrl, setProfessionalImageResultUrl] =
+    useState<string>("");
+  const [professionalImageLoading, setProfessionalImageLoading] =
+    useState(false);
+  const [professionalImageError, setProfessionalImageError] = useState("");
+  const [professionalPhotoDirection, setProfessionalPhotoDirection] =
+    useState<ProfessionalPhotoDirectionId>(defaultProfessionalPhotoDirection);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [loadingMode, setLoadingMode] = useState<"generate" | "edit" | null>(
@@ -1177,7 +1416,7 @@ export function NewBannerForm({
   const hasRequiredDetails = Boolean(
     hasMainText && hasDjName && hasEventDate && hasEventLocation,
   );
-  const hasUploadedPhoto = Boolean(referenceFile);
+  const hasUploadedPhoto = Boolean(referenceFile || connectedProfessionalImageUrl);
   const canFinishTour =
     hasSelectedStyle && hasRequiredDetails && hasUploadedPhoto;
 
@@ -1537,14 +1776,22 @@ export function NewBannerForm({
   }, []);
 
   useEffect(() => {
+    const professionalImageUrl = searchParams.get("professionalImageUrl");
+
+    if (professionalImageUrl) {
+      setConnectedProfessionalImageUrl(professionalImageUrl);
+    } else {
+      setConnectedProfessionalImageUrl(null);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const tourAlreadySeen = window.localStorage.getItem(
-      FIRST_ACCESS_TOUR_STORAGE_KEY,
-    );
-    const forceTour = new URLSearchParams(window.location.search).get("tour") === "1";
+    const forceTour =
+      new URLSearchParams(window.location.search).get("tour") === "1";
 
-    if (forceTour || !tourAlreadySeen) {
+    if (forceTour) {
       setShowFirstAccessTour(true);
       setTourStepIndex(0);
     }
@@ -1616,9 +1863,11 @@ export function NewBannerForm({
   async function runBannerGeneration({
     formSnapshot,
     referenceFileForGeneration,
+    connectedProfessionalImageUrlForGeneration,
   }: {
     formSnapshot: BannerFormState;
     referenceFileForGeneration: File | null;
+    connectedProfessionalImageUrlForGeneration: string | null;
   }) {
     if (hasNoCredits) {
       setError(copy.errors.noCredits);
@@ -1645,9 +1894,9 @@ export function NewBannerForm({
     let progressTimerC: number | undefined;
 
     try {
-      const referenceImageDataUrl = referenceFileForGeneration
+      const referenceImageUrl = referenceFileForGeneration
         ? await readFileAsDataUrl(referenceFileForGeneration, copy.errors.fileRead)
-        : null;
+        : connectedProfessionalImageUrlForGeneration || null;
 
       progressTimerA = window.setTimeout(() => {
         setActiveStep(1);
@@ -1676,7 +1925,7 @@ export function NewBannerForm({
           stylePreset: formSnapshot.stylePreset,
           format: formSnapshot.format,
           quality: formSnapshot.quality,
-          referenceImageUrl: referenceFileForGeneration ? referenceImageDataUrl : null,
+          referenceImageUrl,
         }),
       });
 
@@ -1763,11 +2012,119 @@ export function NewBannerForm({
     }
   }
 
+  function openProfessionalImageModal() {
+    setProfessionalImageError("");
+    setProfessionalImageSourceFile(null);
+    setProfessionalImageSourcePreview("");
+    setProfessionalImageResultUrl("");
+    setShowProfessionalImageModal(true);
+  }
+
+  function closeProfessionalImageModal() {
+    if (professionalImageLoading) {
+      return;
+    }
+
+    setShowProfessionalImageModal(false);
+  }
+
+  async function handleProfessionalImageFileChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0] || null;
+    setProfessionalImageSourceFile(file);
+    setProfessionalImageError("");
+    setProfessionalImageResultUrl("");
+
+    if (!file) {
+      setProfessionalImageSourcePreview("");
+      return;
+    }
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file, copy.errors.fileRead);
+      setProfessionalImageSourcePreview(dataUrl);
+    } catch (fileError) {
+      setProfessionalImageSourcePreview("");
+      setProfessionalImageError(
+        fileError instanceof Error ? fileError.message : copy.errors.fileRead,
+      );
+    }
+  }
+
+  async function handleGenerateProfessionalImage() {
+    if (!professionalImageSourcePreview) {
+      setProfessionalImageError(copy.errors.fileRead);
+      return;
+    }
+
+    try {
+      setProfessionalImageLoading(true);
+      setProfessionalImageError("");
+
+      const response = await fetch("/api/ai/professional-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageDataUrl: professionalImageSourcePreview,
+          locale,
+          photoDirection: professionalPhotoDirection,
+        }),
+      });
+
+      const data = (await response.json().catch(() => ({}))) as {
+        imageUrl?: string;
+        remainingCredits?: number | null;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error || copy.errors.generate);
+      }
+
+      if (!data.imageUrl) {
+        throw new Error(copy.errors.missingImage);
+      }
+
+      setProfessionalImageResultUrl(data.imageUrl);
+      if (typeof data.remainingCredits === "number") {
+        setRemainingCredits(data.remainingCredits);
+      }
+    } catch (generateError) {
+      const message =
+        generateError instanceof Error
+          ? generateError.message
+          : copy.errors.generate;
+      setProfessionalImageError(message);
+      if (message === copy.errors.noCredits) {
+        setShowCreditUpgrade(true);
+      }
+    } finally {
+      setProfessionalImageLoading(false);
+    }
+  }
+
+  function handleUseProfessionalImage() {
+    if (!professionalImageResultUrl) {
+      return;
+    }
+
+    setConnectedProfessionalImageUrl(professionalImageResultUrl);
+    setReferenceFile(null);
+    if (activeTourTarget === "photo") {
+      setTourError("");
+    }
+    setShowProfessionalImageModal(false);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     await runBannerGeneration({
       formSnapshot: form,
       referenceFileForGeneration: referenceFile,
+      connectedProfessionalImageUrlForGeneration: connectedProfessionalImageUrl,
     });
   }
 
@@ -2321,16 +2678,60 @@ export function NewBannerForm({
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       setReferenceFile(file);
-                      if (file && activeTourTarget === "photo") {
+                      if (file) {
+                        setConnectedProfessionalImageUrl(null);
+                      }
+                      if ((file || connectedProfessionalImageUrl) && activeTourTarget === "photo") {
                         setTourError("");
                       }
                     }}
                   />
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">
-                    <span>{copy.photoHelper}</span>
+                    <span>
+                      {connectedProfessionalImageUrl && !referenceFile
+                        ? copy.importedProfessionalPhotoHelp
+                        : copy.photoHelper}
+                    </span>
                     <strong className="text-white/85">
-                      {referenceFile ? referenceFile.name : copy.noFileSelected}
+                      {referenceFile
+                        ? referenceFile.name
+                        : connectedProfessionalImageUrl
+                          ? copy.importedProfessionalPhoto
+                          : copy.noFileSelected}
                     </strong>
+                  </div>
+
+                  {connectedProfessionalImageUrl && !referenceFile ? (
+                    <div className="mt-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs leading-5 text-emerald-100">
+                      {copy.importedProfessionalPhotoHelp}
+                    </div>
+                  ) : null}
+
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    {connectedProfessionalImageUrl ? (
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={connectedProfessionalImageUrl}
+                          alt={copy.importedProfessionalPhoto}
+                          className="h-11 w-11 rounded-xl object-cover"
+                        />
+                        <span className="text-xs text-white/65">
+                          {copy.importedProfessionalPhoto}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-white/45">
+                        {copy.createProfessionalPhotoCta}
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={openProfessionalImageModal}
+                      className="text-xs font-medium text-sky-200 transition hover:text-sky-100"
+                    >
+                      {copy.createProfessionalPhotoCta}
+                    </button>
                   </div>
                 </Field>
               </div>
@@ -2676,6 +3077,250 @@ export function NewBannerForm({
           onNext={advanceFirstAccessTour}
           onClose={closeFirstAccessTour}
         />
+      ) : null}
+
+      {showProfessionalImageModal ? (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/82 p-0 backdrop-blur-md sm:items-center sm:p-6">
+          <div className="flex max-h-[94dvh] w-full flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#07111f] shadow-[0_-24px_80px_rgba(0,0,0,0.48)] sm:max-w-5xl sm:rounded-[30px] sm:shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+            <div className="shrink-0 border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.14),transparent_34%),radial-gradient(circle_at_top_right,rgba(168,85,247,0.12),transparent_28%)] px-4 py-4 sm:px-6 sm:py-5">
+              <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-white/18 sm:hidden" />
+
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-200/75 sm:text-[11px]">
+                    {copy.createProfessionalPhotoCta}
+                  </p>
+                  <h3 className="mt-1 text-lg font-semibold leading-tight text-white sm:text-2xl">
+                    {copy.professionalPhotoModalTitle}
+                  </h3>
+                  <p className="mt-2 text-xs leading-5 text-white/60 sm:text-sm sm:leading-6">
+                    {copy.professionalPhotoModalDescription}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeProfessionalImageModal}
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-lg text-white/75 transition hover:bg-white/[0.1] hover:text-white"
+                  aria-label={copy.professionalPhotoCloseButton}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="mt-4 hidden gap-2 sm:grid sm:grid-cols-3">
+                {[
+                  copy.professionalPhotoStepUpload,
+                  copy.professionalPhotoStepGenerate,
+                  copy.professionalPhotoStepApply,
+                ].map((step) => (
+                  <div
+                    key={step}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/75"
+                  >
+                    {step}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:p-6">
+              <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                <div className="grid gap-4">
+                  <div className="rounded-[24px] border border-white/10 bg-white/[0.035] p-4 sm:rounded-[26px] sm:p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-white sm:text-base">
+                          {copy.professionalPhotoSelectLabel}
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6">
+                          {copy.professionalPhotoSelectHelper}
+                        </p>
+                      </div>
+
+                      <span className="hidden rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-100 sm:inline-flex">
+                        AI
+                      </span>
+                    </div>
+
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="mt-4 block w-full rounded-2xl border border-white/10 bg-white/[0.05] px-3 py-3 text-base text-white outline-none file:mr-3 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-white/[0.16] sm:text-sm"
+                      onChange={handleProfessionalImageFileChange}
+                    />
+
+                    {professionalImageSourceFile ? (
+                      <p className="mt-3 truncate text-xs text-white/45">
+                        {professionalImageSourceFile.name}
+                      </p>
+                    ) : null}
+
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.025] p-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/55">
+                            {copy.professionalPhotoDirectionTitle}
+                          </p>
+                        </div>
+
+                        <select
+                          value={professionalPhotoDirection}
+                          onChange={(event) =>
+                            setProfessionalPhotoDirection(
+                              event.target.value as ProfessionalPhotoDirectionId,
+                            )
+                          }
+                          className="min-h-[42px] w-full rounded-2xl border border-white/10 bg-[#08101d] px-3 text-sm font-medium text-white outline-none transition focus:border-cyan-300/35 focus:ring-4 focus:ring-cyan-300/10 sm:w-[260px]"
+                        >
+                          {copy.professionalPhotoDirections.map((item) => (
+                            <option
+                              key={item.id}
+                              value={item.id}
+                              className="bg-[#08101d] text-white"
+                            >
+                              {item.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <p className="mt-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-xs leading-5 text-white/52">
+                        {
+                          copy.professionalPhotoDirections.find(
+                            (item) => item.id === professionalPhotoDirection,
+                          )?.description
+                        }
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleGenerateProfessionalImage}
+                      disabled={professionalImageLoading || !professionalImageSourcePreview}
+                      className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-4 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {professionalImageLoading
+                        ? copy.professionalPhotoGeneratingButton
+                        : copy.professionalPhotoGenerateButton}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="rounded-[20px] border border-white/10 bg-[#08101d] p-2.5 sm:rounded-[24px] sm:p-3">
+                      <p className="mb-2 truncate text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50 sm:text-xs">
+                        {copy.professionalPhotoSourceTitle}
+                      </p>
+                      <div className="aspect-[4/5] overflow-hidden rounded-[16px] border border-white/10 bg-white/[0.03] sm:rounded-[20px]">
+                        {professionalImageSourcePreview ? (
+                          <img
+                            src={professionalImageSourcePreview}
+                            alt={copy.professionalPhotoSourceTitle}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="grid h-full place-items-center px-3 text-center text-[11px] leading-4 text-white/35 sm:px-5 sm:text-sm sm:leading-6">
+                            {copy.professionalPhotoChooseButton}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="rounded-[20px] border border-white/10 bg-[#08101d] p-2.5 sm:rounded-[24px] sm:p-3">
+                      <p className="mb-2 truncate text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50 sm:text-xs">
+                        {copy.professionalPhotoResultTitle}
+                      </p>
+                      <div className="aspect-[4/5] overflow-hidden rounded-[16px] border border-white/10 bg-white/[0.03] sm:rounded-[20px]">
+                        {professionalImageResultUrl ? (
+                          <img
+                            src={professionalImageResultUrl}
+                            alt={copy.professionalPhotoResultTitle}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="grid h-full place-items-center px-3 text-center text-[11px] leading-4 text-white/35 sm:px-5 sm:text-sm sm:leading-6">
+                            {professionalImageLoading
+                              ? copy.professionalPhotoGeneratingButton
+                              : copy.professionalPhotoReadyTitle}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {professionalImageError ? (
+                    <p className="rounded-2xl border border-rose-300/15 bg-rose-300/10 px-4 py-3 text-sm text-rose-200">
+                      {professionalImageError}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="hidden flex-col gap-4 xl:flex">
+                  <div className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5">
+                    <span className="inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
+                      {copy.professionalPhotoReadyTitle}
+                    </span>
+                    <p className="mt-3 text-sm leading-6 text-white/68">
+                      {copy.professionalPhotoUseHint}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5">
+                    <p className="text-sm font-semibold text-white">
+                      {copy.professionalStructure}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-white/60">
+                      {copy.professionalStructureText}
+                    </p>
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-[#08101d] p-4 text-sm leading-6 text-white/52">
+                      {copy.professionalPhotoGenerateHint}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="shrink-0 border-t border-white/10 bg-[#07111f]/98 px-4 py-3 backdrop-blur sm:px-6 sm:py-4">
+              {professionalImageResultUrl ? (
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    onClick={handleUseProfessionalImage}
+                    className="inline-flex min-h-[46px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-4 text-sm font-bold text-slate-950 transition hover:opacity-95"
+                  >
+                    {copy.professionalPhotoUseButton}
+                  </button>
+
+                  <a
+                    href={professionalImageResultUrl}
+                    download
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-[46px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm font-medium text-white transition hover:bg-white/[0.08]"
+                  >
+                    {copy.professionalPhotoDownloadButton}
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={closeProfessionalImageModal}
+                    className="inline-flex min-h-[46px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-white/85 transition hover:bg-white/[0.08]"
+                  >
+                    {copy.professionalPhotoCloseButton}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={closeProfessionalImageModal}
+                  className="inline-flex min-h-[46px] w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-sm font-medium text-white/85 transition hover:bg-white/[0.08]"
+                >
+                  {copy.professionalPhotoCloseButton}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );

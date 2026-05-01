@@ -1,147 +1,143 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { LandingBannerExample } from "@/lib/landing-banner-examples";
+
+// This carousel intentionally does not render example titles/captions.
+// It only displays the banner images.
 
 type LandingBannerCarouselProps = {
   examples: LandingBannerExample[];
 };
 
-const SWIPE_THRESHOLD = 42;
-const AUTOPLAY_INTERVAL_MS = 3500;
-
 export function LandingBannerCarousel({
   examples,
 }: LandingBannerCarouselProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
+  const validExamples = examples.filter((example) => Boolean(example.imageUrl));
 
-  const safeExamples = useMemo(() => {
-    const images = examples.filter((example) => Boolean(example.imageUrl));
-    return images.length > 0 ? images : examples;
-  }, [examples]);
-
-  const activeExample = safeExamples[activeIndex] ?? safeExamples[0];
-
-  useEffect(() => {
-    if (safeExamples.length <= 1) return;
-
-    const interval = window.setInterval(() => {
-      setActiveIndex((current) =>
-        current === safeExamples.length - 1 ? 0 : current + 1,
-      );
-    }, AUTOPLAY_INTERVAL_MS);
-
-    return () => window.clearInterval(interval);
-  }, [safeExamples.length]);
-
-  function goToPrevious() {
-    setActiveIndex((current) =>
-      current === 0 ? safeExamples.length - 1 : current - 1,
-    );
-  }
-
-  function goToNext() {
-    setActiveIndex((current) =>
-      current === safeExamples.length - 1 ? 0 : current + 1,
-    );
-  }
-
-  function handleTouchEnd(clientX: number) {
-    if (touchStartX === null) return;
-
-    const distance = touchStartX - clientX;
-    setTouchStartX(null);
-
-    if (Math.abs(distance) < SWIPE_THRESHOLD) return;
-
-    if (distance > 0) {
-      goToNext();
-    } else {
-      goToPrevious();
-    }
-  }
-
-  if (!activeExample) {
+  if (!validExamples.length) {
     return null;
   }
 
+  const firstRow = validExamples;
+  const secondRow = [...validExamples].reverse();
+
   return (
-    <div className="mx-auto w-full max-w-[1120px]">
-      <div
-        className="select-none"
-        onTouchStart={(event) =>
-          setTouchStartX(event.touches[0]?.clientX ?? null)
-        }
-        onTouchEnd={(event) =>
-          handleTouchEnd(event.changedTouches[0]?.clientX ?? 0)
-        }
-      >
-        <div className="relative mx-auto w-full max-w-[420px] sm:max-w-[520px] lg:max-w-[620px]">
-          <div className="overflow-hidden rounded-[26px] border border-white/10 bg-black shadow-[0_28px_90px_rgba(0,0,0,0.35)] sm:rounded-[34px]">
-            {activeExample.imageUrl && !failedImages[activeIndex] ? (
-              <img
-                key={activeExample.id}
-                src={activeExample.imageUrl}
-                alt={activeExample.title || "Banner criado com IA"}
-                className="aspect-[4/5] h-auto max-h-[76vh] w-full object-cover opacity-100 transition-all duration-700 ease-out"
-                onError={() =>
-                  setFailedImages((current) => ({
-                    ...current,
-                    [activeIndex]: true,
-                  }))
-                }
-              />
-            ) : (
-              <div
-                key={activeExample.id}
-                className="aspect-[4/5] max-h-[76vh] w-full bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.22),transparent_34%),radial-gradient(circle_at_bottom,rgba(168,85,247,0.2),transparent_34%),linear-gradient(135deg,rgba(15,23,42,1),rgba(2,6,23,1))] transition-all duration-700 ease-out"
-              />
-            )}
-          </div>
+    <div className="relative mx-auto w-full max-w-[1180px] overflow-hidden py-2">
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes premiumMarqueeLeft {
+              from {
+                transform: translate3d(0, 0, 0);
+              }
+              to {
+                transform: translate3d(-50%, 0, 0);
+              }
+            }
 
-          {safeExamples.length > 1 ? (
-            <>
-              <div className="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 sm:px-3">
-                <button
-                  type="button"
-                  onClick={goToPrevious}
-                  className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white shadow-[0_10px_35px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/55 active:scale-95 sm:h-12 sm:w-12"
-                  aria-label="Banner anterior"
-                >
-                  <ChevronLeft size={22} />
-                </button>
-                <button
-                  type="button"
-                  onClick={goToNext}
-                  className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white shadow-[0_10px_35px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-black/55 active:scale-95 sm:h-12 sm:w-12"
-                  aria-label="Próximo banner"
-                >
-                  <ChevronRight size={22} />
-                </button>
-              </div>
+            @keyframes premiumMarqueeRight {
+              from {
+                transform: translate3d(-50%, 0, 0);
+              }
+              to {
+                transform: translate3d(0, 0, 0);
+              }
+            }
 
-              <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2 px-4">
-                {safeExamples.map((item, index) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setActiveIndex(index)}
-                    className={`h-2.5 rounded-full transition ${
-                      index === activeIndex
-                        ? "w-10 bg-white"
-                        : "w-2.5 bg-white/35 hover:bg-white/60"
-                    }`}
-                    aria-label={`Ir para o banner ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </>
-          ) : null}
-        </div>
+            .premium-marquee-left {
+              animation: premiumMarqueeLeft 46s linear infinite;
+            }
+
+            .premium-marquee-right {
+              animation: premiumMarqueeRight 52s linear infinite;
+            }
+
+            .premium-marquee-mask {
+              -webkit-mask-image: linear-gradient(
+                90deg,
+                transparent 0%,
+                #000 9%,
+                #000 91%,
+                transparent 100%
+              );
+              mask-image: linear-gradient(
+                90deg,
+                transparent 0%,
+                #000 9%,
+                #000 91%,
+                transparent 100%
+              );
+            }
+          `,
+        }}
+      />
+
+      <div className="pointer-events-none absolute left-1/2 top-12 h-48 w-48 -translate-x-1/2 rounded-full bg-cyan-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-12 right-10 h-52 w-52 rounded-full bg-violet-400/10 blur-3xl" />
+
+      <div className="premium-marquee-mask relative space-y-5 sm:space-y-6">
+        <PremiumMarqueeRow examples={firstRow} direction="left" />
+        <PremiumMarqueeRow examples={secondRow} direction="right" />
       </div>
+    </div>
+  );
+}
+
+function PremiumMarqueeRow({
+  examples,
+  direction,
+}: {
+  examples: LandingBannerExample[];
+  direction: "left" | "right";
+}) {
+  return (
+    <div className="relative overflow-hidden">
+      <div
+        className={`flex w-max transform-gpu will-change-transform ${
+          direction === "left" ? "premium-marquee-left" : "premium-marquee-right"
+        }`}
+      >
+        <MarqueeSet examples={examples} />
+        <MarqueeSet examples={examples} ariaHidden />
+      </div>
+    </div>
+  );
+}
+
+function MarqueeSet({
+  examples,
+  ariaHidden = false,
+}: {
+  examples: LandingBannerExample[];
+  ariaHidden?: boolean;
+}) {
+  return (
+    <div
+      aria-hidden={ariaHidden}
+      className="flex shrink-0 items-center gap-4 pr-4 sm:gap-5 sm:pr-5"
+    >
+      {examples.map((example) => (
+        <article
+          key={`${ariaHidden ? "copy" : "main"}-${example.id}`}
+          className="group relative w-[188px] shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#0b1020] shadow-[0_24px_70px_rgba(0,0,0,0.28)] ring-1 ring-white/[0.03] transition duration-500 hover:-translate-y-1 hover:border-cyan-200/20 hover:shadow-[0_30px_90px_rgba(34,211,238,0.12)] sm:w-[238px] sm:rounded-[30px] md:w-[275px] lg:w-[305px]"
+        >
+          <div className="relative aspect-[4/5] overflow-hidden">
+            <img
+              src={example.imageUrl}
+              alt="AI-generated DJ banner example"
+              className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
+              loading="lazy"
+              draggable={false}
+            />
+
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/5 to-transparent opacity-80" />
+            <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.18),transparent_38%)]" />
+            </div>
+
+          </div>
+        </article>
+      ))}
     </div>
   );
 }

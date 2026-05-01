@@ -12,6 +12,8 @@ import {
   Sparkles,
   Wand2,
   Zap,
+  Camera,
+  ArrowRight,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
 
@@ -41,62 +43,67 @@ const LandingBannerCarousel = dynamic(
 const advantages = [
   {
     icon: Zap,
-    title: "Much faster creation",
+    title: "Launch promos faster",
     description:
-      "Add your event details, choose the style, and get a polished visual in minutes to promote your event.",
+      "Create polished event visuals in minutes, so you can promote more often without waiting on a designer.",
   },
   {
     icon: Sparkles,
-    title: "Visuals built for DJs",
+    title: "Made for DJ marketing",
     description:
-      "Premium flyer-style layouts designed for visual impact, artist presence, and strong readability on social media.",
+      "Generate flyers, stories, and promo graphics built for club nights, lineups, releases, and paid ads.",
   },
   {
     icon: Layers3,
-    title: "Variations without starting over",
+    title: "Create more than one look",
     description:
-      "Test new directions, refine the artwork with AI, and iterate quickly until you find the right version to publish.",
+      "Test different creative directions and refine your visuals until they match the vibe of your event or brand.",
   },
   {
     icon: ImageIcon,
-    title: "Use your own photo",
+    title: "Improve your promo photos",
     description:
-      "Upload a reference image so the banner feels closer to your identity and more personal.",
+      "Turn casual or low-quality DJ photos into cleaner, sharper images that look more professional online.",
   },
   {
     icon: Gauge,
-    title: "Simple workflow for everyone",
+    title: "No design skills needed",
     description:
-      "Even without design experience, you can create professional banners through a guided, intuitive process.",
+      "A simple guided workflow helps you create strong visuals even if you have never used design software.",
   },
   {
     icon: ShieldCheck,
-    title: "Access control and security",
+    title: "Built for real users",
     description:
-      "Email verification, protected signup, and a structure built to scale with more confidence.",
+      "Protected signup, email verification, and an account-based workspace made for consistent creative output.",
   },
 ];
 
 const faqs = [
   {
-    question: "Do I need design skills to use it?",
+    question: "Do I need design experience?",
     answer:
-      "No. The platform is built to help DJs and producers create professional-looking visuals without needing advanced design skills.",
+      "No. DJ Banner AI is built for DJs, producers, and event promoters who want professional visuals without learning design software.",
   },
   {
-    question: "Can I use my own photo in the banner?",
+    question: "What can I create?",
     answer:
-      "Yes. You can upload an image as a reference to generate banners that better match your visual identity.",
+      "You can create DJ banners, event flyers, feed posts, story visuals, ad creatives, and cleaner promo photos for your online presence.",
   },
   {
-    question: "Which formats can I generate?",
+    question: "Can it improve my existing DJ photos?",
     answer:
-      "The current workflow is optimized for Feed and Story, the most common formats for events, schedules, and promotional posts.",
+      "Yes. You can upload a casual or low-quality photo and use AI to make it look cleaner, sharper, and more professional for social media, ads, and artist profiles.",
   },
   {
-    question: "Does signup give me access to the system?",
+    question: "Can I use my own photo in a banner?",
     answer:
-      "After creating your account, you confirm your email with a code and can access the dashboard to start generating AI banners.",
+      "Yes. You can upload your own image as a reference when creating a banner, so the final visual feels closer to your identity.",
+  },
+  {
+    question: "What happens after I sign up?",
+    answer:
+      "After creating your account and verifying your email, you can access the dashboard and start creating AI-powered promo visuals.",
   },
 ];
 
@@ -105,6 +112,61 @@ export default function HomePage() {
     <main
       className={`${poppins.className} min-h-screen overflow-x-hidden bg-[#060816] bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_28%),linear-gradient(180deg,#060816_0%,#060816_45%,#070a18_100%)] text-white`}
     >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes djBeforeAfterReveal {
+              0%, 8% { clip-path: inset(0 100% 0 0); }
+              45%, 55% { clip-path: inset(0 0 0 0); }
+              92%, 100% { clip-path: inset(0 100% 0 0); }
+            }
+
+            @keyframes djBeforeAfterHandle {
+              0%, 8% { left: 0%; }
+              45%, 55% { left: 100%; }
+              92%, 100% { left: 0%; }
+            }
+
+            @keyframes djBeforeAfterGlow {
+              0%, 100% { opacity: 0.35; transform: scale(0.96); }
+              50% { opacity: 0.8; transform: scale(1.04); }
+            }
+
+            @keyframes djBeforeLabel {
+              0%, 16% { opacity: 1; transform: translateY(0); }
+              32%, 68% { opacity: 0; transform: translateY(-6px); }
+              86%, 100% { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes djAfterLabel {
+              0%, 38% { opacity: 0; transform: translateY(-6px); }
+              46%, 58% { opacity: 1; transform: translateY(0); }
+              72%, 100% { opacity: 0; transform: translateY(-6px); }
+            }
+
+            .dj-before-after-after {
+              animation: djBeforeAfterReveal 4.8s ease-in-out infinite;
+            }
+
+            .dj-before-after-handle {
+              animation: djBeforeAfterHandle 4.8s ease-in-out infinite;
+            }
+
+            .dj-before-after-glow {
+              animation: djBeforeAfterGlow 4.8s ease-in-out infinite;
+            }
+
+            .dj-before-label {
+              animation: djBeforeLabel 4.8s ease-in-out infinite;
+            }
+
+            .dj-after-label {
+              animation: djAfterLabel 4.8s ease-in-out infinite;
+            }
+          `,
+        }}
+      />
+
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(66,153,225,0.18),transparent_26%),radial-gradient(circle_at_80%_10%,rgba(236,72,153,0.14),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(251,191,36,0.1),transparent_28%)]" />
 
@@ -115,13 +177,13 @@ export default function HomePage() {
                 DJ Banner AI
               </p>
               <p className="mt-1 hidden text-sm text-white/55 sm:block">
-                Professional AI banners for DJs and events
+                AI visuals for DJs, events, and music promotion
               </p>
             </div>
 
             <nav className="hidden items-center gap-7 text-sm text-white/70 md:flex">
               <a href="#vantagens" className="transition hover:text-white">
-                Benefits
+                What you get
               </a>
               <a href="#exemplos" className="transition hover:text-white">
                 Examples
@@ -158,19 +220,17 @@ export default function HomePage() {
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-4 py-2 text-xs font-medium text-cyan-100">
               <BadgeCheck size={14} className="text-cyan-200" />
-              Made for DJs, producers, and event promotion
+              For DJs who need better promo visuals, faster
             </div>
 
             <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
-              Create professional banners for your events in just a few minutes
-              using AI
+              Create premium DJ banners and cleaner promo photos with AI
             </h1>
 
             <p className="mt-5 max-w-2xl text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
-              Generate high-impact visuals for feed and story, elevate your
-              image, promote events faster, and use a simple workflow to create
-              professional banners without relying on a designer for every new
-              campaign.
+              Generate polished visuals for events, social media, and paid ads —
+              from premium DJ banners to cleaner, more professional-looking
+              promo photos.
             </p>
 
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
@@ -178,22 +238,23 @@ export default function HomePage() {
                 href="#formulario-cadastro"
                 className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:min-h-[54px] sm:px-6"
               >
-                Create my free account
+                Start free
               </a>
               <a
                 href="#exemplos"
                 className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.03] px-5 text-sm font-semibold text-white/85 transition hover:bg-white/[0.05] sm:w-auto sm:min-h-[54px] sm:px-6"
               >
-                View banner examples
+                See examples
               </a>
             </div>
 
             <div className="mt-7 grid gap-3 text-sm text-white/72 sm:mt-8 sm:grid-cols-2">
               {[
-                "Generation built for events and schedules",
-                "Intuitive workflow for non-designers",
-                "Quick AI refinement to test new versions",
-                "Simple signup with instant online access",
+                "Premium visuals for events, ads, and social media",
+                "No design skills required",
+                "Test new creative directions fast",
+                "Improve casual DJ photos with AI",
+                "Start creating online in minutes",
               ].map((item) => (
                 <div
                   key={item}
@@ -217,13 +278,13 @@ export default function HomePage() {
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <FeatureMiniCard
                     icon={Wand2}
-                    title="AI focused on flyers"
-                    description="Premium-looking visuals for event posts, schedules, and music promotion."
+                    title="AI built for DJ marketing"
+                    description="Create banners, story visuals, and promo graphics built for the way DJs market online."
                   />
                   <FeatureMiniCard
                     icon={Clock3}
-                    title="Save time"
-                    description="Reduce the time between having the idea and publishing the final visual online."
+                    title="Move faster"
+                    description="Go from a rough idea to a polished visual without waiting days for design work."
                   />
                 </div>
               </div>
@@ -231,14 +292,14 @@ export default function HomePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
-                    Perfect for
+                    Best for
                   </p>
                   <ul className="mt-4 space-y-3 text-sm text-white/70">
                     {[
-                      "Party and event promotion",
-                      "Weekly schedule stories",
-                      "Paid traffic creatives",
-                      "DJ and producer promo posts",
+                      "Club nights and event flyers",
+                      "Lineups, schedules, and stories",
+                      "Paid ads and promo graphics",
+                      "DJ, producer, and artist branding",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
                         <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400/15 text-cyan-200">
@@ -252,25 +313,25 @@ export default function HomePage() {
 
                 <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/40">
-                    Practical advantage
+                    Why it matters
                   </p>
                   <div className="mt-4 space-y-4 text-sm text-white/72">
                     <div>
                       <p className="font-semibold text-white">
-                        Less friction to promote your event
+                        Promote without design delays
                       </p>
                       <p className="mt-1 leading-6 text-white/60">
-                        Always have a new visual ready to promote, reposition
-                        your ad, and keep your communication active.
+                        Create fresh visuals when you need to announce an event,
+                        test a campaign, or keep your social channels active.
                       </p>
                     </div>
                     <div>
                       <p className="font-semibold text-white">
-                        More visual consistency
+                        A more polished online presence
                       </p>
                       <p className="mt-1 leading-5 text-white/60">
-                        Create banners with an aesthetic aligned with the DJ
-                        universe, strengthening your perceived value online.
+                        Keep your flyers, artist photos, and promo graphics looking
+                        consistent, credible, and premium.
                       </p>
                     </div>
                   </div>
@@ -281,6 +342,127 @@ export default function HomePage() {
         </section>
       </div>
 
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12 lg:px-8">
+        <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.13),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.16),transparent_36%),linear-gradient(135deg,rgba(10,15,30,0.98),rgba(7,10,24,0.96))] p-5 shadow-[0_28px_100px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-4 py-2 text-xs font-medium text-cyan-100">
+                <Camera size={14} className="text-cyan-200" />
+                AI photo enhancement for DJ promo images
+              </div>
+
+              <h2 className="mt-5 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px] lg:text-[48px]">
+                Make rough DJ photos look ready for promotion.
+              </h2>
+
+              <p className="mt-5 max-w-2xl text-base leading-7 text-white/68 sm:text-lg sm:leading-8">
+                DJ Banner AI helps you create more than event banners. It can
+                also clean up casual or low-quality DJ photos, giving you a
+                sharper image for social media, ads, artist profiles, and promo materials.
+              </p>
+
+              <div className="mt-7 grid gap-3">
+                {[
+                  "Clean up casual or low-quality DJ photos",
+                  "Look more polished across your online presence",
+                  "Create stronger images for profiles, posts, ads, and promos",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.035] px-4 py-3 text-sm text-white/74"
+                  >
+                    <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                      <BadgeCheck size={12} />
+                    </span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <a
+                href="#formulario-cadastro"
+                className="mt-7 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:px-6"
+              >
+                Improve your photo with AI
+                <ArrowRight size={16} className="ml-2" />
+              </a>
+            </div>
+
+            <div className="relative">
+              <div className="pointer-events-none absolute -left-8 top-8 h-36 w-36 rounded-full bg-cyan-400/15 blur-3xl" />
+              <div className="pointer-events-none absolute -right-6 bottom-8 h-40 w-40 rounded-full bg-violet-400/15 blur-3xl" />
+
+              <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#090f1f] p-4 shadow-[0_24px_90px_rgba(34,211,238,0.12)]">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-200/75">
+                      Before / After
+                    </p>
+                    <p className="mt-1 text-sm text-white/55">
+                      See how a rough photo becomes a cleaner promo image.
+                    </p>
+                  </div>
+
+                  <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-cyan-100">
+                    AI enhanced
+                  </span>
+                </div>
+
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[26px] border border-white/10 bg-slate-950 sm:aspect-[5/4]">
+                  <img
+                    src="/landing/before-after/dj-before.webp"
+                    alt="Casual DJ photo before AI enhancement"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-slate-950/20" />
+
+                  <div className="dj-before-label absolute left-4 top-4 z-30 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/70 backdrop-blur">
+                    Before
+                  </div>
+
+                  <div className="dj-before-after-after absolute inset-0 z-10">
+                    <img
+                      src="/landing/before-after/dj-after.jpg"
+                      alt="Professional DJ photo after AI enhancement"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-cyan-950/10" />
+                  </div>
+
+                  <div className="dj-after-label absolute right-4 top-4 z-30 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100 backdrop-blur">
+                    After
+                  </div>
+
+                  <div className="dj-before-after-handle absolute top-0 z-20 h-full w-[2px] -translate-x-1/2 bg-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.65)]">
+                    <span className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-200/40 bg-slate-950/75 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.42)] backdrop-blur">
+                      ⇆
+                    </span>
+                  </div>
+
+                  <div className="absolute inset-x-4 bottom-4 z-30 rounded-2xl border border-cyan-300/15 bg-slate-950/65 px-4 py-3 text-xs leading-5 text-white/78 backdrop-blur">
+                    From a rough photo to a cleaner DJ image for profiles, posts, ads, and social media.
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-[24px] border border-white/10 bg-white/[0.035] p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      From rough photo to sharper promo image
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-white/58">
+                      Look more credible before people even hear your set.
+                    </p>
+                  </div>
+                  <Sparkles className="h-6 w-6 text-cyan-200" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section
         id="exemplos"
         className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8"
@@ -290,12 +472,11 @@ export default function HomePage() {
             Visual examples
           </p>
           <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-            See banners generated on our platform
+            See what you can create
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-5 text-white/66">
-            Present your events with a more professional aesthetic, highlight
-            your identity as a DJ, and publish high-impact visuals in just a few
-            minutes.
+            Create premium-looking visuals for event promotion, artist
+            branding, social media, and paid ads — without starting from a blank canvas.
           </p>
         </div>
 
@@ -311,15 +492,14 @@ export default function HomePage() {
         <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
           <div className="max-w-3xl">
             <p className="text-[11px] uppercase tracking-[0.25em] text-violet-200/75">
-              Platform benefits
+              Why DJs choose DJ Banner AI
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              Everything you need to create banners faster and with more impact.
+              A faster way to create visuals that make your DJ brand look more professional.
             </h2>
             <p className="mt-4 text-base leading-6 text-white/66">
-              The platform was designed to reduce friction in creation, improve
-              your presentation, and make it easier to promote events and
-              schedules.
+              DJ Banner AI helps you create better promo assets, improve your
+              online presence, and publish stronger content with less friction.
             </p>
           </div>
 
@@ -357,24 +537,24 @@ export default function HomePage() {
               How it works
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              From idea to finished banner in a simple flow.
+              From idea to publish-ready visual in a simple flow.
             </h2>
             <p className="mt-4 text-base leading-7 text-white/66">
-              No complicated process. You provide what you need, AI creates the
-              artwork, and you move to promotion much faster.
+              Add your event details, choose a direction, and let AI help you
+              create a polished visual for your next promotion.
             </p>
           </div>
 
           <div className="rounded-[28px] border border-white/10 bg-[#0b1020] p-6">
             <p className="text-sm font-semibold text-white">
-              Ideal for anyone who wants to:
+              Perfect for DJs who want to:
             </p>
             <div className="mt-5 space-y-4 text-sm text-white/70">
               {[
-                "promote parties with a more professional look",
+                "promote events with a more professional look",
                 "post more often without getting stuck on design",
-                "test campaigns and creatives quickly",
-                "save time producing social media visuals",
+                "test ads, flyers, and creative angles faster",
+                "save time creating social media and promo visuals",
               ].map((item) => (
                 <div key={item} className="flex gap-3">
                   <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
@@ -410,7 +590,7 @@ export default function HomePage() {
             Frequently asked questions
           </p>
           <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-            Clear up your doubts before getting started.
+            A few quick answers before you start creating.
           </h2>
         </div>
 

@@ -14,6 +14,7 @@ import {
   Menu,
   Settings,
   Sparkles,
+  Wand2,
   X,
 } from "lucide-react";
 
@@ -23,14 +24,17 @@ import {
   type SupportedLocale,
 } from "@/lib/i18n";
 
+type NavItemKey =
+  | "dashboard"
+  | "newBanner"
+  | "myBanners"
+  | "professionalImage"
+  | "billing"
+  | "language"
+  | "settings";
+
 type NavItem = {
-  key:
-    | "dashboard"
-    | "newBanner"
-    | "myBanners"
-    | "billing"
-    | "language"
-    | "settings";
+  key: NavItemKey;
   href: string;
   icon: LucideIcon;
   badge?: string;
@@ -46,6 +50,12 @@ const navItems: NavItem[] = [
     badgeType: "ai",
   },
   { key: "myBanners", href: "/dashboard/banners", icon: Images },
+  {
+    key: "professionalImage",
+    href: "/dashboard/imagem-profissional",
+    icon: Wand2,
+    badgeType: "ai",
+  },
   { key: "billing", href: "/dashboard/billing", icon: CreditCard },
   { key: "language", href: "/dashboard/settings/language", icon: Globe2 },
   { key: "settings", href: "/dashboard/settings", icon: Settings },
@@ -75,12 +85,44 @@ function isNavItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function getProfessionalImageLabel(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Imagem profissional";
+  if (locale === "es") return "Imagen profesional";
+  return "Professional image";
+}
+
+function getNavItemLabel(
+  key: NavItemKey,
+  copy: ReturnType<typeof getDashboardCopy>,
+  locale: SupportedLocale,
+) {
+  switch (key) {
+    case "dashboard":
+      return copy.nav.dashboard;
+    case "newBanner":
+      return copy.nav.newBanner;
+    case "myBanners":
+      return copy.nav.myBanners;
+    case "professionalImage":
+      return getProfessionalImageLabel(locale);
+    case "billing":
+      return copy.nav.billing;
+    case "language":
+      return copy.nav.language;
+    case "settings":
+      return copy.nav.settings;
+    default:
+      return copy.shell.fallbackPage;
+  }
+}
+
 function getPageLabel(
   pathname: string,
   copy: ReturnType<typeof getDashboardCopy>,
+  locale: SupportedLocale,
 ) {
   const match = navItems.find((item) => isNavItemActive(pathname, item.href));
-  return match ? copy.nav[match.key] : copy.shell.fallbackPage;
+  return match ? getNavItemLabel(match.key, copy, locale) : copy.shell.fallbackPage;
 }
 
 export function DashboardSidebar({
@@ -99,8 +141,8 @@ export function DashboardSidebar({
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pageLabel = useMemo(
-    () => getPageLabel(pathname, copy),
-    [copy, pathname],
+    () => getPageLabel(pathname, copy, normalizedLocale),
+    [copy, normalizedLocale, pathname],
   );
 
   async function handleLogout() {
@@ -126,7 +168,7 @@ export function DashboardSidebar({
                 <SidebarLink
                   key={item.href}
                   item={item}
-                  label={copy.nav[item.key]}
+                  label={getNavItemLabel(item.key, copy, normalizedLocale)}
                   pathname={pathname}
                   onClick={() => undefined}
                 />
@@ -216,7 +258,7 @@ export function DashboardSidebar({
                 <SidebarLink
                   key={item.href}
                   item={item}
-                  label={copy.nav[item.key]}
+                  label={getNavItemLabel(item.key, copy, normalizedLocale)}
                   pathname={pathname}
                   onClick={() => setMobileOpen(false)}
                 />
@@ -304,9 +346,9 @@ function SidebarLink({
 
 function BrandBlock({ studioLabel }: { studioLabel: string }) {
   return (
-    <Link href="/dashboard" className="block rounded-3xl  p-4">
+    <Link href="/dashboard" className="block rounded-3xl p-4">
       <div className="flex items-center gap-3">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-violet-300 to-amber-200 text-slate-950 ">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 via-violet-300 to-amber-200 text-slate-950">
           <Sparkles className="h-5 w-5" />
         </span>
         <div>
