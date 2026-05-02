@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Script from "next/script";
 import dynamic from "next/dynamic";
 import { Poppins } from "next/font/google";
 import {
@@ -22,7 +23,6 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
-
 
 const LandingBannerCarousel = dynamic(
   () =>
@@ -190,6 +190,61 @@ const testimonials = [
     metric: "Higher-quality flyers",
   },
 ] as const;
+
+const WISTIA_LANDING_VIDEO_ID = "fw5fb2fgk8";
+
+function LandingWistiaVideo() {
+  return (
+    <div className="mt-9 max-w-3xl sm:mt-10">
+      <Script
+        src="https://fast.wistia.com/player.js"
+        strategy="afterInteractive"
+      />
+      <Script
+        src={`https://fast.wistia.com/embed/${WISTIA_LANDING_VIDEO_ID}.js`}
+        strategy="afterInteractive"
+        type="module"
+      />
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            wistia-player[media-id='${WISTIA_LANDING_VIDEO_ID}']:not(:defined) {
+              background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/${WISTIA_LANDING_VIDEO_ID}/swatch');
+              display: block;
+              filter: blur(5px);
+              padding-top: 56.25%;
+            }
+
+            wistia-player[media-id='${WISTIA_LANDING_VIDEO_ID}'] {
+              display: block;
+              width: 100%;
+              overflow: hidden;
+              border-radius: 24px;
+              box-shadow: 0 24px 90px rgba(0, 0, 0, 0.34);
+            }
+          `,
+        }}
+      />
+
+      <div className="mb-5 max-w-2xl">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/75">
+          Product walkthrough
+        </p>
+        <h2 className="mt-3 text-[26px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[34px]">
+          See how simple it is to create your banners.
+        </h2>
+      </div>
+
+      <div
+        className="aspect-video w-full overflow-hidden rounded-[24px] bg-black shadow-[0_24px_90px_rgba(0,0,0,0.34)]"
+        dangerouslySetInnerHTML={{
+          __html: `<wistia-player media-id="${WISTIA_LANDING_VIDEO_ID}" aspect="1.7777777777777777"></wistia-player>`,
+        }}
+      />
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
@@ -458,6 +513,7 @@ export default function HomePage() {
               </a>
             </div>
 
+            <LandingWistiaVideo />
           </div>
 
           <div className="relative hidden min-w-0 lg:block lg:pl-6">
@@ -482,7 +538,8 @@ export default function HomePage() {
               <p className="mt-5 max-w-2xl text-base leading-7 text-white/68 sm:text-lg sm:leading-8">
                 DJ Banner AI helps you create more than event banners. It can
                 also clean up casual or low-quality DJ photos, giving you a
-                sharper image for social media, ads, artist profiles, and promo materials.
+                sharper image for social media, ads, artist profiles, and promo
+                materials.
               </p>
 
               <div className="mt-7 grid gap-3">
@@ -564,7 +621,8 @@ export default function HomePage() {
                   </div>
 
                   <div className="absolute inset-x-4 bottom-4 z-30 rounded-2xl border border-cyan-300/15 bg-slate-950/65 px-4 py-3 text-xs leading-5 text-white/78 backdrop-blur">
-                    From a rough photo to a cleaner DJ image for profiles, posts, ads, and social media.
+                    From a rough photo to a cleaner DJ image for profiles,
+                    posts, ads, and social media.
                   </div>
                 </div>
               </div>
@@ -599,8 +657,8 @@ export default function HomePage() {
             See what you can create
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-5 text-white/66">
-            Create premium-looking visuals for event promotion, artist
-            branding, social media, and paid ads — without starting from a blank canvas.
+            Create premium-looking visuals for event promotion, artist branding,
+            social media, and paid ads — without starting from a blank canvas.
           </p>
         </div>
 
@@ -608,7 +666,6 @@ export default function HomePage() {
           <LandingBannerCarousel examples={landingBannerExamples} />
         </div>
       </section>
-
 
       <section className="relative overflow-hidden border-b border-white/8">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(34,211,238,0.11),transparent_25%),radial-gradient(circle_at_82%_18%,rgba(168,85,247,0.11),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.018),transparent_36%)]" />
@@ -623,7 +680,8 @@ export default function HomePage() {
             </div>
 
             <h2 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.05em] text-white sm:text-[46px]">
-              Premium promo visuals that make your DJ brand feel more established.
+              Premium promo visuals that make your DJ brand feel more
+              established.
             </h2>
 
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/62">
@@ -666,7 +724,10 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <Quote size={22} className="mt-1 shrink-0 text-cyan-100/55" />
+                    <Quote
+                      size={22}
+                      className="mt-1 shrink-0 text-cyan-100/55"
+                    />
                   </div>
 
                   <div className="mt-5 flex items-center gap-1 text-amber-200">
@@ -693,7 +754,6 @@ export default function HomePage() {
               </article>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -707,7 +767,8 @@ export default function HomePage() {
               Why DJs choose DJ Banner AI
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              A faster way to create visuals that make your DJ brand look more professional.
+              A faster way to create visuals that make your DJ brand look more
+              professional.
             </h2>
             <p className="mt-4 text-base leading-6 text-white/66">
               DJ Banner AI helps you create better promo assets, improve your
@@ -793,9 +854,8 @@ export default function HomePage() {
               Choose a plan and start after payment.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/64">
- Select a paid plan, complete checkout, then receive
-              a secure email link to create your password and access the guided
-              tour.
+              Select a paid plan, complete checkout, then receive a secure email
+              link to create your password and access the guided tour.
             </p>
           </div>
 
@@ -843,7 +903,10 @@ export default function HomePage() {
 
                 <div className="mt-6 grid gap-3">
                   {plan.features.map((feature) => (
-                    <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-white/68">
+                    <div
+                      key={feature}
+                      className="flex items-start gap-3 text-sm leading-6 text-white/68"
+                    >
                       <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
                         <BadgeCheck size={12} />
                       </span>
@@ -912,7 +975,6 @@ export default function HomePage() {
   );
 }
 
-
 function LandingCarouselLoading() {
   return (
     <div className="mx-auto w-full max-w-[1120px]">
@@ -924,5 +986,3 @@ function LandingCarouselLoading() {
     </div>
   );
 }
-
-
