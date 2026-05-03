@@ -192,7 +192,7 @@ const testimonials = [
   },
 ] as const;
 
-const WISTIA_LANDING_VIDEO_ID = "fw5fb2fgk8";
+const WISTIA_LANDING_VIDEO_ID = "33qr6ylm6i";
 
 function LandingWistiaVideo() {
   return (
@@ -214,14 +214,14 @@ function LandingWistiaVideo() {
               background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/${WISTIA_LANDING_VIDEO_ID}/swatch');
               display: block;
               filter: blur(5px);
-              padding-top: 56.25%;
+              padding-top: 218.61%;
             }
 
             wistia-player[media-id='${WISTIA_LANDING_VIDEO_ID}'] {
               display: block;
               width: 100%;
               overflow: hidden;
-              border-radius: 24px;
+              border-radius: 28px;
               box-shadow: 0 24px 90px rgba(0, 0, 0, 0.34);
             }
           `,
@@ -240,12 +240,14 @@ function LandingWistiaVideo() {
         </p>
       </div>
 
-      <div
-        className="aspect-video w-full overflow-hidden rounded-[24px] bg-black shadow-[0_24px_90px_rgba(0,0,0,0.34)]"
-        dangerouslySetInnerHTML={{
-          __html: `<wistia-player media-id="${WISTIA_LANDING_VIDEO_ID}" aspect="1.7777777777777777"></wistia-player>`,
-        }}
-      />
+      <div className="flex justify-center">
+        <div
+          className="w-full max-w-[360px] overflow-hidden rounded-[28px] bg-black shadow-[0_24px_90px_rgba(0,0,0,0.34)] sm:max-w-[390px]"
+          dangerouslySetInnerHTML={{
+            __html: `<wistia-player media-id="${WISTIA_LANDING_VIDEO_ID}" aspect="0.45743329097839897"></wistia-player>`,
+          }}
+        />
+      </div>
     </div>
   );
 }
