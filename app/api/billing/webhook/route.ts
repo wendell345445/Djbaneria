@@ -426,6 +426,46 @@ function getCheckoutCurrency(session: Stripe.Checkout.Session) {
   return (session.currency || "usd").toUpperCase();
 }
 
+function getCheckoutMetaRequestContext(session: Stripe.Checkout.Session) {
+  return {
+    eventSourceUrl:
+      getMetadataValue(session.metadata?.metaEventSourceUrl) ||
+      `${process.env.NEXT_PUBLIC_APP_URL || "https://djproia.com"}/checkout/success?session_id=${session.id}`,
+    clientIpAddress: getMetadataValue(session.metadata?.metaClientIpAddress),
+    clientUserAgent:
+      getMetadataValue(session.metadata?.metaClientUserAgent) ||
+      "stripe-webhook",
+    fbp: getMetadataValue(session.metadata?.metaFbp),
+    fbc: getMetadataValue(session.metadata?.metaFbc),
+  };
+}
+
+function getCheckoutMetaSubscriptionMetadata(
+  session: Stripe.Checkout.Session,
+): Record<string, string> {
+  const metadata: Record<string, string> = {};
+
+  const metaEventSourceUrl = getMetadataValue(
+    session.metadata?.metaEventSourceUrl,
+  );
+  const metaClientIpAddress = getMetadataValue(
+    session.metadata?.metaClientIpAddress,
+  );
+  const metaClientUserAgent = getMetadataValue(
+    session.metadata?.metaClientUserAgent,
+  );
+  const metaFbp = getMetadataValue(session.metadata?.metaFbp);
+  const metaFbc = getMetadataValue(session.metadata?.metaFbc);
+
+  if (metaEventSourceUrl) metadata.metaEventSourceUrl = metaEventSourceUrl;
+  if (metaClientIpAddress) metadata.metaClientIpAddress = metaClientIpAddress;
+  if (metaClientUserAgent) metadata.metaClientUserAgent = metaClientUserAgent;
+  if (metaFbp) metadata.metaFbp = metaFbp;
+  if (metaFbc) metadata.metaFbc = metaFbc;
+
+  return metadata;
+}
+
 async function sendMetaPurchaseForCheckoutSession(params: {
   session: Stripe.Checkout.Session;
   syncedSubscription: SyncedStripeSubscription;
@@ -454,8 +494,7 @@ async function sendMetaPurchaseForCheckoutSession(params: {
 
     const planName = getPlanDisplayNameForMeta(syncedSubscription.plan);
     const currency = getCheckoutCurrency(session);
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://djproia.com";
-    const eventSourceUrl = `${appUrl}/checkout/success?session_id=${session.id}`;
+    const metaRequestContext = getCheckoutMetaRequestContext(session);
 
     const baseCustomData = {
       content_type: "product",
@@ -479,9 +518,18 @@ async function sendMetaPurchaseForCheckoutSession(params: {
       currency,
       contentName: `${planName} Subscription`,
       contentCategory: "SaaS Subscription",
-      eventSourceUrl,
-      clientUserAgent: "stripe-webhook",
-      customData: baseCustomData,
+      eventSourceUrl: metaRequestContext.eventSourceUrl,
+      clientIpAddress: metaRequestContext.clientIpAddress,
+      clientUserAgent: metaRequestContext.clientUserAgent,
+      fbp: metaRequestContext.fbp,
+      fbc: metaRequestContext.fbc,
+      customData: {
+        ...baseCustomData,
+        has_fbp: Boolean(metaRequestContext.fbp),
+        has_fbc: Boolean(metaRequestContext.fbc),
+        has_client_ip_address: Boolean(metaRequestContext.clientIpAddress),
+        has_client_user_agent: Boolean(metaRequestContext.clientUserAgent),
+      },
     });
 
     console.info("Meta CAPI checkout Purchase processed.", {
@@ -534,6 +582,7 @@ async function handleCheckoutCompleted(
           workspaceId: paidSignup.workspaceId,
           userId: paidSignup.userId,
           plan: planFromMetadata,
+          ...getCheckoutMetaSubscriptionMetadata(session),
         },
       });
     }

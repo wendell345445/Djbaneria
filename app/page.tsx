@@ -24,7 +24,6 @@ const poppins = Poppins({
   display: "swap",
 });
 
-
 const LandingBannerCarousel = dynamic(
   () =>
     import("@/components/landing-banner-carousel").then(
@@ -163,7 +162,7 @@ const testimonials = [
   {
     initials: "NW",
     quote:
-      "I use this type of artwork a lot, but the agency I had hired was getting very expensive. They charged me $100 for each flyer, and the result was not always exactly what I wanted. With this tool, everything became much easier. I can create banners my way, make changes, test different versions, and the price does not even compare.",
+      "I use this kind of design all the time, but the agency I was using was getting way too expensive. They were charging $100 per flyer, and I wasn't even always happy with the results. This tool has been a game-changer. Now I can design banners exactly how I want them, tweak things on the fly, and the cost isn't even a contest.",
     name: "Noah Walker",
     role: "Open format DJ",
     location: "Miami, FL",
@@ -173,7 +172,7 @@ const testimonials = [
   {
     initials: "DM",
     quote:
-      "DJ Pro AI completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
+      "DJ Pro AI completely leveled up my Instagram. Since I started using these visuals, my engagement has skyrocketed, and I’m getting way more booking inquiries. It’s been a total game changer for me—highly recommend!",
     name: "Daniel Morgan",
     role: "Club DJ",
     location: "Orlando, FL",
@@ -183,7 +182,7 @@ const testimonials = [
   {
     initials: "TC",
     quote:
-      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Pro AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it. Thank you, DJ Pro AI.",
+      "I used to spend around $200 a month just on flyers—roughly $50 per design. Now, with DJ Pro AI, I’m getting even higher quality visuals at a fraction of the cost. It’s saved me so much money without sacrificing the look of my brand. Huge thanks to the DJ Pro AI team!",
     name: "Tyler Carter",
     role: "Event DJ",
     location: "Los Angeles, CA",
@@ -520,7 +519,6 @@ export default function HomePage() {
             </div>
 
             <LandingWistiaVideo />
-
           </div>
 
           <div className="relative hidden min-w-0 lg:block lg:pl-6">
@@ -545,7 +543,8 @@ export default function HomePage() {
               <p className="mt-5 max-w-2xl text-base leading-7 text-white/68 sm:text-lg sm:leading-8">
                 DJ Banner AI helps you create more than event banners. It can
                 also clean up casual or low-quality DJ photos, giving you a
-                sharper image for social media, ads, artist profiles, and promo materials.
+                sharper image for social media, ads, artist profiles, and promo
+                materials.
               </p>
 
               <div className="mt-7 grid gap-3">
@@ -627,7 +626,8 @@ export default function HomePage() {
                   </div>
 
                   <div className="absolute inset-x-4 bottom-4 z-30 rounded-2xl border border-cyan-300/15 bg-slate-950/65 px-4 py-3 text-xs leading-5 text-white/78 backdrop-blur">
-                    From a rough photo to a cleaner DJ image for profiles, posts, ads, and social media.
+                    From a rough photo to a cleaner DJ image for profiles,
+                    posts, ads, and social media.
                   </div>
                 </div>
               </div>
@@ -662,8 +662,8 @@ export default function HomePage() {
             See what you can create
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-5 text-white/66">
-            Create premium-looking visuals for event promotion, artist
-            branding, social media, and paid ads — without starting from a blank canvas.
+            Create premium-looking visuals for event promotion, artist branding,
+            social media, and paid ads — without starting from a blank canvas.
           </p>
         </div>
 
@@ -671,7 +671,6 @@ export default function HomePage() {
           <LandingBannerCarousel examples={landingBannerExamples} />
         </div>
       </section>
-
 
       <section className="relative overflow-hidden border-b border-white/8">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(34,211,238,0.11),transparent_25%),radial-gradient(circle_at_82%_18%,rgba(168,85,247,0.11),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.018),transparent_36%)]" />
@@ -686,7 +685,8 @@ export default function HomePage() {
             </div>
 
             <h2 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.05em] text-white sm:text-[46px]">
-              Premium promo visuals that make your DJ brand feel more established.
+              Premium promo visuals that make your DJ brand feel more
+              established.
             </h2>
 
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/62">
@@ -729,7 +729,10 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <Quote size={22} className="mt-1 shrink-0 text-cyan-100/55" />
+                    <Quote
+                      size={22}
+                      className="mt-1 shrink-0 text-cyan-100/55"
+                    />
                   </div>
 
                   <div className="mt-5 flex items-center gap-1 text-amber-200">
@@ -756,7 +759,6 @@ export default function HomePage() {
               </article>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -770,7 +772,8 @@ export default function HomePage() {
               Why DJs choose DJ Banner AI
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              A faster way to create visuals that make your DJ brand look more professional.
+              A faster way to create visuals that make your DJ brand look more
+              professional.
             </h2>
             <p className="mt-4 text-base leading-6 text-white/66">
               DJ Banner AI helps you create better promo assets, improve your
@@ -856,9 +859,8 @@ export default function HomePage() {
               Choose a plan and start after payment.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/64">
- Select a paid plan, complete checkout, then receive
-              a secure email link to create your password and access the guided
-              tour.
+              Select a paid plan, complete checkout, then receive a secure email
+              link to create your password and access the guided tour.
             </p>
           </div>
 
@@ -906,7 +908,10 @@ export default function HomePage() {
 
                 <div className="mt-6 grid gap-3">
                   {plan.features.map((feature) => (
-                    <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-white/68">
+                    <div
+                      key={feature}
+                      className="flex items-start gap-3 text-sm leading-6 text-white/68"
+                    >
                       <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
                         <BadgeCheck size={12} />
                       </span>
@@ -975,7 +980,6 @@ export default function HomePage() {
   );
 }
 
-
 function LandingCarouselLoading() {
   return (
     <div className="mx-auto w-full max-w-[1120px]">
@@ -987,5 +991,3 @@ function LandingCarouselLoading() {
     </div>
   );
 }
-
-

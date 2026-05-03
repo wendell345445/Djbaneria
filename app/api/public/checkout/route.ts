@@ -9,6 +9,7 @@ import {
   type StripePaidPlan,
   stripe,
 } from "@/lib/stripe";
+import { getMetaRequestContext } from "@/lib/meta-capi";
 import {
   buildRateLimitHeaders,
   consumeRateLimit,
@@ -21,6 +22,42 @@ export const runtime = "nodejs";
 const schema = z.object({
   plan: z.enum(["PRO", "PROFESSIONAL", "STUDIO"]),
 });
+
+function normalizeStripeMetadataValue(value?: string | null) {
+  if (!value) return undefined;
+
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  // Stripe metadata values have a size limit. Keep this safely under the limit.
+  return trimmed.slice(0, 480);
+}
+
+function removeEmptyStripeMetadata(
+  metadata: Record<string, string | undefined>,
+) {
+  return Object.fromEntries(
+    Object.entries(metadata).filter(([, value]) => Boolean(value)),
+  ) as Record<string, string>;
+}
+
+function getMetaCheckoutMetadata(request: Request) {
+  const metaContext = getMetaRequestContext(request);
+
+  return removeEmptyStripeMetadata({
+    metaEventSourceUrl: normalizeStripeMetadataValue(
+      metaContext.eventSourceUrl,
+    ),
+    metaClientIpAddress: normalizeStripeMetadataValue(
+      metaContext.clientIpAddress,
+    ),
+    metaClientUserAgent: normalizeStripeMetadataValue(
+      metaContext.clientUserAgent,
+    ),
+    metaFbp: normalizeStripeMetadataValue(metaContext.fbp),
+    metaFbc: normalizeStripeMetadataValue(metaContext.fbc),
+  });
+}
 
 export async function POST(request: Request) {
   const originError = validateMutationOrigin(request);
@@ -71,6 +108,7 @@ export async function POST(request: Request) {
     }
 
     const appUrl = getAppUrl();
+    const metaCheckoutMetadata = getMetaCheckoutMetadata(request);
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -86,11 +124,13 @@ export async function POST(request: Request) {
       metadata: {
         checkoutFlow: "public_paid_signup",
         plan,
+        ...metaCheckoutMetadata,
       },
       subscription_data: {
         metadata: {
           checkoutFlow: "public_paid_signup",
           plan,
+          ...metaCheckoutMetadata,
         },
       },
     });
