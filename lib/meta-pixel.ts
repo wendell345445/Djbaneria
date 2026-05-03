@@ -14,7 +14,18 @@ type MetaEventOptions = {
   eventId?: string;
 };
 
-type MetaEventParams = Record<string, string | number | boolean | null | undefined>;
+type MetaEventParams = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
+
+type MetaPurchaseParams = {
+  eventId: string;
+  plan?: string | null;
+  value?: number | null;
+  currency?: string | null;
+  contentName?: string | null;
+};
 
 declare global {
   interface Window {
@@ -89,6 +100,34 @@ export function trackMetaInitiateCheckout(plan?: string | null) {
   });
 }
 
+export function trackMetaPurchase({
+  eventId,
+  plan,
+  value,
+  currency = "USD",
+  contentName,
+}: MetaPurchaseParams) {
+  const normalizedPlan = plan || "unknown";
+  const purchaseValue =
+    typeof value === "number" && Number.isFinite(value)
+      ? value
+      : getMetaPlanValue(normalizedPlan);
+
+  trackMetaEvent(
+    "Purchase",
+    {
+      content_name: contentName || `${normalizedPlan} Subscription`,
+      content_category: "SaaS Subscription",
+      content_type: "product",
+      currency,
+      value: purchaseValue,
+      plan: normalizedPlan,
+      num_items: 1,
+    },
+    { eventId },
+  );
+}
+
 function getMetaPlanValue(plan: string) {
   const prices: Record<string, number> = {
     PRO: 12.99,
@@ -101,6 +140,8 @@ function getMetaPlanValue(plan: string) {
 
 function removeEmptyMetaParams(params: MetaEventParams) {
   return Object.fromEntries(
-    Object.entries(params).filter(([, value]) => value !== undefined && value !== null),
+    Object.entries(params).filter(
+      ([, value]) => value !== undefined && value !== null,
+    ),
   );
 }

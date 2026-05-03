@@ -410,6 +410,93 @@ async function syncStripeSubscription(
   } satisfies SyncedStripeSubscription;
 }
 
+
+function getCheckoutPaidValue(
+  session: Stripe.Checkout.Session,
+  plan: SubscriptionPlan,
+) {
+  const amountTotal =
+    typeof session.amount_total === "number" ? session.amount_total : 0;
+  const value = amountTotal > 0 ? amountTotal / 100 : getPlanFallbackValue(plan);
+
+  return Math.round(value * 100) / 100;
+}
+
+function getCheckoutCurrency(session: Stripe.Checkout.Session) {
+  return (session.currency || "usd").toUpperCase();
+}
+
+async function sendMetaPurchaseForCheckoutSession(params: {
+  session: Stripe.Checkout.Session;
+  syncedSubscription: SyncedStripeSubscription;
+  stripeEventId: string;
+}) {
+  const { session, syncedSubscription, stripeEventId } = params;
+  const value = getCheckoutPaidValue(session, syncedSubscription.plan);
+
+  if (value <= 0) {
+    console.info("Meta CAPI Purchase ignorado: checkout sem valor pago.", session.id);
+    return;
+  }
+
+  try {
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: syncedSubscription.workspaceId },
+      select: {
+        id: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    const planName = getPlanDisplayNameForMeta(syncedSubscription.plan);
+    const currency = getCheckoutCurrency(session);
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://djproia.com";
+    const eventSourceUrl = `${appUrl}/checkout/success?session_id=${session.id}`;
+
+    const baseCustomData = {
+      content_type: "product",
+      num_items: 1,
+      stripe_checkout_session_id: session.id,
+      stripe_subscription_id: syncedSubscription.stripeSubscriptionId,
+      stripe_customer_id: syncedSubscription.providerCustomerId,
+      workspace_id: workspace?.id || syncedSubscription.workspaceId,
+      plan: syncedSubscription.plan,
+    };
+
+    const purchaseResult = await sendMetaConversionEvent({
+      eventName: "Purchase",
+      eventId: `purchase_${session.id}`,
+      email:
+        workspace?.user?.email ||
+        session.customer_details?.email ||
+        session.customer_email ||
+        null,
+      value,
+      currency,
+      contentName: `${planName} Subscription`,
+      contentCategory: "SaaS Subscription",
+      eventSourceUrl,
+      clientUserAgent: "stripe-webhook",
+      customData: baseCustomData,
+    });
+
+    console.info("Meta CAPI checkout Purchase processed.", {
+      checkoutSessionId: session.id,
+      stripeEventId,
+      plan: syncedSubscription.plan,
+      value,
+      currency,
+      purchase: purchaseResult,
+    });
+  } catch (error) {
+    console.error("Erro ao enviar Purchase Meta CAPI de checkout:", error);
+  }
+}
+
 async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
   stripeEventId: string,
@@ -458,7 +545,7 @@ async function handleCheckoutCompleted(
   }
 
   if (subscriptionId) {
-    await syncStripeSubscription(
+    const syncedSubscription = await syncStripeSubscription(
       subscriptionId,
       {
         workspaceId,
@@ -470,6 +557,15 @@ async function handleCheckoutCompleted(
         stripeEventId,
       },
     );
+
+    if (syncedSubscription && session.payment_status === "paid") {
+      await sendMetaPurchaseForCheckoutSession({
+        session,
+        syncedSubscription,
+        stripeEventId,
+      });
+    }
+
     return;
   }
 
@@ -558,7 +654,7 @@ function getInvoiceCurrency(invoice: Stripe.Invoice) {
   return (invoice.currency || "usd").toUpperCase();
 }
 
-async function sendMetaBillingEventsForPaidInvoice(params: {
+async function sendMetaSubscribeEventForPaidInvoice(params: {
   invoice: Stripe.Invoice;
   syncedSubscription: SyncedStripeSubscription;
   stripeEventId: string;
@@ -567,7 +663,7 @@ async function sendMetaBillingEventsForPaidInvoice(params: {
   const value = getInvoicePaidValue(invoice, syncedSubscription.plan);
 
   if (value <= 0) {
-    console.info("Meta CAPI Purchase ignorado: invoice sem valor pago.", invoice.id);
+    console.info("Meta CAPI Subscribe ignorado: invoice sem valor pago.", invoice.id);
     return;
   }
 
@@ -599,19 +695,6 @@ async function sendMetaBillingEventsForPaidInvoice(params: {
       plan: syncedSubscription.plan,
     };
 
-    const purchaseResult = await sendMetaConversionEvent({
-      eventName: "Purchase",
-      eventId: `purchase_${invoiceId}`,
-      email: workspace?.user?.email || null,
-      value,
-      currency,
-      contentName: `${planName} Subscription`,
-      contentCategory: "SaaS Subscription",
-      eventSourceUrl,
-      clientUserAgent: "stripe-webhook",
-      customData: baseCustomData,
-    });
-
     const subscribeResult = await sendMetaConversionEvent({
       eventName: "Subscribe",
       eventId: `subscribe_${invoiceId}`,
@@ -628,18 +711,18 @@ async function sendMetaBillingEventsForPaidInvoice(params: {
       },
     });
 
-    console.info("Meta CAPI billing events processed.", {
+    console.info("Meta CAPI billing Subscribe processed.", {
       invoiceId: invoice.id,
       plan: syncedSubscription.plan,
       value,
       currency,
-      purchase: purchaseResult,
       subscribe: subscribeResult,
     });
   } catch (error) {
-    console.error("Erro ao enviar eventos Meta CAPI de billing:", error);
+    console.error("Erro ao enviar Subscribe Meta CAPI de billing:", error);
   }
 }
+
 
 async function handleInvoicePaymentSucceeded(
   invoice: Stripe.Invoice,
@@ -659,7 +742,7 @@ async function handleInvoicePaymentSucceeded(
   });
 
   if (syncedSubscription) {
-    await sendMetaBillingEventsForPaidInvoice({
+    await sendMetaSubscribeEventForPaidInvoice({
       invoice,
       syncedSubscription,
       stripeEventId,
