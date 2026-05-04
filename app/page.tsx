@@ -171,7 +171,7 @@ const testimonials = [
   {
     initials: "DM",
     quote:
-      "DJ Pro AI completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
+      "Dj Banner Ai completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
     name: "Daniel Morgan",
     role: "Club DJ",
     location: "Orlando, FL",
@@ -181,7 +181,7 @@ const testimonials = [
   {
     initials: "TC",
     quote:
-      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Pro AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it. Thank you, DJ Pro AI.",
+      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Pro AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it. Thank you.",
     name: "Tyler Carter",
     role: "Event DJ",
     location: "Los Angeles, CA",
