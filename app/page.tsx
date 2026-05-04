@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Script from "next/script";
 import dynamic from "next/dynamic";
 import { Poppins } from "next/font/google";
 import {
@@ -162,7 +161,7 @@ const testimonials = [
   {
     initials: "NW",
     quote:
-      "I use this kind of design all the time, but the agency I was using was getting way too expensive. They were charging $100 per flyer, and I wasn't even always happy with the results. This tool has been a game-changer. Now I can design banners exactly how I want them, tweak things on the fly, and the cost isn't even a contest.",
+      "I use this type of artwork a lot, but the agency I had hired was getting very expensive. They charged me $100 for each flyer, and the result was not always exactly what I wanted. With this tool, everything became much easier. I can create banners my way, make changes, test different versions, and the price does not even compare.",
     name: "Noah Walker",
     role: "Open format DJ",
     location: "Miami, FL",
@@ -172,7 +171,7 @@ const testimonials = [
   {
     initials: "DM",
     quote:
-      "DJ Pro AI completely leveled up my Instagram. Since I started using these visuals, my engagement has skyrocketed, and I’m getting way more booking inquiries. It’s been a total game changer for me—highly recommend!",
+      "DJ Pro AI completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
     name: "Daniel Morgan",
     role: "Club DJ",
     location: "Orlando, FL",
@@ -182,7 +181,7 @@ const testimonials = [
   {
     initials: "TC",
     quote:
-      "I used to spend around $200 a month just on flyers—roughly $50 per design. Now, with DJ Pro AI, I’m getting even higher quality visuals at a fraction of the cost. It’s saved me so much money without sacrificing the look of my brand. Huge thanks to the DJ Pro AI team!",
+      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Pro AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it. Thank you, DJ Pro AI.",
     name: "Tyler Carter",
     role: "Event DJ",
     location: "Los Angeles, CA",
@@ -190,66 +189,6 @@ const testimonials = [
     metric: "Higher-quality flyers",
   },
 ] as const;
-
-const WISTIA_LANDING_VIDEO_ID = "33qr6ylm6i";
-
-function LandingWistiaVideo() {
-  return (
-    <div className="mt-9 max-w-3xl sm:mt-10">
-      <Script
-        src="https://fast.wistia.com/player.js"
-        strategy="afterInteractive"
-      />
-      <Script
-        src={`https://fast.wistia.com/embed/${WISTIA_LANDING_VIDEO_ID}.js`}
-        strategy="afterInteractive"
-        type="module"
-      />
-
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            wistia-player[media-id='${WISTIA_LANDING_VIDEO_ID}']:not(:defined) {
-              background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/${WISTIA_LANDING_VIDEO_ID}/swatch');
-              display: block;
-              filter: blur(5px);
-              padding-top: 218.61%;
-            }
-
-            wistia-player[media-id='${WISTIA_LANDING_VIDEO_ID}'] {
-              display: block;
-              width: 100%;
-              overflow: hidden;
-              border-radius: 28px;
-              box-shadow: 0 24px 90px rgba(0, 0, 0, 0.34);
-            }
-          `,
-        }}
-      />
-
-      <div className="mb-5 max-w-2xl">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/75">
-          Product walkthrough
-        </p>
-        <h2 className="mt-3 text-[26px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[34px]">
-          See how simple it is to create your banners.
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-white/58">
-          Watch a quick overview before choosing your plan.
-        </p>
-      </div>
-
-      <div className="flex justify-center">
-        <div
-          className="w-full max-w-[360px] overflow-hidden rounded-[28px] bg-black shadow-[0_24px_90px_rgba(0,0,0,0.34)] sm:max-w-[390px]"
-          dangerouslySetInnerHTML={{
-            __html: `<wistia-player media-id="${WISTIA_LANDING_VIDEO_ID}" aspect="0.45743329097839897"></wistia-player>`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
 
 export default function HomePage() {
   return (
@@ -517,8 +456,6 @@ export default function HomePage() {
                 See examples
               </a>
             </div>
-
-            <LandingWistiaVideo />
           </div>
 
           <div className="relative hidden min-w-0 lg:block lg:pl-6">
@@ -623,11 +560,6 @@ export default function HomePage() {
                     <span className="absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-cyan-200/40 bg-slate-950/75 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.42)] backdrop-blur">
                       ⇆
                     </span>
-                  </div>
-
-                  <div className="absolute inset-x-4 bottom-4 z-30 rounded-2xl border border-cyan-300/15 bg-slate-950/65 px-4 py-3 text-xs leading-5 text-white/78 backdrop-blur">
-                    From a rough photo to a cleaner DJ image for profiles,
-                    posts, ads, and social media.
                   </div>
                 </div>
               </div>
