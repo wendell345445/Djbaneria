@@ -18,6 +18,11 @@ import {
   type BannerImageQuality,
 } from "@/lib/plans";
 import { isBannerStyleProOnly } from "@/lib/banner-style-access";
+import { fileToOptimizedDataUrl } from "@/lib/client-image-optimizer";
+import {
+  getSafeApiErrorMessage,
+  readSafeApiResponse,
+} from "@/lib/safe-api-response";
 
 const stylePresets = [
   {
@@ -136,19 +141,22 @@ const newBannerFormCopy = {
     guidedSteps: [
       {
         title: "Escolha um estilo",
-        description: "Selecione um visual pronto para festa, agenda ou divulgação.",
+        description:
+          "Selecione um visual pronto para festa, agenda ou divulgação.",
         helper:
           "Role os cards de estilo abaixo e toque em um card para ativá-lo. Se aparecer cadeado, aquele estilo exige plano Pro.",
       },
       {
         title: "Preencha os dados",
-        description: "Informe evento, DJ, data e local. Você também pode usar o exemplo automático.",
+        description:
+          "Informe evento, DJ, data e local. Você também pode usar o exemplo automático.",
         helper:
           "Complete o texto principal, nome do DJ, data e local. Se quiser acelerar, use o botão de preencher exemplo.",
       },
       {
         title: "Envie sua foto e gere",
-        description: "Adicione sua foto para a IA usar como referência e gere o preview.",
+        description:
+          "Adicione sua foto para a IA usar como referência e gere o preview.",
         helper:
           "Na seção Foto do DJ, envie uma imagem nítida do seu rosto. O teste guiado vai usar a sua própria foto para gerar o banner.",
       },
@@ -167,20 +175,15 @@ const newBannerFormCopy = {
     tourNext: "Próximo",
     tourDone: "Concluir",
     tourStepLabel: "Passo",
-    tourIncompleteDefault:
-      "Conclua esta etapa antes de continuar.",
-    tourIncompleteStyle:
-      "Escolha um estilo visual para continuar.",
+    tourIncompleteDefault: "Conclua esta etapa antes de continuar.",
+    tourIncompleteStyle: "Escolha um estilo visual para continuar.",
     tourIncompleteDetails:
       "Preencha texto principal, nome do DJ, data e local para continuar.",
     tourIncompleteMainText:
       "Preencha o texto principal do banner para continuar.",
-    tourIncompleteDjName:
-      "Preencha o nome do DJ para continuar.",
-    tourIncompleteEventDate:
-      "Preencha a data do evento para continuar.",
-    tourIncompleteEventLocation:
-      "Preencha o local do evento para continuar.",
+    tourIncompleteDjName: "Preencha o nome do DJ para continuar.",
+    tourIncompleteEventDate: "Preencha a data do evento para continuar.",
+    tourIncompleteEventLocation: "Preencha o local do evento para continuar.",
     tourMainTextDescription:
       "Digite o título principal que deve aparecer com maior destaque no banner.",
     tourDjNameDescription:
@@ -189,8 +192,7 @@ const newBannerFormCopy = {
       "Informe quando o evento acontece. Pode ser uma data exata ou algo como Este sábado.",
     tourEventLocationDescription:
       "Informe o local, cidade ou nome da casa onde o evento será divulgado.",
-    tourIncompletePhoto:
-      "Envie sua foto do DJ para continuar.",
+    tourIncompletePhoto: "Envie sua foto do DJ para continuar.",
     tourIncompleteGenerate:
       "Clique no botão Gerar banner para finalizar o guia.",
     typingSuggestions: {
@@ -253,37 +255,43 @@ const newBannerFormCopy = {
       {
         id: "artist_press",
         title: "Artist Press Photo",
-        description: "Foto oficial para divulgação, release, booking e perfil profissional.",
+        description:
+          "Foto oficial para divulgação, release, booking e perfil profissional.",
         badge: "Press",
       },
       {
         id: "studio_portrait",
         title: "Studio Portrait",
-        description: "Retrato limpo com iluminação de estúdio e aparência premium.",
+        description:
+          "Retrato limpo com iluminação de estúdio e aparência premium.",
         badge: "Clean",
       },
       {
         id: "profile_picture",
         title: "Profile Picture",
-        description: "Imagem forte para Instagram, TikTok, Spotify e redes sociais.",
+        description:
+          "Imagem forte para Instagram, TikTok, Spotify e redes sociais.",
         badge: "Social",
       },
       {
         id: "booking_promo",
         title: "Booking Promo Photo",
-        description: "Visual profissional para aumentar valor percebido em contratações.",
+        description:
+          "Visual profissional para aumentar valor percebido em contratações.",
         badge: "Booking",
       },
       {
         id: "editorial_artist",
         title: "Editorial Artist Photo",
-        description: "Retrato sofisticado com aparência de revista e portfólio.",
+        description:
+          "Retrato sofisticado com aparência de revista e portfólio.",
         badge: "Premium",
       },
       {
         id: "lifestyle_dj",
         title: "Lifestyle DJ Photo",
-        description: "Foto mais natural, moderna e autêntica para redes sociais.",
+        description:
+          "Foto mais natural, moderna e autêntica para redes sociais.",
         badge: "Natural",
       },
     ],
@@ -406,8 +414,7 @@ const newBannerFormCopy = {
         "A geração foi iniciada, mas a API não retornou o ID do banner.",
       missingImage:
         "A API retornou sucesso, mas não enviou a URL da imagem gerada.",
-      sampleNeedsPhoto:
-        "Envie sua foto do DJ antes de usar o teste guiado.",
+      sampleNeedsPhoto: "Envie sua foto do DJ antes de usar o teste guiado.",
       generateFallback: "Erro ao gerar banner.",
       editPrompt: "Descreva a alteração desejada com um pouco mais de detalhe.",
       edit: "Não foi possível editar a arte.",
@@ -455,19 +462,22 @@ const newBannerFormCopy = {
     guidedSteps: [
       {
         title: "Choose a style",
-        description: "Select a ready-made visual direction for a party, schedule, or promotion.",
+        description:
+          "Select a ready-made visual direction for a party, schedule, or promotion.",
         helper:
           "Scroll through the style cards below and click one to activate it. If you see a lock, that style requires a Pro plan.",
       },
       {
         title: "Add event details",
-        description: "Enter the event, DJ, date, and location. You can also use the automatic example.",
+        description:
+          "Enter the event, DJ, date, and location. You can also use the automatic example.",
         helper:
           "Fill in the main title, DJ name, date, and venue. If you want to move faster, use the fill example button.",
       },
       {
         title: "Upload your photo and generate",
-        description: "Add your photo so AI can use it as a reference and generate the preview.",
+        description:
+          "Add your photo so AI can use it as a reference and generate the preview.",
         helper:
           "In the DJ Photo section, upload a clear photo of your face. The guided test will use your own photo to generate the banner.",
       },
@@ -486,20 +496,14 @@ const newBannerFormCopy = {
     tourNext: "Next",
     tourDone: "Done",
     tourStepLabel: "Step",
-    tourIncompleteDefault:
-      "Complete this step before continuing.",
-    tourIncompleteStyle:
-      "Choose a visual style to continue.",
+    tourIncompleteDefault: "Complete this step before continuing.",
+    tourIncompleteStyle: "Choose a visual style to continue.",
     tourIncompleteDetails:
       "Fill in the main title, DJ name, date, and location to continue.",
-    tourIncompleteMainText:
-      "Fill in the main banner text to continue.",
-    tourIncompleteDjName:
-      "Fill in the DJ name to continue.",
-    tourIncompleteEventDate:
-      "Fill in the event date to continue.",
-    tourIncompleteEventLocation:
-      "Fill in the event location to continue.",
+    tourIncompleteMainText: "Fill in the main banner text to continue.",
+    tourIncompleteDjName: "Fill in the DJ name to continue.",
+    tourIncompleteEventDate: "Fill in the event date to continue.",
+    tourIncompleteEventLocation: "Fill in the event location to continue.",
     tourMainTextDescription:
       "Type the main title that should stand out most in the banner.",
     tourDjNameDescription:
@@ -508,8 +512,7 @@ const newBannerFormCopy = {
       "Enter when the event happens. It can be an exact date or something like This Saturday.",
     tourEventLocationDescription:
       "Enter the venue, city, or club name for the event promotion.",
-    tourIncompletePhoto:
-      "Upload your DJ photo to continue.",
+    tourIncompletePhoto: "Upload your DJ photo to continue.",
     tourIncompleteGenerate:
       "Click the Generate banner button to finish the guide.",
     typingSuggestions: {
@@ -572,7 +575,8 @@ const newBannerFormCopy = {
       {
         id: "artist_press",
         title: "Artist Press Photo",
-        description: "Official photo for promotion, press kits, booking and professional profiles.",
+        description:
+          "Official photo for promotion, press kits, booking and professional profiles.",
         badge: "Press",
       },
       {
@@ -584,19 +588,22 @@ const newBannerFormCopy = {
       {
         id: "profile_picture",
         title: "Profile Picture",
-        description: "Strong image for Instagram, TikTok, Spotify and social media.",
+        description:
+          "Strong image for Instagram, TikTok, Spotify and social media.",
         badge: "Social",
       },
       {
         id: "booking_promo",
         title: "Booking Promo Photo",
-        description: "Professional visual to increase perceived value for bookings.",
+        description:
+          "Professional visual to increase perceived value for bookings.",
         badge: "Booking",
       },
       {
         id: "editorial_artist",
         title: "Editorial Artist Photo",
-        description: "Sophisticated portrait with a magazine and portfolio look.",
+        description:
+          "Sophisticated portrait with a magazine and portfolio look.",
         badge: "Premium",
       },
       {
@@ -722,8 +729,7 @@ const newBannerFormCopy = {
         "Generation was started, but the API did not return the banner ID.",
       missingImage:
         "The API returned success, but did not send the generated image URL.",
-      sampleNeedsPhoto:
-        "Upload your DJ photo before using the guided test.",
+      sampleNeedsPhoto: "Upload your DJ photo before using the guided test.",
       generateFallback: "Error generating banner.",
       editPrompt: "Describe the desired edit with a little more detail.",
       edit: "Could not edit the artwork.",
@@ -768,19 +774,22 @@ const newBannerFormCopy = {
     guidedSteps: [
       {
         title: "Elige un estilo",
-        description: "Selecciona una dirección visual lista para fiesta, agenda o promoción.",
+        description:
+          "Selecciona una dirección visual lista para fiesta, agenda o promoción.",
         helper:
           "Desliza las tarjetas de estilo de abajo y toca una para activarla. Si ves un candado, ese estilo requiere plan Pro.",
       },
       {
         title: "Agrega los datos",
-        description: "Informa evento, DJ, fecha y lugar. También puedes usar el ejemplo automático.",
+        description:
+          "Informa evento, DJ, fecha y lugar. También puedes usar el ejemplo automático.",
         helper:
           "Completa el título principal, nombre del DJ, fecha y lugar. Si quieres ir más rápido, usa el botón de completar ejemplo.",
       },
       {
         title: "Sube tu foto y genera",
-        description: "Agrega tu foto para que la IA la use como referencia y genere el preview.",
+        description:
+          "Agrega tu foto para que la IA la use como referencia y genere el preview.",
         helper:
           "En la sección Foto del DJ, sube una imagen clara de tu rostro. La prueba guiada usará tu propia foto para generar el banner.",
       },
@@ -799,20 +808,15 @@ const newBannerFormCopy = {
     tourNext: "Siguiente",
     tourDone: "Finalizar",
     tourStepLabel: "Paso",
-    tourIncompleteDefault:
-      "Completa este paso antes de continuar.",
-    tourIncompleteStyle:
-      "Elige un estilo visual para continuar.",
+    tourIncompleteDefault: "Completa este paso antes de continuar.",
+    tourIncompleteStyle: "Elige un estilo visual para continuar.",
     tourIncompleteDetails:
       "Completa el título principal, nombre del DJ, fecha y lugar para continuar.",
     tourIncompleteMainText:
       "Completa el texto principal del banner para continuar.",
-    tourIncompleteDjName:
-      "Completa el nombre del DJ para continuar.",
-    tourIncompleteEventDate:
-      "Completa la fecha del evento para continuar.",
-    tourIncompleteEventLocation:
-      "Completa el lugar del evento para continuar.",
+    tourIncompleteDjName: "Completa el nombre del DJ para continuar.",
+    tourIncompleteEventDate: "Completa la fecha del evento para continuar.",
+    tourIncompleteEventLocation: "Completa el lugar del evento para continuar.",
     tourMainTextDescription:
       "Escribe el título principal que debe tener más destaque en el banner.",
     tourDjNameDescription:
@@ -821,8 +825,7 @@ const newBannerFormCopy = {
       "Indica cuándo será el evento. Puede ser una fecha exacta o algo como Este sábado.",
     tourEventLocationDescription:
       "Indica el local, ciudad o nombre del club para la promoción del evento.",
-    tourIncompletePhoto:
-      "Sube tu foto de DJ para continuar.",
+    tourIncompletePhoto: "Sube tu foto de DJ para continuar.",
     tourIncompleteGenerate:
       "Haz clic en el botón Generar banner para finalizar la guía.",
     typingSuggestions: {
@@ -886,37 +889,43 @@ const newBannerFormCopy = {
       {
         id: "artist_press",
         title: "Artist Press Photo",
-        description: "Foto oficial para promoción, press kit, booking y perfil profesional.",
+        description:
+          "Foto oficial para promoción, press kit, booking y perfil profesional.",
         badge: "Press",
       },
       {
         id: "studio_portrait",
         title: "Studio Portrait",
-        description: "Retrato limpio con iluminación de estudio y apariencia premium.",
+        description:
+          "Retrato limpio con iluminación de estudio y apariencia premium.",
         badge: "Clean",
       },
       {
         id: "profile_picture",
         title: "Profile Picture",
-        description: "Imagen fuerte para Instagram, TikTok, Spotify y redes sociales.",
+        description:
+          "Imagen fuerte para Instagram, TikTok, Spotify y redes sociales.",
         badge: "Social",
       },
       {
         id: "booking_promo",
         title: "Booking Promo Photo",
-        description: "Visual profesional para aumentar el valor percibido en contrataciones.",
+        description:
+          "Visual profesional para aumentar el valor percibido en contrataciones.",
         badge: "Booking",
       },
       {
         id: "editorial_artist",
         title: "Editorial Artist Photo",
-        description: "Retrato sofisticado con apariencia de revista y portafolio.",
+        description:
+          "Retrato sofisticado con apariencia de revista y portafolio.",
         badge: "Premium",
       },
       {
         id: "lifestyle_dj",
         title: "Lifestyle DJ Photo",
-        description: "Foto más natural, moderna y auténtica para redes sociales.",
+        description:
+          "Foto más natural, moderna y auténtica para redes sociales.",
         badge: "Natural",
       },
     ],
@@ -1039,8 +1048,7 @@ const newBannerFormCopy = {
         "La generación fue iniciada, pero la API no devolvió el ID del banner.",
       missingImage:
         "La API devolvió éxito, pero no envió la URL de la imagen generada.",
-      sampleNeedsPhoto:
-        "Sube tu foto de DJ antes de usar la prueba guiada.",
+      sampleNeedsPhoto: "Sube tu foto de DJ antes de usar la prueba guiada.",
       generateFallback: "Error al generar banner.",
       editPrompt: "Describe la edición deseada con un poco más de detalle.",
       edit: "No fue posible editar el arte.",
@@ -1096,8 +1104,30 @@ type BannerStatusResponse = {
   error?: string;
 };
 
+type BannerGenerateResponse = BannerStatusResponse & {
+  previewImageUrl?: string | null;
+  saved?: boolean;
+};
+
+type ProfessionalImageResponse = {
+  imageUrl?: string;
+  remainingCredits?: number | null;
+  error?: string;
+  message?: string;
+};
+
+type BannerEditResponse = BannerStatusResponse & {
+  previewImageUrl?: string | null;
+  outputImageUrl?: string | null;
+  saved?: boolean;
+  banner?: {
+    outputImageUrl?: string | null;
+  } | null;
+};
+
 const PENDING_BANNER_STORAGE_KEY = "djproia_pending_banner_generation";
-const FIRST_ACCESS_TOUR_STORAGE_KEY = "djproia_new_banner_first_access_tour_seen";
+const FIRST_ACCESS_TOUR_STORAGE_KEY =
+  "djproia_new_banner_first_access_tour_seen";
 const PENDING_BANNER_MAX_AGE_MS = 1000 * 60 * 60 * 3;
 
 type PendingBannerGeneration = {
@@ -1178,27 +1208,23 @@ function clearPendingBannerGeneration(bannerId?: string) {
   }
 }
 
-function readFileAsDataUrl(file: File, errorMessage: string) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
+async function readFileAsDataUrl(file: File, errorMessage: string) {
+  try {
+    return await fileToOptimizedDataUrl(file, {
+      maxWidth: 1600,
+      maxHeight: 1600,
+      quality: 0.82,
+      outputType: "image/jpeg",
+      maxDataUrlBytes: 2_500_000,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
 
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result !== "string") {
-        reject(new Error(errorMessage));
-        return;
-      }
-      resolve(result);
-    };
-
-    reader.onerror = () => {
-      reject(new Error(errorMessage));
-    };
-
-    reader.readAsDataURL(file);
-  });
+    throw new Error(errorMessage);
+  }
 }
-
 
 const inputClassName =
   "w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-base text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35 sm:text-sm";
@@ -1424,7 +1450,9 @@ export function NewBannerForm({
   const hasRequiredDetails = Boolean(
     hasMainText && hasDjName && hasEventDate && hasEventLocation,
   );
-  const hasUploadedPhoto = Boolean(referenceFile || connectedProfessionalImageUrl);
+  const hasUploadedPhoto = Boolean(
+    referenceFile || connectedProfessionalImageUrl,
+  );
   const canFinishTour =
     hasSelectedStyle &&
     hasRequiredDetails &&
@@ -1512,13 +1540,17 @@ export function NewBannerForm({
   }
 
   function getTypedPlaceholder(field: keyof BannerFormState, fallback: string) {
-    const suggestion = copy.typingSuggestions[field as keyof typeof copy.typingSuggestions];
+    const suggestion =
+      copy.typingSuggestions[field as keyof typeof copy.typingSuggestions];
 
     if (!suggestion || form[field] || dismissedSuggestionFields[field]) {
       return dismissedSuggestionFields[field] ? "" : fallback;
     }
 
-    return suggestion.slice(0, Math.max(1, Math.min(typingIndex, suggestion.length)));
+    return suggestion.slice(
+      0,
+      Math.max(1, Math.min(typingIndex, suggestion.length)),
+    );
   }
 
   function getTourIncompleteMessage(stepIndex: number) {
@@ -1556,13 +1588,17 @@ export function NewBannerForm({
   }
 
   const shouldShowMainSection =
-    !showFirstAccessTour || activeTourTarget === "mainText" || activeTourTarget === "djName";
+    !showFirstAccessTour ||
+    activeTourTarget === "mainText" ||
+    activeTourTarget === "djName";
   const shouldShowEventSection =
     !showFirstAccessTour ||
     activeTourTarget === "eventDate" ||
     activeTourTarget === "eventLocation";
   const shouldShowVisualSection =
-    !showFirstAccessTour || activeTourTarget === "visual" || activeTourTarget === "photo";
+    !showFirstAccessTour ||
+    activeTourTarget === "visual" ||
+    activeTourTarget === "photo";
 
   function scrollTourTargetToTop(
     ref: RefObject<HTMLElement | HTMLDivElement | HTMLButtonElement | null>,
@@ -1587,7 +1623,9 @@ export function NewBannerForm({
 
   function getTourScrollRef(
     target: FirstAccessTourTarget,
-    fallback: RefObject<HTMLElement | HTMLDivElement | HTMLButtonElement | null>,
+    fallback: RefObject<
+      HTMLElement | HTMLDivElement | HTMLButtonElement | null
+    >,
   ) {
     if (target === "mainText" || target === "djName") {
       return mainContentScrollAnchorRef;
@@ -1646,7 +1684,9 @@ export function NewBannerForm({
     }, 120);
   }
 
-  function scrollToSection(ref: RefObject<HTMLElement | HTMLDivElement | null>) {
+  function scrollToSection(
+    ref: RefObject<HTMLElement | HTMLDivElement | null>,
+  ) {
     window.setTimeout(() => {
       ref.current?.scrollIntoView({
         behavior: "smooth",
@@ -1678,10 +1718,12 @@ export function NewBannerForm({
       const response = await fetch(`/api/banners/status/${bannerId}`, {
         cache: "no-store",
       });
-      const data = (await response.json()) as BannerStatusResponse;
+      const data = await readSafeApiResponse<BannerStatusResponse>(response);
 
       if (!response.ok) {
-        throw new Error(data.error || copy.errors.trackGeneration);
+        throw new Error(
+          getSafeApiErrorMessage(response, data, copy.errors.trackGeneration),
+        );
       }
 
       if (typeof data.activeStep === "number") {
@@ -1813,9 +1855,14 @@ export function NewBannerForm({
   useEffect(() => {
     const values = Object.values(copy.typingSuggestions);
     const maxLength = Math.max(...values.map((value) => value.length));
-    const timer = window.setTimeout(() => {
-      setTypingIndex((current) => (current >= maxLength + 18 ? 0 : current + 1));
-    }, typingIndex > maxLength ? 80 : 45);
+    const timer = window.setTimeout(
+      () => {
+        setTypingIndex((current) =>
+          current >= maxLength + 18 ? 0 : current + 1,
+        );
+      },
+      typingIndex > maxLength ? 80 : 45,
+    );
 
     return () => window.clearTimeout(timer);
   }, [copy.typingSuggestions, typingIndex]);
@@ -1862,7 +1909,11 @@ export function NewBannerForm({
     const url = new URL(window.location.href);
     url.searchParams.delete("tour");
 
-    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    window.history.replaceState(
+      null,
+      "",
+      `${url.pathname}${url.search}${url.hash}`,
+    );
   }
 
   function completeFirstAccessTour() {
@@ -1924,7 +1975,10 @@ export function NewBannerForm({
 
     try {
       const referenceImageUrl = referenceFileForGeneration
-        ? await readFileAsDataUrl(referenceFileForGeneration, copy.errors.fileRead)
+        ? await readFileAsDataUrl(
+            referenceFileForGeneration,
+            copy.errors.fileRead,
+          )
         : connectedProfessionalImageUrlForGeneration || null;
 
       progressTimerA = window.setTimeout(() => {
@@ -1962,9 +2016,11 @@ export function NewBannerForm({
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
 
-      const data = await response.json();
+      const data = await readSafeApiResponse<BannerGenerateResponse>(response);
       if (!response.ok) {
-        throw new Error(data.error || copy.errors.generate);
+        throw new Error(
+          getSafeApiErrorMessage(response, data, copy.errors.generate),
+        );
       }
 
       const nextRemainingCredits =
@@ -2103,14 +2159,14 @@ export function NewBannerForm({
         }),
       });
 
-      const data = (await response.json().catch(() => ({}))) as {
-        imageUrl?: string;
-        remainingCredits?: number | null;
-        error?: string;
-      };
+      const data = await readSafeApiResponse<ProfessionalImageResponse>(
+        response,
+      );
 
       if (!response.ok) {
-        throw new Error(data.error || copy.errors.generate);
+        throw new Error(
+          getSafeApiErrorMessage(response, data, copy.errors.generate),
+        );
       }
 
       if (!data.imageUrl) {
@@ -2220,9 +2276,11 @@ export function NewBannerForm({
       if (progressTimerB) window.clearTimeout(progressTimerB);
       if (progressTimerC) window.clearTimeout(progressTimerC);
 
-      const data = await response.json().catch(() => ({}));
+      const data = await readSafeApiResponse<BannerEditResponse>(response);
       if (!response.ok) {
-        throw new Error(data.error || copy.errors.edit);
+        throw new Error(
+          getSafeApiErrorMessage(response, data, copy.errors.edit),
+        );
       }
 
       const nextRemainingAfterEdit =
@@ -2257,7 +2315,8 @@ export function NewBannerForm({
         setStatusText(copy.status.editSuccess);
         setResult({
           ...completedBanner,
-          bannerUrl: completedBanner.bannerUrl || data.bannerUrl || result.bannerUrl,
+          bannerUrl:
+            completedBanner.bannerUrl || data.bannerUrl || result.bannerUrl,
         });
         setEditSuccess(copy.status.editSuccess);
         setEditPrompt("");
@@ -2348,7 +2407,8 @@ export function NewBannerForm({
           </div>
         ) : null}
 
-        {showFirstAccessTour && (activeTourTarget === "mainText" || activeTourTarget === "djName") ? (
+        {showFirstAccessTour &&
+        (activeTourTarget === "mainText" || activeTourTarget === "djName") ? (
           <div
             ref={mainContentScrollAnchorRef}
             className="h-20 scroll-mt-0"
@@ -2434,7 +2494,9 @@ export function NewBannerForm({
             </Section>
           ) : null}
 
-          {showFirstAccessTour && (activeTourTarget === "eventDate" || activeTourTarget === "eventLocation") ? (
+          {showFirstAccessTour &&
+          (activeTourTarget === "eventDate" ||
+            activeTourTarget === "eventLocation") ? (
             <div
               ref={eventInfoScrollAnchorRef}
               className="h-20 scroll-mt-0"
@@ -2752,7 +2814,10 @@ export function NewBannerForm({
                       if (file) {
                         setConnectedProfessionalImageUrl(null);
                       }
-                      if ((file || connectedProfessionalImageUrl) && activeTourTarget === "photo") {
+                      if (
+                        (file || connectedProfessionalImageUrl) &&
+                        activeTourTarget === "photo"
+                      ) {
                         setTourError("");
                       }
                     }}
@@ -3239,7 +3304,8 @@ export function NewBannerForm({
                           value={professionalPhotoDirection}
                           onChange={(event) =>
                             setProfessionalPhotoDirection(
-                              event.target.value as ProfessionalPhotoDirectionId,
+                              event.target
+                                .value as ProfessionalPhotoDirectionId,
                             )
                           }
                           className="min-h-[42px] w-full rounded-2xl border border-white/10 bg-[#08101d] px-3 text-sm font-medium text-white outline-none transition focus:border-cyan-300/35 focus:ring-4 focus:ring-cyan-300/10 sm:w-[260px]"
@@ -3268,7 +3334,10 @@ export function NewBannerForm({
                     <button
                       type="button"
                       onClick={handleGenerateProfessionalImage}
-                      disabled={professionalImageLoading || !professionalImageSourcePreview}
+                      disabled={
+                        professionalImageLoading ||
+                        !professionalImageSourcePreview
+                      }
                       className="mt-4 inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-4 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {professionalImageLoading
@@ -3457,7 +3526,9 @@ function FirstAccessTourPopup({
           <span
             key={index}
             className={`h-1 rounded-full transition-all sm:h-1.5 ${
-              index === currentStep ? "w-5 bg-sky-300 sm:w-6" : "w-1 bg-white/20 sm:w-1.5"
+              index === currentStep
+                ? "w-5 bg-sky-300 sm:w-6"
+                : "w-1 bg-white/20 sm:w-1.5"
             }`}
           />
         ))}
