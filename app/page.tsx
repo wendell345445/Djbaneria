@@ -409,7 +409,7 @@ export default function HomePage() {
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
-                <span className="relative z-10">Choose plan</span>
+                <span className="relative z-10">Start Now</span>
                 <ArrowRight
                   size={15}
                   className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
@@ -427,13 +427,13 @@ export default function HomePage() {
             </div>
 
             <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
-              Create premium DJ banners and cleaner promo photos with AI
+              Create Premium DJ Banners and Studio-Quality Promo Photos with AI
             </h1>
 
             <p className="mt-5 max-w-2xl text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
-              Generate polished visuals for events, social media, and paid ads —
-              from premium DJ banners to cleaner, more professional-looking
-              promo photos.
+              Elevate your promo game with AI-powered banners and studio-quality
+              photo enhancement. Built for DJs who need clean, professional
+              visuals for every set.
             </p>
 
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
@@ -443,7 +443,7 @@ export default function HomePage() {
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
-                <span className="relative z-10">Choose your plan</span>
+                <span className="relative z-10">Level Up Your Brand</span>
                 <ArrowRight
                   size={17}
                   className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
@@ -478,10 +478,12 @@ export default function HomePage() {
               </h2>
 
               <p className="mt-5 max-w-2xl text-base leading-7 text-white/68 sm:text-lg sm:leading-8">
-                DJ Banner AI helps you create more than event banners. It can
-                also clean up casual or low-quality DJ photos, giving you a
-                sharper image for social media, ads, artist profiles, and promo
-                materials.
+                Turn your booth selfies into professional assets. DJ Banner AI
+                doesn't just create layouts; it fixes your source material. We
+                upscale and polish low-quality photos, giving you that
+                'studio-lit' finish perfect for artist profiles, EPKs, and
+                premium promo materials. Stop settling for blurry—start looking
+                like a headliner
               </p>
 
               <div className="mt-7 grid gap-3">
@@ -506,7 +508,7 @@ export default function HomePage() {
                 href="#pricing"
                 className="mt-7 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:px-6"
               >
-                See plans
+                Start Creating Now
                 <ArrowRight size={16} className="ml-2" />
               </a>
             </div>
