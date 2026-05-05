@@ -389,9 +389,9 @@ export default function HomePage() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/14 to-transparent" />
 
         <header className="sticky top-0 z-30 border-b border-cyan-300/10 bg-[#060816]/76 backdrop-blur-xl">
-          <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.28em] text-cyan-200/80">
+          <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4 lg:px-8">
+            <div className="min-w-0">
+              <p className="truncate text-[10px] uppercase tracking-[0.22em] text-cyan-200/80 sm:text-[11px] sm:tracking-[0.28em]">
                 DJ Banner AI
               </p>
               <p className="mt-1 hidden text-sm text-white/55 sm:block">
@@ -414,7 +414,7 @@ export default function HomePage() {
               </a>
             </nav>
 
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <Link
                 href="/login"
                 className="hidden rounded-2xl border border-white/10 px-4 py-2 text-sm font-medium text-white/80 transition hover:border-white/20 hover:text-white sm:inline-flex"
@@ -423,7 +423,7 @@ export default function HomePage() {
               </Link>
               <a
                 href="#pricing"
-                className="cta-animated group inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-slate-950 px-3.5 py-2 text-xs font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_46px_rgba(34,211,238,0.26)] sm:px-4 sm:text-sm"
+                className="cta-animated group inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-2xl border border-cyan-200/20 bg-slate-950 px-3 py-2 text-xs font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_46px_rgba(34,211,238,0.26)] sm:gap-2 sm:px-4 sm:text-sm"
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
@@ -437,29 +437,29 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className="relative mx-auto grid w-full max-w-7xl gap-9 px-4 pb-12 pt-10 sm:gap-14 sm:px-6 sm:pb-16 sm:pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-20">
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-4 py-2 text-xs font-medium text-cyan-100">
-              <BadgeCheck size={14} className="text-cyan-200" />
-              For DJs who want premium flyers without designer delays
+        <section className="relative mx-auto grid w-full min-w-0 max-w-7xl gap-9 px-4 pb-12 pt-10 sm:gap-14 sm:px-6 sm:pb-16 sm:pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-20">
+          <div className="relative z-10 min-w-0">
+            <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-3 py-2 text-xs font-medium leading-5 text-cyan-100 sm:px-4">
+              <BadgeCheck size={14} className="shrink-0 text-cyan-200" />
+              <span className="min-w-0">For DJs who want premium flyers without designer delays</span>
             </div>
 
-            <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
+            <h1 className="mt-5 max-w-4xl break-words text-[32px] font-semibold leading-[1.04] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] sm:leading-[1.02] lg:text-[68px]">
               Create premium DJ flyers in minutes — without paying $50–$100 per design.
             </h1>
 
-            <p className="mt-5 max-w-2xl text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
+            <p className="mt-5 max-w-2xl break-words text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
               Generate event flyers, story visuals, promo posts, and cleaner DJ photos with AI. Built for DJs who want a more professional online presence without waiting on a designer.
             </p>
 
-            <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
+            <div className="mt-7 flex w-full max-w-full flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-4">
               <a
                 href="#pricing"
-                className="cta-animated group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-slate-950 px-5 text-sm font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_64px_rgba(34,211,238,0.32)] sm:w-auto sm:min-h-[54px] sm:px-6"
+                className="cta-animated group inline-flex min-h-[52px] w-full max-w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-slate-950 px-5 text-sm font-bold text-slate-950 transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_64px_rgba(34,211,238,0.32)] sm:w-auto sm:min-h-[54px] sm:px-6"
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
-                <span className="relative z-10">Choose your plan</span>
+                <span className="relative z-10 whitespace-nowrap">Choose your plan</span>
                 <ArrowRight
                   size={17}
                   className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
@@ -467,7 +467,7 @@ export default function HomePage() {
               </a>
               <a
                 href="#exemplos"
-                className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.03] px-5 text-sm font-semibold text-white/85 transition hover:bg-white/[0.05] sm:w-auto sm:min-h-[54px] sm:px-6"
+                className="inline-flex min-h-[52px] w-full max-w-full items-center justify-center rounded-2xl border border-white/12 bg-white/[0.03] px-5 text-sm font-semibold text-white/85 transition hover:bg-white/[0.05] sm:w-auto sm:min-h-[54px] sm:px-6"
               >
                 See examples
               </a>
@@ -479,9 +479,9 @@ export default function HomePage() {
 
             <div
               id="exemplos"
-              className="mt-12 w-full max-w-5xl sm:mt-14"
+              className="mt-12 w-full max-w-full min-w-0 sm:mt-14 lg:max-w-5xl"
             >
-        <div className="max-w-3xl">
+              <div className="max-w-3xl">
           <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
             Visual examples
           </p>
@@ -492,13 +492,13 @@ export default function HomePage() {
             Create premium-looking visuals for event promotion, artist
             branding, social media, and paid ads — without starting from a blank canvas.
           </p>
-        </div>
+              </div>
 
-        <div className="mt-10 min-h-[520px] sm:min-h-[640px] lg:min-h-[720px]">
-          <LandingBannerCarousel examples={landingBannerExamples} />
-        </div>
+              <div className="mt-8 min-h-[420px] overflow-hidden sm:mt-10 sm:min-h-[640px] lg:min-h-[720px]">
+                <LandingBannerCarousel examples={landingBannerExamples} />
+              </div>
 
-        <div className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.24)] sm:flex sm:items-center sm:justify-between sm:gap-6">
+              <div className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.24)] sm:flex sm:items-center sm:justify-between sm:gap-6">
           <div>
             <p className="text-base font-semibold text-white">
               Like what you see?
@@ -507,14 +507,14 @@ export default function HomePage() {
               Choose a plan, create your password after checkout, and start generating your own promo visuals.
             </p>
           </div>
-          <a
-            href="#pricing"
-            className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:mt-0 sm:w-auto"
-          >
-            Choose your plan
-            <ArrowRight size={16} className="ml-2" />
-          </a>
-        </div>
+                <a
+                  href="#pricing"
+                  className="mt-5 inline-flex min-h-[48px] w-full max-w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:mt-0 sm:w-auto"
+                >
+                  <span className="whitespace-nowrap">Choose your plan</span>
+                  <ArrowRight size={16} className="ml-2 shrink-0" />
+                </a>
+              </div>
             </div>
 
 
@@ -544,10 +544,10 @@ export default function HomePage() {
               </p>
               <a
                 href="#pricing"
-                className="mt-7 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:px-6"
+                className="mt-7 inline-flex min-h-[52px] w-full max-w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:px-6"
               >
-                Start creating for less
-                <ArrowRight size={16} className="ml-2" />
+                <span className="text-center">Start creating for less</span>
+                <ArrowRight size={16} className="ml-2 shrink-0" />
               </a>
             </div>
 
@@ -911,7 +911,7 @@ Start with the plan that matches your monthly promotion volume. After checkout, 
                   </div>
                 ) : null}
 
-                <div className="pr-24 lg:pr-0">
+                <div className={plan.highlighted ? "pt-8 sm:pt-0 sm:pr-24 lg:pr-0" : ""}>
                   <h3 className="text-xl font-semibold text-white">
                     {plan.name}
                   </h3>
@@ -961,7 +961,7 @@ Start with the plan that matches your monthly promotion volume. After checkout, 
             <p className="text-center text-sm font-semibold text-white">
               What happens after payment?
             </p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-5">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {[
                 "Receive your secure email link",
                 "Create your password",
