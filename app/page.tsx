@@ -12,7 +12,6 @@ import {
   Camera,
   ArrowRight,
   Quote,
-  Star,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
 import { PublicPlanCheckoutButton } from "@/components/public-plan-checkout-button";
@@ -22,6 +21,7 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
+
 
 const LandingBannerCarousel = dynamic(
   () =>
@@ -76,27 +76,42 @@ const faqs = [
   {
     question: "Do I need design experience?",
     answer:
-      "No. DJ Banner AI is built for DJs, producers, and event promoters who want professional visuals without learning design software.",
+      "No. DJ Banner AI is built for DJs, producers, and event promoters who want professional-looking visuals without learning design software.",
   },
   {
-    question: "What can I create?",
+    question: "How many credits does one banner use?",
     answer:
-      "You can create DJ banners, event flyers, feed posts, story visuals, ad creatives, and cleaner promo photos for your online presence.",
+      "A new banner generation uses 1 credit. Requesting an edit or variation also uses 1 credit, so you can test different directions and keep the version you like best.",
   },
   {
-    question: "Can it improve my existing DJ photos?",
+    question: "Can I cancel anytime?",
     answer:
-      "Yes. You can upload a casual or low-quality photo and use AI to make it look cleaner, sharper, and more professional for social media, ads, and artist profiles.",
+      "Yes. You can manage or cancel your subscription from your account. Your access remains active until the end of the billing period already paid for.",
   },
   {
-    question: "Can I use my own photo in a banner?",
+    question: "What happens after I pay?",
     answer:
-      "Yes. You can upload your own image as a reference when creating a banner, so the final visual feels closer to your identity.",
+      "After checkout, your account is created from the email used at payment. You receive a secure email link to create your password, then your first login opens the guided tour.",
   },
   {
-    question: "What happens after I sign up?",
+    question: "Can I use the flyers for paid ads?",
     answer:
-      "After checkout, you receive a secure email link to create your password. Then you can access the dashboard and start the guided tour.",
+      "Yes. The visuals are made for event promotion, social media, stories, and paid ads. Always make sure the final copy and claims match your event and advertising rules.",
+  },
+  {
+    question: "Can I create feed and story versions?",
+    answer:
+      "Yes. The platform supports feed and story formats, so you can create visuals for Instagram posts, stories, ads, and other DJ promo placements.",
+  },
+  {
+    question: "Can I use my own DJ photo?",
+    answer:
+      "Yes. You can upload your own photo as a reference when creating a banner, or use the AI photo enhancement flow to make casual photos look more polished for promotion.",
+  },
+  {
+    question: "Can I request changes to a generated banner?",
+    answer:
+      "Yes. After a banner is generated, you can request edits and test different creative directions. Each edit uses 1 credit.",
   },
 ];
 
@@ -107,16 +122,17 @@ const pricingPlans = [
     price: "$12.99",
     period: "/month",
     description:
-      "For DJs who need professional visuals for regular event promotion.",
+      "For DJs who need consistent, professional visuals for regular event promotion.",
     credits: "20 credits / month",
+    costNote: "About $0.65 per generation",
     cta: "Start Pro",
     highlighted: false,
     features: [
       "20 AI generations per month",
-      "Premium DJ banner creation",
+      "Premium DJ flyer and banner creation",
       "AI promo photo enhancement",
       "Feed and story formats",
-      "Low and medium quality",
+      "Cancel anytime",
     ],
   },
   {
@@ -125,8 +141,9 @@ const pricingPlans = [
     price: "$24.99",
     period: "/month",
     description:
-      "The best option for DJs running ads, events, stories, and frequent promos.",
+      "Best for DJs running ads, weekly promos, stories, and frequent event announcements.",
     credits: "40 credits / month",
+    costNote: "About $0.62 per generation",
     cta: "Start Professional",
     highlighted: true,
     features: [
@@ -134,7 +151,7 @@ const pricingPlans = [
       "Premium and pro visual styles",
       "High-quality image generation",
       "Professional DJ photo enhancement",
-      "Built for paid ads and social media",
+      "Best for paid ads and social media",
     ],
   },
   {
@@ -143,8 +160,9 @@ const pricingPlans = [
     price: "$39.99",
     period: "/month",
     description:
-      "For agencies, DJ collectives, promoters, and creators with higher volume.",
+      "For promoters, agencies, DJ collectives, and creators who need higher volume.",
     credits: "80 credits / month",
+    costNote: "About $0.50 per generation",
     cta: "Start Studio",
     highlighted: false,
     features: [
@@ -171,7 +189,7 @@ const testimonials = [
   {
     initials: "DM",
     quote:
-      "Dj Banner Ai completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
+      "DJ Banner AI completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
     name: "Daniel Morgan",
     role: "Club DJ",
     location: "Orlando, FL",
@@ -181,7 +199,7 @@ const testimonials = [
   {
     initials: "TC",
     quote:
-      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Pro AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it. Thank you.",
+      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Banner AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it. Thank you, DJ Banner AI.",
     name: "Tyler Carter",
     role: "Event DJ",
     location: "Los Angeles, CA",
@@ -409,7 +427,7 @@ export default function HomePage() {
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
-                <span className="relative z-10">Start Now</span>
+                <span className="relative z-10">Choose plan</span>
                 <ArrowRight
                   size={15}
                   className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
@@ -423,17 +441,15 @@ export default function HomePage() {
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-4 py-2 text-xs font-medium text-cyan-100">
               <BadgeCheck size={14} className="text-cyan-200" />
-              For DJs ready to upgrade their promo visuals
+              For DJs who want premium flyers without designer delays
             </div>
 
             <h1 className="mt-5 max-w-4xl text-[34px] font-semibold leading-[1.02] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] lg:text-[68px]">
-              Create Premium DJ Banners and Studio-Quality Promo Photos with AI
+              Create premium DJ flyers in minutes — without paying $50–$100 per design.
             </h1>
 
             <p className="mt-5 max-w-2xl text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
-              Elevate your promo game with AI-powered banners and studio-quality
-              photo enhancement. Built for DJs who need clean, professional
-              visuals for every set.
+              Generate event flyers, story visuals, promo posts, and cleaner DJ photos with AI. Built for DJs who want a more professional online presence without waiting on a designer.
             </p>
 
             <div className="mt-7 grid gap-3 sm:mt-8 sm:flex sm:flex-wrap sm:gap-4">
@@ -443,7 +459,7 @@ export default function HomePage() {
               >
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
-                <span className="relative z-10">Level Up Your Brand</span>
+                <span className="relative z-10">Choose your plan</span>
                 <ArrowRight
                   size={17}
                   className="relative z-10 transition duration-300 group-hover:translate-x-0.5"
@@ -456,6 +472,55 @@ export default function HomePage() {
                 See examples
               </a>
             </div>
+
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/54">
+              One agency flyer can cost $50–$100. DJ Banner AI gives you 20–80 monthly generations starting at $12.99.
+            </p>
+
+            <div
+              id="exemplos"
+              className="mt-12 w-full max-w-5xl sm:mt-14"
+            >
+        <div className="max-w-3xl">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
+            Visual examples
+          </p>
+          <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
+            See what you can create
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-5 text-white/66">
+            Create premium-looking visuals for event promotion, artist
+            branding, social media, and paid ads — without starting from a blank canvas.
+          </p>
+        </div>
+
+        <div className="mt-10 min-h-[520px] sm:min-h-[640px] lg:min-h-[720px]">
+          <LandingBannerCarousel examples={landingBannerExamples} />
+        </div>
+
+        <div className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.24)] sm:flex sm:items-center sm:justify-between sm:gap-6">
+          <div>
+            <p className="text-base font-semibold text-white">
+              Like what you see?
+            </p>
+            <p className="mt-2 text-sm leading-6 text-white/58">
+              Choose a plan, create your password after checkout, and start generating your own promo visuals.
+            </p>
+          </div>
+          <a
+            href="#pricing"
+            className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:mt-0 sm:w-auto"
+          >
+            Choose your plan
+            <ArrowRight size={16} className="ml-2" />
+          </a>
+        </div>
+            </div>
+
+
+
+
+
           </div>
 
           <div className="relative hidden min-w-0 lg:block lg:pl-6">
@@ -463,6 +528,73 @@ export default function HomePage() {
           </div>
         </section>
       </div>
+
+      <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12 lg:px-8">
+        <div className="overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.052),rgba(255,255,255,0.024))] p-5 shadow-[0_28px_100px_rgba(0,0,0,0.30)] sm:p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
+                Designer cost vs DJ Banner AI
+              </p>
+              <h2 className="mt-4 max-w-2xl text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
+                Stop paying designer prices for every single flyer.
+              </h2>
+              <p className="mt-4 max-w-xl text-base leading-7 text-white/62">
+                When every event needs a fresh visual, paying $50–$100 per design can get expensive fast. DJ Banner AI helps you create, edit, and test promo visuals for a fraction of the cost.
+              </p>
+              <a
+                href="#pricing"
+                className="mt-7 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:px-6"
+              >
+                Start creating for less
+                <ArrowRight size={16} className="ml-2" />
+              </a>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-[28px] border border-rose-300/14 bg-rose-300/[0.045] p-5">
+                <p className="text-sm font-semibold text-rose-100">
+                  Traditional designer or agency
+                </p>
+                <div className="mt-5 space-y-4 text-sm leading-6 text-white/66">
+                  {[
+                    "$50–$100 per flyer",
+                    "Wait hours or days",
+                    "Limited revisions",
+                    "Harder to test different versions",
+                  ].map((item) => (
+                    <div key={item} className="flex gap-3">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-200" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-cyan-300/18 bg-cyan-300/[0.06] p-5 shadow-[0_18px_70px_rgba(34,211,238,0.10)]">
+                <p className="text-sm font-semibold text-cyan-100">
+                  DJ Banner AI
+                </p>
+                <div className="mt-5 space-y-4 text-sm leading-6 text-white/72">
+                  {[
+                    "Create flyers in minutes",
+                    "Generate multiple versions",
+                    "Edit and test ideas fast",
+                    "Plans from $12.99/month",
+                  ].map((item) => (
+                    <div key={item} className="flex gap-3">
+                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
+                        <BadgeCheck size={12} />
+                      </span>
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 sm:pb-12 lg:px-8">
         <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.13),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.16),transparent_36%),linear-gradient(135deg,rgba(10,15,30,0.98),rgba(7,10,24,0.96))] p-5 shadow-[0_28px_100px_rgba(0,0,0,0.35)] sm:p-8 lg:p-10">
@@ -474,23 +606,18 @@ export default function HomePage() {
               </div>
 
               <h2 className="mt-5 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px] lg:text-[48px]">
-                Make rough DJ photos look ready for promotion.
+                Your flyer is only as strong as the image inside it.
               </h2>
 
               <p className="mt-5 max-w-2xl text-base leading-7 text-white/68 sm:text-lg sm:leading-8">
-                Turn your booth selfies into professional assets. DJ Banner AI
-                doesn't just create layouts; it fixes your source material. We
-                upscale and polish low-quality photos, giving you that
-                'studio-lit' finish perfect for artist profiles, EPKs, and
-                premium promo materials. Stop settling for blurry—start looking
-                like a headliner
+                Turn casual DJ photos into cleaner, more professional promo images for flyers, stories, Instagram, and booking posts.
               </p>
 
               <div className="mt-7 grid gap-3">
                 {[
-                  "Clean up casual or low-quality DJ photos",
-                  "Look more polished across your online presence",
-                  "Create stronger images for profiles, posts, ads, and promos",
+                  "Turn rough photos into cleaner promo assets",
+                  "Make your flyers and profiles look more credible",
+                  "Use stronger images across posts, ads, stories, and booking material",
                 ].map((item) => (
                   <div
                     key={item}
@@ -508,7 +635,7 @@ export default function HomePage() {
                 href="#pricing"
                 className="mt-7 inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto sm:px-6"
               >
-                Start Creating Now
+                See plans
                 <ArrowRight size={16} className="ml-2" />
               </a>
             </div>
@@ -563,6 +690,10 @@ export default function HomePage() {
                       ⇆
                     </span>
                   </div>
+
+                  <div className="absolute inset-x-4 bottom-4 z-30 rounded-2xl border border-cyan-300/15 bg-slate-950/65 px-4 py-3 text-xs leading-5 text-white/78 backdrop-blur">
+                    From a rough photo to a cleaner DJ image for profiles, posts, ads, and social media.
+                  </div>
                 </div>
               </div>
 
@@ -584,28 +715,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section
-        id="exemplos"
-        className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8"
-      >
-        <div className="max-w-3xl">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-            Visual examples
-          </p>
-          <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-            See what you can create
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-5 text-white/66">
-            Create premium-looking visuals for event promotion, artist branding,
-            social media, and paid ads — without starting from a blank canvas.
-          </p>
-        </div>
-
-        <div className="mt-10 min-h-[520px] sm:min-h-[640px] lg:min-h-[720px]">
-          <LandingBannerCarousel examples={landingBannerExamples} />
-        </div>
-      </section>
-
       <section className="relative overflow-hidden border-b border-white/8">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(34,211,238,0.11),transparent_25%),radial-gradient(circle_at_82%_18%,rgba(168,85,247,0.11),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.018),transparent_36%)]" />
         <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-cyan-400/8 blur-3xl" />
@@ -619,8 +728,7 @@ export default function HomePage() {
             </div>
 
             <h2 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.05em] text-white sm:text-[46px]">
-              Premium promo visuals that make your DJ brand feel more
-              established.
+              Premium promo visuals that make your DJ brand feel more established.
             </h2>
 
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/62">
@@ -663,19 +771,9 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    <Quote
-                      size={22}
-                      className="mt-1 shrink-0 text-cyan-100/55"
-                    />
+                    <Quote size={22} className="mt-1 shrink-0 text-cyan-100/55" />
                   </div>
-
-                  <div className="mt-5 flex items-center gap-1 text-amber-200">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Star key={index} size={15} fill="currentColor" />
-                    ))}
-                  </div>
-
-                  <p className="mt-5 min-h-[176px] text-[15px] leading-7 text-white/76">
+<p className="mt-5 min-h-[176px] text-[15px] leading-7 text-white/76">
                     “{testimonial.quote}”
                   </p>
 
@@ -693,6 +791,7 @@ export default function HomePage() {
               </article>
             ))}
           </div>
+
         </div>
       </section>
 
@@ -706,8 +805,7 @@ export default function HomePage() {
               Why DJs choose DJ Banner AI
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              A faster way to create visuals that make your DJ brand look more
-              professional.
+              A faster way to create visuals that make your DJ brand look more professional.
             </h2>
             <p className="mt-4 text-base leading-6 text-white/66">
               DJ Banner AI helps you create better promo assets, improve your
@@ -790,11 +888,10 @@ export default function HomePage() {
               Pricing
             </p>
             <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-              Choose a plan and start after payment.
+              Choose the plan that fits your promo workflow.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/64">
-              Select a paid plan, complete checkout, then receive a secure email
-              link to create your password and access the guided tour.
+Start with the plan that matches your monthly promotion volume. After checkout, you receive a secure email link to create your password and access the guided tour.
             </p>
           </div>
 
@@ -834,18 +931,21 @@ export default function HomePage() {
 
                 <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-cyan-100">
                   {plan.credits}
+                  <span className="mt-1 block text-xs font-medium text-white/45">
+                    {plan.costNote}
+                  </span>
                 </div>
 
                 <div className="mt-6">
                   <PublicPlanCheckoutButton plan={plan.plan} label={plan.cta} />
+                  <p className="mt-3 text-center text-xs leading-5 text-white/42">
+                    Secure checkout · Cancel anytime · Account created after payment
+                  </p>
                 </div>
 
                 <div className="mt-6 grid gap-3">
                   {plan.features.map((feature) => (
-                    <div
-                      key={feature}
-                      className="flex items-start gap-3 text-sm leading-6 text-white/68"
-                    >
+                    <div key={feature} className="flex items-start gap-3 text-sm leading-6 text-white/68">
                       <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-300">
                         <BadgeCheck size={12} />
                       </span>
@@ -855,6 +955,33 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mx-auto mt-10 max-w-4xl rounded-[30px] border border-white/10 bg-white/[0.035] p-5 sm:p-6">
+            <p className="text-center text-sm font-semibold text-white">
+              What happens after payment?
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-5">
+              {[
+                "Receive your secure email link",
+                "Create your password",
+                "Access your dashboard",
+                "Follow the guided tour",
+                "Generate your first banner",
+              ].map((step, index) => (
+                <div
+                  key={step}
+                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center"
+                >
+                  <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-cyan-300/12 text-xs font-bold text-cyan-100">
+                    {index + 1}
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-white/58">
+                    {step}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <p className="mx-auto mt-7 max-w-2xl text-center text-xs leading-6 text-white/42">
@@ -896,6 +1023,27 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8">
+        <div className="overflow-hidden rounded-[36px] border border-cyan-200/14 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.16),transparent_34%),linear-gradient(135deg,rgba(10,15,30,0.98),rgba(7,10,24,0.98))] p-6 text-center shadow-[0_30px_120px_rgba(0,0,0,0.34)] sm:p-10">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
+            Ready to upgrade your promo visuals?
+          </p>
+          <h2 className="mx-auto mt-4 max-w-3xl text-[30px] font-semibold leading-tight tracking-[-0.05em] text-white sm:text-[48px]">
+            Make your DJ brand look more professional before your next event.
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-white/62">
+            Choose a plan, create your password after checkout, and start generating premium flyers, stories, and promo photos today.
+          </p>
+          <a
+            href="#pricing"
+            className="mt-8 inline-flex min-h-[54px] w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 px-6 text-sm font-bold text-slate-950 transition hover:opacity-95 sm:w-auto"
+          >
+            Choose your plan
+            <ArrowRight size={17} className="ml-2" />
+          </a>
+        </div>
+      </section>
+
       <footer className="border-t border-white/8 bg-[#060816]">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-8 text-sm text-white/50 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <p>© 2026 DJ Banner AI. All rights reserved.</p>
@@ -914,6 +1062,7 @@ export default function HomePage() {
   );
 }
 
+
 function LandingCarouselLoading() {
   return (
     <div className="mx-auto w-full max-w-[1120px]">
@@ -925,3 +1074,5 @@ function LandingCarouselLoading() {
     </div>
   );
 }
+
+
