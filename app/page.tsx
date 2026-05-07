@@ -446,8 +446,7 @@ export default function HomePage() {
             </div>
 
             <h1 className="mt-5 max-w-4xl break-words text-[32px] font-semibold leading-[1.04] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] sm:leading-[1.02] lg:text-[68px]">
-              Create premium DJ flyers in minutes — without paying $50–$100 per
-              design.
+              Create premium DJ banners and cleaner promo photos with AI
             </h1>
 
             <p className="mt-5 max-w-2xl break-words text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
