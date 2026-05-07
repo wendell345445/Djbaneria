@@ -78,9 +78,9 @@ const faqs = [
       "No. DJ Banner AI is built for DJs, producers, and event promoters who want professional-looking visuals without learning design software.",
   },
   {
-    question: "How many credits does one banner use?",
+    question: "How many credits does one flyer use?",
     answer:
-      "A new banner generation uses 1 credit. Requesting an edit or variation also uses 1 credit, so you can test different directions and keep the version you like best.",
+      "A new flyer generation uses 1 credit. Requesting an edit or variation also uses 1 credit, so you can test different directions and keep the version you like best.",
   },
   {
     question: "Can I cancel anytime?",
@@ -105,12 +105,12 @@ const faqs = [
   {
     question: "Can I use my own DJ photo?",
     answer:
-      "Yes. You can upload your own photo as a reference when creating a banner, or use the AI photo enhancement flow to make casual photos look more polished for promotion.",
+      "Yes. You can upload your own photo as a reference when creating a flyer, or use the AI photo enhancement flow to make casual photos look more polished for promotion.",
   },
   {
-    question: "Can I request changes to a generated banner?",
+    question: "Can I request changes to a generated flyer?",
     answer:
-      "Yes. After a banner is generated, you can request edits and test different creative directions. Each edit uses 1 credit.",
+      "Yes. After a flyer is generated, you can request edits and test different creative directions. Each edit uses 1 credit.",
   },
 ];
 
@@ -128,7 +128,7 @@ const pricingPlans = [
     highlighted: false,
     features: [
       "20 AI generations per month",
-      "Premium DJ flyer and banner creation",
+      "Premium DJ flyer creation",
       "AI promo photo enhancement",
       "Feed and story formats",
       "Cancel anytime",
@@ -167,7 +167,7 @@ const pricingPlans = [
     features: [
       "80 AI generations per month",
       "High-volume creative output",
-      "Premium banners and promo photos",
+      "Premium flyers and promo photos",
       "High-quality image generation",
       "Ideal for teams and promoters",
     ],
@@ -178,7 +178,7 @@ const testimonials = [
   {
     initials: "NW",
     quote:
-      "I use this type of artwork a lot, but the agency I had hired was getting very expensive. They charged me $100 for each flyer, and the result was not always exactly what I wanted. With this tool, everything became much easier. I can create banners my way, make changes, test different versions, and the price does not even compare.",
+      "I use this type of artwork a lot, but the agency I had hired was getting very expensive. They charged me $100 for each flyer, and the result was not always exactly what I wanted. With this tool, everything became much easier. I can create flyers my way, make changes, test different versions, and the price does not even compare.",
     name: "Noah Walker",
     role: "Open format DJ",
     location: "Miami, FL",
@@ -439,12 +439,12 @@ export default function HomePage() {
         <section className="relative mx-auto grid w-full min-w-0 max-w-7xl gap-9 px-4 pb-12 pt-10 sm:gap-14 sm:px-6 sm:pb-16 sm:pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-20">
           <div className="relative z-10 min-w-0">
             <h1 className="mt-5 max-w-4xl break-words text-[32px] font-semibold leading-[1.04] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] sm:leading-[1.02] lg:text-[68px]">
-              Create premium DJ banners and cleaner promo photos with AI
+              Create premium DJ flyers and cleaner promo photos with AI
             </h1>
 
             <p className="mt-5 max-w-2xl break-words text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
               Generate polished visuals for events, social media, and paid ads —
-              from premium DJ banners to cleaner, more professional-looking
+              from premium DJ flyers to cleaner, more professional-looking
               promo photos.
             </p>
 
@@ -456,7 +456,7 @@ export default function HomePage() {
                 <span className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(90deg,#67e8f9_0%,#7dd3fc_45%,#c084fc_100%)]" />
                 <span className="cta-animated-shine" />
                 <span className="relative z-10 whitespace-nowrap">
-                  Start creating banners
+                  Start creating flyers
                 </span>
                 <ArrowRight
                   size={17}
@@ -979,7 +979,7 @@ export default function HomePage() {
                 "Create your password",
                 "Access your dashboard",
                 "Follow the guided tour",
-                "Generate your first banner",
+                "Generate your first flyer",
               ].map((step, index) => (
                 <div
                   key={step}
