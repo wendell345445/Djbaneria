@@ -735,14 +735,12 @@ export default function HomePage() {
             </div>
 
             <h2 className="mt-5 text-[30px] font-semibold leading-tight tracking-[-0.05em] text-white sm:text-[46px]">
-              Premium promo visuals that make your DJ brand feel more
-              established.
+              A few testimonials we receive every week about DJ Banner AI.
             </h2>
 
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/62">
-              DJs use the platform to create cleaner event promos, stronger
-              profile visuals, and social content that feels ready for bookings,
-              ads, and higher-value opportunities.
+              Real feedback from DJs creating faster, cleaner, and more
+              professional promo visuals.
             </p>
           </div>
 
