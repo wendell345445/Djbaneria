@@ -438,13 +438,6 @@ export default function HomePage() {
 
         <section className="relative mx-auto grid w-full min-w-0 max-w-7xl gap-9 px-4 pb-12 pt-10 sm:gap-14 sm:px-6 sm:pb-16 sm:pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-20">
           <div className="relative z-10 min-w-0">
-            <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-cyan-300/15 bg-cyan-300/8 px-3 py-2 text-xs font-medium leading-5 text-cyan-100 sm:px-4">
-              <BadgeCheck size={14} className="shrink-0 text-cyan-200" />
-              <span className="min-w-0">
-                For DJs who want premium flyers without designer delays
-              </span>
-            </div>
-
             <h1 className="mt-5 max-w-4xl break-words text-[32px] font-semibold leading-[1.04] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] sm:leading-[1.02] lg:text-[68px]">
               Create premium DJ banners and cleaner promo photos with AI
             </h1>
