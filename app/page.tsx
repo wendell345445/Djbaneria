@@ -450,9 +450,9 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-5 max-w-2xl break-words text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
-              Generate event flyers, story visuals, promo posts, and cleaner DJ
-              photos with AI. Built for DJs who want a more professional online
-              presence without waiting on a designer.
+              Generate polished visuals for events, social media, and paid ads —
+              from premium DJ banners to cleaner, more professional-looking
+              promo photos.
             </p>
 
             <div className="mt-7 flex w-full max-w-full flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-4">
