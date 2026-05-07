@@ -36,6 +36,27 @@ type NewSaleNotificationParams = {
   stripeSubscriptionId?: string | null;
 };
 
+type CheckoutStartedNotificationParams = {
+  plan: SubscriptionPlan | string;
+  amount?: number | null;
+  currency?: string | null;
+  stripeSessionId?: string | null;
+  checkoutUrl?: string | null;
+  ip?: string | null;
+  userAgent?: string | null;
+  eventSourceUrl?: string | null;
+  landingPage?: string | null;
+  referrer?: string | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  utmContent?: string | null;
+  utmTerm?: string | null;
+  fbp?: string | null;
+  fbc?: string | null;
+  fbclid?: string | null;
+};
+
 type TourCompletedNotificationParams = {
   name?: string | null;
   email: string;
@@ -121,6 +142,7 @@ function getPlanLabel(plan: SubscriptionPlan | string) {
 
 function buildNotificationHtml(params: SendOwnerNotificationParams) {
   const appName = getAppName();
+
   const rowsHtml = params.rows
     .map((row) => {
       return `
@@ -181,7 +203,9 @@ export async function sendOwnerNotificationEmail(
   const to = getOwnerNotificationEmails();
 
   if (!to.length) {
-    console.log("[owner-notification] OWNER_NOTIFICATION_EMAIL não configurado.");
+    console.log(
+      "[owner-notification] OWNER_NOTIFICATION_EMAIL não configurado.",
+    );
     return { sent: false, skipped: true };
   }
 
@@ -239,6 +263,43 @@ export async function sendOwnerNewUserSignupEmail(
     });
   } catch (error) {
     console.error("Erro inesperado ao notificar novo cadastro:", error);
+    return { sent: false, skipped: false };
+  }
+}
+
+export async function sendOwnerCheckoutStartedEmail(
+  params: CheckoutStartedNotificationParams,
+) {
+  try {
+    return await sendOwnerNotificationEmail({
+      subject: `Checkout iniciado - ${getPlanLabel(params.plan)}`,
+      title: "Checkout iniciado",
+      intro:
+        "Um visitante escolheu um plano e uma sessão Stripe Checkout foi criada. Esse usuário ainda não necessariamente concluiu o pagamento.",
+      badge: "Checkout iniciado",
+      rows: [
+        { label: "Plano", value: getPlanLabel(params.plan) },
+        { label: "Valor", value: formatMoney(params.amount, params.currency) },
+        { label: "Sessão Stripe", value: params.stripeSessionId },
+        { label: "Link do checkout", value: params.checkoutUrl },
+        { label: "Origem do evento", value: params.eventSourceUrl },
+        { label: "Landing page", value: params.landingPage },
+        { label: "Referrer", value: params.referrer },
+        { label: "UTM source", value: params.utmSource },
+        { label: "UTM medium", value: params.utmMedium },
+        { label: "UTM campaign", value: params.utmCampaign },
+        { label: "UTM content", value: params.utmContent },
+        { label: "UTM term", value: params.utmTerm },
+        { label: "IP", value: params.ip },
+        { label: "User agent", value: params.userAgent },
+        { label: "_fbp presente", value: params.fbp ? "Sim" : "Não" },
+        { label: "_fbc presente", value: params.fbc ? "Sim" : "Não" },
+        { label: "fbclid presente", value: params.fbclid ? "Sim" : "Não" },
+        { label: "Data", value: new Date().toLocaleString("pt-BR") },
+      ],
+    });
+  } catch (error) {
+    console.error("Erro inesperado ao notificar checkout iniciado:", error);
     return { sent: false, skipped: false };
   }
 }

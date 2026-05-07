@@ -20,6 +20,7 @@ type MetaConversionEventInput = {
   clientUserAgent?: string | null;
   fbp?: string | null;
   fbc?: string | null;
+  externalId?: string | null;
   customData?: Record<string, unknown>;
 };
 
@@ -84,6 +85,7 @@ export async function sendMetaConversionEvent(
           input.eventSourceUrl || process.env.NEXT_PUBLIC_APP_URL || undefined,
         user_data: removeEmptyObjectValues({
           em: input.email ? [sha256(input.email)] : undefined,
+          external_id: input.externalId ? [sha256(input.externalId)] : undefined,
           client_ip_address: input.clientIpAddress || undefined,
           client_user_agent: input.clientUserAgent || undefined,
           fbp: input.fbp || undefined,
@@ -144,6 +146,19 @@ export function getMetaRequestContext(request: Request) {
     clientUserAgent: request.headers.get("user-agent"),
     fbp: cookies._fbp || null,
     fbc: cookies._fbc || null,
+    fbclid: cookies.dj_fbclid || null,
+    utmSource: cookies.dj_utm_source || null,
+    utmMedium: cookies.dj_utm_medium || null,
+    utmCampaign: cookies.dj_utm_campaign || null,
+    utmContent: cookies.dj_utm_content || null,
+    utmTerm: cookies.dj_utm_term || null,
+    lastUtmSource: cookies.dj_last_utm_source || null,
+    lastUtmMedium: cookies.dj_last_utm_medium || null,
+    lastUtmCampaign: cookies.dj_last_utm_campaign || null,
+    lastUtmContent: cookies.dj_last_utm_content || null,
+    lastUtmTerm: cookies.dj_last_utm_term || null,
+    landingPage: cookies.dj_landing_page || null,
+    referrer: cookies.dj_referrer || null,
   };
 }
 

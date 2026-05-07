@@ -49,6 +49,8 @@ export async function GET(request: Request) {
       plan,
       value: normalizeAmount(session.amount_total),
       currency: normalizeCurrency(session.currency),
+      paymentStatus: session.payment_status,
+      purchaseEventId: `purchase_${session.id}`,
     });
   } catch (error) {
     console.error("Error reading public checkout session:", error);

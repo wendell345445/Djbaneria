@@ -440,28 +440,44 @@ function getCheckoutMetaRequestContext(session: Stripe.Checkout.Session) {
   };
 }
 
+function copyCheckoutMetadataValue(
+  metadata: Record<string, string>,
+  session: Stripe.Checkout.Session,
+  key: string,
+) {
+  const value = getMetadataValue(session.metadata?.[key]);
+
+  if (value) metadata[key] = value;
+}
+
 function getCheckoutMetaSubscriptionMetadata(
   session: Stripe.Checkout.Session,
 ): Record<string, string> {
   const metadata: Record<string, string> = {};
 
-  const metaEventSourceUrl = getMetadataValue(
-    session.metadata?.metaEventSourceUrl,
-  );
-  const metaClientIpAddress = getMetadataValue(
-    session.metadata?.metaClientIpAddress,
-  );
-  const metaClientUserAgent = getMetadataValue(
-    session.metadata?.metaClientUserAgent,
-  );
-  const metaFbp = getMetadataValue(session.metadata?.metaFbp);
-  const metaFbc = getMetadataValue(session.metadata?.metaFbc);
-
-  if (metaEventSourceUrl) metadata.metaEventSourceUrl = metaEventSourceUrl;
-  if (metaClientIpAddress) metadata.metaClientIpAddress = metaClientIpAddress;
-  if (metaClientUserAgent) metadata.metaClientUserAgent = metaClientUserAgent;
-  if (metaFbp) metadata.metaFbp = metaFbp;
-  if (metaFbc) metadata.metaFbc = metaFbc;
+  for (const key of [
+    "metaEventSourceUrl",
+    "metaClientIpAddress",
+    "metaClientUserAgent",
+    "metaFbp",
+    "metaFbc",
+    "metaFbclid",
+    "utmSource",
+    "utmMedium",
+    "utmCampaign",
+    "utmContent",
+    "utmTerm",
+    "firstUtmSource",
+    "firstUtmMedium",
+    "firstUtmCampaign",
+    "firstUtmContent",
+    "firstUtmTerm",
+    "landingPage",
+    "originalReferrer",
+    "initiateCheckoutEventId",
+  ]) {
+    copyCheckoutMetadataValue(metadata, session, key);
+  }
 
   return metadata;
 }
@@ -523,8 +539,26 @@ async function sendMetaPurchaseForCheckoutSession(params: {
       clientUserAgent: metaRequestContext.clientUserAgent,
       fbp: metaRequestContext.fbp,
       fbc: metaRequestContext.fbc,
+      externalId: workspace?.id || syncedSubscription.workspaceId,
       customData: {
         ...baseCustomData,
+        checkout_flow: getMetadataValue(session.metadata?.checkoutFlow),
+        initiate_checkout_event_id: getMetadataValue(
+          session.metadata?.initiateCheckoutEventId,
+        ),
+        utm_source: getMetadataValue(session.metadata?.utmSource),
+        utm_medium: getMetadataValue(session.metadata?.utmMedium),
+        utm_campaign: getMetadataValue(session.metadata?.utmCampaign),
+        utm_content: getMetadataValue(session.metadata?.utmContent),
+        utm_term: getMetadataValue(session.metadata?.utmTerm),
+        first_utm_source: getMetadataValue(session.metadata?.firstUtmSource),
+        first_utm_medium: getMetadataValue(session.metadata?.firstUtmMedium),
+        first_utm_campaign: getMetadataValue(session.metadata?.firstUtmCampaign),
+        first_utm_content: getMetadataValue(session.metadata?.firstUtmContent),
+        first_utm_term: getMetadataValue(session.metadata?.firstUtmTerm),
+        landing_page: getMetadataValue(session.metadata?.landingPage),
+        original_referrer: getMetadataValue(session.metadata?.originalReferrer),
+        fbclid_present: Boolean(getMetadataValue(session.metadata?.metaFbclid)),
         has_fbp: Boolean(metaRequestContext.fbp),
         has_fbc: Boolean(metaRequestContext.fbc),
         has_client_ip_address: Boolean(metaRequestContext.clientIpAddress),

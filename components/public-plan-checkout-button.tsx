@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { trackMetaInitiateCheckout } from "@/lib/meta-pixel";
+import {
+  createMetaEventId,
+  trackMetaInitiateCheckout,
+} from "@/lib/meta-pixel";
 
 type PaidPlan = "PRO" | "PROFESSIONAL" | "STUDIO";
 
@@ -30,18 +33,19 @@ export function PublicPlanCheckoutButton({
     setError("");
 
     try {
-      trackMetaInitiateCheckout(plan);
+      const metaEventId = createMetaEventId("InitiateCheckout");
 
       const response = await fetch("/api/public/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, metaEventId }),
       });
 
       const data = (await response.json().catch(() => ({}))) as {
         error?: string;
+        metaEventId?: string;
         url?: string;
       };
 
@@ -52,6 +56,8 @@ export function PublicPlanCheckoutButton({
       if (!data.url) {
         throw new Error("Stripe did not return a valid checkout URL.");
       }
+
+      trackMetaInitiateCheckout(plan, data.metaEventId || metaEventId);
 
       window.location.assign(data.url);
     } catch (err) {

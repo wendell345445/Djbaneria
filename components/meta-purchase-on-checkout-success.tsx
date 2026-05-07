@@ -11,6 +11,8 @@ type CheckoutSessionMeta = {
   plan?: string | null;
   value?: number | null;
   currency?: string | null;
+  paymentStatus?: string | null;
+  purchaseEventId?: string | null;
 };
 
 async function getCheckoutSessionMeta(sessionId: string) {
@@ -35,29 +37,46 @@ export function MetaPurchaseOnCheckoutSuccess({
   useEffect(() => {
     if (!sessionId) return;
 
-    const eventId = `purchase_${sessionId}`;
-    const storageKey = `meta_purchase_sent_${eventId}`;
+    const fallbackEventId = `purchase_${sessionId}`;
+    const storageKey = `meta_purchase_sent_${fallbackEventId}`;
 
     if (window.sessionStorage.getItem(storageKey)) {
       return;
     }
 
     let cancelled = false;
+    let inFlight = false;
     let attempts = 0;
     const maxAttempts = 40;
 
     const timer = window.setInterval(async () => {
       attempts += 1;
 
-      if (typeof window.fbq === "function") {
-        window.clearInterval(timer);
+      if (typeof window.fbq !== "function" || inFlight) {
+        if (attempts >= maxAttempts) {
+          window.clearInterval(timer);
+        }
 
+        return;
+      }
+
+      inFlight = true;
+
+      try {
         const sessionMeta = await getCheckoutSessionMeta(sessionId);
 
         if (cancelled) return;
 
+        if (sessionMeta.paymentStatus !== "paid") {
+          if (attempts >= maxAttempts) {
+            window.clearInterval(timer);
+          }
+
+          return;
+        }
+
         trackMetaPurchase({
-          eventId,
+          eventId: sessionMeta.purchaseEventId || fallbackEventId,
           plan: sessionMeta.plan,
           value: sessionMeta.value,
           currency: sessionMeta.currency || "USD",
@@ -67,10 +86,13 @@ export function MetaPurchaseOnCheckoutSuccess({
         });
 
         window.sessionStorage.setItem(storageKey, "1");
-      }
-
-      if (attempts >= maxAttempts) {
         window.clearInterval(timer);
+      } finally {
+        inFlight = false;
+
+        if (attempts >= maxAttempts) {
+          window.clearInterval(timer);
+        }
       }
     }, 150);
 

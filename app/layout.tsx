@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import React from "react";
 import Script from "next/script";
+import { MarketingAttributionCapture } from "@/components/marketing-attribution-capture";
 import { MetaPixelProvider } from "@/components/meta-pixel-provider";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({
           color: "#fff",
         }}
       >
+        <MarketingAttributionCapture />
         <MetaPixelProvider />
         {children}
       </body>

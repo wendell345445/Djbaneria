@@ -89,15 +89,25 @@ export function trackMetaCompleteRegistration(
   trackMetaEvent("CompleteRegistration", params, { eventId });
 }
 
-export function trackMetaInitiateCheckout(plan?: string | null) {
+export function trackMetaInitiateCheckout(
+  plan?: string | null,
+  eventId?: string | null,
+) {
   const normalizedPlan = plan || "unknown";
 
-  trackMetaEvent("InitiateCheckout", {
-    content_name: normalizedPlan,
-    content_category: "subscription",
-    currency: "USD",
-    value: getMetaPlanValue(normalizedPlan),
-  });
+  trackMetaEvent(
+    "InitiateCheckout",
+    {
+      content_name: `${normalizedPlan} Subscription`,
+      content_category: "SaaS Subscription",
+      content_type: "product",
+      currency: "USD",
+      value: getMetaPlanValue(normalizedPlan),
+      plan: normalizedPlan,
+      num_items: 1,
+    },
+    eventId ? { eventId } : undefined,
+  );
 }
 
 export function trackMetaPurchase({
