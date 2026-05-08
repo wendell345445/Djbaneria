@@ -444,8 +444,8 @@ export default function HomePage() {
 
             <p className="mt-5 max-w-2xl break-words text-[15px] leading-6 text-white/72 sm:mt-6 sm:text-lg sm:leading-8">
               Generate polished visuals for events, social media, and paid ads —
-              from premium DJ flyers to cleaner, more professional-looking
-              promo photos.
+              from premium DJ flyers to cleaner, more professional-looking promo
+              photos.
             </p>
 
             <div className="mt-7 flex w-full max-w-full flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-4">
@@ -481,16 +481,11 @@ export default function HomePage() {
               className="mt-12 w-full max-w-full min-w-0 sm:mt-14 lg:max-w-5xl"
             >
               <div className="max-w-3xl">
-                <p className="text-[11px] uppercase tracking-[0.25em] text-cyan-200/75">
-                  Visual examples
-                </p>
                 <h2 className="mt-4 text-[28px] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-                  See what you can create
+                  See what you can create with DJ Banner Ai
                 </h2>
                 <p className="mt-4 max-w-2xl text-base leading-5 text-white/66">
-                  Create premium-looking visuals for event promotion, artist
-                  branding, social media, and paid ads — without starting from a
-                  blank canvas.
+                  These flyers were generated using our AI-powered design tool.
                 </p>
               </div>
 
