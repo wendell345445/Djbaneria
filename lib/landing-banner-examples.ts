@@ -100,4 +100,13 @@ export const landingBannerExamples: LandingBannerExample[] = [
     footer: "",
     description: "",
   },
+  {
+    id: "banner-09",
+    imageUrl: "/examples/card/Afro-house2.webp",
+    category: "",
+    title: "Banner 09",
+    subtitle: "",
+    footer: "",
+    description: "",
+  },
 ];
