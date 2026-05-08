@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Poppins } from "next/font/google";
 import {
@@ -390,9 +391,13 @@ export default function HomePage() {
         <header className="sticky top-0 z-30 border-b border-cyan-300/10 bg-[#060816]/76 backdrop-blur-xl">
           <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4 lg:px-8">
             <div className="min-w-0">
-              <p className="truncate text-[10px] uppercase tracking-[0.22em] text-cyan-200/80 sm:text-[11px] sm:tracking-[0.28em]">
-                DJ Banner AI
-              </p>
+              <Image
+                src="/dj-baner.png"
+                alt="DJ Banner AI"
+                width={100}
+                height={52}
+                className="h-12w-auto object-contain"
+              />
               <p className="mt-1 hidden text-sm text-white/55 sm:block">
                 AI visuals for DJs, events, and music promotion
               </p>
@@ -436,7 +441,7 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className="relative mx-auto grid w-full min-w-0 max-w-7xl gap-9 px-4 pb-12 pt-10 sm:gap-14 sm:px-6 sm:pb-16 sm:pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-20">
+        <section className="relative mx-auto grid w-full min-w-0 max-w-7xl gap-9 px-4 pb-12 pt-1 sm:gap-14 sm:px-6 sm:pb-16 sm:pt-14 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24 lg:pt-20">
           <div className="relative z-10 min-w-0">
             <h1 className="mt-5 max-w-4xl break-words text-[32px] font-semibold leading-[1.04] tracking-[-0.04em] text-white sm:mt-6 sm:text-[52px] sm:leading-[1.02] lg:text-[68px]">
               Create premium DJ flyers and cleaner promo photos with AI
