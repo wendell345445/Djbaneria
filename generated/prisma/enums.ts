@@ -49,6 +49,27 @@ export const BannerFormat = {
 export type BannerFormat = (typeof BannerFormat)[keyof typeof BannerFormat]
 
 
+export const MotionRenderStatus = {
+  PENDING: 'PENDING',
+  RENDERING: 'RENDERING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type MotionRenderStatus = (typeof MotionRenderStatus)[keyof typeof MotionRenderStatus]
+
+
+export const MotionPreset = {
+  NEON_PULSE: 'NEON_PULSE',
+  CLUB_FLASH: 'CLUB_FLASH',
+  CINEMATIC_ZOOM: 'CINEMATIC_ZOOM',
+  FESTIVAL_LIGHTS: 'FESTIVAL_LIGHTS',
+  DARK_TECHNO_GLITCH: 'DARK_TECHNO_GLITCH'
+} as const
+
+export type MotionPreset = (typeof MotionPreset)[keyof typeof MotionPreset]
+
+
 export const BannerStylePreset = {
   NEON_CLUB: 'NEON_CLUB',
   FESTIVAL_MAINSTAGE: 'FESTIVAL_MAINSTAGE',
@@ -70,6 +91,7 @@ export const UsageEventType = {
   BANNER_GENERATION: 'BANNER_GENERATION',
   BANNER_VARIATION: 'BANNER_VARIATION',
   BANNER_EDIT: 'BANNER_EDIT',
+  BANNER_MOTION_RENDER: 'BANNER_MOTION_RENDER',
   ONBOARDING_TOUR_COMPLETED: 'ONBOARDING_TOUR_COMPLETED'
 } as const
 

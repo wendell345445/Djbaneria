@@ -10,13 +10,16 @@
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy"
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "remotion:studio": "remotion studio remotion/index.ts",
+    "remotion:render:test": "remotion render remotion/index.ts MotionFlyer out/motion-flyer-test.mp4"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.800.0",
     "@prisma/adapter-neon": "^7.0.0",
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
+    "@remotion/media-utils": "^4.0.000",
     "@stripe/stripe-js": "^4.0.0",
     "@tailwindcss/postcss": "^4.2.4",
     "bcryptjs": "^3.0.3",
@@ -28,6 +31,7 @@
     "prisma": "^7.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "remotion": "^4.0.000",
     "resend": "^6.12.2",
     "sharp": "^0.34.0",
     "stripe": "^18.0.0",
@@ -35,6 +39,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@remotion/cli": "^4.0.000",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

@@ -388,6 +388,7 @@ export const ModelName = {
   Workspace: 'Workspace',
   Subscription: 'Subscription',
   Banner: 'Banner',
+  BannerMotion: 'BannerMotion',
   Asset: 'Asset',
   UsageEvent: 'UsageEvent'
 } as const
@@ -405,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "subscription" | "banner" | "asset" | "usageEvent"
+    modelProps: "user" | "workspace" | "subscription" | "banner" | "bannerMotion" | "asset" | "usageEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -705,6 +706,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BannerMotion: {
+      payload: Prisma.$BannerMotionPayload<ExtArgs>
+      fields: Prisma.BannerMotionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BannerMotionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BannerMotionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>
+        }
+        findFirst: {
+          args: Prisma.BannerMotionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BannerMotionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>
+        }
+        findMany: {
+          args: Prisma.BannerMotionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>[]
+        }
+        create: {
+          args: Prisma.BannerMotionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>
+        }
+        createMany: {
+          args: Prisma.BannerMotionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BannerMotionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>[]
+        }
+        delete: {
+          args: Prisma.BannerMotionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>
+        }
+        update: {
+          args: Prisma.BannerMotionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>
+        }
+        deleteMany: {
+          args: Prisma.BannerMotionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BannerMotionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BannerMotionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>[]
+        }
+        upsert: {
+          args: Prisma.BannerMotionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerMotionPayload>
+        }
+        aggregate: {
+          args: Prisma.BannerMotionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBannerMotion>
+        }
+        groupBy: {
+          args: Prisma.BannerMotionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BannerMotionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BannerMotionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BannerMotionCountAggregateOutputType> | number
+        }
+      }
+    }
     Asset: {
       payload: Prisma.$AssetPayload<ExtArgs>
       fields: Prisma.AssetFieldRefs
@@ -974,6 +1049,33 @@ export const BannerScalarFieldEnum = {
 export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
 
 
+export const BannerMotionScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  bannerId: 'bannerId',
+  preset: 'preset',
+  status: 'status',
+  inputImageUrl: 'inputImageUrl',
+  inputAudioUrl: 'inputAudioUrl',
+  inputAudioStorageKey: 'inputAudioStorageKey',
+  audioOriginalName: 'audioOriginalName',
+  audioMimeType: 'audioMimeType',
+  audioSizeBytes: 'audioSizeBytes',
+  outputVideoUrl: 'outputVideoUrl',
+  outputVideoStorageKey: 'outputVideoStorageKey',
+  format: 'format',
+  width: 'width',
+  height: 'height',
+  durationSeconds: 'durationSeconds',
+  renderProgress: 'renderProgress',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BannerMotionScalarFieldEnum = (typeof BannerMotionScalarFieldEnum)[keyof typeof BannerMotionScalarFieldEnum]
+
+
 export const AssetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -1184,6 +1286,34 @@ export type ListEnumBannerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'MotionPreset'
+ */
+export type EnumMotionPresetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MotionPreset'>
+    
+
+
+/**
+ * Reference to a field of type 'MotionPreset[]'
+ */
+export type ListEnumMotionPresetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MotionPreset[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MotionRenderStatus'
+ */
+export type EnumMotionRenderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MotionRenderStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'MotionRenderStatus[]'
+ */
+export type ListEnumMotionRenderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MotionRenderStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'UsageEventType'
  */
 export type EnumUsageEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsageEventType'>
@@ -1338,6 +1468,7 @@ export type GlobalOmitConfig = {
   workspace?: Prisma.WorkspaceOmit
   subscription?: Prisma.SubscriptionOmit
   banner?: Prisma.BannerOmit
+  bannerMotion?: Prisma.BannerMotionOmit
   asset?: Prisma.AssetOmit
   usageEvent?: Prisma.UsageEventOmit
 }

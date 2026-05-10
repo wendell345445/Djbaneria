@@ -55,6 +55,7 @@ export const ModelName = {
   Workspace: 'Workspace',
   Subscription: 'Subscription',
   Banner: 'Banner',
+  BannerMotion: 'BannerMotion',
   Asset: 'Asset',
   UsageEvent: 'UsageEvent'
 } as const
@@ -155,6 +156,33 @@ export const BannerScalarFieldEnum = {
 } as const
 
 export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
+
+
+export const BannerMotionScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  bannerId: 'bannerId',
+  preset: 'preset',
+  status: 'status',
+  inputImageUrl: 'inputImageUrl',
+  inputAudioUrl: 'inputAudioUrl',
+  inputAudioStorageKey: 'inputAudioStorageKey',
+  audioOriginalName: 'audioOriginalName',
+  audioMimeType: 'audioMimeType',
+  audioSizeBytes: 'audioSizeBytes',
+  outputVideoUrl: 'outputVideoUrl',
+  outputVideoStorageKey: 'outputVideoStorageKey',
+  format: 'format',
+  width: 'width',
+  height: 'height',
+  durationSeconds: 'durationSeconds',
+  renderProgress: 'renderProgress',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BannerMotionScalarFieldEnum = (typeof BannerMotionScalarFieldEnum)[keyof typeof BannerMotionScalarFieldEnum]
 
 
 export const AssetScalarFieldEnum = {

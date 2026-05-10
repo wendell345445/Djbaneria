@@ -62,6 +62,11 @@ export type Subscription = Prisma.SubscriptionModel
  */
 export type Banner = Prisma.BannerModel
 /**
+ * Model BannerMotion
+ * 
+ */
+export type BannerMotion = Prisma.BannerMotionModel
+/**
  * Model Asset
  * 
  */

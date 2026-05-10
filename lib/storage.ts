@@ -14,10 +14,11 @@ const r2Client = new S3Client({
       : undefined,
 });
 
-export async function uploadBannerBuffer(params: {
+export async function uploadBufferToR2(params: {
   key: string;
   body: Buffer;
   contentType?: string;
+  cacheControl?: string;
 }) {
   const bucket = process.env.R2_BUCKET_NAME;
   const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL;
@@ -32,11 +33,20 @@ export async function uploadBannerBuffer(params: {
       Key: params.key,
       Body: params.body,
       ContentType: params.contentType || "image/png",
-      CacheControl: "public, max-age=31536000, immutable",
+      CacheControl: params.cacheControl || "public, max-age=31536000, immutable",
     }),
   );
 
   return {
     url: `${publicBaseUrl.replace(/\/$/, "")}/${params.key}`,
   };
+}
+
+
+export async function uploadBannerBuffer(params: {
+  key: string;
+  body: Buffer;
+  contentType?: string;
+}) {
+  return uploadBufferToR2(params);
 }

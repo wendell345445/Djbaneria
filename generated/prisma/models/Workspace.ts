@@ -201,6 +201,7 @@ export type WorkspaceWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
   banners?: Prisma.BannerListRelationFilter
+  motionRenders?: Prisma.BannerMotionListRelationFilter
   assets?: Prisma.AssetListRelationFilter
   usageEvents?: Prisma.UsageEventListRelationFilter
 }
@@ -216,6 +217,7 @@ export type WorkspaceOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   subscription?: Prisma.SubscriptionOrderByWithRelationInput
   banners?: Prisma.BannerOrderByRelationAggregateInput
+  motionRenders?: Prisma.BannerMotionOrderByRelationAggregateInput
   assets?: Prisma.AssetOrderByRelationAggregateInput
   usageEvents?: Prisma.UsageEventOrderByRelationAggregateInput
 }
@@ -234,6 +236,7 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
   banners?: Prisma.BannerListRelationFilter
+  motionRenders?: Prisma.BannerMotionListRelationFilter
   assets?: Prisma.AssetListRelationFilter
   usageEvents?: Prisma.UsageEventListRelationFilter
 }, "id" | "slug">
@@ -274,6 +277,7 @@ export type WorkspaceCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -288,6 +292,7 @@ export type WorkspaceUncheckedCreateInput = {
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -302,6 +307,7 @@ export type WorkspaceUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutWorkspacesNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -316,6 +322,7 @@ export type WorkspaceUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -464,6 +471,20 @@ export type WorkspaceUpdateOneRequiredWithoutBannersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutBannersInput, Prisma.WorkspaceUpdateWithoutBannersInput>, Prisma.WorkspaceUncheckedUpdateWithoutBannersInput>
 }
 
+export type WorkspaceCreateNestedOneWithoutMotionRendersInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutMotionRendersInput, Prisma.WorkspaceUncheckedCreateWithoutMotionRendersInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutMotionRendersInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutMotionRendersNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutMotionRendersInput, Prisma.WorkspaceUncheckedCreateWithoutMotionRendersInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutMotionRendersInput
+  upsert?: Prisma.WorkspaceUpsertWithoutMotionRendersInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutMotionRendersInput, Prisma.WorkspaceUpdateWithoutMotionRendersInput>, Prisma.WorkspaceUncheckedUpdateWithoutMotionRendersInput>
+}
+
 export type WorkspaceCreateNestedOneWithoutAssetsInput = {
   create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutAssetsInput, Prisma.WorkspaceUncheckedCreateWithoutAssetsInput>
   connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutAssetsInput
@@ -501,6 +522,7 @@ export type WorkspaceCreateWithoutUserInput = {
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -514,6 +536,7 @@ export type WorkspaceUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -566,6 +589,7 @@ export type WorkspaceCreateWithoutSubscriptionInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -579,6 +603,7 @@ export type WorkspaceUncheckedCreateWithoutSubscriptionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -608,6 +633,7 @@ export type WorkspaceUpdateWithoutSubscriptionInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutWorkspacesNestedInput
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -621,6 +647,7 @@ export type WorkspaceUncheckedUpdateWithoutSubscriptionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -634,6 +661,7 @@ export type WorkspaceCreateWithoutBannersInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -647,6 +675,7 @@ export type WorkspaceUncheckedCreateWithoutBannersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -676,6 +705,7 @@ export type WorkspaceUpdateWithoutBannersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutWorkspacesNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -689,6 +719,79 @@ export type WorkspaceUncheckedUpdateWithoutBannersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
+  usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutMotionRendersInput = {
+  id?: string
+  name: string
+  slug?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutWorkspacesInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutWorkspaceInput
+  banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
+  assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
+  usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutMotionRendersInput = {
+  id?: string
+  name: string
+  slug?: string | null
+  userId: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
+  banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
+  usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutMotionRendersInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutMotionRendersInput, Prisma.WorkspaceUncheckedCreateWithoutMotionRendersInput>
+}
+
+export type WorkspaceUpsertWithoutMotionRendersInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutMotionRendersInput, Prisma.WorkspaceUncheckedUpdateWithoutMotionRendersInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutMotionRendersInput, Prisma.WorkspaceUncheckedCreateWithoutMotionRendersInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutMotionRendersInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutMotionRendersInput, Prisma.WorkspaceUncheckedUpdateWithoutMotionRendersInput>
+}
+
+export type WorkspaceUpdateWithoutMotionRendersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutWorkspacesNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutWorkspaceNestedInput
+  banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
+  usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutMotionRendersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -703,6 +806,7 @@ export type WorkspaceCreateWithoutAssetsInput = {
   user: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -716,6 +820,7 @@ export type WorkspaceUncheckedCreateWithoutAssetsInput = {
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -745,6 +850,7 @@ export type WorkspaceUpdateWithoutAssetsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutWorkspacesNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -758,6 +864,7 @@ export type WorkspaceUncheckedUpdateWithoutAssetsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -771,6 +878,7 @@ export type WorkspaceCreateWithoutUsageEventsInput = {
   user: Prisma.UserCreateNestedOneWithoutWorkspacesInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -784,6 +892,7 @@ export type WorkspaceUncheckedCreateWithoutUsageEventsInput = {
   updatedAt?: Date | string
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -813,6 +922,7 @@ export type WorkspaceUpdateWithoutUsageEventsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutWorkspacesNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -826,6 +936,7 @@ export type WorkspaceUncheckedUpdateWithoutUsageEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -847,6 +958,7 @@ export type WorkspaceUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -860,6 +972,7 @@ export type WorkspaceUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -880,12 +993,14 @@ export type WorkspaceUncheckedUpdateManyWithoutUserInput = {
 
 export type WorkspaceCountOutputType = {
   banners: number
+  motionRenders: number
   assets: number
   usageEvents: number
 }
 
 export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   banners?: boolean | WorkspaceCountOutputTypeCountBannersArgs
+  motionRenders?: boolean | WorkspaceCountOutputTypeCountMotionRendersArgs
   assets?: boolean | WorkspaceCountOutputTypeCountAssetsArgs
   usageEvents?: boolean | WorkspaceCountOutputTypeCountUsageEventsArgs
 }
@@ -905,6 +1020,13 @@ export type WorkspaceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
  */
 export type WorkspaceCountOutputTypeCountBannersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BannerWhereInput
+}
+
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountMotionRendersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BannerMotionWhereInput
 }
 
 /**
@@ -933,6 +1055,7 @@ export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   subscription?: boolean | Prisma.Workspace$subscriptionArgs<ExtArgs>
   banners?: boolean | Prisma.Workspace$bannersArgs<ExtArgs>
+  motionRenders?: boolean | Prisma.Workspace$motionRendersArgs<ExtArgs>
   assets?: boolean | Prisma.Workspace$assetsArgs<ExtArgs>
   usageEvents?: boolean | Prisma.Workspace$usageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -975,6 +1098,7 @@ export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   subscription?: boolean | Prisma.Workspace$subscriptionArgs<ExtArgs>
   banners?: boolean | Prisma.Workspace$bannersArgs<ExtArgs>
+  motionRenders?: boolean | Prisma.Workspace$motionRendersArgs<ExtArgs>
   assets?: boolean | Prisma.Workspace$assetsArgs<ExtArgs>
   usageEvents?: boolean | Prisma.Workspace$usageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -992,6 +1116,7 @@ export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     user: Prisma.$UserPayload<ExtArgs>
     subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
     banners: Prisma.$BannerPayload<ExtArgs>[]
+    motionRenders: Prisma.$BannerMotionPayload<ExtArgs>[]
     assets: Prisma.$AssetPayload<ExtArgs>[]
     usageEvents: Prisma.$UsageEventPayload<ExtArgs>[]
   }
@@ -1400,6 +1525,7 @@ export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtim
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   subscription<T extends Prisma.Workspace$subscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$subscriptionArgs<ExtArgs>>): Prisma.Prisma__SubscriptionClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   banners<T extends Prisma.Workspace$bannersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$bannersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BannerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  motionRenders<T extends Prisma.Workspace$motionRendersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$motionRendersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BannerMotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assets<T extends Prisma.Workspace$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   usageEvents<T extends Prisma.Workspace$usageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$usageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1879,6 +2005,30 @@ export type Workspace$bannersArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.BannerScalarFieldEnum | Prisma.BannerScalarFieldEnum[]
+}
+
+/**
+ * Workspace.motionRenders
+ */
+export type Workspace$motionRendersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BannerMotion
+   */
+  select?: Prisma.BannerMotionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BannerMotion
+   */
+  omit?: Prisma.BannerMotionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BannerMotionInclude<ExtArgs> | null
+  where?: Prisma.BannerMotionWhereInput
+  orderBy?: Prisma.BannerMotionOrderByWithRelationInput | Prisma.BannerMotionOrderByWithRelationInput[]
+  cursor?: Prisma.BannerMotionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BannerMotionScalarFieldEnum | Prisma.BannerMotionScalarFieldEnum[]
 }
 
 /**

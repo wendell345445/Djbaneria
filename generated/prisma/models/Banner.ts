@@ -353,6 +353,7 @@ export type BannerWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Banner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Banner"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  motionRenders?: Prisma.BannerMotionListRelationFilter
 }
 
 export type BannerOrderByWithRelationInput = {
@@ -378,6 +379,7 @@ export type BannerOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  motionRenders?: Prisma.BannerMotionOrderByRelationAggregateInput
 }
 
 export type BannerWhereUniqueInput = Prisma.AtLeast<{
@@ -406,6 +408,7 @@ export type BannerWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Banner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Banner"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  motionRenders?: Prisma.BannerMotionListRelationFilter
 }, "id">
 
 export type BannerOrderByWithAggregationInput = {
@@ -486,6 +489,7 @@ export type BannerCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutBannersInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutBannerInput
 }
 
 export type BannerUncheckedCreateInput = {
@@ -510,6 +514,7 @@ export type BannerUncheckedCreateInput = {
   generationSeconds?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutBannerInput
 }
 
 export type BannerUpdateInput = {
@@ -534,6 +539,7 @@ export type BannerUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBannersNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutBannerNestedInput
 }
 
 export type BannerUncheckedUpdateInput = {
@@ -558,6 +564,7 @@ export type BannerUncheckedUpdateInput = {
   generationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutBannerNestedInput
 }
 
 export type BannerCreateManyInput = {
@@ -725,6 +732,11 @@ export type BannerSumOrderByAggregateInput = {
   generationSeconds?: Prisma.SortOrder
 }
 
+export type BannerScalarRelationFilter = {
+  is?: Prisma.BannerWhereInput
+  isNot?: Prisma.BannerWhereInput
+}
+
 export type BannerCreateNestedManyWithoutWorkspaceInput = {
   create?: Prisma.XOR<Prisma.BannerCreateWithoutWorkspaceInput, Prisma.BannerUncheckedCreateWithoutWorkspaceInput> | Prisma.BannerCreateWithoutWorkspaceInput[] | Prisma.BannerUncheckedCreateWithoutWorkspaceInput[]
   connectOrCreate?: Prisma.BannerCreateOrConnectWithoutWorkspaceInput | Prisma.BannerCreateOrConnectWithoutWorkspaceInput[]
@@ -787,6 +799,20 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type BannerCreateNestedOneWithoutMotionRendersInput = {
+  create?: Prisma.XOR<Prisma.BannerCreateWithoutMotionRendersInput, Prisma.BannerUncheckedCreateWithoutMotionRendersInput>
+  connectOrCreate?: Prisma.BannerCreateOrConnectWithoutMotionRendersInput
+  connect?: Prisma.BannerWhereUniqueInput
+}
+
+export type BannerUpdateOneRequiredWithoutMotionRendersNestedInput = {
+  create?: Prisma.XOR<Prisma.BannerCreateWithoutMotionRendersInput, Prisma.BannerUncheckedCreateWithoutMotionRendersInput>
+  connectOrCreate?: Prisma.BannerCreateOrConnectWithoutMotionRendersInput
+  upsert?: Prisma.BannerUpsertWithoutMotionRendersInput
+  connect?: Prisma.BannerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BannerUpdateToOneWithWhereWithoutMotionRendersInput, Prisma.BannerUpdateWithoutMotionRendersInput>, Prisma.BannerUncheckedUpdateWithoutMotionRendersInput>
+}
+
 export type BannerCreateWithoutWorkspaceInput = {
   id?: string
   title: string
@@ -808,6 +834,7 @@ export type BannerCreateWithoutWorkspaceInput = {
   generationSeconds?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutBannerInput
 }
 
 export type BannerUncheckedCreateWithoutWorkspaceInput = {
@@ -831,6 +858,7 @@ export type BannerUncheckedCreateWithoutWorkspaceInput = {
   generationSeconds?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutBannerInput
 }
 
 export type BannerCreateOrConnectWithoutWorkspaceInput = {
@@ -886,6 +914,118 @@ export type BannerScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Banner"> | Date | string
 }
 
+export type BannerCreateWithoutMotionRendersInput = {
+  id?: string
+  title: string
+  djName?: string | null
+  eventName?: string | null
+  eventDate?: string | null
+  eventLocation?: string | null
+  city?: string | null
+  stylePreset: $Enums.BannerStylePreset
+  format: $Enums.BannerFormat
+  prompt: string
+  revisedPrompt?: string | null
+  modelName: string
+  status?: $Enums.BannerStatus
+  referenceImageUrl?: string | null
+  outputImageUrl?: string | null
+  width?: number | null
+  height?: number | null
+  generationSeconds?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutBannersInput
+}
+
+export type BannerUncheckedCreateWithoutMotionRendersInput = {
+  id?: string
+  workspaceId: string
+  title: string
+  djName?: string | null
+  eventName?: string | null
+  eventDate?: string | null
+  eventLocation?: string | null
+  city?: string | null
+  stylePreset: $Enums.BannerStylePreset
+  format: $Enums.BannerFormat
+  prompt: string
+  revisedPrompt?: string | null
+  modelName: string
+  status?: $Enums.BannerStatus
+  referenceImageUrl?: string | null
+  outputImageUrl?: string | null
+  width?: number | null
+  height?: number | null
+  generationSeconds?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BannerCreateOrConnectWithoutMotionRendersInput = {
+  where: Prisma.BannerWhereUniqueInput
+  create: Prisma.XOR<Prisma.BannerCreateWithoutMotionRendersInput, Prisma.BannerUncheckedCreateWithoutMotionRendersInput>
+}
+
+export type BannerUpsertWithoutMotionRendersInput = {
+  update: Prisma.XOR<Prisma.BannerUpdateWithoutMotionRendersInput, Prisma.BannerUncheckedUpdateWithoutMotionRendersInput>
+  create: Prisma.XOR<Prisma.BannerCreateWithoutMotionRendersInput, Prisma.BannerUncheckedCreateWithoutMotionRendersInput>
+  where?: Prisma.BannerWhereInput
+}
+
+export type BannerUpdateToOneWithWhereWithoutMotionRendersInput = {
+  where?: Prisma.BannerWhereInput
+  data: Prisma.XOR<Prisma.BannerUpdateWithoutMotionRendersInput, Prisma.BannerUncheckedUpdateWithoutMotionRendersInput>
+}
+
+export type BannerUpdateWithoutMotionRendersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  djName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stylePreset?: Prisma.EnumBannerStylePresetFieldUpdateOperationsInput | $Enums.BannerStylePreset
+  format?: Prisma.EnumBannerFormatFieldUpdateOperationsInput | $Enums.BannerFormat
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  revisedPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelName?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumBannerStatusFieldUpdateOperationsInput | $Enums.BannerStatus
+  referenceImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outputImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  generationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBannersNestedInput
+}
+
+export type BannerUncheckedUpdateWithoutMotionRendersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  djName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eventLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stylePreset?: Prisma.EnumBannerStylePresetFieldUpdateOperationsInput | $Enums.BannerStylePreset
+  format?: Prisma.EnumBannerFormatFieldUpdateOperationsInput | $Enums.BannerFormat
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
+  revisedPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  modelName?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumBannerStatusFieldUpdateOperationsInput | $Enums.BannerStatus
+  referenceImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outputImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  generationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type BannerCreateManyWorkspaceInput = {
   id?: string
   title: string
@@ -930,6 +1070,7 @@ export type BannerUpdateWithoutWorkspaceInput = {
   generationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutBannerNestedInput
 }
 
 export type BannerUncheckedUpdateWithoutWorkspaceInput = {
@@ -953,6 +1094,7 @@ export type BannerUncheckedUpdateWithoutWorkspaceInput = {
   generationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutBannerNestedInput
 }
 
 export type BannerUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -979,6 +1121,35 @@ export type BannerUncheckedUpdateManyWithoutWorkspaceInput = {
 }
 
 
+/**
+ * Count Type BannerCountOutputType
+ */
+
+export type BannerCountOutputType = {
+  motionRenders: number
+}
+
+export type BannerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  motionRenders?: boolean | BannerCountOutputTypeCountMotionRendersArgs
+}
+
+/**
+ * BannerCountOutputType without action
+ */
+export type BannerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BannerCountOutputType
+   */
+  select?: Prisma.BannerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * BannerCountOutputType without action
+ */
+export type BannerCountOutputTypeCountMotionRendersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BannerMotionWhereInput
+}
+
 
 export type BannerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1003,6 +1174,8 @@ export type BannerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  motionRenders?: boolean | Prisma.Banner$motionRendersArgs<ExtArgs>
+  _count?: boolean | Prisma.BannerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["banner"]>
 
 export type BannerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1082,6 +1255,8 @@ export type BannerSelectScalar = {
 export type BannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "title" | "djName" | "eventName" | "eventDate" | "eventLocation" | "city" | "stylePreset" | "format" | "prompt" | "revisedPrompt" | "modelName" | "status" | "referenceImageUrl" | "outputImageUrl" | "width" | "height" | "generationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["banner"]>
 export type BannerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  motionRenders?: boolean | Prisma.Banner$motionRendersArgs<ExtArgs>
+  _count?: boolean | Prisma.BannerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BannerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -1094,6 +1269,7 @@ export type $BannerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "Banner"
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
+    motionRenders: Prisma.$BannerMotionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1512,6 +1688,7 @@ readonly fields: BannerFieldRefs;
 export interface Prisma__BannerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  motionRenders<T extends Prisma.Banner$motionRendersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Banner$motionRendersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BannerMotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1960,6 +2137,30 @@ export type BannerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Banners to delete.
    */
   limit?: number
+}
+
+/**
+ * Banner.motionRenders
+ */
+export type Banner$motionRendersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BannerMotion
+   */
+  select?: Prisma.BannerMotionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BannerMotion
+   */
+  omit?: Prisma.BannerMotionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BannerMotionInclude<ExtArgs> | null
+  where?: Prisma.BannerMotionWhereInput
+  orderBy?: Prisma.BannerMotionOrderByWithRelationInput | Prisma.BannerMotionOrderByWithRelationInput[]
+  cursor?: Prisma.BannerMotionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BannerMotionScalarFieldEnum | Prisma.BannerMotionScalarFieldEnum[]
 }
 
 /**

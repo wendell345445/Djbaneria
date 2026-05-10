@@ -304,6 +304,40 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumMotionPresetFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionPreset | Prisma.EnumMotionPresetFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionPresetFilter<$PrismaModel> | $Enums.MotionPreset
+}
+
+export type EnumMotionRenderStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionRenderStatus | Prisma.EnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel> | $Enums.MotionRenderStatus
+}
+
+export type EnumMotionPresetWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionPreset | Prisma.EnumMotionPresetFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionPresetWithAggregatesFilter<$PrismaModel> | $Enums.MotionPreset
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMotionPresetFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMotionPresetFilter<$PrismaModel>
+}
+
+export type EnumMotionRenderStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionRenderStatus | Prisma.EnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionRenderStatusWithAggregatesFilter<$PrismaModel> | $Enums.MotionRenderStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel>
+}
+
 export type EnumUsageEventTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.UsageEventType | Prisma.EnumUsageEventTypeFieldRefInput<$PrismaModel>
   in?: $Enums.UsageEventType[] | Prisma.ListEnumUsageEventTypeFieldRefInput<$PrismaModel>
@@ -673,6 +707,40 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
+}
+
+export type NestedEnumMotionPresetFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionPreset | Prisma.EnumMotionPresetFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionPresetFilter<$PrismaModel> | $Enums.MotionPreset
+}
+
+export type NestedEnumMotionRenderStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionRenderStatus | Prisma.EnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel> | $Enums.MotionRenderStatus
+}
+
+export type NestedEnumMotionPresetWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionPreset | Prisma.EnumMotionPresetFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionPreset[] | Prisma.ListEnumMotionPresetFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionPresetWithAggregatesFilter<$PrismaModel> | $Enums.MotionPreset
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMotionPresetFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMotionPresetFilter<$PrismaModel>
+}
+
+export type NestedEnumMotionRenderStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MotionRenderStatus | Prisma.EnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MotionRenderStatus[] | Prisma.ListEnumMotionRenderStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMotionRenderStatusWithAggregatesFilter<$PrismaModel> | $Enums.MotionRenderStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumUsageEventTypeFilter<$PrismaModel = never> = {

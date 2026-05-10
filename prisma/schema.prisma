@@ -35,6 +35,21 @@ enum BannerFormat {
   FLYER
 }
 
+enum MotionRenderStatus {
+  PENDING
+  RENDERING
+  COMPLETED
+  FAILED
+}
+
+enum MotionPreset {
+  NEON_PULSE
+  CLUB_FLASH
+  CINEMATIC_ZOOM
+  FESTIVAL_LIGHTS
+  DARK_TECHNO_GLITCH
+}
+
 enum BannerStylePreset {
   NEON_CLUB
   FESTIVAL_MAINSTAGE
@@ -53,6 +68,7 @@ enum UsageEventType {
   BANNER_GENERATION
   BANNER_VARIATION
   BANNER_EDIT
+  BANNER_MOTION_RENDER
   ONBOARDING_TOUR_COMPLETED
 }
 
@@ -97,6 +113,7 @@ model Workspace {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscription Subscription?
   banners      Banner[]
+  motionRenders BannerMotion[]
   assets       Asset[]
   usageEvents  UsageEvent[]
 }
@@ -140,6 +157,39 @@ model Banner {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   workspace         Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  motionRenders     BannerMotion[]
+}
+
+
+model BannerMotion {
+  id                   String             @id @default(cuid())
+  workspaceId          String
+  bannerId             String
+  preset               MotionPreset
+  status               MotionRenderStatus @default(PENDING)
+  inputImageUrl         String
+  inputAudioUrl         String?
+  inputAudioStorageKey  String?
+  audioOriginalName     String?
+  audioMimeType         String?
+  audioSizeBytes        Int?
+  outputVideoUrl        String?
+  outputVideoStorageKey String?
+  format               BannerFormat
+  width                Int?
+  height               Int?
+  durationSeconds      Int                @default(10)
+  renderProgress       Int                @default(0)
+  errorMessage         String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  banner    Banner    @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([bannerId])
+  @@index([status, createdAt])
 }
 
 model Asset {
