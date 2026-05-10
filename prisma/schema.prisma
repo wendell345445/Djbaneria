@@ -35,6 +35,20 @@ enum BannerFormat {
   FLYER
 }
 
+enum BannerStylePreset {
+  NEON_CLUB
+  FESTIVAL_MAINSTAGE
+  CYBER_RAVE
+  DARK_TECHNO
+  CHROME_FUTURE
+  AFRO_HOUSE_SUNSET
+  Y2K_CLUB
+  PREMIUM_BLACK
+  SUMMER_VIBES
+  MINIMAL_TECHNO
+  LUXURY_GOLD
+}
+
 enum MotionRenderStatus {
   PENDING
   RENDERING
@@ -48,20 +62,6 @@ enum MotionPreset {
   CINEMATIC_ZOOM
   FESTIVAL_LIGHTS
   DARK_TECHNO_GLITCH
-}
-
-enum BannerStylePreset {
-  NEON_CLUB
-  FESTIVAL_MAINSTAGE
-  CYBER_RAVE
-  DARK_TECHNO
-  CHROME_FUTURE
-  AFRO_HOUSE_SUNSET
-  Y2K_CLUB
-  PREMIUM_BLACK
-  SUMMER_VIBES
-  MINIMAL_TECHNO
-  LUXURY_GOLD
 }
 
 enum UsageEventType {
@@ -112,10 +112,10 @@ model Workspace {
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscription Subscription?
-  banners      Banner[]
+  banners       Banner[]
   motionRenders BannerMotion[]
-  assets       Asset[]
-  usageEvents  UsageEvent[]
+  assets        Asset[]
+  usageEvents   UsageEvent[]
 }
 
 model Subscription {
@@ -160,13 +160,14 @@ model Banner {
   motionRenders     BannerMotion[]
 }
 
-
 model BannerMotion {
-  id                   String             @id @default(cuid())
-  workspaceId          String
-  bannerId             String
-  preset               MotionPreset
-  status               MotionRenderStatus @default(PENDING)
+  id                    String             @id @default(cuid())
+  workspaceId           String
+  bannerId              String
+  usageEventId          String?
+  preset                MotionPreset
+  transitionVariant     String             @default("AUTO")
+  status                MotionRenderStatus @default(PENDING)
   inputImageUrl         String
   inputAudioUrl         String?
   inputAudioStorageKey  String?
@@ -175,17 +176,17 @@ model BannerMotion {
   audioSizeBytes        Int?
   outputVideoUrl        String?
   outputVideoStorageKey String?
-  format               BannerFormat
-  width                Int?
-  height               Int?
-  durationSeconds      Int                @default(10)
-  renderProgress       Int                @default(0)
-  errorMessage         String?
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  format                BannerFormat
+  width                 Int?
+  height                Int?
+  durationSeconds       Int                @default(10)
+  renderProgress        Int                @default(0)
+  errorMessage          String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  banner    Banner    @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  workspace             Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  banner                Banner             @relation(fields: [bannerId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, createdAt])
   @@index([bannerId])

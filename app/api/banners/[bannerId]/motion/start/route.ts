@@ -1,78 +1,146 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { BannerStatus } from "@/generated/prisma/enums";
-
-import { MOTION_PRESET_IDS, getMotionSizeForFormat } from "@/lib/motion/presets";
-import { prisma } from "@/lib/prisma";
 import {
-  buildRateLimitHeaders,
-  consumeRateLimit,
-  getClientIp,
-} from "@/lib/rate-limit";
+  SubscriptionPlan,
+  SubscriptionStatus,
+  UsageEventType,
+} from "@/generated/prisma/enums";
+
+import { isAdminEmail } from "@/lib/admin";
+import {
+  buildBillingSummary,
+  getCreditCycleUsageDateFilter,
+  hasCreditCyclePaymentConfirmation,
+  requiresCreditCyclePaymentConfirmation,
+} from "@/lib/plans";
+import { prisma } from "@/lib/prisma";
 import { validateMutationOrigin } from "@/lib/request-security";
 import { uploadBufferToR2 } from "@/lib/storage";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 30;
 
-const MAX_AUDIO_SIZE_BYTES = 25 * 1024 * 1024;
+const MAX_AUDIO_BYTES = 30 * 1024 * 1024;
 
-const ALLOWED_AUDIO_MIME_TYPES = new Set([
-  "audio/mpeg",
-  "audio/mp3",
-  "audio/wav",
-  "audio/x-wav",
-  "audio/wave",
-  "audio/aac",
-  "audio/mp4",
-  "audio/ogg",
-]);
+const CREDIT_EVENT_TYPES = [
+  UsageEventType.BANNER_GENERATION,
+  UsageEventType.BANNER_EDIT,
+  UsageEventType.BANNER_VARIATION,
+  UsageEventType.BANNER_MOTION_RENDER,
+] as const;
 
-const schema = z.object({
-  preset: z.enum(MOTION_PRESET_IDS).default("NEON_PULSE"),
-  durationSeconds: z.coerce.number().int().min(6).max(15).default(10),
+const motionSchema = z.object({
+  preset: z.enum([
+    "NEON_PULSE",
+    "CLUB_FLASH",
+    "CINEMATIC_ZOOM",
+    "FESTIVAL_LIGHTS",
+    "DARK_TECHNO_GLITCH",
+  ]),
+  transitionVariant: z.enum([
+    "AUTO",
+    "ROTATE_ZOOM",
+    "WHIP_ZOOM",
+    "SPIN_BLUR",
+    "FLASH_CUT",
+    "GLITCH_ZOOM",
+    "VIRAL_SHAKE",
+  ]),
+  durationSeconds: z.coerce.number().int().refine((value) => [6, 10, 15].includes(value), {
+    message: "Escolha uma duração válida.",
+  }),
 });
 
-function sanitizeForFileName(value: string) {
+function sanitizeFileName(value: string) {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9-_]+/g, "-")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
     .replace(/-{2,}/g, "-")
     .replace(/^-+|-+$/g, "")
-    .toLowerCase();
+    .toLowerCase()
+    .slice(0, 80);
 }
 
-function getAudioExtension(file: File) {
-  const fromName = file.name.split(".").pop()?.toLowerCase();
-  if (fromName && /^[a-z0-9]{2,5}$/.test(fromName)) return fromName;
-
-  switch (file.type) {
-    case "audio/wav":
-    case "audio/x-wav":
-    case "audio/wave":
-      return "wav";
-    case "audio/aac":
-      return "aac";
-    case "audio/mp4":
-      return "m4a";
-    case "audio/ogg":
-      return "ogg";
-    case "audio/mpeg":
-    case "audio/mp3":
-    default:
-      return "mp3";
-  }
+function getExtensionFromMime(mimeType: string) {
+  if (mimeType.includes("mpeg")) return "mp3";
+  if (mimeType.includes("wav")) return "wav";
+  if (mimeType.includes("mp4")) return "m4a";
+  if (mimeType.includes("aac")) return "aac";
+  if (mimeType.includes("ogg")) return "ogg";
+  return "mp3";
 }
 
-function isAllowedAudioFile(file: File) {
-  if (file.type && ALLOWED_AUDIO_MIME_TYPES.has(file.type)) {
-    return true;
+async function reserveMotionCredit(params: {
+  workspaceId: string;
+  plan: SubscriptionPlan;
+  status: SubscriptionStatus;
+  providerSubscriptionId?: string | null;
+  currentPeriodStart?: Date | string | null;
+  currentPeriodEnd?: Date | string | null;
+  isAdmin: boolean;
+}) {
+  if (params.isAdmin) {
+    return null;
   }
 
-  const extension = file.name.split(".").pop()?.toLowerCase();
-  return ["mp3", "wav", "aac", "m4a", "ogg"].includes(extension || "");
+  const usageDateFilter = getCreditCycleUsageDateFilter({
+    providerSubscriptionId: params.providerSubscriptionId,
+    currentPeriodStart: params.currentPeriodStart,
+    currentPeriodEnd: params.currentPeriodEnd,
+  });
+
+  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
+    plan: params.plan,
+    providerSubscriptionId: params.providerSubscriptionId,
+    currentPeriodStart: params.currentPeriodStart,
+    currentPeriodEnd: params.currentPeriodEnd,
+  });
+
+  const usageEvents = await prisma.usageEvent.findMany({
+    where: {
+      workspaceId: params.workspaceId,
+      createdAt: usageDateFilter,
+      type: { in: [...CREDIT_EVENT_TYPES] },
+    },
+    select: {
+      units: true,
+      createdAt: true,
+      metadata: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  const summary = buildBillingSummary({
+    plan: params.plan,
+    status: params.status,
+    usageEvents,
+    requiresPaymentConfirmation,
+    creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
+  });
+
+  if (!summary.canGenerateBanner) {
+    throw new Error("Você usou todos os seus créditos deste ciclo.");
+  }
+
+  const usageEvent = await prisma.usageEvent.create({
+    data: {
+      workspaceId: params.workspaceId,
+      type: UsageEventType.BANNER_MOTION_RENDER,
+      units: 1,
+      metadata: {
+        status: "reserved",
+        flow: "motion-flyer",
+        reservedAt: new Date().toISOString(),
+      },
+    },
+    select: { id: true },
+  });
+
+  return usageEvent.id;
 }
 
 export async function POST(
@@ -82,162 +150,135 @@ export async function POST(
   const originError = validateMutationOrigin(request);
   if (originError) return originError;
 
-  const ip = getClientIp(request);
-  const rateLimit = consumeRateLimit(`banner-motion:start:${ip}`, {
-    limit: 10,
-    windowMs: 10 * 60 * 1000,
-  });
-
-  if (!rateLimit.allowed) {
-    return NextResponse.json(
-      { error: "Muitas solicitações de animação em sequência. Aguarde um pouco e tente novamente." },
-      { status: 429, headers: buildRateLimitHeaders(rateLimit) },
-    );
+  const workspace = await getCurrentWorkspace();
+  if (!workspace) {
+    return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
 
+  const { bannerId } = await params;
+  const formData = await request.formData();
+  const audio = formData.get("audio");
+
+  if (!(audio instanceof File)) {
+    return NextResponse.json({ error: "Envie uma música MP3, WAV, M4A, AAC ou OGG." }, { status: 400 });
+  }
+
+  if (audio.size <= 0 || audio.size > MAX_AUDIO_BYTES) {
+    return NextResponse.json({ error: "O áudio precisa ter até 30 MB." }, { status: 400 });
+  }
+
+  const allowedAudioTypes = new Set([
+    "audio/mpeg",
+    "audio/mp3",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/aac",
+    "audio/mp4",
+    "audio/m4a",
+    "audio/ogg",
+  ]);
+
+  if (audio.type && !allowedAudioTypes.has(audio.type)) {
+    return NextResponse.json({ error: "Formato de áudio não suportado." }, { status: 400 });
+  }
+
+  const parsed = motionSchema.safeParse({
+    preset: formData.get("preset"),
+    transitionVariant: formData.get("transitionVariant") || "AUTO",
+    durationSeconds: formData.get("durationSeconds") || "10",
+  });
+
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Dados inválidos." }, { status: 400 });
+  }
+
+  const banner = await prisma.banner.findFirst({
+    where: {
+      id: bannerId,
+      workspaceId: workspace.id,
+      status: "COMPLETED",
+    },
+    select: {
+      id: true,
+      workspaceId: true,
+      outputImageUrl: true,
+      format: true,
+      width: true,
+      height: true,
+    },
+  });
+
+  if (!banner?.outputImageUrl) {
+    return NextResponse.json({ error: "Banner não encontrado ou ainda sem imagem final." }, { status: 404 });
+  }
+
+  let usageEventId: string | null = null;
+
   try {
-    const { bannerId } = await params;
-    const workspace = await getCurrentWorkspace();
-
-    if (!workspace) {
-      return NextResponse.json(
-        { error: "Usuário não autenticado." },
-        { status: 401, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
-    const formData = await request.formData();
-    const parsed = schema.safeParse({
-      preset: formData.get("preset") || undefined,
-      durationSeconds: formData.get("durationSeconds") || undefined,
+    usageEventId = await reserveMotionCredit({
+      workspaceId: workspace.id,
+      plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
+      status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
+      providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+      currentPeriodStart: workspace.subscription?.currentPeriodStart,
+      currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+      isAdmin: isAdminEmail(workspace.user?.email),
     });
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.issues[0]?.message || "Dados inválidos." },
-        { status: 400, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
-    const audioFile = formData.get("audio");
-
-    if (!(audioFile instanceof File)) {
-      return NextResponse.json(
-        { error: "Envie uma música em MP3, WAV, AAC, M4A ou OGG." },
-        { status: 400, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
-    if (!isAllowedAudioFile(audioFile)) {
-      return NextResponse.json(
-        { error: "Formato de áudio não suportado. Use MP3, WAV, AAC, M4A ou OGG." },
-        { status: 400, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
-    if (audioFile.size <= 0 || audioFile.size > MAX_AUDIO_SIZE_BYTES) {
-      return NextResponse.json(
-        { error: "A música precisa ter até 25 MB." },
-        { status: 400, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
-    const banner = await prisma.banner.findFirst({
-      where: {
-        id: bannerId,
-        workspaceId: workspace.id,
-      },
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        outputImageUrl: true,
-        format: true,
-      },
-    });
-
-    if (!banner) {
-      return NextResponse.json(
-        { error: "Banner não encontrado." },
-        { status: 404, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
-    if (banner.status !== BannerStatus.COMPLETED || !banner.outputImageUrl) {
-      return NextResponse.json(
-        { error: "Só é possível animar um banner concluído." },
-        { status: 409, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
-    const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
-    const extension = getAudioExtension(audioFile);
-    const fileBase = sanitizeForFileName(audioFile.name.replace(/\.[^.]+$/, "")) || "audio";
-    const storageKey = `workspaces/${workspace.id}/motion-audio/${Date.now()}-${fileBase}.${extension}`;
+    const arrayBuffer = await audio.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const safeOriginalName = sanitizeFileName(audio.name || `audio.${getExtensionFromMime(audio.type)}`);
+    const extension = safeOriginalName.includes(".")
+      ? safeOriginalName.split(".").pop() || getExtensionFromMime(audio.type)
+      : getExtensionFromMime(audio.type);
+    const key = `workspaces/${workspace.id}/motion-audio/${banner.id}-${Date.now()}.${extension}`;
 
     const uploadedAudio = await uploadBufferToR2({
-      key: storageKey,
-      body: audioBuffer,
-      contentType: audioFile.type || "audio/mpeg",
-      cacheControl: "public, max-age=31536000, immutable",
+      key,
+      body: buffer,
+      contentType: audio.type || "audio/mpeg",
+      cacheControl: "public, max-age=86400",
     });
 
-    const size = getMotionSizeForFormat(banner.format);
-
-    const motion = await prisma.bannerMotion.create({
+    const motion = await (prisma as any).bannerMotion.create({
       data: {
         workspaceId: workspace.id,
         bannerId: banner.id,
-        preset: parsed.data.preset as never,
-        status: "PENDING" as never,
+        usageEventId,
+        preset: parsed.data.preset,
+        transitionVariant: parsed.data.transitionVariant,
+        status: "PENDING",
         inputImageUrl: banner.outputImageUrl,
         inputAudioUrl: uploadedAudio.url,
-        inputAudioStorageKey: storageKey,
-        audioOriginalName: audioFile.name || `${fileBase}.${extension}`,
-        audioMimeType: audioFile.type || null,
-        audioSizeBytes: audioFile.size,
-        outputVideoUrl: null,
-        outputVideoStorageKey: null,
+        inputAudioStorageKey: uploadedAudio.key,
+        audioOriginalName: audio.name || safeOriginalName,
+        audioMimeType: audio.type || "audio/mpeg",
+        audioSizeBytes: audio.size,
         format: banner.format,
-        width: size.width,
-        height: size.height,
+        width: banner.width,
+        height: banner.height,
         durationSeconds: parsed.data.durationSeconds,
         renderProgress: 0,
-        errorMessage: null,
       },
       select: {
         id: true,
         status: true,
-        preset: true,
-        durationSeconds: true,
-        inputAudioUrl: true,
-        width: true,
-        height: true,
         renderProgress: true,
       },
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        motionId: motion.id,
-        status: motion.status,
-        preset: motion.preset,
-        durationSeconds: motion.durationSeconds,
-        audioUrl: motion.inputAudioUrl,
-        width: motion.width,
-        height: motion.height,
-        progress: motion.renderProgress,
-        message: "Música enviada. O motion flyer já pode ir para a etapa de renderização.",
-      },
-      { status: 201, headers: buildRateLimitHeaders(rateLimit) },
-    );
+    return NextResponse.json({
+      motionId: motion.id,
+      status: motion.status,
+      renderProgress: motion.renderProgress,
+    }, { status: 202 });
   } catch (error) {
-    console.error("Erro ao iniciar motion flyer:", error);
+    if (usageEventId) {
+      await prisma.usageEvent.delete({ where: { id: usageEventId } }).catch(() => null);
+    }
 
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Erro interno ao iniciar motion flyer." },
-      { status: 500, headers: buildRateLimitHeaders(rateLimit) },
-    );
+    const message = error instanceof Error ? error.message : "Não foi possível iniciar o vídeo.";
+    const status = message.includes("créditos") ? 403 : 500;
+    return NextResponse.json({ error: message }, { status });
   }
 }

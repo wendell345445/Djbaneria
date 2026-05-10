@@ -49,6 +49,23 @@ export const BannerFormat = {
 export type BannerFormat = (typeof BannerFormat)[keyof typeof BannerFormat]
 
 
+export const BannerStylePreset = {
+  NEON_CLUB: 'NEON_CLUB',
+  FESTIVAL_MAINSTAGE: 'FESTIVAL_MAINSTAGE',
+  CYBER_RAVE: 'CYBER_RAVE',
+  DARK_TECHNO: 'DARK_TECHNO',
+  CHROME_FUTURE: 'CHROME_FUTURE',
+  AFRO_HOUSE_SUNSET: 'AFRO_HOUSE_SUNSET',
+  Y2K_CLUB: 'Y2K_CLUB',
+  PREMIUM_BLACK: 'PREMIUM_BLACK',
+  SUMMER_VIBES: 'SUMMER_VIBES',
+  MINIMAL_TECHNO: 'MINIMAL_TECHNO',
+  LUXURY_GOLD: 'LUXURY_GOLD'
+} as const
+
+export type BannerStylePreset = (typeof BannerStylePreset)[keyof typeof BannerStylePreset]
+
+
 export const MotionRenderStatus = {
   PENDING: 'PENDING',
   RENDERING: 'RENDERING',
@@ -68,23 +85,6 @@ export const MotionPreset = {
 } as const
 
 export type MotionPreset = (typeof MotionPreset)[keyof typeof MotionPreset]
-
-
-export const BannerStylePreset = {
-  NEON_CLUB: 'NEON_CLUB',
-  FESTIVAL_MAINSTAGE: 'FESTIVAL_MAINSTAGE',
-  CYBER_RAVE: 'CYBER_RAVE',
-  DARK_TECHNO: 'DARK_TECHNO',
-  CHROME_FUTURE: 'CHROME_FUTURE',
-  AFRO_HOUSE_SUNSET: 'AFRO_HOUSE_SUNSET',
-  Y2K_CLUB: 'Y2K_CLUB',
-  PREMIUM_BLACK: 'PREMIUM_BLACK',
-  SUMMER_VIBES: 'SUMMER_VIBES',
-  MINIMAL_TECHNO: 'MINIMAL_TECHNO',
-  LUXURY_GOLD: 'LUXURY_GOLD'
-} as const
-
-export type BannerStylePreset = (typeof BannerStylePreset)[keyof typeof BannerStylePreset]
 
 
 export const UsageEventType = {

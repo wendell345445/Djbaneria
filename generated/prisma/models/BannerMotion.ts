@@ -46,7 +46,9 @@ export type BannerMotionMinAggregateOutputType = {
   id: string | null
   workspaceId: string | null
   bannerId: string | null
+  usageEventId: string | null
   preset: $Enums.MotionPreset | null
+  transitionVariant: string | null
   status: $Enums.MotionRenderStatus | null
   inputImageUrl: string | null
   inputAudioUrl: string | null
@@ -70,7 +72,9 @@ export type BannerMotionMaxAggregateOutputType = {
   id: string | null
   workspaceId: string | null
   bannerId: string | null
+  usageEventId: string | null
   preset: $Enums.MotionPreset | null
+  transitionVariant: string | null
   status: $Enums.MotionRenderStatus | null
   inputImageUrl: string | null
   inputAudioUrl: string | null
@@ -94,7 +98,9 @@ export type BannerMotionCountAggregateOutputType = {
   id: number
   workspaceId: number
   bannerId: number
+  usageEventId: number
   preset: number
+  transitionVariant: number
   status: number
   inputImageUrl: number
   inputAudioUrl: number
@@ -136,7 +142,9 @@ export type BannerMotionMinAggregateInputType = {
   id?: true
   workspaceId?: true
   bannerId?: true
+  usageEventId?: true
   preset?: true
+  transitionVariant?: true
   status?: true
   inputImageUrl?: true
   inputAudioUrl?: true
@@ -160,7 +168,9 @@ export type BannerMotionMaxAggregateInputType = {
   id?: true
   workspaceId?: true
   bannerId?: true
+  usageEventId?: true
   preset?: true
+  transitionVariant?: true
   status?: true
   inputImageUrl?: true
   inputAudioUrl?: true
@@ -184,7 +194,9 @@ export type BannerMotionCountAggregateInputType = {
   id?: true
   workspaceId?: true
   bannerId?: true
+  usageEventId?: true
   preset?: true
+  transitionVariant?: true
   status?: true
   inputImageUrl?: true
   inputAudioUrl?: true
@@ -295,7 +307,9 @@ export type BannerMotionGroupByOutputType = {
   id: string
   workspaceId: string
   bannerId: string
+  usageEventId: string | null
   preset: $Enums.MotionPreset
+  transitionVariant: string
   status: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl: string | null
@@ -342,7 +356,9 @@ export type BannerMotionWhereInput = {
   id?: Prisma.StringFilter<"BannerMotion"> | string
   workspaceId?: Prisma.StringFilter<"BannerMotion"> | string
   bannerId?: Prisma.StringFilter<"BannerMotion"> | string
+  usageEventId?: Prisma.StringNullableFilter<"BannerMotion"> | string | null
   preset?: Prisma.EnumMotionPresetFilter<"BannerMotion"> | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFilter<"BannerMotion"> | string
   status?: Prisma.EnumMotionRenderStatusFilter<"BannerMotion"> | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFilter<"BannerMotion"> | string
   inputAudioUrl?: Prisma.StringNullableFilter<"BannerMotion"> | string | null
@@ -368,7 +384,9 @@ export type BannerMotionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   bannerId?: Prisma.SortOrder
+  usageEventId?: Prisma.SortOrderInput | Prisma.SortOrder
   preset?: Prisma.SortOrder
+  transitionVariant?: Prisma.SortOrder
   status?: Prisma.SortOrder
   inputImageUrl?: Prisma.SortOrder
   inputAudioUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -397,7 +415,9 @@ export type BannerMotionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BannerMotionWhereInput | Prisma.BannerMotionWhereInput[]
   workspaceId?: Prisma.StringFilter<"BannerMotion"> | string
   bannerId?: Prisma.StringFilter<"BannerMotion"> | string
+  usageEventId?: Prisma.StringNullableFilter<"BannerMotion"> | string | null
   preset?: Prisma.EnumMotionPresetFilter<"BannerMotion"> | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFilter<"BannerMotion"> | string
   status?: Prisma.EnumMotionRenderStatusFilter<"BannerMotion"> | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFilter<"BannerMotion"> | string
   inputAudioUrl?: Prisma.StringNullableFilter<"BannerMotion"> | string | null
@@ -423,7 +443,9 @@ export type BannerMotionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   bannerId?: Prisma.SortOrder
+  usageEventId?: Prisma.SortOrderInput | Prisma.SortOrder
   preset?: Prisma.SortOrder
+  transitionVariant?: Prisma.SortOrder
   status?: Prisma.SortOrder
   inputImageUrl?: Prisma.SortOrder
   inputAudioUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -455,7 +477,9 @@ export type BannerMotionScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"BannerMotion"> | string
   workspaceId?: Prisma.StringWithAggregatesFilter<"BannerMotion"> | string
   bannerId?: Prisma.StringWithAggregatesFilter<"BannerMotion"> | string
+  usageEventId?: Prisma.StringNullableWithAggregatesFilter<"BannerMotion"> | string | null
   preset?: Prisma.EnumMotionPresetWithAggregatesFilter<"BannerMotion"> | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringWithAggregatesFilter<"BannerMotion"> | string
   status?: Prisma.EnumMotionRenderStatusWithAggregatesFilter<"BannerMotion"> | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringWithAggregatesFilter<"BannerMotion"> | string
   inputAudioUrl?: Prisma.StringNullableWithAggregatesFilter<"BannerMotion"> | string | null
@@ -477,7 +501,9 @@ export type BannerMotionScalarWhereWithAggregatesInput = {
 
 export type BannerMotionCreateInput = {
   id?: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -503,7 +529,9 @@ export type BannerMotionUncheckedCreateInput = {
   id?: string
   workspaceId: string
   bannerId: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -525,7 +553,9 @@ export type BannerMotionUncheckedCreateInput = {
 
 export type BannerMotionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -551,7 +581,9 @@ export type BannerMotionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   bannerId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -575,7 +607,9 @@ export type BannerMotionCreateManyInput = {
   id?: string
   workspaceId: string
   bannerId: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -597,7 +631,9 @@ export type BannerMotionCreateManyInput = {
 
 export type BannerMotionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -621,7 +657,9 @@ export type BannerMotionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
   bannerId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -655,7 +693,9 @@ export type BannerMotionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   bannerId?: Prisma.SortOrder
+  usageEventId?: Prisma.SortOrder
   preset?: Prisma.SortOrder
+  transitionVariant?: Prisma.SortOrder
   status?: Prisma.SortOrder
   inputImageUrl?: Prisma.SortOrder
   inputAudioUrl?: Prisma.SortOrder
@@ -687,7 +727,9 @@ export type BannerMotionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   bannerId?: Prisma.SortOrder
+  usageEventId?: Prisma.SortOrder
   preset?: Prisma.SortOrder
+  transitionVariant?: Prisma.SortOrder
   status?: Prisma.SortOrder
   inputImageUrl?: Prisma.SortOrder
   inputAudioUrl?: Prisma.SortOrder
@@ -711,7 +753,9 @@ export type BannerMotionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   bannerId?: Prisma.SortOrder
+  usageEventId?: Prisma.SortOrder
   preset?: Prisma.SortOrder
+  transitionVariant?: Prisma.SortOrder
   status?: Prisma.SortOrder
   inputImageUrl?: Prisma.SortOrder
   inputAudioUrl?: Prisma.SortOrder
@@ -833,7 +877,9 @@ export type EnumMotionRenderStatusFieldUpdateOperationsInput = {
 
 export type BannerMotionCreateWithoutWorkspaceInput = {
   id?: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -857,7 +903,9 @@ export type BannerMotionCreateWithoutWorkspaceInput = {
 export type BannerMotionUncheckedCreateWithoutWorkspaceInput = {
   id?: string
   bannerId: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -910,7 +958,9 @@ export type BannerMotionScalarWhereInput = {
   id?: Prisma.StringFilter<"BannerMotion"> | string
   workspaceId?: Prisma.StringFilter<"BannerMotion"> | string
   bannerId?: Prisma.StringFilter<"BannerMotion"> | string
+  usageEventId?: Prisma.StringNullableFilter<"BannerMotion"> | string | null
   preset?: Prisma.EnumMotionPresetFilter<"BannerMotion"> | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFilter<"BannerMotion"> | string
   status?: Prisma.EnumMotionRenderStatusFilter<"BannerMotion"> | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFilter<"BannerMotion"> | string
   inputAudioUrl?: Prisma.StringNullableFilter<"BannerMotion"> | string | null
@@ -932,7 +982,9 @@ export type BannerMotionScalarWhereInput = {
 
 export type BannerMotionCreateWithoutBannerInput = {
   id?: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -956,7 +1008,9 @@ export type BannerMotionCreateWithoutBannerInput = {
 export type BannerMotionUncheckedCreateWithoutBannerInput = {
   id?: string
   workspaceId: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -1005,7 +1059,9 @@ export type BannerMotionUpdateManyWithWhereWithoutBannerInput = {
 export type BannerMotionCreateManyWorkspaceInput = {
   id?: string
   bannerId: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -1027,7 +1083,9 @@ export type BannerMotionCreateManyWorkspaceInput = {
 
 export type BannerMotionUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1051,7 +1109,9 @@ export type BannerMotionUpdateWithoutWorkspaceInput = {
 export type BannerMotionUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bannerId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1074,7 +1134,9 @@ export type BannerMotionUncheckedUpdateWithoutWorkspaceInput = {
 export type BannerMotionUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   bannerId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1097,7 +1159,9 @@ export type BannerMotionUncheckedUpdateManyWithoutWorkspaceInput = {
 export type BannerMotionCreateManyBannerInput = {
   id?: string
   workspaceId: string
+  usageEventId?: string | null
   preset: $Enums.MotionPreset
+  transitionVariant?: string
   status?: $Enums.MotionRenderStatus
   inputImageUrl: string
   inputAudioUrl?: string | null
@@ -1119,7 +1183,9 @@ export type BannerMotionCreateManyBannerInput = {
 
 export type BannerMotionUpdateWithoutBannerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1143,7 +1209,9 @@ export type BannerMotionUpdateWithoutBannerInput = {
 export type BannerMotionUncheckedUpdateWithoutBannerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1166,7 +1234,9 @@ export type BannerMotionUncheckedUpdateWithoutBannerInput = {
 export type BannerMotionUncheckedUpdateManyWithoutBannerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  usageEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preset?: Prisma.EnumMotionPresetFieldUpdateOperationsInput | $Enums.MotionPreset
+  transitionVariant?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumMotionRenderStatusFieldUpdateOperationsInput | $Enums.MotionRenderStatus
   inputImageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   inputAudioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1192,7 +1262,9 @@ export type BannerMotionSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   workspaceId?: boolean
   bannerId?: boolean
+  usageEventId?: boolean
   preset?: boolean
+  transitionVariant?: boolean
   status?: boolean
   inputImageUrl?: boolean
   inputAudioUrl?: boolean
@@ -1218,7 +1290,9 @@ export type BannerMotionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   workspaceId?: boolean
   bannerId?: boolean
+  usageEventId?: boolean
   preset?: boolean
+  transitionVariant?: boolean
   status?: boolean
   inputImageUrl?: boolean
   inputAudioUrl?: boolean
@@ -1244,7 +1318,9 @@ export type BannerMotionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   workspaceId?: boolean
   bannerId?: boolean
+  usageEventId?: boolean
   preset?: boolean
+  transitionVariant?: boolean
   status?: boolean
   inputImageUrl?: boolean
   inputAudioUrl?: boolean
@@ -1270,7 +1346,9 @@ export type BannerMotionSelectScalar = {
   id?: boolean
   workspaceId?: boolean
   bannerId?: boolean
+  usageEventId?: boolean
   preset?: boolean
+  transitionVariant?: boolean
   status?: boolean
   inputImageUrl?: boolean
   inputAudioUrl?: boolean
@@ -1290,7 +1368,7 @@ export type BannerMotionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type BannerMotionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "bannerId" | "preset" | "status" | "inputImageUrl" | "inputAudioUrl" | "inputAudioStorageKey" | "audioOriginalName" | "audioMimeType" | "audioSizeBytes" | "outputVideoUrl" | "outputVideoStorageKey" | "format" | "width" | "height" | "durationSeconds" | "renderProgress" | "errorMessage" | "createdAt" | "updatedAt", ExtArgs["result"]["bannerMotion"]>
+export type BannerMotionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "bannerId" | "usageEventId" | "preset" | "transitionVariant" | "status" | "inputImageUrl" | "inputAudioUrl" | "inputAudioStorageKey" | "audioOriginalName" | "audioMimeType" | "audioSizeBytes" | "outputVideoUrl" | "outputVideoStorageKey" | "format" | "width" | "height" | "durationSeconds" | "renderProgress" | "errorMessage" | "createdAt" | "updatedAt", ExtArgs["result"]["bannerMotion"]>
 export type BannerMotionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   banner?: boolean | Prisma.BannerDefaultArgs<ExtArgs>
@@ -1314,7 +1392,9 @@ export type $BannerMotionPayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     workspaceId: string
     bannerId: string
+    usageEventId: string | null
     preset: $Enums.MotionPreset
+    transitionVariant: string
     status: $Enums.MotionRenderStatus
     inputImageUrl: string
     inputAudioUrl: string | null
@@ -1760,7 +1840,9 @@ export interface BannerMotionFieldRefs {
   readonly id: Prisma.FieldRef<"BannerMotion", 'String'>
   readonly workspaceId: Prisma.FieldRef<"BannerMotion", 'String'>
   readonly bannerId: Prisma.FieldRef<"BannerMotion", 'String'>
+  readonly usageEventId: Prisma.FieldRef<"BannerMotion", 'String'>
   readonly preset: Prisma.FieldRef<"BannerMotion", 'MotionPreset'>
+  readonly transitionVariant: Prisma.FieldRef<"BannerMotion", 'String'>
   readonly status: Prisma.FieldRef<"BannerMotion", 'MotionRenderStatus'>
   readonly inputImageUrl: Prisma.FieldRef<"BannerMotion", 'String'>
   readonly inputAudioUrl: Prisma.FieldRef<"BannerMotion", 'String'>

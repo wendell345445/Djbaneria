@@ -18,10 +18,23 @@ type MotionPreset =
   | "FESTIVAL_LIGHTS"
   | "DARK_TECHNO_GLITCH";
 
+type TransitionVariant =
+  | "AUTO"
+  | "ROTATE_ZOOM"
+  | "WHIP_ZOOM"
+  | "SPIN_BLUR"
+  | "FLASH_CUT"
+  | "GLITCH_ZOOM"
+  | "VIRAL_SHAKE";
+
+type BannerFormat = "POST_FEED" | "STORY" | "SQUARE" | "FLYER";
+
 type MotionFlyerProps = {
   imageUrl: string;
   audioUrl?: string;
   preset: MotionPreset;
+  transitionVariant?: TransitionVariant;
+  format?: BannerFormat;
   durationSeconds: number;
 };
 
@@ -484,6 +497,7 @@ function MotionFlyerScene({
   imageUrl,
   audioUrl = "",
   preset,
+  transitionVariant = "AUTO",
   audio,
 }: MotionFlyerProps & { audio: AudioEnergy }) {
   const frame = useCurrentFrame();
@@ -627,7 +641,7 @@ function MotionFlyerScene({
             Math.max(durationInFrames - 30, 0),
           ]}
           durationInFrames={16}
-          variant="AUTO"
+          variant={transitionVariant}
           primaryRgb={look.primary}
           secondaryRgb={look.secondary}
           accentRgb={look.accent}

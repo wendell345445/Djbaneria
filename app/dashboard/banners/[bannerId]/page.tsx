@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { BannerMotionPanel } from "@/components/banner-motion-panel";
 import { prisma } from "@/lib/prisma";
 import { normalizeLocale, type SupportedLocale } from "@/lib/i18n";
 import { requireCurrentWorkspace } from "@/lib/workspace";
@@ -110,6 +111,28 @@ export default async function BannerDetailsPage({
     notFound();
   }
 
+  const motionRenders = await (prisma as any).bannerMotion.findMany({
+    where: {
+      bannerId: banner.id,
+      workspaceId: workspace.id,
+    },
+    select: {
+      id: true,
+      preset: true,
+      transitionVariant: true,
+      status: true,
+      renderProgress: true,
+      outputVideoUrl: true,
+      errorMessage: true,
+      durationSeconds: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 8,
+  });
+
   const title = banner.title || copy.fallbackTitle;
   const formattedDate = new Intl.DateTimeFormat(intlLocales[locale], {
     dateStyle: "short",
@@ -166,6 +189,19 @@ export default async function BannerDetailsPage({
           <InfoRow label={copy.djName} value={banner.djName || copy.noDjName} />
           <InfoRow label={copy.format} value={banner.format || copy.unavailable} />
           <InfoRow label={copy.createdAt} value={formattedDate} />
+
+          <BannerMotionPanel
+            bannerId={banner.id}
+            locale={locale}
+            disabled={!banner.outputImageUrl}
+            initialMotions={motionRenders.map((motion: any) => ({
+              ...motion,
+              createdAt:
+                motion.createdAt instanceof Date
+                  ? motion.createdAt.toISOString()
+                  : motion.createdAt,
+            }))}
+          />
         </section>
       </div>
     </main>

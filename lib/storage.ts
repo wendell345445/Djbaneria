@@ -32,21 +32,29 @@ export async function uploadBufferToR2(params: {
       Bucket: bucket,
       Key: params.key,
       Body: params.body,
-      ContentType: params.contentType || "image/png",
+      ContentType: params.contentType || "application/octet-stream",
       CacheControl: params.cacheControl || "public, max-age=31536000, immutable",
     }),
   );
 
   return {
     url: `${publicBaseUrl.replace(/\/$/, "")}/${params.key}`,
+    key: params.key,
   };
 }
-
 
 export async function uploadBannerBuffer(params: {
   key: string;
   body: Buffer;
   contentType?: string;
 }) {
-  return uploadBufferToR2(params);
+  const uploaded = await uploadBufferToR2({
+    key: params.key,
+    body: params.body,
+    contentType: params.contentType || "image/png",
+  });
+
+  return {
+    url: uploaded.url,
+  };
 }
