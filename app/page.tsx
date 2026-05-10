@@ -616,21 +616,6 @@ export default function HomePage() {
 
         /* ── PRICING SCROLL MOBILE ── */
         @media (max-width: 767px) {
-          .pricing-scroll {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            gap: 16px;
-            padding-bottom: 16px;
-            scrollbar-width: none;
-          }
-          .pricing-scroll::-webkit-scrollbar { display: none; }
-          .pricing-scroll > * {
-            flex: 0 0 85vw;
-            scroll-snap-align: start;
-            max-width: 340px;
-          }
           .testi-scroll {
             display: flex;
             overflow-x: auto;
@@ -1198,10 +1183,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Scroll hint — mobile only */}
-          <p className="mono mt-4 text-center text-[9px] text-[rgba(255,255,255,0.25)] sm:hidden" style={{ letterSpacing: '0.14em' }}>← SWIPE TO COMPARE →</p>
-
-          <div className="pricing-scroll mt-8 sm:mt-12 sm:grid sm:gap-5 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:mt-12 lg:grid-cols-3">
             {pricingPlans.map((plan) => (
               <div key={plan.plan} className={`hud-box relative overflow-hidden p-6 transition-all sm:hover:-translate-y-1 ${plan.highlighted ? "plan-featured" : ""}`}>
                 {plan.highlighted && (
