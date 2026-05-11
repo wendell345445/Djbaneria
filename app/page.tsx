@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -26,64 +26,288 @@ const LandingBannerCarousel = dynamic(
 );
 
 const advantages = [
-  { icon: Zap, title: "Launch promos faster", description: "Create polished event visuals in minutes, so you can promote more often without waiting on a designer." },
-  { icon: Sparkles, title: "Made for DJ marketing", description: "Generate flyers, stories, and promo graphics built for club nights, lineups, releases, and paid ads." },
-  { icon: Layers3, title: "Create more than one look", description: "Test different creative directions and refine your visuals until they match the vibe of your event or brand." },
-  { icon: ImageIcon, title: "Improve your promo photos", description: "Turn casual or low-quality DJ photos into cleaner, sharper images that look more professional online." },
-  { icon: Gauge, title: "No design skills needed", description: "A simple guided workflow helps you create strong visuals even if you have never used design software." },
-  { icon: ShieldCheck, title: "Built for real users", description: "Protected signup, email verification, and an account-based workspace made for consistent creative output." },
+  { icon: Zap,        title: "Animated flyers in minutes",    description: "Turn any static flyer into a VFX-enhanced MP4 video — with transitions, light effects, and motion — ready to post on Reels, TikTok, and Stories." },
+  { icon: Sparkles,   title: "AI flyers built for the scene", description: "Generate premium event flyers for club nights, festivals, lineups, and releases — without touching design software." },
+  { icon: Camera,     title: "DJ photo upgrade",              description: "Upload a casual or low-quality DJ photo and get back a sharper, cleaner, more professional image for profiles, ads, and press kits." },
+  { icon: Layers3,    title: "Test multiple creative angles", description: "Create several versions of your flyer or animated video and pick the one that hits hardest — no extra cost per revision." },
+  { icon: Gauge,      title: "Zero design experience needed", description: "A guided workflow takes you from event details to finished visual in minutes — flyer, animation, or enhanced photo." },
+  { icon: ShieldCheck,title: "Your workspace, always ready",  description: "Secure account, email verification, and a dashboard where all your visuals are saved and ready to export anytime." },
 ];
 
 const faqs = [
-  { question: "Do I need design experience?", answer: "No. DJ Banner AI is built for DJs, producers, and event promoters who want professional visuals without learning design software." },
-  { question: "What can I create?", answer: "You can create DJ flyers, event flyers, feed posts, story visuals, ad creatives, and cleaner promo photos for your online presence." },
-  { question: "Can it improve my existing DJ photos?", answer: "Yes. You can upload a casual or low-quality photo and use AI to make it look cleaner, sharper, and more professional for social media, ads, and artist profiles." },
-  { question: "Can I use my own photo in a flyer?", answer: "Yes. You can upload your own image as a reference when creating a flyer, so the final visual feels closer to your identity." },
-  { question: "What happens after I sign up?", answer: "After checkout, you receive a secure email link to create your password. Then you can access the dashboard and start the guided tour." },
+  { question: "Do I need design experience?",              answer: "No. DJ Visuals AI is built for DJs, producers, and event promoters who want professional visuals without learning design software." },
+  { question: "What exactly is an animated flyer?",        answer: "You generate a static flyer on our platform, then use the animation engine to add VFX — light leaks, particle effects, transitions, and motion — and export it as an MP4 video you can post directly on Reels, TikTok, or Stories." },
+  { question: "What formats do I get?",                    answer: "Static flyers are delivered as high-resolution images. Animated flyers are exported as MP4 video files ready for social media. Enhanced DJ photos are delivered as high-resolution images." },
+  { question: "Can I use my own photo in a flyer?",        answer: "Yes. You can upload your own image as a reference when generating a flyer or animation, so the final result reflects your identity and brand." },
+  { question: "How does the DJ photo enhancement work?",   answer: "You upload a casual or lower-quality photo and the AI cleans it up — improving sharpness, lighting, and overall quality — producing a more professional-looking image for your profiles, ads, and press kits." },
+  { question: "What happens after I sign up?",             answer: "After checkout, you receive a secure email link to create your password. Then you access the dashboard and can start generating right away." },
 ];
 
 const pricingPlans = [
   {
-    plan: "PRO", name: "Pro", price: "$12.99", period: "/month",
-    description: "For DJs who need professional visuals for regular event promotion.",
-    credits: "20 credits / month", costNote: "About $0.65 per generation", cta: "Start Pro",
+    plan: "PRO", name: "Pro", price: "$16.24", checkoutPrice: "$12.99", period: "/month",
+    description: "For DJs who want consistent, professional visuals without the agency price tag.",
+    credits: "20 credits / month", costNote: "About $0.81 per generation before the welcome gift", cta: "Start Pro",
     highlighted: false,
-    features: ["20 AI generations per month", "Premium DJ flyer creation", "AI promo photo enhancement", "Feed and story formats", "Low and medium quality"],
+    features: ["20 AI generations per month", "Static flyer creation", "Animated flyer export (MP4)", "AI DJ photo enhancement", "Feed and story formats"],
   },
   {
-    plan: "PROFESSIONAL", name: "Professional", price: "$24.99", period: "/month",
-    description: "The best option for DJs running ads, events, stories, and frequent promos.",
-    credits: "40 credits / month", costNote: "About $0.62 per generation", cta: "Start Professional",
+    plan: "PROFESSIONAL", name: "Professional", price: "$31.24", checkoutPrice: "$24.99", period: "/month",
+    description: "The go-to plan for DJs running events, ads, and frequent promos every month.",
+    credits: "40 credits / month", costNote: "About $0.78 per generation before the welcome gift", cta: "Start Professional",
     highlighted: true,
-    features: ["40 AI generations per month", "Premium and pro visual styles", "High-quality image generation", "Professional DJ photo enhancement", "Built for paid ads and social media"],
+    features: ["40 AI generations per month", "Premium flyers + animated MP4 export", "High-quality image & video generation", "Professional DJ photo enhancement", "Built for paid ads and social media"],
   },
   {
-    plan: "STUDIO", name: "Studio", price: "$39.99", period: "/month",
-    description: "For agencies, DJ collectives, promoters, and creators with higher volume.",
-    credits: "80 credits / month", costNote: "About $0.50 per generation", cta: "Start Studio",
+    plan: "STUDIO", name: "Studio", price: "$49.99", checkoutPrice: "$39.99", period: "/month",
+    description: "For agencies, DJ collectives, and promoters managing multiple artists or events.",
+    credits: "80 credits / month", costNote: "About $0.62 per generation before the welcome gift", cta: "Start Studio",
     highlighted: false,
-    features: ["80 AI generations per month", "High-volume creative output", "Premium flyers and promo photos", "High-quality image generation", "Ideal for teams and promoters"],
+    features: ["80 AI generations per month", "Full access: flyers, animations, photos", "High-quality image & video output", "Ideal for teams and high-volume promo", "Priority creative output"],
   },
 ] as const;
 
 const testimonials = [
   {
     initials: "NW", name: "Noah Walker", role: "Open format DJ", location: "Miami, FL",
-    outcome: "Lower design costs", metric: "Creative control",
-    quote: "I use this type of artwork a lot, but the agency I had hired was getting very expensive. They charged me $100 for each flyer, and the result was not always exactly what I wanted. With this tool, everything became much easier. I can create flyers my way, make changes, test different versions, and the price does not even compare.",
+    outcome: "Saves time", metric: "Looks legit",
+    quote: "I was paying a graphic designer $80–100 a flyer and half the time I'd go back and forth three times before it looked right. Now I just do it myself. Took me like 10 minutes the first time and it came out better than what I was getting. The animated version is what really got people's attention on Instagram.",
   },
   {
     initials: "DM", name: "Daniel Morgan", role: "Club DJ", location: "Orlando, FL",
-    outcome: "More event inquiries", metric: "Higher engagement",
-    quote: "DJ Banner AI completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
+    outcome: "More bookings", metric: "Better content",
+    quote: "Honestly I was skeptical. I've tried other AI tools and they always look fake or generic. This one actually understands the vibe — dark, bold, club-ready. Posted an animated flyer for a Friday night set and got three DM inquiries that weekend. That never happened with my old graphics.",
   },
   {
     initials: "TC", name: "Tyler Carter", role: "Event DJ", location: "Los Angeles, CA",
-    outcome: "Lower design costs", metric: "Higher-quality flyers",
-    quote: "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Banner AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it.",
-
+    outcome: "Cut design costs", metric: "Full control",
+    quote: "I do about 6–8 events a month so the design costs were adding up fast. I switched to this and the first month I probably saved $300. But honestly the bigger thing is I can make changes on the fly — if the lineup changes or the venue swaps I just regenerate it. No waiting on anyone.",
   },
 ] as const;
+
+// ── STATIC vs ANIMATED SECTION ───────────────────────────────────
+const flyerExamples = [
+  { id: 1, label: "Club Night",     static: "/landing/animation-demo/flyer-static.webp",  video: "/landing/animation-demo/flyer-animated.mp4"  },
+  { id: 2, label: "Festival Set",   static: "/landing/animation-demo/flyer-static2.webp", video: "/landing/animation-demo/flyer-animated2.mp4" },
+  { id: 3, label: "Release Party",  static: "/landing/animation-demo/flyer-static3.webp", video: "/landing/animation-demo/flyer-animated3.mp4" },
+  { id: 4, label: "Residency",      static: "/landing/animation-demo/flyer-static4.webp", video: "/landing/animation-demo/flyer-animated4.mp4" },
+] as const;
+
+function VideoCard({
+  src,
+  index,
+  playingId,
+  setPlayingId,
+}: {
+  src: string;
+  index: number;
+  playingId: number | null;
+  setPlayingId: (id: number | null) => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const playing = playingId === index;
+
+  // Pause whenever another card becomes active
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (playing) {
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+      v.currentTime = 0;
+    }
+  }, [playing]);
+
+  function handleClick() {
+    setPlayingId(playing ? null : index);
+  }
+
+  return (
+    <div className="hud-box-v relative overflow-hidden rounded-none p-0" style={{ borderColor: 'rgba(191,95,255,0.28)' }}>
+      {/* Top glow line */}
+      <div className="absolute inset-x-0 top-0 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, var(--cv), var(--cx), transparent)', opacity: 0.7 }} />
+
+      {/* Top bar */}
+      <div className="flex items-center justify-between gap-2 border-b border-[rgba(191,95,255,0.14)] px-3 py-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: playing ? 'var(--cg)' : 'rgba(255,255,255,0.25)', boxShadow: playing ? '0 0 5px var(--cg)' : 'none', transition: 'all 0.3s', animation: playing ? 'cornerPulse 1.5s ease-in-out infinite' : 'none' }} />
+          <span className="mono truncate text-[7px] text-[rgba(255,255,255,0.4)]" style={{ letterSpacing: '0.1em' }}>
+            ANIMATED_{index + 1}.MP4
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <span className="chip-v" style={{ fontSize: 6, padding: '3px 6px' }}>VFX</span>
+          <span className="chip-cx" style={{ fontSize: 6, padding: '3px 6px' }}>MP4</span>
+        </div>
+      </div>
+
+      {/* Video — 1024×1280 ratio */}
+      <div
+        className="relative w-full cursor-pointer bg-[#03040A]"
+        style={{ aspectRatio: '1024 / 1280' }}
+        onClick={handleClick}
+        role="button"
+        aria-label={playing ? "Pause video" : "Play video"}
+      >
+        <video
+          ref={videoRef}
+          src={src}
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+
+        {/* Tap-to-play overlay */}
+        {!playing && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: 'rgba(3,4,10,0.65)', backdropFilter: 'blur(2px)' }}>
+            <div className="flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.5)]" style={{ background: 'rgba(0,245,255,0.1)', boxShadow: '0 0 20px rgba(0,245,255,0.35)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--cx)" aria-hidden>
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+            </div>
+            <p className="mono text-[9px] text-white" style={{ letterSpacing: '0.18em', textShadow: '0 0 10px rgba(0,245,255,0.6)' }}>
+              TAP TO PLAY
+            </p>
+            <p className="sans px-4 text-center text-[10px] text-[rgba(255,255,255,0.4)]">
+              See the animated version
+            </p>
+          </div>
+        )}
+
+        {/* Playing overlays */}
+        {playing && (
+          <div className="pointer-events-none absolute inset-0">
+            <span className="absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cx)', boxShadow: '0 0 6px var(--cx)', animation: 'cornerPulse 2s ease-in-out infinite' }} />
+            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cv)', boxShadow: '0 0 6px var(--cv)', animation: 'cornerPulse 2s ease-in-out infinite 0.5s' }} />
+            <span className="absolute bottom-1.5 left-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cv)', boxShadow: '0 0 6px var(--cv)', animation: 'cornerPulse 2s ease-in-out infinite 1s' }} />
+            <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cx)', boxShadow: '0 0 6px var(--cx)', animation: 'cornerPulse 2s ease-in-out infinite 1.5s' }} />
+            <div className="absolute inset-x-0 h-[1px] opacity-20" style={{ top: '35%', background: 'linear-gradient(90deg, transparent, var(--cx), transparent)', animation: 'scanBeam 3s ease-in-out infinite' }} />
+            <div className="absolute right-2 top-2 flex items-center gap-1 border border-[rgba(191,95,255,0.3)] bg-[rgba(3,4,10,0.7)] px-2 py-1 backdrop-blur-sm">
+              <span className="flex gap-[2px]">
+                <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
+                <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
+              </span>
+              <span className="mono text-[6px] text-[rgba(255,255,255,0.5)]" style={{ letterSpacing: '0.12em' }}>PAUSE</span>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom label */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+          <span className="mono whitespace-nowrap border border-[rgba(191,95,255,0.4)] px-2 py-0.5 text-[7px] backdrop-blur-sm" style={{ background: 'rgba(191,95,255,0.15)', color: 'var(--cv)', letterSpacing: '0.16em', boxShadow: '0 0 8px rgba(191,95,255,0.25)' }}>
+            ANIMATED · MP4
+          </span>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-[rgba(191,95,255,0.1)] px-3 py-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[{ label: "LIGHT LEAK", color: "var(--cx)" }, { label: "PARTICLES", color: "var(--cv)" }, { label: "TRANSITION", color: "var(--cg)" }].map(fx => (
+            <span key={fx.label} className="mono flex items-center gap-1 text-[6px]" style={{ color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>
+              <span className="h-1 w-1 rounded-full" style={{ background: fx.color, boxShadow: `0 0 3px ${fx.color}` }} />
+              {fx.label}
+            </span>
+          ))}
+          <span className="mono ml-auto text-[6px] text-[rgba(255,255,255,0.22)]" style={{ letterSpacing: '0.08em' }}>1024×1280</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StaticVsAnimatedSection() {
+  const [playingId, setPlayingId] = useState<number | null>(null);
+  return (
+    <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+
+      {/* Header */}
+      <div className="mb-10 sm:mb-14">
+        <div className="sect-label">
+          <span className="chip-cx">● SEE THE DIFFERENCE</span>
+        </div>
+        <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+          SAME FLYER.{" "}
+          <span style={{ color: 'var(--cv)', textShadow: '0 0 28px rgba(191,95,255,0.6)' }}>NOW WITH</span>{" "}
+          <span style={{ color: 'var(--cx)', textShadow: '0 0 28px rgba(0,245,255,0.6)' }}>VFX.</span>
+        </h2>
+        <p className="sans mt-3 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+          Generate your flyer, then hit animate. The AI adds light leaks, particle effects, and transitions — and exports a ready-to-post MP4 in seconds.
+        </p>
+      </div>
+
+      {/* 4 pairs stacked */}
+      <div className="space-y-8 sm:space-y-12">
+        {flyerExamples.map((ex, i) => (
+          <div key={ex.id}>
+            {/* Pair label */}
+            <div className="mb-3 flex items-center gap-3">
+              <span className="mono text-[9px] text-[rgba(0,245,255,0.5)]" style={{ letterSpacing: '0.2em' }}>
+                {String(i + 1).padStart(2, "0")} //
+              </span>
+              <span className="mono text-[9px] text-[rgba(255,255,255,0.35)]" style={{ letterSpacing: '0.18em' }}>
+                {ex.label.toUpperCase()}
+              </span>
+              <div className="flex-1 h-px bg-[rgba(255,255,255,0.05)]" />
+            </div>
+
+            {/* Side-by-side — always 2 cols, even on mobile */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-5 items-start">
+
+              {/* Static */}
+              <div className="hud-box relative overflow-hidden rounded-none p-0">
+                <div className="flex items-center justify-between gap-2 border-b border-[rgba(0,245,255,0.1)] px-3 py-2">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[rgba(255,255,255,0.2)]" />
+                    <span className="mono truncate text-[7px] text-[rgba(255,255,255,0.38)]" style={{ letterSpacing: '0.1em' }}>
+                      STATIC_{i + 1}.PNG
+                    </span>
+                  </div>
+                  <span className="chip-cx shrink-0" style={{ fontSize: 6, padding: '3px 6px' }}>IMG</span>
+                </div>
+
+                {/* 1024×1280 ratio */}
+                <div className="relative w-full bg-[#03040A]" style={{ aspectRatio: '1024 / 1280' }}>
+                  <img
+                    src={ex.static}
+                    alt={`${ex.label} static flyer`}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 70%, rgba(3,4,10,0.55))' }} />
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                    <span className="mono whitespace-nowrap border border-[rgba(255,255,255,0.12)] bg-[rgba(3,4,10,0.75)] px-2 py-0.5 text-[7px] text-[rgba(255,255,255,0.4)] backdrop-blur-sm" style={{ letterSpacing: '0.14em' }}>
+                      NO MOTION
+                    </span>
+                  </div>
+                </div>
+
+                <div className="border-t border-[rgba(0,245,255,0.07)] px-3 py-2">
+                  <p className="sans text-[10px] text-[rgba(255,255,255,0.28)]">Static image</p>
+                </div>
+              </div>
+
+              {/* Animated */}
+              <VideoCard src={ex.video} index={i} playingId={playingId} setPlayingId={setPlayingId} />
+
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <a href="#pricing" className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:px-10">
+          ANIMATE MY FLYER
+          <ArrowRight size={13} />
+        </a>
+        <p className="mono text-center text-[9px] text-[rgba(255,255,255,0.3)]" style={{ letterSpacing: '0.14em' }}>
+          INCLUDED IN ALL PLANS · NO VIDEO EDITING NEEDED
+        </p>
+      </div>
+    </section>
+  );
+}
 
 // ── PRICING BUTTONS ──────────────────────────────────────────────
 import {
@@ -92,6 +316,53 @@ import {
 } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
+
+type CheckoutOptions = {
+  customerName?: string;
+  source?: string;
+};
+
+async function openPublicCheckout(plan: PlanVariant, options: CheckoutOptions = {}) {
+  const metaEventId = createMetaEventId("InitiateCheckout");
+  const response = await fetch("/api/public/checkout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      plan,
+      metaEventId,
+      customerName: options.customerName,
+      source: options.source,
+    }),
+  });
+
+  const data = (await response.json().catch(() => ({}))) as {
+    error?: string;
+    metaEventId?: string;
+    url?: string;
+  };
+
+  if (!response.ok) throw new Error(data.error || "Could not open checkout.");
+  if (!data.url) throw new Error("Stripe did not return a valid checkout URL.");
+
+  trackMetaInitiateCheckout(plan, data.metaEventId || metaEventId);
+  window.location.assign(data.url);
+}
+
+async function notifyGiftLead(name: string, selectedPlan: PlanVariant) {
+  try {
+    await fetch("/api/public/gift-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        selectedPlan,
+        source: "pricing_scroll_gift_popup",
+      }),
+    });
+  } catch {
+    // Notification should never block the user from seeing the plans.
+  }
+}
 
 function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
   const [loading, setLoading] = useState(false);
@@ -102,21 +373,7 @@ function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
     setLoading(true);
     setError("");
     try {
-      const metaEventId = createMetaEventId("InitiateCheckout");
-      const response = await fetch("/api/public/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, metaEventId }),
-      });
-      const data = (await response.json().catch(() => ({}))) as {
-        error?: string;
-        metaEventId?: string;
-        url?: string;
-      };
-      if (!response.ok) throw new Error(data.error || "Could not open checkout.");
-      if (!data.url) throw new Error("Stripe did not return a valid checkout URL.");
-      trackMetaInitiateCheckout(plan, data.metaEventId || metaEventId);
-      window.location.assign(data.url);
+      await openPublicCheckout(plan, { source: "pricing_card" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Payment error.");
       setLoading(false);
@@ -179,10 +436,309 @@ function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
   );
 }
 
+
+function FirstPurchaseGiftPopup({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [step, setStep] = useState<"intro" | "plans">("intro");
+  const [selectedPlan, setSelectedPlan] = useState<PlanVariant>("PROFESSIONAL");
+  const [giftLeadNotified, setGiftLeadNotified] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!open) return null;
+
+  const selectedPlanData = pricingPlans.find((plan) => plan.plan === selectedPlan);
+
+  function handleClaimGift() {
+    const cleanName = name.trim();
+
+    if (!cleanName) {
+      setError("Enter your name to unlock your gift.");
+      return;
+    }
+
+    setError("");
+
+    if (!giftLeadNotified) {
+      setGiftLeadNotified(true);
+      void notifyGiftLead(cleanName, selectedPlan);
+    }
+
+    setStep("plans");
+  }
+
+  async function handleCheckout() {
+    if (loading) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      await openPublicCheckout(selectedPlan, {
+        customerName: name.trim(),
+        source: "pricing_scroll_gift_popup",
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not open checkout.");
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] flex items-end justify-center bg-black/72 px-3 pb-3 pt-8 backdrop-blur-xl sm:items-center sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="first-purchase-gift-title"
+    >
+      <div
+        className={`hud-box relative w-full overflow-hidden rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] ${
+          step === "intro" ? "max-w-[420px]" : "max-h-[calc(100dvh-24px)] max-w-[560px] overflow-y-auto sm:max-h-[calc(100dvh-64px)]"
+        }`}
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-52 w-52 rounded-full bg-[rgba(191,95,255,0.14)] blur-3xl" />
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center border border-[rgba(255,255,255,0.12)] bg-[#050713]/85 text-lg text-white/60 backdrop-blur-md transition hover:border-[rgba(0,245,255,0.35)] hover:text-white"
+          aria-label="Close first-subscription gift popup"
+        >
+          ×
+        </button>
+
+        {step === "intro" ? (
+          <div className="relative z-10 p-5 text-center sm:p-6">
+            <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.08)] shadow-[0_0_36px_rgba(0,245,255,0.26)] gift-pop">
+              <div className="absolute h-20 w-20 rounded-full border border-[rgba(0,245,255,0.38)] gift-ring" />
+              <div className="absolute h-28 w-28 rounded-full border border-[rgba(191,95,255,0.18)] gift-ring gift-ring-delay" />
+              <Sparkles size={34} className="relative z-10 text-[var(--cx)] drop-shadow-[0_0_16px_rgba(0,245,255,0.9)]" />
+              <span className="gift-spark gift-spark-a" />
+              <span className="gift-spark gift-spark-b" />
+              <span className="gift-spark gift-spark-c" />
+            </div>
+
+            <div className="mb-3 flex justify-center">
+              <span className="chip-cx">● GIFT UNLOCKED</span>
+            </div>
+
+            <h2 id="first-purchase-gift-title" className="orb text-[22px] font-black leading-tight text-white sm:text-[27px]">
+              You just received 20% off today.
+            </h2>
+
+            <p className="sans mx-auto mt-3 max-w-[320px] text-sm leading-6 text-[rgba(255,255,255,0.58)]">
+              Enter your name to reveal your exclusive first-subscription gift.
+            </p>
+
+            <label className="mt-5 grid gap-2 text-left">
+              <span className="mono text-[9px] uppercase tracking-[0.18em] text-[rgba(255,255,255,0.42)]">
+                Your name
+              </span>
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Enter your name"
+                className="min-h-12 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)]"
+                autoFocus
+              />
+            </label>
+
+            {error ? <p className="sans mt-3 text-sm leading-6 text-rose-300">{error}</p> : null}
+
+            <button
+              type="button"
+              onClick={handleClaimGift}
+              className="btn-cx-solid mt-4 inline-flex min-h-[52px] w-full items-center justify-center gap-2 px-5 py-4 text-[11px]"
+            >
+              REDEEM MY GIFT
+              <ArrowRight size={13} />
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="sans mt-4 text-xs text-white/35 transition hover:text-white/70"
+            >
+              Maybe later
+            </button>
+          </div>
+        ) : (
+          <div className="relative z-10 p-4 sm:p-5">
+            <div className="pr-10">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span className="chip-cx" style={{ fontSize: 7, padding: "4px 7px" }}>● DISCOUNT APPLIED</span>
+                <span className="chip-v" style={{ fontSize: 7, padding: "4px 7px" }}>WELCOME20</span>
+              </div>
+
+              <h2 className="orb text-[20px] font-black leading-tight text-white sm:text-[26px]">
+                {name.trim()}, choose your plan.
+              </h2>
+
+              <p className="sans mt-2 max-w-[460px] text-xs leading-5 text-[rgba(255,255,255,0.52)] sm:text-sm sm:leading-6">
+                Your welcome gift is visually applied below. Select a plan and continue to checkout.
+              </p>
+            </div>
+
+            <div className="mt-4 grid gap-2">
+              {pricingPlans.map((plan) => {
+                const selected = selectedPlan === plan.plan;
+
+                return (
+                  <button
+                    key={plan.plan}
+                    type="button"
+                    onClick={() => setSelectedPlan(plan.plan)}
+                    className={`relative overflow-hidden border p-3 text-left transition ${
+                      selected
+                        ? "border-[rgba(0,245,255,0.86)] bg-[rgba(0,245,255,0.13)] shadow-[0_0_24px_rgba(0,245,255,0.18)]"
+                        : "border-[rgba(255,255,255,0.09)] bg-white/[0.035] hover:border-[rgba(0,245,255,0.28)]"
+                    }`}
+                  >
+                    {selected && (
+                      <span className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+                    )}
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="orb block text-xs font-bold uppercase tracking-[0.14em] text-white">
+                            {plan.name}
+                          </span>
+                          {plan.highlighted ? (
+                            <span className="mono border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.08)] px-2 py-0.5 text-[7px] uppercase tracking-[0.12em] text-[var(--cx)]">
+                              popular
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <p className="sans mt-1 text-[11px] leading-4 text-[rgba(255,255,255,0.42)]">
+                          {plan.credits}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0 text-right">
+                        <span className="sans block text-[11px] text-[rgba(255,255,255,0.38)] line-through">
+                          {plan.price}
+                        </span>
+                        <span className="sans block text-[17px] font-bold leading-tight text-[var(--cx)]">
+                          {plan.checkoutPrice}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="mono text-[7px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.34)]">
+                        20% gift applied
+                      </span>
+
+                      {selected ? (
+                        <span className="mono text-[7px] uppercase tracking-[0.14em] text-[var(--cg)]">
+                          selected
+                        </span>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="coupon-applied mt-3 border border-[rgba(191,95,255,0.22)] bg-[rgba(191,95,255,0.075)] px-3 py-2.5">
+              <p className="sans text-xs leading-5 text-white/72 sm:text-sm">
+                Selected: <strong className="text-white">{selectedPlanData?.name}</strong>{" "}
+                <span className="text-white/38">·</span>{" "}
+                <span className="line-through text-white/35">{selectedPlanData?.price}</span>{" "}
+                <strong className="text-[var(--cx)]">{selectedPlanData?.checkoutPrice}</strong>
+              </p>
+              <p className="mono mt-1 text-[7px] uppercase tracking-[0.12em] text-[rgba(255,255,255,0.34)]">
+                WELCOME20 · visually applied
+              </p>
+            </div>
+
+            {error ? <p className="sans mt-3 text-sm leading-6 text-rose-300">{error}</p> : null}
+
+            <button
+              type="button"
+              onClick={handleCheckout}
+              disabled={loading}
+              className="btn-cx-solid mt-3 inline-flex min-h-[50px] w-full items-center justify-center gap-2 px-5 py-3 text-[10px] disabled:cursor-wait disabled:opacity-70"
+            >
+              {loading ? "OPENING CHECKOUT..." : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
+              <ArrowRight size={13} />
+            </button>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("intro");
+                  setError("");
+                }}
+                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/42 transition hover:border-[rgba(0,245,255,0.22)] hover:text-white/75"
+              >
+                Back
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/42 transition hover:border-[rgba(191,95,255,0.28)] hover:text-white/75"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [giftPopupOpen, setGiftPopupOpen] = useState(false);
+  const [giftPopupDismissed, setGiftPopupDismissed] = useState(false);
+
+  useEffect(() => {
+    if (giftPopupDismissed) return;
+
+    const pricingSection = document.getElementById("pricing");
+    if (!pricingSection) return;
+
+    const alreadyShown = window.sessionStorage.getItem("first-subscription-gift-seen");
+    if (alreadyShown) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+
+        setGiftPopupOpen(true);
+        window.sessionStorage.setItem("first-subscription-gift-seen", "true");
+        observer.disconnect();
+      },
+      { threshold: 0.28 },
+    );
+
+    observer.observe(pricingSection);
+
+    return () => observer.disconnect();
+  }, [giftPopupDismissed]);
+
+  function closeGiftPopup() {
+    setGiftPopupOpen(false);
+    setGiftPopupDismissed(true);
+  }
+
   return (
     <main className="min-h-screen overflow-x-hidden" style={{ background: "#03040A", color: "#E8EAF0", fontFamily: "'DM Sans', sans-serif" }}>
+      <FirstPurchaseGiftPopup open={giftPopupOpen} onClose={closeGiftPopup} />
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
@@ -818,6 +1374,49 @@ export default function HomePage() {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
+        @keyframes giftPop {
+          0% { transform: scale(0.72) rotate(-10deg); opacity: 0; }
+          58% { transform: scale(1.12) rotate(3deg); opacity: 1; }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes giftRing {
+          0% { transform: scale(0.75); opacity: 0.85; }
+          100% { transform: scale(1.45); opacity: 0; }
+        }
+        @keyframes giftSpark {
+          0%, 100% { transform: scale(0.6); opacity: 0.25; }
+          50% { transform: scale(1.35); opacity: 1; }
+        }
+        @keyframes couponScan {
+          0% { transform: translateX(-120%); opacity: 0; }
+          20%, 75% { opacity: 1; }
+          100% { transform: translateX(220%); opacity: 0; }
+        }
+        .gift-pop { position: relative; animation: giftPop 0.72s cubic-bezier(.2,1.35,.32,1) both; }
+        .gift-ring { animation: giftRing 1.4s ease-out infinite; }
+        .gift-ring-delay { animation-delay: 0.45s; }
+        .gift-spark {
+          position: absolute;
+          height: 6px;
+          width: 6px;
+          border-radius: 999px;
+          background: var(--cg);
+          box-shadow: 0 0 12px var(--cg);
+          animation: giftSpark 1.2s ease-in-out infinite;
+        }
+        .gift-spark-a { right: 10px; top: 12px; animation-delay: 0.1s; }
+        .gift-spark-b { bottom: 10px; left: 12px; animation-delay: 0.38s; background: var(--cv); box-shadow: 0 0 12px var(--cv); }
+        .gift-spark-c { left: 6px; top: 26px; animation-delay: 0.68s; background: var(--cx); box-shadow: 0 0 12px var(--cx); }
+        .coupon-applied { position: relative; overflow: hidden; }
+        .coupon-applied::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          width: 45%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+          animation: couponScan 2.6s ease-in-out infinite;
+          pointer-events: none;
+        }
       `}} />
 
       {/* ── AMBIENT ORBS ── */}
@@ -838,7 +1437,7 @@ export default function HomePage() {
               ))}
             </div>
             <p className="orb text-[13px] font-bold tracking-[0.18em] uppercase sm:text-[15px]" style={{ color: '#fff' }}>
-              DJ <span style={{ color: 'var(--cx)', textShadow: '0 0 14px var(--cx)' }}>BANNER</span> AI
+              DJ <span style={{ color: 'var(--cx)', textShadow: '0 0 14px var(--cx)' }}>VISUALS</span> AI
             </p>
           </div>
 
@@ -897,23 +1496,23 @@ export default function HomePage() {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
             <div className="sect-label">
-              <span className="chip-cx">● PROFESSIONAL AI STUDIO</span>
+              <span className="chip-cx">● AI CREATIVE STUDIO FOR DJS</span>
             </div>
 
             <h1 className="hero-h1 orb text-[36px] font-black leading-[1.04] tracking-[-0.02em] text-white sm:text-[58px] lg:text-[72px]">
-              CREATE<br />
-              <span style={{ color: 'var(--cx)', textShadow: '0 0 40px rgba(0,245,255,0.6)' }}>PREMIUM</span>{" "}
-              <span style={{ color: 'var(--cv)', textShadow: '0 0 40px rgba(191,95,255,0.6)' }}>DJ</span><br />
-              FLYERS<span className="cursor" />
+              FLYERS.<br />
+              <span style={{ color: 'var(--cx)', textShadow: '0 0 40px rgba(0,245,255,0.6)' }}>ANIMATED</span>{" "}
+              <span style={{ color: 'var(--cv)', textShadow: '0 0 40px rgba(191,95,255,0.6)' }}>VIDEOS.</span><br />
+              DJ PHOTOS<span className="cursor" />
             </h1>
 
             <p className="sans mt-5 text-[14px] leading-7 text-[rgba(255,255,255,0.55)] sm:text-[15px]">
-              Generate polished visuals for events, social media, and paid ads — from premium DJ flyers to cleaner, more professional-looking promo photos.
+              Generate premium event flyers, turn them into animated MP4 videos with VFX, and upgrade your DJ photos — all from one AI-powered platform built for the music scene.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <a href="#pricing" className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8">
-                CHOOSE YOUR PLAN
+                START CREATING NOW
                 <ArrowRight size={13} />
               </a>
               <a href="#exemplos" className="btn-cx inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8">
@@ -923,7 +1522,7 @@ export default function HomePage() {
 
             {/* Stats row */}
             <div className="mt-10 grid grid-cols-3 gap-0 border border-[rgba(0,245,255,0.12)]">
-              {[["2,800+", "ACTIVE DJs"], ["50K+", "FLYERS MADE"], ["4.9★", "RATING"]].map(([val, label]) => (
+              {[["2,800+", "ACTIVE DJs"], ["50K+", "VISUALS MADE"], ["4.9★", "RATING"]].map(([val, label]) => (
                 <div key={label} className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-3 py-3 text-center sm:px-6 sm:py-4">
                   <p className="orb text-base font-bold sm:text-xl" style={{ color: 'var(--cx)', textShadow: '0 0 14px rgba(0,245,255,0.5)' }}>{val}</p>
                   <p className="mono mt-1 text-[7px] text-[rgba(255,255,255,0.35)] sm:text-[9px]" style={{ letterSpacing: '0.12em' }}>{label}</p>
@@ -932,16 +1531,16 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right: decorative HUD panel — desktop only */}
+          {/* Right: HUD panel — desktop only */}
           <div className="hidden lg:block">
             <div className="hud-box rounded-none p-6">
               <div className="mono mb-4 text-[9px] text-[rgba(0,245,255,0.6)]" style={{ letterSpacing: '0.2em' }}>// AI_CREATIVE_ENGINE</div>
               <div className="space-y-3">
                 {[
-                  { label: "FLYER QUALITY", val: 98, color: "var(--cx)" },
-                  { label: "PHOTO ENHANCE", val: 94, color: "var(--cv)" },
-                  { label: "PROMO SPEED", val: 100, color: "var(--cg)" },
-                  { label: "DESIGN SCORE",  val: 97, color: "var(--cx)" },
+                  { label: "FLYER QUALITY",     val: 98, color: "var(--cx)" },
+                  { label: "ANIMATION RENDER",  val: 96, color: "var(--cv)" },
+                  { label: "PHOTO ENHANCE",     val: 94, color: "var(--cg)" },
+                  { label: "PROMO SPEED",       val: 100, color: "var(--cx)" },
                 ].map(m => (
                   <div key={m.label}>
                     <div className="mb-1 flex justify-between">
@@ -966,6 +1565,92 @@ export default function HomePage() {
 
       <div className="glow-divider" />
 
+      {/* ── STATIC vs ANIMATED COMPARISON ── */}
+      <StaticVsAnimatedSection />
+
+
+      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+          {/* Left: HUD animation preview card */}
+          <div className="order-2 lg:order-1">
+            <div className="hud-box rounded-none p-4 sm:p-5">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="mono text-[9px] text-[rgba(0,245,255,0.7)]" style={{ letterSpacing: '0.18em' }}>// ANIMATION_ENGINE</p>
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">Static flyer → animated MP4 with VFX</p>
+                </div>
+                <span className="chip-cx shrink-0">MP4 EXPORT</span>
+              </div>
+              {/* Mock animation timeline */}
+              <div className="relative overflow-hidden border border-[rgba(0,245,255,0.1)] bg-[#03040A] p-5">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center border border-[rgba(0,245,255,0.3)]" style={{ background: 'rgba(0,245,255,0.08)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--cx)" aria-hidden><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-1.5 w-full overflow-hidden bg-[rgba(255,255,255,0.06)]">
+                      <div className="h-full w-2/3" style={{ background: 'linear-gradient(90deg, var(--cx), var(--cv))', boxShadow: '0 0 8px var(--cx)', animation: 'stripeDrift 2s linear infinite' }} />
+                    </div>
+                  </div>
+                  <span className="mono text-[9px]" style={{ color: 'var(--cx)' }}>0:04 / 0:06</span>
+                </div>
+                {/* VFX layers */}
+                <div className="space-y-2">
+                  {[
+                    { label: "LIGHT LEAK", active: true,  color: "var(--cx)" },
+                    { label: "PARTICLES",  active: true,  color: "var(--cv)" },
+                    { label: "TRANSITION", active: true,  color: "var(--cg)" },
+                    { label: "GLOW FX",    active: false, color: "rgba(255,255,255,0.2)" },
+                  ].map(layer => (
+                    <div key={layer.label} className="flex items-center gap-3 border border-[rgba(255,255,255,0.05)] px-3 py-2">
+                      <span className="h-2 w-2 rounded-full shrink-0" style={{ background: layer.active ? layer.color : 'rgba(255,255,255,0.15)', boxShadow: layer.active ? `0 0 6px ${layer.color}` : 'none', animation: layer.active ? 'cornerPulse 2s ease-in-out infinite' : 'none' }} />
+                      <span className="mono text-[9px] flex-1" style={{ color: layer.active ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)', letterSpacing: '0.14em' }}>{layer.label}</span>
+                      <span className="mono text-[9px]" style={{ color: layer.active ? layer.color : 'rgba(255,255,255,0.2)' }}>{layer.active ? "ON" : "OFF"}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 border-t border-[rgba(0,245,255,0.08)] pt-3">
+                  <p className="mono text-[9px] text-[rgba(255,255,255,0.3)]" style={{ letterSpacing: '0.14em' }}>OUTPUT: <span style={{ color: 'var(--cg)' }}>MP4 · 1080×1920 · 30fps</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: copy */}
+          <div className="order-1 lg:order-2">
+            <div className="sect-label">
+              <span className="chip-cx">● ANIMATED FLYERS</span>
+            </div>
+            <h2 className="orb text-[24px] font-bold leading-tight tracking-tight text-white sm:text-[40px]">
+              YOUR FLYER,<br />
+              <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>NOW IN MOTION.</span>
+            </h2>
+            <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+              Generate your event flyer, then bring it to life with the animation engine. Add VFX effects — light leaks, particle bursts, glows, and transitions — and export a ready-to-post MP4 video for Reels, TikTok, and Stories.
+            </p>
+            <div className="mt-6 space-y-3">
+              {[
+                "Animated videos get 3× more reach than static posts",
+                "VFX effects: light leaks, particles, glows, transitions",
+                "Export as MP4 — ready for Reels, TikTok, and Stories",
+                "No video editing skills needed",
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3 border border-[rgba(0,245,255,0.14)] bg-[rgba(0,245,255,0.04)] px-4 py-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]" style={{ fontSize: 10, color: 'var(--cx)' }}>✓</span>
+                  <span className="sans text-sm text-[rgba(255,255,255,0.65)]">{item}</span>
+                </div>
+              ))}
+            </div>
+            <a href="#pricing" className="btn-cx-solid mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8">
+              START ANIMATING
+              <ArrowRight size={12} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
       {/* ── PHOTO ENHANCEMENT ── */}
       <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
@@ -974,17 +1659,17 @@ export default function HomePage() {
               <span className="chip-v">● AI PHOTO ENHANCEMENT</span>
             </div>
             <h2 className="orb text-[24px] font-bold leading-tight tracking-tight text-white sm:text-[40px]">
-              MAKE ROUGH PHOTOS<br />
-              <span style={{ color: 'var(--cv)', textShadow: '0 0 24px rgba(191,95,255,0.5)' }}>PROMO-READY.</span>
+              LOOK THE PART<br />
+              <span style={{ color: 'var(--cv)', textShadow: '0 0 24px rgba(191,95,255,0.5)' }}>ON EVERY PLATFORM.</span>
             </h2>
             <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
-              Beyond event flyers — clean up casual DJ photos, giving you a sharper image for social media, ads, artist profiles, and promo materials.
+              Upload a casual or low-quality DJ photo and get back a sharper, more professional-looking image — ready for your profile, press kit, social ads, and anywhere your brand needs to make an impression.
             </p>
             <div className="mt-6 space-y-3">
               {[
-                "Clean up casual or low-quality DJ photos",
-                "Look more polished across your online presence",
-                "Create stronger images for profiles, posts, ads, and promos",
+                "Sharper, cleaner images from casual or rough photos",
+                "Better lighting, detail, and overall quality",
+                "Use across profiles, press kits, ads, and promo materials",
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3 border border-[rgba(191,95,255,0.14)] bg-[rgba(191,95,255,0.04)] px-4 py-3">
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]" style={{ fontSize: 10, color: 'var(--cx)' }}>✓</span>
@@ -1039,10 +1724,10 @@ export default function HomePage() {
             <span className="chip-cx">● VISUAL EXAMPLES</span>
           </div>
           <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-            SEE WHAT YOU CAN <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>CREATE</span>
+            FLYERS, VIDEOS & PHOTOS — <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>ALL AI-GENERATED</span>
           </h2>
           <p className="sans mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
-            Create premium-looking visuals for event promotion, artist branding, social media, and paid ads — without starting from a blank canvas.
+            See what DJs on the platform are creating — premium event flyers, animated MP4 videos with VFX, and AI-enhanced promo photos.
           </p>
         </div>
         <div className="mt-10 min-h-[420px] sm:min-h-[640px] lg:min-h-[720px]">
@@ -1060,7 +1745,7 @@ export default function HomePage() {
               <span className="chip-cx">● CLIENT TRANSMISSIONS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              DJS WHO <span style={{ color: 'var(--cv)', textShadow: '0 0 24px rgba(191,95,255,0.5)' }}>UPGRADED</span> THEIR BRAND
+              DJS WHO <span style={{ color: 'var(--cv)', textShadow: '0 0 24px rgba(191,95,255,0.5)' }}>LEVELED UP</span> THEIR PROMO
             </h2>
           </div>
 
@@ -1105,10 +1790,10 @@ export default function HomePage() {
             <span className="chip-v">● SYSTEM FEATURES</span>
           </div>
           <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-            WHY DJs RUN ON <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>DJ BANNER AI</span>
+            THREE TOOLS. ONE <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>PLATFORM.</span>
           </h2>
           <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
-            Create better promo assets, improve your online presence, and publish stronger content with less friction.
+            DJ Visuals AI gives you everything you need to create, animate, and present your brand — without designers, video editors, or expensive agencies.
           </p>
         </div>
 
@@ -1140,20 +1825,20 @@ export default function HomePage() {
                 <span className="chip-cx">● WORKFLOW PROTOCOL</span>
               </div>
               <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-                FROM IDEA TO <span style={{ color: 'var(--cg)', textShadow: '0 0 20px rgba(0,255,159,0.5)' }}>PUBLISH-READY</span><br />IN MINUTES.
+                THREE STEPS TO A <span style={{ color: 'var(--cg)', textShadow: '0 0 20px rgba(0,255,159,0.5)' }}>COMPLETE</span><br />PROMO DROP.
               </h2>
               <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
-                Add your event details, choose a direction, and let AI help you create a polished visual for your next promotion.
+                Generate your flyer, animate it into a video, and polish your DJ photo — three tools in one workflow, built to get you from idea to posted content fast.
               </p>
             </div>
             <div className="hud-box-v p-5 sm:p-7">
-              <p className="mono mb-5 text-[9px] text-[rgba(191,95,255,0.7)]" style={{ letterSpacing: '0.18em' }}>// PERFECT_FOR: DJS WHO WANT TO</p>
+              <p className="mono mb-5 text-[9px] text-[rgba(191,95,255,0.7)]" style={{ letterSpacing: '0.18em' }}>// WORKFLOW: FLYER → ANIMATION → PHOTO</p>
               <div className="space-y-0">
                 {[
-                  "promote events with a more professional look",
-                  "post more often without getting stuck on design",
-                  "test ads, flyers, and creative angles faster",
-                  "save time creating social media and promo visuals",
+                  "Generate a premium event flyer with AI in minutes",
+                  "Animate the flyer with VFX and export as MP4",
+                  "Enhance your DJ photo for profiles and ads",
+                  "Post across Instagram, TikTok, and Stories",
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-4 border-b border-[rgba(255,255,255,0.05)] py-4 last:border-0">
                     <span className="orb text-[20px] font-black shrink-0" style={{ color: 'rgba(191,95,255,0.3)', lineHeight: 1.2 }}>0{i + 1}</span>
@@ -1176,10 +1861,10 @@ export default function HomePage() {
               <span className="chip-cx">● ACCESS TIERS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              CHOOSE YOUR <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>ACCESS LEVEL</span>
+              FULL ACCESS. <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>THREE TIERS.</span>
             </h2>
             <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
-              Select a plan, complete checkout, receive a secure link to create your password and access the guided tour.
+              Every plan includes flyer generation, animated MP4 export, and DJ photo enhancement. Pick the volume that fits your promo schedule.
             </p>
           </div>
 
@@ -1240,7 +1925,7 @@ export default function HomePage() {
               <span className="chip-v">● SYSTEM FAQ</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              QUICK ANSWERS BEFORE YOU <span style={{ color: 'var(--cv)', textShadow: '0 0 20px rgba(191,95,255,0.5)' }}>LAUNCH</span>
+              QUESTIONS BEFORE YOU <span style={{ color: 'var(--cv)', textShadow: '0 0 20px rgba(191,95,255,0.5)' }}>DROP YOUR FIRST VISUAL</span>
             </h2>
           </div>
           <div className="mt-8 space-y-2 sm:mt-12">
@@ -1268,18 +1953,18 @@ export default function HomePage() {
         </div>
         <div className="relative mx-auto w-full max-w-4xl px-4 py-14 text-center sm:px-8 sm:py-24">
           <div className="sect-label justify-center">
-            <span className="chip-cx">● INITIALIZE SEQUENCE</span>
+            <span className="chip-cx">● START YOUR FIRST DROP</span>
           </div>
           <h2 className="orb text-[28px] font-black leading-tight text-white sm:text-[54px]">
-            YOUR DJ BRAND<br />
-            DESERVES <span style={{ color: 'var(--cx)', textShadow: '0 0 40px rgba(0,245,255,0.7)' }}>NEXT LEVEL</span><br />
-            VISUALS.
+            YOUR NEXT EVENT<br />
+            DESERVES A <span style={{ color: 'var(--cx)', textShadow: '0 0 40px rgba(0,245,255,0.7)' }}>FLYER,</span><br />
+            <span style={{ color: 'var(--cv)', textShadow: '0 0 40px rgba(191,95,255,0.7)' }}>A VIDEO,</span> AND A LOOK.
           </h2>
           <p className="sans mx-auto mt-5 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base">
-            Join DJs who create polished event promos, stronger profile visuals, and social content that feels ready for bookings and higher-value opportunities.
+            Join thousands of DJs generating premium flyers, animated videos, and professional photos — all from one AI platform built for the music scene.
           </p>
           <a href="#pricing" className="btn-cx-solid mt-8 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:mt-9 sm:px-12 sm:py-4 sm:text-[12px]">
-            INITIALIZE — CHOOSE PLAN
+            START CREATING NOW
             <ArrowRight size={14} />
           </a>
         </div>
@@ -1289,7 +1974,7 @@ export default function HomePage() {
       <footer className="relative z-10 border-t border-[rgba(0,245,255,0.1)]" style={{ background: '#03040A' }}>
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-8 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
           <p className="mono text-xs text-[rgba(255,255,255,0.25)]" style={{ letterSpacing: '0.12em' }}>
-            © 2026 DJ BANNER AI · ALL RIGHTS RESERVED
+            © 2026 DJ VISUALS AI · ALL RIGHTS RESERVED
           </p>
           <nav className="flex flex-wrap items-center gap-6">
             <Link href="/terms" className="mono text-[10px] text-[rgba(255,255,255,0.28)] tracking-widest uppercase transition hover:text-[var(--cx)]">Terms of Use</Link>
