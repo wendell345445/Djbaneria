@@ -321,29 +321,26 @@ export default async function DashboardPage() {
   const planLabel = isAdmin
     ? `${getPlanDisplayName(summary.plan, copy)} ${copy.plan.adminSuffix}`
     : getPlanDisplayName(summary.plan, copy);
+  const dashboardUsedCredits = Number(summary.usedThisMonth || 0);
+  const dashboardRemainingCredits = Number(summary.remainingCredits || 0);
+  const dashboardCreditLimit = Math.max(
+    Number(summary.monthlyLimit || 0),
+    dashboardUsedCredits + dashboardRemainingCredits,
+  );
+
   const usageLabel = isAdmin
     ? `${summary.usedThisMonth} / ∞`
-    : `${summary.usedThisMonth} / ${summary.baseMonthlyLimit ?? summary.monthlyLimit}`;
+    : `${dashboardUsedCredits} / ${dashboardCreditLimit}`;
   const remainingLabel = isAdmin
     ? copy.plan.unlimited
-    : String(summary.remainingCredits);
-  const carryoverLabel = isAdmin
-    ? null
-    : getCarryoverLabel(
-        locale,
-        summary.carryoverCredits,
-        summary.carryoverExpiresAt,
-      );
+    : String(dashboardRemainingCredits);
+  const carryoverLabel = null;
   const usagePercent = isAdmin
     ? 100
-    : (summary.baseMonthlyLimit ?? summary.monthlyLimit) > 0
+    : dashboardCreditLimit > 0
       ? Math.min(
           100,
-          Math.round(
-            (summary.usedThisMonth /
-              (summary.baseMonthlyLimit ?? summary.monthlyLimit)) *
-              100,
-          ),
+          Math.round((dashboardUsedCredits / dashboardCreditLimit) * 100),
         )
       : 0;
 
@@ -455,31 +452,6 @@ function getPlanDisplayName(plan: SubscriptionPlan, copy: DashboardPageCopy) {
 
 function getStatusLabel(status: SubscriptionStatus, copy: DashboardPageCopy) {
   return copy.status[status] ?? status;
-}
-
-function getCarryoverLabel(
-  locale: AppLocale,
-  credits: number,
-  expiresAt: string | null,
-) {
-  if (!credits || credits <= 0) return null;
-
-  const dateLabel = expiresAt
-    ? new Intl.DateTimeFormat(
-        locale === "pt-BR" ? "pt-BR" : locale === "es" ? "es-ES" : "en-US",
-        { dateStyle: "short" },
-      ).format(new Date(expiresAt))
-    : null;
-
-  if (locale === "pt-BR") {
-    return `+${credits} créditos extras de upgrade${dateLabel ? ` · vencem em ${dateLabel}` : ""}`;
-  }
-
-  if (locale === "es") {
-    return `+${credits} créditos extra de upgrade${dateLabel ? ` · vencen el ${dateLabel}` : ""}`;
-  }
-
-  return `+${credits} upgrade extra credits${dateLabel ? ` · expire on ${dateLabel}` : ""}`;
 }
 
 function PlanUsageCard({

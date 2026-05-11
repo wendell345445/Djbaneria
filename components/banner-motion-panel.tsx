@@ -49,6 +49,7 @@ type BannerMotionPanelProps = {
 const copyByLocale = {
   "pt-BR": {
     title: "Criar vídeo animado",
+    eyebrow: "Motion flyer",
     subtitle:
       "Envie uma música, escolha o melhor trecho e gere um vídeo profissional sincronizado com a batida.",
     music: "Música",
@@ -75,12 +76,14 @@ const copyByLocale = {
     chooseFile: "Escolha uma música antes de continuar.",
     noBanner: "Este flyer ainda não possui imagem final para animar.",
     previous: "Vídeos criados",
+    motionHistoryEyebrow: "Histórico de vídeos",
     empty: "Nenhum vídeo criado ainda.",
     errorFallback: "Não foi possível iniciar o vídeo.",
     cropError: "Não foi possível cortar esse áudio. Tente outro arquivo MP3 ou WAV.",
     progressHint: "Estamos processando seu vídeo em alta qualidade. Acompanhe o progresso em tempo real.",
     queuePosition: "Posição na fila",
     trimModalTitle: "Escolha o melhor trecho da música",
+    trimModalEyebrow: "Corte de áudio",
     trimModalSubtitle: "Abrimos um corte com a duração escolhida. Mova a janela até a parte mais forte da música antes de gerar o vídeo.",
     selectedFile: "Arquivo selecionado",
     editClip: "Editar corte",
@@ -91,6 +94,7 @@ const copyByLocale = {
     loadingAudio: "Carregando duração do áudio...",
     confirmClipFirst: "Confirme o trecho da música antes de gerar o vídeo.",
     timelineView: "Visão da música",
+    timelineScrollHint: "{copy.timelineScrollHint}",
     fullTimeline: "Completa",
     previousWindow: "Voltar",
     nextWindow: "Avançar",
@@ -99,6 +103,7 @@ const copyByLocale = {
   },
   en: {
     title: "Create animated video",
+    eyebrow: "Motion flyer",
     subtitle:
       "Upload a track, pick the strongest part and create a professional beat-synced video.",
     music: "Music",
@@ -125,12 +130,14 @@ const copyByLocale = {
     chooseFile: "Choose a music file before continuing.",
     noBanner: "This flyer does not have a final image to animate yet.",
     previous: "Created videos",
+    motionHistoryEyebrow: "Video history",
     empty: "No videos created yet.",
     errorFallback: "Could not start the video.",
     cropError: "Could not trim this audio. Try another MP3 or WAV file.",
     progressHint: "We are processing your video in high quality. Follow the progress in real time.",
     queuePosition: "Queue position",
     trimModalTitle: "Pick the best part of the track",
+    trimModalEyebrow: "Audio cut",
     trimModalSubtitle: "We open a clip using the selected duration. Move the window to the strongest part of the track before rendering.",
     selectedFile: "Selected file",
     editClip: "Edit clip",
@@ -141,6 +148,7 @@ const copyByLocale = {
     loadingAudio: "Loading audio duration...",
     confirmClipFirst: "Confirm the music clip before generating the video.",
     timelineView: "Track view",
+    timelineScrollHint: "Drag the track sideways to navigate the full song. The full song is not squeezed into a single screen.",
     fullTimeline: "Full",
     previousWindow: "Back",
     nextWindow: "Forward",
@@ -149,6 +157,7 @@ const copyByLocale = {
   },
   es: {
     title: "Crear video animado",
+    eyebrow: "Motion flyer",
     subtitle:
       "Sube una música, elige el mejor tramo y crea un video profesional sincronizado con el ritmo.",
     music: "Música",
@@ -175,12 +184,14 @@ const copyByLocale = {
     chooseFile: "Elige una música antes de continuar.",
     noBanner: "Este flyer aún no tiene imagen final para animar.",
     previous: "Videos creados",
+    motionHistoryEyebrow: "Historial de videos",
     empty: "Ningún video creado aún.",
     errorFallback: "No fue posible iniciar el video.",
     cropError: "No fue posible cortar este audio. Prueba otro MP3 o WAV.",
     progressHint: "Estamos procesando tu video en alta calidad. Sigue el progreso en tiempo real.",
     queuePosition: "Posición en la fila",
     trimModalTitle: "Elige la mejor parte de la música",
+    trimModalEyebrow: "Corte de audio",
     trimModalSubtitle: "Abrimos un corte con la duración elegida. Mueve la ventana hasta la parte más fuerte antes de renderizar.",
     selectedFile: "Archivo seleccionado",
     editClip: "Editar corte",
@@ -189,6 +200,7 @@ const copyByLocale = {
     clipReady: "Trecho definido",
     chooseBestPart: "Mueve el corte al drop, coro o parte más fuerte.",
     timelineView: "Vista de la música",
+    timelineScrollHint: "Arrastra la pista hacia los lados para navegar por la canción completa. La música no queda comprimida en una sola pantalla.",
     fullTimeline: "Completa",
     previousWindow: "Volver",
     nextWindow: "Avanzar",
@@ -199,23 +211,77 @@ const copyByLocale = {
   },
 } satisfies Record<SupportedLocale, Record<string, string>>;
 
-const motionPresets: { value: MotionPreset; label: string; hint: string }[] = [
-  { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Drops fortes, lasers premium e energia máxima de palco." },
-  { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Cortes rápidos, transições estilo reels e impacto viral." },
-  { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Glitch agressivo, RGB split e clima underground." },
-  { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Brilho dourado, acabamento elegante e vibe premium." },
-  { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Estética futurista, neon intenso e atmosfera cyber." },  { value: "NEON_PULSE", label: "Neon Pulse", hint: "Glow neon limpo e batida pulsante." },  { value: "DARK_TECHNO_GLITCH", label: "Dark Techno", hint: "Glitch, RGB split e estética underground." },];
+const motionPresetsByLocale: Record<
+  SupportedLocale,
+  Array<{ value: MotionPreset; label: string; hint: string }>
+> = {
+  "pt-BR": [
+    { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Drops fortes, lasers premium e energia máxima de palco." },
+    { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Cortes rápidos, transições estilo Reels e impacto viral." },
+    { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Glitch agressivo, RGB split e clima underground." },
+    { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Brilho dourado, acabamento elegante e vibe premium." },
+    { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Estética futurista, neon intenso e atmosfera cyber." },
+    { value: "NEON_PULSE", label: "Neon Pulse", hint: "Glow neon limpo e batida pulsante." },
+    { value: "DARK_TECHNO_GLITCH", label: "Dark Techno", hint: "Glitch, RGB split e estética underground." },
+  ],
+  en: [
+    { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Strong drops, premium lasers and maximum stage energy." },
+    { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Fast cuts, Reels-style transitions and viral impact." },
+    { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Aggressive glitch, RGB split and underground mood." },
+    { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Golden shine, elegant finish and premium club vibe." },
+    { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Futuristic style, intense neon and cyber atmosphere." },
+    { value: "NEON_PULSE", label: "Neon Pulse", hint: "Clean neon glow and pulsing beat energy." },
+    { value: "DARK_TECHNO_GLITCH", label: "Dark Techno", hint: "Glitch, RGB split and underground aesthetics." },
+  ],
+  es: [
+    { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Drops fuertes, láseres premium y máxima energía de escenario." },
+    { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Cortes rápidos, transiciones estilo Reels e impacto viral." },
+    { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Glitch agresivo, RGB split y ambiente underground." },
+    { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Brillo dorado, acabado elegante y vibra premium." },
+    { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Estética futurista, neón intenso y atmósfera cyber." },
+    { value: "NEON_PULSE", label: "Neon Pulse", hint: "Glow neón limpio y energía pulsante con la batida." },
+    { value: "DARK_TECHNO_GLITCH", label: "Dark Techno", hint: "Glitch, RGB split y estética underground." },
+  ],
+};
 
-const transitionVariants: { value: TransitionVariant; label: string }[] = [  { value: "WHIP_ZOOM_PRO", label: "Whip Zoom Pro" },
-  { value: "SPIN_ZOOM_PRO", label: "Spin Zoom Pro" },
-  { value: "WARP_PUSH_PRO", label: "Warp Push Pro" },
-  { value: "ROTATE_ZOOM", label: "Rotate Zoom" },
-  { value: "WHIP_ZOOM", label: "Whip Zoom" },
-  { value: "SPIN_BLUR", label: "Spin Blur" },
-  { value: "FLASH_CUT", label: "Flash Cut" },
-  { value: "GLITCH_ZOOM", label: "Glitch Zoom" },
-  { value: "VIRAL_SHAKE", label: "Viral Shake" },
-];
+const transitionVariantsByLocale: Record<
+  SupportedLocale,
+  Array<{ value: TransitionVariant; label: string }>
+> = {
+  "pt-BR": [
+    { value: "WHIP_ZOOM_PRO", label: "Whip Zoom Pro" },
+    { value: "SPIN_ZOOM_PRO", label: "Spin Zoom Pro" },
+    { value: "WARP_PUSH_PRO", label: "Warp Push Pro" },
+    { value: "ROTATE_ZOOM", label: "Rotate Zoom" },
+    { value: "WHIP_ZOOM", label: "Whip Zoom" },
+    { value: "SPIN_BLUR", label: "Spin Blur" },
+    { value: "FLASH_CUT", label: "Flash Cut" },
+    { value: "GLITCH_ZOOM", label: "Glitch Zoom" },
+    { value: "VIRAL_SHAKE", label: "Viral Shake" },
+  ],
+  en: [
+    { value: "WHIP_ZOOM_PRO", label: "Whip Zoom Pro" },
+    { value: "SPIN_ZOOM_PRO", label: "Spin Zoom Pro" },
+    { value: "WARP_PUSH_PRO", label: "Warp Push Pro" },
+    { value: "ROTATE_ZOOM", label: "Rotate Zoom" },
+    { value: "WHIP_ZOOM", label: "Whip Zoom" },
+    { value: "SPIN_BLUR", label: "Spin Blur" },
+    { value: "FLASH_CUT", label: "Flash Cut" },
+    { value: "GLITCH_ZOOM", label: "Glitch Zoom" },
+    { value: "VIRAL_SHAKE", label: "Viral Shake" },
+  ],
+  es: [
+    { value: "WHIP_ZOOM_PRO", label: "Whip Zoom Pro" },
+    { value: "SPIN_ZOOM_PRO", label: "Spin Zoom Pro" },
+    { value: "WARP_PUSH_PRO", label: "Warp Push Pro" },
+    { value: "ROTATE_ZOOM", label: "Rotate Zoom" },
+    { value: "WHIP_ZOOM", label: "Whip Zoom" },
+    { value: "SPIN_BLUR", label: "Spin Blur" },
+    { value: "FLASH_CUT", label: "Flash Cut" },
+    { value: "GLITCH_ZOOM", label: "Glitch Zoom" },
+    { value: "VIRAL_SHAKE", label: "Viral Shake" },
+  ],
+};
 
 const durations = [10, 15] as const;
 
@@ -224,8 +290,14 @@ function getMotionCreditCost(durationSeconds: number) {
   return durationSeconds === 15 ? 3 : 2;
 }
 
-function formatMotionCreditCost(durationSeconds: number) {
-  return `${getMotionCreditCost(durationSeconds)} créditos`;
+function formatMotionCreditCost(durationSeconds: number, locale: SupportedLocale) {
+  const credits = getMotionCreditCost(durationSeconds);
+
+  if (locale === "en") {
+    return `${credits} credits`;
+  }
+
+  return `${credits} créditos`;
 }
 
 function getStatusLabel(status: MotionStatus, copy: Record<string, string>) {
@@ -344,6 +416,8 @@ export function BannerMotionPanel({
   initialMotions = [],
 }: BannerMotionPanelProps) {
   const copy = copyByLocale[locale] || copyByLocale.en;
+  const motionPresets = motionPresetsByLocale[locale];
+  const transitionVariants = transitionVariantsByLocale[locale];
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioObjectUrl, setAudioObjectUrl] = useState<string | null>(null);
   const [audioDuration, setAudioDuration] = useState(0);
@@ -818,7 +892,7 @@ export function BannerMotionPanel({
               >
                 <span className="block">{duration}s</span>
                 <span className="mt-0.5 block text-[10px] font-black uppercase tracking-[0.12em] opacity-70">
-                  {formatMotionCreditCost(duration)}
+                  {formatMotionCreditCost(duration, locale)}
                 </span>
               </button>
             ))}
@@ -964,7 +1038,7 @@ export function BannerMotionPanel({
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="m-0 text-sm font-bold text-white">
-                          {motion.preset?.replaceAll("_", " ") || "Motion flyer"}
+                          {motion.preset?.replaceAll("_", " ") || copy.eyebrow}
                         </p>
                         <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/42">
                           {motion.transitionVariant || "ROTATE_ZOOM"} · {motion.durationSeconds || 10}s
@@ -1041,7 +1115,7 @@ export function BannerMotionPanel({
               <h3 className="mt-2 text-xl font-semibold text-white sm:text-2xl">{copy.trimModalTitle}</h3>
               <p className="mt-2 text-xs leading-5 text-white/58 sm:text-sm sm:leading-6">{copy.trimModalSubtitle}</p>
               <p className="mt-2 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/75">
-                {copy.clipDuration}: {durationSeconds}s · {formatMotionCreditCost(durationSeconds)}
+                {copy.clipDuration}: {durationSeconds}s · {formatMotionCreditCost(durationSeconds, locale)}
               </p>
               <p className="mt-1 text-xs leading-5 text-white/46">{copy.creditCostHint}</p>
             </div>
@@ -1068,7 +1142,7 @@ export function BannerMotionPanel({
                       {copy.timelineView}
                     </p>
                     <p className="mt-1 text-[11px] leading-5 text-white/42">
-                      Arraste a faixa para o lado para navegar pela música completa. A música não fica espremida em uma única tela.
+                      {copy.timelineScrollHint}
                     </p>
                   </div>
 
@@ -1221,7 +1295,7 @@ export function BannerMotionPanel({
                     >
                       <span className="block">{duration}s</span>
                       <span className="mt-0.5 block text-[10px] font-black uppercase tracking-[0.12em] opacity-70">
-                        {formatMotionCreditCost(duration)}
+                        {formatMotionCreditCost(duration, locale)}
                       </span>
                     </button>
                   ))}
