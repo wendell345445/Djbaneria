@@ -1260,6 +1260,24 @@ function getLoadingProgress(activeStep: number) {
   }
 }
 
+function getAnimateFlyerCta(locale: NewBannerFormLocale) {
+  if (locale === "pt-BR") return "Animar este flyer";
+  if (locale === "es") return "Animar este flyer";
+  return "Animate this flyer";
+}
+
+function getOpenBannerCta(locale: NewBannerFormLocale) {
+  if (locale === "pt-BR") return "Abrir página do flyer";
+  if (locale === "es") return "Abrir página del flyer";
+  return "Open flyer page";
+}
+
+function getProgressLabel(locale: NewBannerFormLocale) {
+  if (locale === "pt-BR") return "Progresso da geração";
+  if (locale === "es") return "Progreso de generación";
+  return "Generation progress";
+}
+
 function isCreditExhaustedMessage(message: string) {
   const normalized = message.toLowerCase();
 
@@ -1344,6 +1362,7 @@ export function NewBannerForm({
     useState<ProfessionalPhotoDirectionId>(defaultProfessionalPhotoDirection);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [activeStep, setActiveStep] = useState(0);
+  const [generationProgress, setGenerationProgress] = useState(0);
   const [loadingMode, setLoadingMode] = useState<"generate" | "edit" | null>(
     null,
   );
@@ -1414,10 +1433,14 @@ export function NewBannerForm({
     [form.format],
   );
 
-  const loadingProgress = useMemo(
-    () => getLoadingProgress(activeStep),
-    [activeStep],
-  );
+  const loadingProgress = useMemo(() => {
+    const fallbackProgress = getLoadingProgress(activeStep);
+    if (generationProgress > 0) {
+      return Math.min(100, Math.max(generationProgress, fallbackProgress));
+    }
+
+    return fallbackProgress;
+  }, [activeStep, generationProgress]);
 
   const displayLoading = loading || editLoading;
   const currentSteps =
@@ -1730,6 +1753,10 @@ export function NewBannerForm({
         setActiveStep(Math.min(Math.max(data.activeStep, 0), 3));
       }
 
+      if (typeof data.progress === "number") {
+        setGenerationProgress(Math.min(Math.max(Math.round(data.progress), 0), 100));
+      }
+
       if (typeof data.remainingCredits === "number") {
         setRemainingCredits(data.remainingCredits);
         setShowCreditUpgrade(!isAdmin && data.remainingCredits <= 0);
@@ -1743,6 +1770,7 @@ export function NewBannerForm({
         }
 
         clearPendingBannerGeneration(bannerId);
+        setGenerationProgress(100);
 
         return {
           imageUrl,
@@ -1754,6 +1782,7 @@ export function NewBannerForm({
 
       if (data.status === "FAILED") {
         clearPendingBannerGeneration(bannerId);
+        setGenerationProgress(0);
         throw new Error(data.message || copy.errors.failedGeneration);
       }
 
@@ -1781,6 +1810,7 @@ export function NewBannerForm({
     setLoading(true);
     setLoadingMode("generate");
     setActiveStep(0);
+    setGenerationProgress(16);
     setStatusText(copy.status.created);
     setError("");
     setResult(null);
@@ -1796,6 +1826,7 @@ export function NewBannerForm({
         if (cancelled) return;
 
         setActiveStep(3);
+        setGenerationProgress(100);
         setStatusText(copy.status.success);
         setResult(completedBanner);
         router.refresh();
@@ -1813,6 +1844,7 @@ export function NewBannerForm({
         }
         setStatusText("");
         setActiveStep(0);
+        setGenerationProgress(0);
       })
       .finally(() => {
         if (cancelled) return;
@@ -1955,6 +1987,7 @@ export function NewBannerForm({
     setLoading(true);
     setLoadingMode("generate");
     setActiveStep(0);
+    setGenerationProgress(8);
     setStatusText(copy.status.preparing);
     setError("");
     setResult(null);
@@ -1983,16 +2016,19 @@ export function NewBannerForm({
 
       progressTimerA = window.setTimeout(() => {
         setActiveStep(1);
+        setGenerationProgress(24);
         setStatusText(copy.status.sending);
       }, 900);
 
       progressTimerB = window.setTimeout(() => {
         setActiveStep(2);
+        setGenerationProgress(46);
         setStatusText(copy.status.drawing);
       }, 4200);
 
       progressTimerC = window.setTimeout(() => {
         setActiveStep(3);
+        setGenerationProgress(72);
         setStatusText(copy.status.finishing);
       }, 9000);
 
@@ -2049,6 +2085,7 @@ export function NewBannerForm({
         const completedBanner = await waitForGeneratedBanner(data.bannerId);
 
         setActiveStep(3);
+        setGenerationProgress(100);
         setStatusText(copy.status.success);
         setResult(completedBanner);
         router.refresh();
@@ -2062,6 +2099,7 @@ export function NewBannerForm({
       }
 
       setActiveStep(3);
+      setGenerationProgress(100);
       setStatusText(
         data.saved === false ? copy.status.testSuccess : copy.status.success,
       );
@@ -2230,6 +2268,7 @@ export function NewBannerForm({
     setEditLoading(true);
     setLoadingMode("edit");
     setActiveStep(0);
+    setGenerationProgress(8);
     setEditError("");
     setEditSuccess("");
     setStatusText(copy.status.editAnalyzing);
@@ -2241,16 +2280,19 @@ export function NewBannerForm({
     try {
       progressTimerA = window.setTimeout(() => {
         setActiveStep(1);
+        setGenerationProgress(24);
         setStatusText(copy.status.editApplying);
       }, 900);
 
       progressTimerB = window.setTimeout(() => {
         setActiveStep(2);
+        setGenerationProgress(46);
         setStatusText(copy.status.editRendering);
       }, 4200);
 
       progressTimerC = window.setTimeout(() => {
         setActiveStep(3);
+        setGenerationProgress(72);
         setStatusText(copy.status.editFinishing);
       }, 9000);
 
@@ -2312,6 +2354,7 @@ export function NewBannerForm({
         const completedBanner = await waitForGeneratedBanner(data.bannerId);
 
         setActiveStep(3);
+        setGenerationProgress(100);
         setStatusText(copy.status.editSuccess);
         setResult({
           ...completedBanner,
@@ -3012,11 +3055,7 @@ export function NewBannerForm({
 
               <div className="absolute bottom-20 left-1/2 w-[68%] -translate-x-1/2">
                 <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-white/45">
-                  <span>
-                    {loadingMode === "edit"
-                      ? copy.applyingChanges
-                      : copy.composingLayers}
-                  </span>
+                  <span>{getProgressLabel(locale)}</span>
                   <span>
                     {loadingMode === "edit"
                       ? copy.generatingNewVersion
@@ -3098,7 +3137,7 @@ export function NewBannerForm({
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="grid gap-3 sm:grid-cols-3">
               <a
                 href={result.imageUrl}
                 download
@@ -3115,7 +3154,25 @@ export function NewBannerForm({
               >
                 {copy.openImage}
               </a>
+
+              {result.bannerUrl ? (
+                <a
+                  href={`${result.bannerUrl}#motion`}
+                  className="inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200 px-4 text-sm font-black text-slate-950 shadow-[0_18px_60px_rgba(125,211,252,0.16)] transition hover:scale-[1.01]"
+                >
+                  {getAnimateFlyerCta(locale)}
+                </a>
+              ) : null}
             </div>
+
+            {result.bannerUrl ? (
+              <a
+                href={result.bannerUrl}
+                className="inline-flex min-h-[46px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm font-medium text-white/80 transition hover:bg-white/[0.07]"
+              >
+                {getOpenBannerCta(locale)}
+              </a>
+            ) : null}
 
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
               <div className="mb-3 flex items-center justify-between gap-3">

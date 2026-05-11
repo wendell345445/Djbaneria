@@ -158,6 +158,20 @@ export async function POST(
   const { bannerId } = await params;
   const formData = await request.formData();
   const audio = formData.get("audio");
+  const originalAudioNameValue = formData.get("originalAudioName");
+  const trimStartValue = formData.get("audioTrimStartSeconds");
+  const trimEndValue = formData.get("audioTrimEndSeconds");
+  const wasTrimmedValue = formData.get("audioWasTrimmed");
+
+  const originalAudioName =
+    typeof originalAudioNameValue === "string" && originalAudioNameValue.trim()
+      ? originalAudioNameValue.trim().slice(0, 180)
+      : null;
+  const audioTrimStartSeconds =
+    typeof trimStartValue === "string" ? Number(trimStartValue) : null;
+  const audioTrimEndSeconds =
+    typeof trimEndValue === "string" ? Number(trimEndValue) : null;
+  const audioWasTrimmed = wasTrimmedValue === "true";
 
   if (!(audio instanceof File)) {
     return NextResponse.json({ error: "Envie uma música MP3, WAV, M4A, AAC ou OGG." }, { status: 400 });
@@ -225,6 +239,29 @@ export async function POST(
       isAdmin: isAdminEmail(workspace.user?.email),
     });
 
+    if (usageEventId) {
+      await prisma.usageEvent
+        .update({
+          where: { id: usageEventId },
+          data: {
+            metadata: {
+              status: "reserved",
+              flow: "motion-flyer",
+              reservedAt: new Date().toISOString(),
+              audioWasTrimmed,
+              audioTrimStartSeconds: Number.isFinite(audioTrimStartSeconds)
+                ? audioTrimStartSeconds
+                : null,
+              audioTrimEndSeconds: Number.isFinite(audioTrimEndSeconds)
+                ? audioTrimEndSeconds
+                : null,
+              originalAudioName,
+            },
+          },
+        })
+        .catch(() => null);
+    }
+
     const arrayBuffer = await audio.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const safeOriginalName = sanitizeFileName(audio.name || `audio.${getExtensionFromMime(audio.type)}`);
@@ -251,7 +288,9 @@ export async function POST(
         inputImageUrl: banner.outputImageUrl,
         inputAudioUrl: uploadedAudio.url,
         inputAudioStorageKey: uploadedAudio.key,
-        audioOriginalName: audio.name || safeOriginalName,
+        audioOriginalName: originalAudioName
+          ? `${originalAudioName} → ${audio.name || safeOriginalName}`
+          : audio.name || safeOriginalName,
         audioMimeType: audio.type || "audio/mpeg",
         audioSizeBytes: audio.size,
         format: banner.format,

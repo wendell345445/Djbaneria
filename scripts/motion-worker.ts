@@ -1,11 +1,12 @@
 import "dotenv/config";
 
-import { spawn } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
+import { bundle } from "@remotion/bundler";
+import { renderMedia, selectComposition } from "@remotion/renderer";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
@@ -20,6 +21,8 @@ const WORKER_ID = process.env.MOTION_WORKER_ID || `motion-worker-${process.pid}`
 const POLL_INTERVAL_MS = Number(process.env.MOTION_WORKER_POLL_INTERVAL_MS || 5000);
 const ROOT_DIR = process.cwd();
 const TMP_DIR = resolve(ROOT_DIR, "tmp", "motion-renders");
+const REMOTION_ENTRYPOINT = resolve(ROOT_DIR, "remotion", "index.ts");
+const COMPOSITION_ID = "MotionFlyer";
 
 const isRunOnce = process.argv.includes("--once");
 
@@ -36,6 +39,10 @@ function sanitizeForKey(value: string) {
     .replace(/-{2,}/g, "-")
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
+}
+
+function clampProgress(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
 }
 
 async function claimNextJob() {
@@ -63,7 +70,7 @@ async function claimNextJob() {
     },
     data: {
       status: "RENDERING",
-      renderProgress: 8,
+      renderProgress: 5,
       errorMessage: null,
     },
   });
@@ -85,42 +92,49 @@ async function claimNextJob() {
   });
 }
 
-function runCommand(command: string, args: string[]) {
-  return new Promise<void>((resolvePromise, rejectPromise) => {
-    log(`running command: ${command} ${args.join(" ")}`);
+function createProgressReporter(motionId: string) {
+  let lastProgress = 0;
+  let lastWriteAt = 0;
+  let writeQueue = Promise.resolve();
 
-    const child = spawn(command, args, {
-      cwd: ROOT_DIR,
-      env: process.env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+  function setProgress(nextProgress: number, force = false) {
+    const progress = clampProgress(nextProgress);
+    const now = Date.now();
 
-    child.stdout.on("data", (chunk) => {
-      process.stdout.write(chunk);
-    });
+    if (!force && progress <= lastProgress) return;
+    if (!force && now - lastWriteAt < 900 && progress - lastProgress < 3) return;
 
-    child.stderr.on("data", (chunk) => {
-      process.stderr.write(chunk);
-    });
+    lastProgress = progress;
+    lastWriteAt = now;
 
-    child.on("error", rejectPromise);
-    child.on("close", (code) => {
-      if (code === 0) {
-        resolvePromise();
-        return;
-      }
+    writeQueue = writeQueue
+      .then(() =>
+        (prisma as any).bannerMotion.update({
+          where: { id: motionId },
+          data: { renderProgress: progress },
+        }),
+      )
+      .then(() => undefined)
+      .catch((error) => {
+        log("could not update render progress", {
+          motionId,
+          progress,
+          error: String(error),
+        });
+      });
+  }
 
-      rejectPromise(new Error(`Command failed with exit code ${code}`));
-    });
-  });
+  async function flush() {
+    await writeQueue;
+  }
+
+  return { setProgress, flush };
 }
 
 async function renderMotion(job: any) {
   mkdirSync(TMP_DIR, { recursive: true });
 
   const outputPath = join(TMP_DIR, `${job.id}.mp4`);
-  const propsPath = join(TMP_DIR, `${job.id}.json`);
-
   const durationSeconds = Number(job.durationSeconds || 10);
   const props = {
     imageUrl: job.inputImageUrl,
@@ -131,28 +145,73 @@ async function renderMotion(job: any) {
     durationSeconds,
   };
 
-  await writeFile(propsPath, JSON.stringify(props, null, 2), "utf8");
+  const progress = createProgressReporter(job.id);
+  progress.setProgress(8, true);
 
-  await (prisma as any).bannerMotion.update({
-    where: { id: job.id },
-    data: { renderProgress: 18 },
+  log("bundling remotion project", { motionId: job.id });
+  const serveUrl = await bundle({
+    entryPoint: REMOTION_ENTRYPOINT,
+    webpackOverride: (config) => config,
   });
 
-  await runCommand("npx", [
-    "remotion",
-    "render",
-    "remotion/index.ts",
-    "MotionFlyer",
-    outputPath,
-    `--props=${propsPath}`,
-    "--overwrite",
-    "--log=warn",
-  ]);
+  progress.setProgress(14, true);
 
-  await (prisma as any).bannerMotion.update({
-    where: { id: job.id },
-    data: { renderProgress: 82 },
+  const composition = await selectComposition({
+    serveUrl,
+    id: COMPOSITION_ID,
+    inputProps: props,
+    timeoutInMilliseconds: 120000,
   });
+
+  progress.setProgress(18, true);
+
+  await renderMedia({
+    serveUrl,
+    composition,
+    codec: "h264",
+    outputLocation: outputPath,
+    inputProps: props,
+    overwrite: true,
+    logLevel: "warn",
+    timeoutInMilliseconds: 120000,
+    chromiumOptions: {
+      disableWebSecurity: true,
+    },
+    onStart: ({ frameCount, resolvedConcurrency }) => {
+      log("render started", {
+        motionId: job.id,
+        frameCount,
+        resolvedConcurrency,
+      });
+      progress.setProgress(22, true);
+    },
+    onDownload: (src) => {
+      log("downloading media", { motionId: job.id, src });
+      return ({ percent }) => {
+        if (typeof percent === "number") {
+          progress.setProgress(18 + percent * 4);
+        }
+      };
+    },
+    onProgress: ({ progress: renderProgress, renderedFrames, encodedFrames, stitchStage }) => {
+      const mappedProgress = 22 + renderProgress * 66;
+      progress.setProgress(mappedProgress);
+
+      if (stitchStage === "encoding" || stitchStage === "muxing") {
+        log("render progress", {
+          motionId: job.id,
+          percent: clampProgress(mappedProgress),
+          renderedFrames,
+          encodedFrames,
+          stitchStage,
+        });
+      }
+    },
+  });
+
+  await progress.flush();
+  progress.setProgress(90, true);
+  await progress.flush();
 
   if (!existsSync(outputPath)) {
     throw new Error("O arquivo MP4 não foi gerado pelo Remotion.");
@@ -161,6 +220,9 @@ async function renderMotion(job: any) {
   const buffer = await readFile(outputPath);
   const bannerTitle = sanitizeForKey(job.banner?.title || "motion-flyer") || "motion-flyer";
   const key = `workspaces/${job.workspaceId}/motion-videos/${bannerTitle}-${job.id}.mp4`;
+
+  progress.setProgress(94, true);
+  await progress.flush();
 
   const uploaded = await uploadBufferToR2({
     key,
@@ -181,7 +243,6 @@ async function renderMotion(job: any) {
   });
 
   await rm(outputPath, { force: true }).catch(() => null);
-  await rm(propsPath, { force: true }).catch(() => null);
 
   log("render completed", { motionId: job.id, outputVideoUrl: uploaded.url });
 }
@@ -190,12 +251,20 @@ async function refundMotionCredit(job: any) {
   if (!job?.usageEventId) return;
 
   await prisma.usageEvent.delete({ where: { id: job.usageEventId } }).catch((error) => {
-    log("could not refund usage event", { motionId: job.id, usageEventId: job.usageEventId, error: String(error) });
+    log("could not refund usage event", {
+      motionId: job.id,
+      usageEventId: job.usageEventId,
+      error: String(error),
+    });
   });
 }
 
 async function handleJob(job: any) {
-  log("claimed job", { motionId: job.id, preset: job.preset, transitionVariant: job.transitionVariant });
+  log("claimed job", {
+    motionId: job.id,
+    preset: job.preset,
+    transitionVariant: job.transitionVariant,
+  });
 
   try {
     if (!job.inputImageUrl) {
