@@ -5,7 +5,7 @@ export type BannerImageQuality = "low" | "medium" | "high";
 export const CREDIT_CYCLE_PAYMENT_CONFIRMED_KIND =
   "STRIPE_CREDIT_CYCLE_PAYMENT_CONFIRMED";
 
-type BillingUsageEvent = {
+export type BillingUsageEvent = {
   units: number | null;
   createdAt: Date | string;
   metadata?: unknown;
@@ -20,7 +20,7 @@ type BillingSummaryInput = {
   creditCyclePaymentConfirmed?: boolean;
 };
 
-type BillingSummary = {
+export type BillingSummary = {
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   monthlyLimit: number;
@@ -31,6 +31,8 @@ type BillingSummary = {
   canGenerateBanner: boolean;
   creditCyclePaymentConfirmed: boolean;
   creditCyclePaymentPending: boolean;
+  carryoverCredits: number;
+  carryoverExpiresAt: string | null;
 };
 
 const PLAN_LIMITS: Record<SubscriptionPlan, number> = {
@@ -192,6 +194,47 @@ function isPlanCarryoverEvent(event: BillingUsageEvent) {
   return kind === "PLAN_UPGRADE_CARRYOVER" || kind === undefined;
 }
 
+function getMetadataString(metadata: unknown, key: string) {
+  if (!isObject(metadata)) return null;
+  const value = metadata[key];
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+export function getPlanCarryoverSummary(
+  usageEvents: BillingUsageEvent[] | undefined,
+  fallbackExpiresAt?: Date | string | null,
+) {
+  const carryoverEvents = (usageEvents || []).filter(isPlanCarryoverEvent);
+
+  const credits = carryoverEvents.reduce((total, event) => {
+    const units = event.units || 0;
+    return units < 0 ? total + Math.abs(units) : total;
+  }, 0);
+
+  const latestCarryover = [...carryoverEvents].sort(
+    (a, b) => toDate(b.createdAt).getTime() - toDate(a.createdAt).getTime(),
+  )[0];
+
+  const metadataExpiresAt = latestCarryover
+    ? getMetadataString(latestCarryover.metadata, "expiresAt")
+    : null;
+
+  const fallbackDate =
+    fallbackExpiresAt === null || fallbackExpiresAt === undefined
+      ? null
+      : toDate(fallbackExpiresAt);
+
+  const fallbackIso =
+    fallbackDate && Number.isFinite(fallbackDate.getTime())
+      ? fallbackDate.toISOString()
+      : null;
+
+  return {
+    credits,
+    expiresAt: metadataExpiresAt || fallbackIso,
+  };
+}
+
 function buildUsageNumbers(usageEvents: BillingUsageEvent[] | undefined) {
   if (!usageEvents?.length) {
     return null;
@@ -210,6 +253,7 @@ function buildUsageNumbers(usageEvents: BillingUsageEvent[] | undefined) {
   const latestCarryoverAt = latestCarryover
     ? toDate(latestCarryover.createdAt).getTime()
     : null;
+  const carryoverSummary = getPlanCarryoverSummary(usageEvents);
 
   const displayedUsedThisMonth = usageEvents.reduce((total, event) => {
     const units = event.units || 0;
@@ -226,6 +270,8 @@ function buildUsageNumbers(usageEvents: BillingUsageEvent[] | undefined) {
   return {
     netUsedThisMonth,
     displayedUsedThisMonth,
+    carryoverCredits: carryoverSummary.credits,
+    carryoverExpiresAt: carryoverSummary.expiresAt,
   };
 }
 
@@ -249,6 +295,12 @@ export function buildBillingSummary({
     : true;
   const creditCyclePaymentPending =
     requiresPaymentConfirmation && !effectivePaymentConfirmed;
+  const carryoverCredits = creditCyclePaymentPending
+    ? 0
+    : (usageNumbers?.carryoverCredits ?? 0);
+  const carryoverExpiresAt = creditCyclePaymentPending
+    ? null
+    : (usageNumbers?.carryoverExpiresAt ?? null);
 
   const remainingCredits = creditCyclePaymentPending
     ? 0
@@ -275,5 +327,7 @@ export function buildBillingSummary({
     canGenerateBanner: canUsePlan && remainingCredits > 0,
     creditCyclePaymentConfirmed: effectivePaymentConfirmed,
     creditCyclePaymentPending,
+    carryoverCredits,
+    carryoverExpiresAt,
   };
 }

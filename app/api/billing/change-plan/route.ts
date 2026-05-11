@@ -38,6 +38,7 @@ const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
   UsageEventType.BANNER_EDIT,
   UsageEventType.BANNER_VARIATION,
+            UsageEventType.BANNER_MOTION_RENDER,
 ] as const;
 
 type PreviousSubscriptionForCarryover = {
@@ -198,6 +199,7 @@ async function applyPlanUpgradeCarryoverCredit(params: {
   newPlan: SubscriptionPlan;
   previousSubscription: PreviousSubscriptionForCarryover;
   stripeSubscriptionId: string;
+  carryoverExpiresAt?: Date | null;
 }) {
   if (params.previousPlan === params.newPlan) return;
 
@@ -251,6 +253,7 @@ async function applyPlanUpgradeCarryoverCredit(params: {
         newLimit,
         previousRemainingCredits: remainingCreditsToCarry,
         stripeSubscriptionId: params.stripeSubscriptionId,
+        expiresAt: params.carryoverExpiresAt?.toISOString() || null,
         createdAt: new Date().toISOString(),
       },
     },
@@ -387,6 +390,7 @@ export async function POST(request: Request) {
       newPlan: targetSubscriptionPlan,
       previousSubscription: previousSubscriptionForCarryover,
       stripeSubscriptionId: updatedSubscription.id,
+      carryoverExpiresAt: currentPeriodEnd,
     });
 
     await prisma.subscription.upsert({

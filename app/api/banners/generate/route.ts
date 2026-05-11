@@ -42,6 +42,7 @@ const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
   UsageEventType.BANNER_EDIT,
   UsageEventType.BANNER_VARIATION,
+            UsageEventType.BANNER_MOTION_RENDER,
 ] as const;
 
 const referenceImageField = z
