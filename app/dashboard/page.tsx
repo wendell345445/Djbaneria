@@ -240,7 +240,8 @@ const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
       creditsAdminHelper: "Cuenta admin con uso liberado",
       creditsHelper: "Consumo en el ciclo actual",
       remainingTitle: "Restantes",
-      remainingHelper: "Créditos disponibles para nuevas generaciones y ediciones",
+      remainingHelper:
+        "Créditos disponibles para nuevas generaciones y ediciones",
     },
     adminNotice: {
       eyebrow: "Modo prueba admin",
@@ -297,7 +298,7 @@ export default async function DashboardPage() {
             UsageEventType.BANNER_EDIT,
             UsageEventType.BANNER_VARIATION,
             UsageEventType.BANNER_MOTION_RENDER,
-],
+          ],
         },
       },
       select: {
@@ -322,19 +323,27 @@ export default async function DashboardPage() {
     : getPlanDisplayName(summary.plan, copy);
   const usageLabel = isAdmin
     ? `${summary.usedThisMonth} / ∞`
-    : `${summary.usedThisMonth} / ${summary.monthlyLimit}`;
+    : `${summary.usedThisMonth} / ${summary.baseMonthlyLimit ?? summary.monthlyLimit}`;
   const remainingLabel = isAdmin
     ? copy.plan.unlimited
     : String(summary.remainingCredits);
   const carryoverLabel = isAdmin
     ? null
-    : getCarryoverLabel(locale, summary.carryoverCredits, summary.carryoverExpiresAt);
+    : getCarryoverLabel(
+        locale,
+        summary.carryoverCredits,
+        summary.carryoverExpiresAt,
+      );
   const usagePercent = isAdmin
     ? 100
-    : summary.monthlyLimit > 0
+    : (summary.baseMonthlyLimit ?? summary.monthlyLimit) > 0
       ? Math.min(
           100,
-          Math.round((summary.usedThisMonth / summary.monthlyLimit) * 100),
+          Math.round(
+            (summary.usedThisMonth /
+              (summary.baseMonthlyLimit ?? summary.monthlyLimit)) *
+              100,
+          ),
         )
       : 0;
 
@@ -348,7 +357,7 @@ export default async function DashboardPage() {
             planLabel={planLabel}
             usageLabel={usageLabel}
             remainingLabel={remainingLabel}
-            carryoverLabel={carryoverLabel}
+            carryoverLabel={null}
             usagePercent={usagePercent}
             status={summary.status}
             isAdmin={isAdmin}

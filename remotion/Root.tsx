@@ -1,5 +1,9 @@
 import { Composition, staticFile } from "remotion";
-import { MotionFlyer, type MotionFlyerFormat, type MotionPreset } from "./compositions/MotionFlyer";
+import {
+  MotionFlyer,
+  type MotionFlyerFormat,
+  type MotionPreset,
+} from "./compositions/MotionFlyer";
 
 type MotionFlyerInputProps = {
   imageUrl: string;
@@ -44,11 +48,11 @@ export function RemotionRoot() {
       defaultProps={{
         imageUrl: staticFile("examples/banner-01.webp"),
         audioUrl: staticFile("remotion-demo/demo.mp3"),
-        preset: "FESTIVAL_DROP_PRO",
-        transitionVariant: "AUTO",
+        preset: "CYBER_RAVE",
+        transitionVariant: "VIRAL_SHAKE",
         format: "STORY",
         width: 1024,
-        height: 1536,
+        height: 1280,
         durationSeconds: 10,
       }}
       calculateMetadata={({ props }) => {

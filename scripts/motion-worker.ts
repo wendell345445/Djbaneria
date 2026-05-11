@@ -30,6 +30,10 @@ const COMPOSITION_ID = "MotionFlyer";
 // If the VPS has 8 vCPU and remains stable, test 4.
 // If it becomes unstable, set MOTION_RENDER_CONCURRENCY=2 in PM2/env.
 const RENDER_CONCURRENCY = Number(process.env.MOTION_RENDER_CONCURRENCY || 3);
+const STALE_RENDER_MINUTES = Math.max(
+  20,
+  Number(process.env.MOTION_STALE_RENDER_MINUTES || 35),
+);
 
 const isRunOnce = process.argv.includes("--once");
 
@@ -52,51 +56,80 @@ function clampProgress(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
+async function releaseStaleRenderingJobs() {
+  const resetCount = await (prisma as any).$executeRawUnsafe(`
+    UPDATE "BannerMotion"
+    SET
+      status = 'PENDING',
+      "renderProgress" = 0,
+      "errorMessage" = 'Render interrompido. O job voltou para a fila automaticamente.',
+      "updatedAt" = NOW()
+    WHERE status = 'RENDERING'
+      AND "updatedAt" < NOW() - INTERVAL '${STALE_RENDER_MINUTES} minutes'
+  `);
+
+  if (resetCount > 0) {
+    log("stale render jobs returned to queue", { count: resetCount });
+  }
+}
+
+async function getQueueSnapshot() {
+  const rows = (await (prisma as any).$queryRawUnsafe(`
+    SELECT
+      COUNT(*) FILTER (WHERE status = 'PENDING') AS "pendingCount",
+      COUNT(*) FILTER (WHERE status = 'RENDERING') AS "renderingCount"
+    FROM "BannerMotion"
+    WHERE status IN ('PENDING', 'RENDERING')
+  `)) as Array<{ pendingCount: bigint | number; renderingCount: bigint | number }>;
+
+  const snapshot = rows[0];
+
+  return {
+    pendingCount: Number(snapshot?.pendingCount || 0),
+    renderingCount: Number(snapshot?.renderingCount || 0),
+  };
+}
+
 async function claimNextJob() {
-  const pending = await (prisma as any).bannerMotion.findFirst({
-    where: { status: "PENDING" },
-    include: {
-      banner: {
-        select: {
-          id: true,
-          title: true,
-          outputImageUrl: true,
-          format: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "asc" },
-  });
+  // Important:
+  // This raw SQL claim avoids Prisma enum decoding problems when the DB already has
+  // newer preset strings than the generated Prisma client, and it is safe for multiple
+  // worker VPS instances because of FOR UPDATE SKIP LOCKED.
+  const rows = (await (prisma as any).$queryRawUnsafe(`
+    WITH candidate AS (
+      SELECT bm.id
+      FROM "BannerMotion" bm
+      WHERE bm.status = 'PENDING'
+      ORDER BY bm."createdAt" ASC
+      FOR UPDATE SKIP LOCKED
+      LIMIT 1
+    )
+    UPDATE "BannerMotion" bm
+    SET
+      status = 'RENDERING',
+      "renderProgress" = 5,
+      "errorMessage" = NULL,
+      "updatedAt" = NOW()
+    FROM candidate
+    WHERE bm.id = candidate.id
+    RETURNING
+      bm.*,
+      (
+        SELECT b.title
+        FROM "Banner" b
+        WHERE b.id = bm."bannerId"
+      ) AS "bannerTitle"
+  `)) as Array<Record<string, any>>;
 
-  if (!pending) return null;
+  const claimed = rows[0];
+  if (!claimed) return null;
 
-  const claimed = await (prisma as any).bannerMotion.updateMany({
-    where: {
-      id: pending.id,
-      status: "PENDING",
+  return {
+    ...claimed,
+    banner: {
+      title: claimed.bannerTitle || "motion-flyer",
     },
-    data: {
-      status: "RENDERING",
-      renderProgress: 5,
-      errorMessage: null,
-    },
-  });
-
-  if (claimed.count !== 1) return null;
-
-  return (prisma as any).bannerMotion.findUnique({
-    where: { id: pending.id },
-    include: {
-      banner: {
-        select: {
-          id: true,
-          title: true,
-          outputImageUrl: true,
-          format: true,
-        },
-      },
-    },
-  });
+  };
 }
 
 function createProgressReporter(motionId: string) {
@@ -348,10 +381,13 @@ async function handleJob(job: any) {
 }
 
 async function tick() {
+  await releaseStaleRenderingJobs();
+
   const job = await claimNextJob();
 
   if (!job) {
-    log("no pending jobs");
+    const queue = await getQueueSnapshot();
+    log("no pending jobs", queue);
     return;
   }
 

@@ -23,6 +23,17 @@ export const maxDuration = 30;
 
 const MAX_AUDIO_BYTES = 30 * 1024 * 1024;
 
+function getMotionCreditCost(durationSeconds: number) {
+  return durationSeconds === 15 ? 3 : 2;
+}
+
+const PLAN_CREDIT_LIMITS: Record<SubscriptionPlan, number> = {
+  [SubscriptionPlan.FREE]: 2,
+  [SubscriptionPlan.PRO]: 20,
+  [SubscriptionPlan.PROFESSIONAL]: 40,
+  [SubscriptionPlan.STUDIO]: 80,
+};
+
 const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
   UsageEventType.BANNER_EDIT,
@@ -33,9 +44,6 @@ const CREDIT_EVENT_TYPES = [
 const motionSchema = z.object({
   preset: z.enum([
     "NEON_PULSE",
-    "CLUB_FLASH",
-    "CINEMATIC_ZOOM",
-    "FESTIVAL_LIGHTS",
     "DARK_TECHNO_GLITCH",
     "FESTIVAL_DROP_PRO",
     "VIRAL_REELS_CUT",
@@ -44,7 +52,6 @@ const motionSchema = z.object({
     "CYBER_RAVE",
   ]),
   transitionVariant: z.enum([
-    "AUTO",
     "WHIP_ZOOM_PRO",
     "SPIN_ZOOM_PRO",
     "WARP_PUSH_PRO",
@@ -55,7 +62,7 @@ const motionSchema = z.object({
     "GLITCH_ZOOM",
     "VIRAL_SHAKE",
   ]),
-  durationSeconds: z.coerce.number().int().refine((value) => [6, 10, 15].includes(value), {
+  durationSeconds: z.coerce.number().int().refine((value) => [10, 15].includes(value), {
     message: "Escolha uma duração válida.",
   }),
 });
@@ -88,6 +95,8 @@ async function reserveMotionCredit(params: {
   currentPeriodStart?: Date | string | null;
   currentPeriodEnd?: Date | string | null;
   isAdmin: boolean;
+  requiredUnits: number;
+  durationSeconds: number;
 }) {
   if (params.isAdmin) {
     return null;
@@ -130,18 +139,38 @@ async function reserveMotionCredit(params: {
     creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
   });
 
-  if (!summary.canGenerateBanner) {
-    throw new Error("Você usou todos os seus créditos deste ciclo.");
+  const summaryAny = summary as any;
+  const usedUnits = usageEvents.reduce((total, event) => total + Number(event.units || 0), 0);
+  const fallbackRemainingCredits = Math.max(
+    0,
+    (PLAN_CREDIT_LIMITS[params.plan] || 0) - Math.max(0, usedUnits),
+  );
+
+  const remainingCredits =
+    typeof summaryAny.remainingCredits === "number"
+      ? summaryAny.remainingCredits
+      : typeof summaryAny.remaining === "number"
+        ? summaryAny.remaining
+        : typeof summaryAny.availableCredits === "number"
+          ? summaryAny.availableCredits
+          : fallbackRemainingCredits;
+
+  if (!summary.canGenerateBanner || remainingCredits < params.requiredUnits) {
+    throw new Error(
+      `Você precisa de ${params.requiredUnits} créditos para gerar um vídeo de ${params.durationSeconds}s. Créditos disponíveis: ${remainingCredits}.`,
+    );
   }
 
   const usageEvent = await prisma.usageEvent.create({
     data: {
       workspaceId: params.workspaceId,
       type: UsageEventType.BANNER_MOTION_RENDER,
-      units: 1,
+      units: params.requiredUnits,
       metadata: {
         status: "reserved",
         flow: "motion-flyer",
+        durationSeconds: params.durationSeconds,
+        creditsReserved: params.requiredUnits,
         reservedAt: new Date().toISOString(),
       },
     },
@@ -206,7 +235,7 @@ export async function POST(
 
   const parsed = motionSchema.safeParse({
     preset: formData.get("preset"),
-    transitionVariant: formData.get("transitionVariant") || "AUTO",
+    transitionVariant: formData.get("transitionVariant") || "ROTATE_ZOOM",
     durationSeconds: formData.get("durationSeconds") || "10",
   });
 
@@ -234,6 +263,8 @@ export async function POST(
     return NextResponse.json({ error: "Banner não encontrado ou ainda sem imagem final." }, { status: 404 });
   }
 
+  const motionCreditCost = getMotionCreditCost(parsed.data.durationSeconds);
+
   let usageEventId: string | null = null;
 
   try {
@@ -245,6 +276,8 @@ export async function POST(
       currentPeriodStart: workspace.subscription?.currentPeriodStart,
       currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
       isAdmin: isAdminEmail(workspace.user?.email),
+      requiredUnits: motionCreditCost,
+      durationSeconds: parsed.data.durationSeconds,
     });
 
     if (usageEventId) {
@@ -256,6 +289,8 @@ export async function POST(
               status: "reserved",
               flow: "motion-flyer",
               reservedAt: new Date().toISOString(),
+              durationSeconds: parsed.data.durationSeconds,
+              creditsReserved: motionCreditCost,
               audioWasTrimmed,
               audioTrimStartSeconds: Number.isFinite(audioTrimStartSeconds)
                 ? audioTrimStartSeconds
@@ -311,6 +346,14 @@ export async function POST(
         id: true,
         status: true,
         renderProgress: true,
+        createdAt: true,
+      },
+    });
+
+    const jobsAhead = await (prisma as any).bannerMotion.count({
+      where: {
+        status: "PENDING",
+        createdAt: { lt: motion.createdAt },
       },
     });
 
@@ -318,6 +361,7 @@ export async function POST(
       motionId: motion.id,
       status: motion.status,
       renderProgress: motion.renderProgress,
+      queuePosition: jobsAhead + 1,
     }, { status: 202 });
   } catch (error) {
     if (usageEventId) {

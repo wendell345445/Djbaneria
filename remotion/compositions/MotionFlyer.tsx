@@ -22,9 +22,6 @@ export type MotionFlyerFormat = "POST_FEED" | "STORY" | "SQUARE" | "FLYER";
 
 export type MotionPreset =
   | "NEON_PULSE"
-  | "CLUB_FLASH"
-  | "CINEMATIC_ZOOM"
-  | "FESTIVAL_LIGHTS"
   | "DARK_TECHNO_GLITCH"
   | "FESTIVAL_DROP_PRO"
   | "VIRAL_REELS_CUT"
@@ -76,36 +73,6 @@ const PRESET_LOOK: Record<MotionPreset, Look> = {
     transition: "GLITCH_ZOOM",
     cutDensity: 4,
     grain: 0.1,
-  },
-  CLUB_FLASH: {
-    primary: "255, 255, 255",
-    secondary: "59, 130, 246",
-    accent: "236, 72, 153",
-    bg: "#03030a",
-    mood: "club",
-    transition: "FLASH_CUT",
-    cutDensity: 5,
-    grain: 0.1,
-  },
-  CINEMATIC_ZOOM: {
-    primary: "245, 158, 11",
-    secondary: "168, 85, 247",
-    accent: "255, 255, 255",
-    bg: "#07040d",
-    mood: "cinematic",
-    transition: "WHIP_ZOOM",
-    cutDensity: 3,
-    grain: 0.08,
-  },
-  FESTIVAL_LIGHTS: {
-    primary: "45, 212, 191",
-    secondary: "59, 130, 246",
-    accent: "244, 114, 182",
-    bg: "#040716",
-    mood: "festival",
-    transition: "ROTATE_ZOOM",
-    cutDensity: 5,
-    grain: 0.09,
   },
   DARK_TECHNO_GLITCH: {
     primary: "34, 211, 238",
@@ -198,45 +165,6 @@ const PRESET_MOTION_PROFILE: Record<MotionPreset, PresetMotionProfile> = {
     spotlight: 0.85,
     equalizer: 0.8,
   },
-  CLUB_FLASH: {
-    cameraZoom: 0.052,
-    cameraDriftX: 3.4,
-    cameraDriftY: 4.8,
-    beatZoom: 0.03,
-    beatRotate: 0.18,
-    glitch: 0.12,
-    smoke: 0.55,
-    particles: 0.7,
-    strobe: 0.95,
-    spotlight: 1.0,
-    equalizer: 0.9,
-  },
-  CINEMATIC_ZOOM: {
-    cameraZoom: 0.048,
-    cameraDriftX: 2.2,
-    cameraDriftY: 3.8,
-    beatZoom: 0.02,
-    beatRotate: 0.08,
-    glitch: 0.04,
-    smoke: 0.75,
-    particles: 0.38,
-    strobe: 0.2,
-    spotlight: 0.55,
-    equalizer: 0.28,
-  },
-  FESTIVAL_LIGHTS: {
-    cameraZoom: 0.06,
-    cameraDriftX: 3.8,
-    cameraDriftY: 5.8,
-    beatZoom: 0.032,
-    beatRotate: 0.18,
-    glitch: 0.1,
-    smoke: 0.68,
-    particles: 1.0,
-    strobe: 0.58,
-    spotlight: 1.15,
-    equalizer: 0.72,
-  },
   DARK_TECHNO_GLITCH: {
     cameraZoom: 0.046,
     cameraDriftX: 2.8,
@@ -317,6 +245,25 @@ const PRESET_MOTION_PROFILE: Record<MotionPreset, PresetMotionProfile> = {
   },
 };
 
+
+
+function normalizeMotionPreset(preset: string | undefined | null): MotionPreset {
+  if (
+    preset === "NEON_PULSE" ||
+    preset === "DARK_TECHNO_GLITCH" ||
+    preset === "FESTIVAL_DROP_PRO" ||
+    preset === "VIRAL_REELS_CUT" ||
+    preset === "DARK_TECHNO_RGB" ||
+    preset === "LUXURY_GOLD_CLUB" ||
+    preset === "CYBER_RAVE"
+  ) {
+    return preset;
+  }
+
+  // Legacy fallback for presets removed from the active product:
+  // CLUB_FLASH, CINEMATIC_ZOOM and FESTIVAL_LIGHTS.
+  return "NEON_PULSE";
+}
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -1796,7 +1743,6 @@ function ExplosionVfxTest({
   // Regular explosion entrance VFX for impact/festival presets.
   const enabled =
     preset === "FESTIVAL_DROP_PRO" ||
-    preset === "FESTIVAL_LIGHTS" ||
     preset === "CYBER_RAVE";
 
   if (!enabled) return null;
@@ -2097,8 +2043,9 @@ function MotionFlyerScene({
   audio,
 }: MotionFlyerProps & { audio: AudioAnalysis }) {
   const { durationInFrames } = useVideoConfig();
-  const look = PRESET_LOOK[preset] ?? PRESET_LOOK.NEON_PULSE;
-  const profile = PRESET_MOTION_PROFILE[preset] ?? PRESET_MOTION_PROFILE.NEON_PULSE;
+  const activePreset = normalizeMotionPreset(preset);
+  const look = PRESET_LOOK[activePreset] ?? PRESET_LOOK.NEON_PULSE;
+  const profile = PRESET_MOTION_PROFILE[activePreset] ?? PRESET_MOTION_PROFILE.NEON_PULSE;
   const fallbackTransitionFrame = Math.min(
     Math.round(durationInFrames * 0.52),
     Math.max(14, durationInFrames - 50),
@@ -2124,9 +2071,9 @@ function MotionFlyerScene({
       <BeatCameraPunch look={look} audio={audio} />
       <DjBeatEffects look={look} audio={audio} profile={profile} />
       <PresetSignatureEffects look={look} audio={audio} profile={profile} />
-      <ExplosionVfxTest audio={audio} preset={preset} />
-      <LuxuryEntranceVfx preset={preset} />
-      <NeonPulseRayVfx preset={preset} />
+      <ExplosionVfxTest audio={audio} preset={activePreset} />
+      <LuxuryEntranceVfx preset={activePreset} />
+      <NeonPulseRayVfx preset={activePreset} />
       <BeatImpactPro look={look} audio={audio} />
 
       <CinematicFinish look={look} audio={audio} />
