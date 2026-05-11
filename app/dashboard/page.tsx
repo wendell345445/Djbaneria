@@ -296,7 +296,8 @@ export default async function DashboardPage() {
             UsageEventType.BANNER_GENERATION,
             UsageEventType.BANNER_EDIT,
             UsageEventType.BANNER_VARIATION,
-          ],
+            UsageEventType.BANNER_MOTION_RENDER,
+],
         },
       },
       select: {
@@ -325,6 +326,9 @@ export default async function DashboardPage() {
   const remainingLabel = isAdmin
     ? copy.plan.unlimited
     : String(summary.remainingCredits);
+  const carryoverLabel = isAdmin
+    ? null
+    : getCarryoverLabel(locale, summary.carryoverCredits, summary.carryoverExpiresAt);
   const usagePercent = isAdmin
     ? 100
     : summary.monthlyLimit > 0
@@ -344,6 +348,7 @@ export default async function DashboardPage() {
             planLabel={planLabel}
             usageLabel={usageLabel}
             remainingLabel={remainingLabel}
+            carryoverLabel={carryoverLabel}
             usagePercent={usagePercent}
             status={summary.status}
             isAdmin={isAdmin}
@@ -443,12 +448,38 @@ function getStatusLabel(status: SubscriptionStatus, copy: DashboardPageCopy) {
   return copy.status[status] ?? status;
 }
 
+function getCarryoverLabel(
+  locale: AppLocale,
+  credits: number,
+  expiresAt: string | null,
+) {
+  if (!credits || credits <= 0) return null;
+
+  const dateLabel = expiresAt
+    ? new Intl.DateTimeFormat(
+        locale === "pt-BR" ? "pt-BR" : locale === "es" ? "es-ES" : "en-US",
+        { dateStyle: "short" },
+      ).format(new Date(expiresAt))
+    : null;
+
+  if (locale === "pt-BR") {
+    return `+${credits} créditos extras de upgrade${dateLabel ? ` · vencem em ${dateLabel}` : ""}`;
+  }
+
+  if (locale === "es") {
+    return `+${credits} créditos extra de upgrade${dateLabel ? ` · vencen el ${dateLabel}` : ""}`;
+  }
+
+  return `+${credits} upgrade extra credits${dateLabel ? ` · expire on ${dateLabel}` : ""}`;
+}
+
 function PlanUsageCard({
   copy,
   plan,
   planLabel,
   usageLabel,
   remainingLabel,
+  carryoverLabel,
   usagePercent,
   status,
   isAdmin,
@@ -458,6 +489,7 @@ function PlanUsageCard({
   planLabel: string;
   usageLabel: string;
   remainingLabel: string;
+  carryoverLabel: string | null;
   usagePercent: number;
   status: SubscriptionStatus;
   isAdmin: boolean;
@@ -506,6 +538,12 @@ function PlanUsageCard({
           highlight
         />
       </div>
+
+      {carryoverLabel ? (
+        <p className="relative z-10 mt-3 rounded-2xl border border-amber-200/20 bg-amber-200/10 px-3 py-2 text-xs leading-5 text-amber-50">
+          {carryoverLabel}
+        </p>
+      ) : null}
 
       <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
         <div className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">

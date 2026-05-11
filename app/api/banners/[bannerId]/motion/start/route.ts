@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -305,6 +306,11 @@ export async function POST(
         renderProgress: true,
       },
     });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/billing");
+    revalidatePath("/dashboard/banners/new");
+    revalidatePath(`/dashboard/banners/${banner.id}`);
 
     return NextResponse.json({
       motionId: motion.id,

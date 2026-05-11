@@ -151,7 +151,8 @@ export default async function NewBannerPage() {
           UsageEventType.BANNER_GENERATION,
           UsageEventType.BANNER_EDIT,
           UsageEventType.BANNER_VARIATION,
-        ],
+        UsageEventType.BANNER_MOTION_RENDER,
+],
       },
     },
     select: {

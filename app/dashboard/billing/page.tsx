@@ -500,7 +500,8 @@ export default async function BillingPage() {
             UsageEventType.BANNER_GENERATION,
             UsageEventType.BANNER_EDIT,
             UsageEventType.BANNER_VARIATION,
-          ],
+            UsageEventType.BANNER_MOTION_RENDER,
+],
         },
       },
       orderBy: { createdAt: "desc" },
@@ -542,6 +543,15 @@ export default async function BillingPage() {
   const editUnits = usageEvents
     .filter((event) => String(event.type) === "BANNER_EDIT")
     .reduce((total, event) => total + (event.units || 0), 0);
+  const motionUnits = usageEvents
+    .filter((event) => String(event.type) === "BANNER_MOTION_RENDER")
+    .reduce((total, event) => total + (event.units || 0), 0);
+  const carryoverTitle = getCarryoverTitle(locale);
+  const carryoverHelper = getCarryoverHelper(
+    locale,
+    summary.carryoverCredits,
+    summary.carryoverExpiresAt,
+  );
 
   return (
     <main className="mx-auto max-w-[1320px] px-5 py-7">
@@ -740,10 +750,22 @@ export default async function BillingPage() {
               helper={copy.summary.periodEditsHelper}
             />
             <UsageCard
+              title={getMotionUsageTitle(locale)}
+              value={String(motionUnits)}
+              helper={getMotionUsageHelper(locale)}
+            />
+            <UsageCard
               title={copy.summary.remaining}
               value={remainingLabel}
               helper={copy.summary.currentUsage(usageLabel)}
             />
+            {!isAdmin && summary.carryoverCredits > 0 ? (
+              <UsageCard
+                title={carryoverTitle}
+                value={`+${summary.carryoverCredits}`}
+                helper={carryoverHelper}
+              />
+            ) : null}
           </div>
         </div>
       </section>
@@ -783,6 +805,53 @@ export default async function BillingPage() {
       ) : null}
     </main>
   );
+}
+
+function getMotionUsageTitle(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Vídeos animados";
+  if (locale === "es") return "Videos animados";
+  return "Animated videos";
+}
+
+function getMotionUsageHelper(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Cada vídeo animado consome 1 crédito";
+  if (locale === "es") return "Cada video animado consume 1 crédito";
+  return "Each animated video consumes 1 credit";
+}
+
+function getCarryoverTitle(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Créditos extras";
+  if (locale === "es") return "Créditos extra";
+  return "Extra credits";
+}
+
+function getCarryoverHelper(
+  locale: SupportedLocale,
+  credits: number,
+  expiresAt: string | null,
+) {
+  const dateLabel = expiresAt
+    ? new Intl.DateTimeFormat(
+        locale === "pt-BR" ? "pt-BR" : locale === "es" ? "es-ES" : "en-US",
+        { dateStyle: "short" },
+      ).format(new Date(expiresAt))
+    : null;
+
+  if (locale === "pt-BR") {
+    return dateLabel
+      ? `${credits} créditos acumulados no upgrade. Vencem em ${dateLabel}.`
+      : `${credits} créditos acumulados no upgrade. Vencem no fim do ciclo atual.`;
+  }
+
+  if (locale === "es") {
+    return dateLabel
+      ? `${credits} créditos acumulados en el upgrade. Vencen el ${dateLabel}.`
+      : `${credits} créditos acumulados en el upgrade. Vencen al final del ciclo actual.`;
+  }
+
+  return dateLabel
+    ? `${credits} credits carried from the upgrade. They expire on ${dateLabel}.`
+    : `${credits} credits carried from the upgrade. They expire at the end of the current cycle.`;
 }
 
 function UsageCard({
