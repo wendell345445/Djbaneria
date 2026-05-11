@@ -9,32 +9,29 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { PremiumCapCutTransitions } from "../effects/PremiumCapCutTransitions";
+import {
+  PremiumCapCutTransitions,
+  type PremiumTransitionVariant,
+} from "../effects/PremiumCapCutTransitions";
 
-type MotionPreset =
+export type MotionPreset =
   | "NEON_PULSE"
   | "CLUB_FLASH"
   | "CINEMATIC_ZOOM"
   | "FESTIVAL_LIGHTS"
-  | "DARK_TECHNO_GLITCH";
-
-type TransitionVariant =
-  | "AUTO"
-  | "ROTATE_ZOOM"
-  | "WHIP_ZOOM"
-  | "SPIN_BLUR"
-  | "FLASH_CUT"
-  | "GLITCH_ZOOM"
-  | "VIRAL_SHAKE";
-
-type BannerFormat = "POST_FEED" | "STORY" | "SQUARE" | "FLYER";
+  | "DARK_TECHNO_GLITCH"
+  | "FESTIVAL_DROP_PRO"
+  | "VIRAL_REELS_CUT"
+  | "DARK_TECHNO_RGB"
+  | "LUXURY_GOLD_CLUB"
+  | "CYBER_RAVE";
 
 type MotionFlyerProps = {
   imageUrl: string;
   audioUrl?: string;
   preset: MotionPreset;
-  transitionVariant?: TransitionVariant;
-  format?: BannerFormat;
+  transitionVariant?: PremiumTransitionVariant;
+  format?: "POST_FEED" | "STORY" | "SQUARE" | "FLYER";
   durationSeconds: number;
 };
 
@@ -46,22 +43,27 @@ type AudioEnergy = {
   peak: number;
 };
 
-const PRESET_LOOK: Record<
-  MotionPreset,
-  {
-    primary: string;
-    secondary: string;
-    accent: string;
-    bg: string;
-    mood: "neon" | "club" | "cinematic" | "festival" | "glitch";
-  }
-> = {
+type Look = {
+  primary: string;
+  secondary: string;
+  accent: string;
+  bg: string;
+  mood: "neon" | "club" | "cinematic" | "festival" | "glitch" | "gold" | "viral" | "cyber";
+  transition: PremiumTransitionVariant;
+  cutDensity: number;
+  grain: number;
+};
+
+const PRESET_LOOK: Record<MotionPreset, Look> = {
   NEON_PULSE: {
     primary: "34, 211, 238",
     secondary: "168, 85, 247",
     accent: "236, 72, 153",
     bg: "#05040c",
     mood: "neon",
+    transition: "GLITCH_ZOOM",
+    cutDensity: 4,
+    grain: 0.16,
   },
   CLUB_FLASH: {
     primary: "255, 255, 255",
@@ -69,6 +71,9 @@ const PRESET_LOOK: Record<
     accent: "236, 72, 153",
     bg: "#03030a",
     mood: "club",
+    transition: "FLASH_CUT",
+    cutDensity: 5,
+    grain: 0.14,
   },
   CINEMATIC_ZOOM: {
     primary: "245, 158, 11",
@@ -76,6 +81,9 @@ const PRESET_LOOK: Record<
     accent: "255, 255, 255",
     bg: "#07040d",
     mood: "cinematic",
+    transition: "WHIP_ZOOM",
+    cutDensity: 3,
+    grain: 0.12,
   },
   FESTIVAL_LIGHTS: {
     primary: "45, 212, 191",
@@ -83,6 +91,9 @@ const PRESET_LOOK: Record<
     accent: "244, 114, 182",
     bg: "#040716",
     mood: "festival",
+    transition: "ROTATE_ZOOM",
+    cutDensity: 5,
+    grain: 0.13,
   },
   DARK_TECHNO_GLITCH: {
     primary: "34, 211, 238",
@@ -90,6 +101,59 @@ const PRESET_LOOK: Record<
     accent: "255, 255, 255",
     bg: "#020202",
     mood: "glitch",
+    transition: "GLITCH_ZOOM",
+    cutDensity: 5,
+    grain: 0.18,
+  },
+  FESTIVAL_DROP_PRO: {
+    primary: "56, 189, 248",
+    secondary: "217, 70, 239",
+    accent: "250, 204, 21",
+    bg: "#020616",
+    mood: "festival",
+    transition: "ROTATE_ZOOM",
+    cutDensity: 6,
+    grain: 0.13,
+  },
+  VIRAL_REELS_CUT: {
+    primary: "125, 211, 252",
+    secondary: "248, 113, 113",
+    accent: "255, 255, 255",
+    bg: "#020611",
+    mood: "viral",
+    transition: "VIRAL_SHAKE",
+    cutDensity: 7,
+    grain: 0.15,
+  },
+  DARK_TECHNO_RGB: {
+    primary: "34, 211, 238",
+    secondary: "239, 68, 68",
+    accent: "168, 85, 247",
+    bg: "#010101",
+    mood: "glitch",
+    transition: "GLITCH_ZOOM",
+    cutDensity: 6,
+    grain: 0.2,
+  },
+  LUXURY_GOLD_CLUB: {
+    primary: "250, 204, 21",
+    secondary: "245, 158, 11",
+    accent: "255, 255, 255",
+    bg: "#080505",
+    mood: "gold",
+    transition: "SPIN_BLUR",
+    cutDensity: 3,
+    grain: 0.12,
+  },
+  CYBER_RAVE: {
+    primary: "34, 211, 238",
+    secondary: "217, 70, 239",
+    accent: "96, 165, 250",
+    bg: "#04010a",
+    mood: "cyber",
+    transition: "AUTO",
+    cutDensity: 6,
+    grain: 0.17,
   },
 };
 
@@ -108,13 +172,7 @@ function useAudioEnergy(audioUrl: string): AudioEnergy {
   const audioData = useAudioData(audioUrl);
 
   if (!audioData) {
-    return {
-      bass: 0,
-      mid: 0,
-      high: 0,
-      energy: 0,
-      peak: 0,
-    };
+    return { bass: 0, mid: 0, high: 0, energy: 0, peak: 0 };
   }
 
   const spectrum = visualizeAudio({
@@ -125,79 +183,97 @@ function useAudioEnergy(audioUrl: string): AudioEnergy {
     optimizeFor: "speed",
   });
 
-  const bass = clamp(avg(spectrum.slice(0, 14)) * 3.8, 0, 1);
-  const mid = clamp(avg(spectrum.slice(14, 56)) * 2.9, 0, 1);
-  const high = clamp(avg(spectrum.slice(56, 128)) * 3.1, 0, 1);
+  const bass = clamp(avg(spectrum.slice(0, 16)) * 3.9, 0, 1);
+  const mid = clamp(avg(spectrum.slice(16, 64)) * 3.1, 0, 1);
+  const high = clamp(avg(spectrum.slice(64, 128)) * 3.3, 0, 1);
   const energy = clamp(bass * 0.5 + mid * 0.3 + high * 0.2, 0, 1);
-  const peak = bass > 0.72 || energy > 0.68 ? 1 : 0;
+  const peak = bass > 0.74 || energy > 0.7 ? 1 : 0;
 
-  return {
-    bass,
-    mid,
-    high,
-    energy,
-    peak,
-  };
+  return { bass, mid, high, energy, peak };
 }
 
-function MotionFlyerWithAudio({
-  imageUrl,
-  audioUrl,
-  preset,
-  durationSeconds,
-}: MotionFlyerProps & { audioUrl: string }) {
-  const audio = useAudioEnergy(audioUrl);
-
-  return (
-    <MotionFlyerScene
-      imageUrl={imageUrl}
-      audioUrl={audioUrl}
-      preset={preset}
-      durationSeconds={durationSeconds}
-      audio={audio}
-    />
-  );
+function sceneProgress(value: number) {
+  if (value < 0.18) return 0;
+  if (value < 0.36) return 1;
+  if (value < 0.64) return 2;
+  if (value < 0.86) return 3;
+  return 4;
 }
 
-function AmbientParticles({
-  audio,
-  preset,
-}: {
-  audio: AudioEnergy;
-  preset: MotionPreset;
-}) {
+function buildCutFrames(durationInFrames: number, density: number) {
+  const cuts = [0];
+  const step = Math.max(18, Math.floor(durationInFrames / density));
+
+  for (let frame = step; frame < durationInFrames - 24; frame += step) {
+    cuts.push(frame);
+  }
+
+  return Array.from(new Set(cuts));
+}
+
+function MotionFlyerWithAudio(props: MotionFlyerProps & { audioUrl: string }) {
+  const audio = useAudioEnergy(props.audioUrl);
+  return <MotionFlyerScene {...props} audio={audio} />;
+}
+
+function BackgroundPlate({ imageUrl, look, audio }: { imageUrl: string; look: Look; audio: AudioEnergy }) {
   const frame = useCurrentFrame();
-  const look = PRESET_LOOK[preset];
-
-  const particleCount =
-    look.mood === "festival" ? 64 : look.mood === "cinematic" ? 28 : 44;
+  const breath = 1.06 + Math.sin(frame / 30) * 0.015 + audio.energy * 0.03;
+  const hue = look.mood === "gold" ? 8 : look.mood === "cyber" ? 14 : 0;
 
   return (
     <>
-      {Array.from({ length: particleCount }).map((_, index) => {
-        const seed = index * 19.31;
-        const x = random(seed) * 1024;
-        const startY = random(seed + 8) * 1536;
-        const drift = random(seed + 13) * 22 - 11;
-        const speed = 0.32 + random(seed + 21) * 1.55 + audio.energy * 1;
-        const size = 1.2 + random(seed + 34) * 4.3;
-        const y = (startY - frame * speed) % 1536;
-        const opacity = 0.06 + audio.energy * 0.28 + random(seed + 55) * 0.1;
+      <Img
+        src={imageUrl}
+        style={{
+          position: "absolute",
+          inset: -90,
+          width: "calc(100% + 180px)",
+          height: "calc(100% + 180px)",
+          objectFit: "cover",
+          transform: `scale(${breath}) translateY(${Math.sin(frame / 55) * 8}px)`,
+          filter: `blur(${30 + audio.energy * 16}px) saturate(1.25) brightness(0.52) hue-rotate(${hue}deg)`,
+          opacity: 0.92,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `radial-gradient(circle at 50% 35%, rgba(${look.primary}, ${0.18 + audio.mid * 0.08}), transparent 58%),
+          radial-gradient(circle at 78% 18%, rgba(${look.secondary}, 0.18), transparent 34%),
+          linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.28) 38%, rgba(0,0,0,0.40) 100%)`,
+        }}
+      />
+    </>
+  );
+}
 
+function PremiumLightLeaks({ look, audio }: { look: Look; audio: AudioEnergy }) {
+  const frame = useCurrentFrame();
+  return (
+    <>
+      {Array.from({ length: 3 }).map((_, index) => {
+        const opacity = 0.08 + audio.energy * 0.18;
+        const rotate = index === 0 ? -18 : index === 1 ? 12 : 28;
+        const left = index === 0 ? -180 : index === 1 ? 240 : 620;
+        const top = index === 0 ? -120 : index === 1 ? 480 : 920;
+        const pulse = 1 + Math.sin(frame / (18 + index * 7)) * 0.03;
+        const color = index % 2 === 0 ? look.primary : look.accent;
         return (
           <div
             key={index}
             style={{
               position: "absolute",
-              left: x + Math.sin(frame / 35 + seed) * drift,
-              top: y < 0 ? y + 1536 : y,
-              width: size,
-              height: size,
+              left,
+              top,
+              width: 420,
+              height: 980,
               borderRadius: 999,
-              background: `rgba(${look.primary}, ${0.55 + audio.high * 0.25})`,
-              boxShadow: `0 0 ${7 + audio.energy * 18}px rgba(${look.primary}, 0.78)`,
+              background: `linear-gradient(180deg, rgba(${color}, 0.42), rgba(${look.secondary}, 0.10), transparent)`,
+              filter: `blur(${65 + index * 12}px)`,
               opacity,
-              transform: `scale(${0.72 + audio.energy * 1.05})`,
+              transform: `rotate(${rotate}deg) scale(${pulse})`,
               mixBlendMode: "screen",
             }}
           />
@@ -207,244 +283,34 @@ function AmbientParticles({
   );
 }
 
-function EdgeLightSystem({
-  audio,
-  preset,
-}: {
-  audio: AudioEnergy;
-  preset: MotionPreset;
-}) {
+function StageLasersPro({ look, audio }: { look: Look; audio: AudioEnergy }) {
   const frame = useCurrentFrame();
-  const look = PRESET_LOOK[preset];
-
-  const edgeOpacity = 0.2 + audio.energy * 0.46;
-  const blur = 32 + audio.bass * 70;
-
+  const count = look.mood === "festival" || look.mood === "viral" || look.mood === "cyber" ? 7 : 4;
   return (
     <>
-      <div
-        style={{
-          position: "absolute",
-          top: -80,
-          left: 0,
-          right: 0,
-          height: 210,
-          background: `linear-gradient(to bottom, rgba(${look.primary}, 0.78), rgba(${look.secondary}, 0.34), transparent)`,
-          filter: `blur(${blur}px)`,
-          opacity: edgeOpacity,
-          mixBlendMode: "screen",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          bottom: -100,
-          left: 0,
-          right: 0,
-          height: 230,
-          background: `linear-gradient(to top, rgba(${look.accent}, 0.62), rgba(${look.secondary}, 0.22), transparent)`,
-          filter: `blur(${blur + 14}px)`,
-          opacity: 0.16 + audio.bass * 0.36,
-          mixBlendMode: "screen",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: -85,
-          width: 200,
-          background: `linear-gradient(to right, rgba(${look.secondary}, 0.68), transparent)`,
-          filter: `blur(${50 + audio.mid * 64}px)`,
-          opacity: 0.18 + audio.mid * 0.38,
-          mixBlendMode: "screen",
-        }}
-      />
-
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          right: -85,
-          width: 200,
-          background: `linear-gradient(to left, rgba(${look.primary}, 0.7), transparent)`,
-          filter: `blur(${50 + audio.high * 60}px)`,
-          opacity: 0.18 + audio.high * 0.38,
-          mixBlendMode: "screen",
-        }}
-      />
-
-      <AbsoluteFill
-        style={{
-          background: `linear-gradient(112deg, transparent 0%, rgba(255,255,255,0) 37%, rgba(255,255,255,${
-            0.1 + audio.high * 0.13
-          }) 48%, rgba(${look.primary}, ${
-            0.05 + audio.mid * 0.1
-          }) 55%, transparent 68%)`,
-          opacity: 0.32,
-          transform: `translateX(${interpolate(
-            frame % 132,
-            [0, 132],
-            [-1500, 1500]
-          )}px) rotate(7deg)`,
-          mixBlendMode: "screen",
-        }}
-      />
-    </>
-  );
-}
-
-function LaserBeams({
-  audio,
-  preset,
-}: {
-  audio: AudioEnergy;
-  preset: MotionPreset;
-}) {
-  const frame = useCurrentFrame();
-  const look = PRESET_LOOK[preset];
-
-  if (look.mood === "cinematic") {
-    return null;
-  }
-
-  return (
-    <>
-      {Array.from({ length: look.mood === "festival" ? 8 : 5 }).map(
-        (_, index) => {
-          const seed = index * 41;
-          const baseRotation = -32 + random(seed) * 64;
-          const movement = Math.sin(frame / (30 + index * 3)) * 7;
-          const top = 160 + random(seed + 3) * 820;
-
-          return (
-            <div
-              key={index}
-              style={{
-                position: "absolute",
-                left: -220,
-                top,
-                width: 1500,
-                height: 1.5 + random(seed + 5) * 2.8,
-                background: `linear-gradient(to right, transparent, rgba(${
-                  index % 2 === 0 ? look.primary : look.secondary
-                }, ${0.1 + audio.energy * 0.2}), transparent)`,
-                filter: `blur(${1 + audio.high * 3}px)`,
-                opacity: 0.05 + audio.energy * 0.25,
-                transform: `rotate(${baseRotation + movement}deg) translateX(${
-                  Math.sin(frame / 48 + seed) * 80
-                }px)`,
-                transformOrigin: "center",
-                mixBlendMode: "screen",
-              }}
-            />
-          );
-        }
-      )}
-    </>
-  );
-}
-
-function CinematicOverlays({
-  audio,
-  preset,
-}: {
-  audio: AudioEnergy;
-  preset: MotionPreset;
-}) {
-  const frame = useCurrentFrame();
-  const look = PRESET_LOOK[preset];
-
-  const flashOpacity =
-    audio.peak > 0 && frame % 14 < 2 ? 0.06 + audio.bass * 0.1 : 0;
-
-  const scanlineOpacity =
-    look.mood === "glitch" ? 0.06 + audio.energy * 0.06 : 0.012;
-
-  return (
-    <>
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(circle at center, transparent 58%, rgba(0,0,0,0.16) 82%, rgba(0,0,0,0.34) 100%)",
-          pointerEvents: "none",
-        }}
-      />
-
-      <AbsoluteFill
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.1), transparent 18%, transparent 76%, rgba(0,0,0,0.16))",
-          pointerEvents: "none",
-        }}
-      />
-
-      <AbsoluteFill
-        style={{
-          background: `repeating-linear-gradient(
-            to bottom,
-            rgba(255,255,255,${scanlineOpacity}) 0px,
-            rgba(255,255,255,${scanlineOpacity}) 1px,
-            transparent 1px,
-            transparent 5px
-          )`,
-          opacity: look.mood === "glitch" ? 0.28 : 0.08,
-          mixBlendMode: "overlay",
-          pointerEvents: "none",
-        }}
-      />
-
-      <AbsoluteFill
-        style={{
-          background: `radial-gradient(circle at ${
-            50 + Math.sin(frame / 46) * 24
-          }% ${34 + Math.cos(frame / 61) * 18}%, rgba(${look.primary}, ${
-            0.05 + audio.energy * 0.08
-          }), transparent 38%)`,
-          mixBlendMode: "screen",
-          pointerEvents: "none",
-        }}
-      />
-
-      <AbsoluteFill
-        style={{
-          background: "white",
-          opacity: flashOpacity,
-          mixBlendMode: "screen",
-          pointerEvents: "none",
-        }}
-      />
-    </>
-  );
-}
-
-function FilmGrain({ audio }: { audio: AudioEnergy }) {
-  const frame = useCurrentFrame();
-
-  return (
-    <>
-      {Array.from({ length: 70 }).map((_, index) => {
-        const seed = index * 9.7 + frame * 0.13;
-        const x = random(seed) * 1024;
-        const y = random(seed + 4) * 1536;
-        const opacity = 0.015 + audio.energy * 0.018;
-
+      {Array.from({ length: count }).map((_, index) => {
+        const seed = index * 10.31;
+        const swing = Math.sin(frame / (15 + index * 2) + seed) * (18 + audio.mid * 22);
+        const left = -120 + index * 170 + swing;
+        const top = 40 + (index % 3) * 180;
+        const height = 980 + random(seed + 1) * 280;
+        const width = 4 + random(seed + 2) * 5 + audio.energy * 4;
+        const color = index % 2 === 0 ? look.primary : look.secondary;
         return (
           <div
             key={index}
             style={{
               position: "absolute",
-              left: x,
-              top: y,
-              width: 1.2,
-              height: 1.2,
-              background: "rgba(255,255,255,0.7)",
-              opacity,
-              pointerEvents: "none",
+              left,
+              top,
+              width,
+              height,
+              borderRadius: 999,
+              background: `linear-gradient(180deg, rgba(${color}, 0), rgba(${color}, 0.90), rgba(${look.accent}, 0))`,
+              transform: `rotate(${-40 + index * 13}deg)`,
+              filter: `blur(${4 + audio.energy * 4}px)`,
+              opacity: 0.25 + audio.bass * 0.5,
+              mixBlendMode: "screen",
             }}
           />
         );
@@ -453,229 +319,245 @@ function FilmGrain({ audio }: { audio: AudioEnergy }) {
   );
 }
 
-function FlyerFallback() {
+function AmbientParticles({ look, audio }: { look: Look; audio: AudioEnergy }) {
+  const frame = useCurrentFrame();
+  const count = look.mood === "festival" || look.mood === "viral" ? 72 : look.mood === "gold" ? 34 : 48;
   return (
-    <AbsoluteFill
+    <>
+      {Array.from({ length: count }).map((_, index) => {
+        const seed = index * 17.7;
+        const x = random(seed) * 1024;
+        const startY = random(seed + 1) * 1536;
+        const speed = 0.35 + random(seed + 2) * 1.6 + audio.energy * 0.8;
+        const size = look.mood === "gold" ? 2 + random(seed + 4) * 6 : 1 + random(seed + 4) * 4;
+        const y = (startY - frame * speed) % 1536;
+        const color = look.mood === "gold" ? look.primary : index % 3 === 0 ? look.primary : look.secondary;
+        return (
+          <div
+            key={index}
+            style={{
+              position: "absolute",
+              left: x + Math.sin(frame / 40 + seed) * 10,
+              top: y < 0 ? y + 1536 : y,
+              width: size,
+              height: size,
+              borderRadius: 999,
+              background: `rgba(${color}, ${look.mood === "gold" ? 0.85 : 0.70})`,
+              boxShadow: `0 0 ${8 + audio.high * 22}px rgba(${color}, 0.9)`,
+              opacity: 0.12 + audio.energy * 0.28,
+              mixBlendMode: "screen",
+            }}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+function BeatImpactPro({ look, audio }: { look: Look; audio: AudioEnergy }) {
+  const frame = useCurrentFrame();
+  const impact = spring({
+    fps: 30,
+    frame,
+    config: { damping: 12, stiffness: 180 },
+  });
+  const pulse = audio.peak ? 0.9 : audio.bass * 0.55;
+  const opacity = pulse * 0.22;
+
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `radial-gradient(circle at 50% 50%, rgba(255,255,255, ${opacity}), transparent 40%)`,
+          opacity: 0.35 + impact * 0.08,
+          mixBlendMode: "screen",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          border: `${2 + pulse * 10}px solid rgba(${look.primary}, ${0.08 + pulse * 0.20})`,
+          opacity: 0.25 + pulse * 0.5,
+          boxShadow: `inset 0 0 ${45 + pulse * 70}px rgba(${look.secondary}, ${0.08 + pulse * 0.18})`,
+        }}
+      />
+    </>
+  );
+}
+
+function CinematicFinish({ look, audio }: { look: Look; audio: AudioEnergy }) {
+  const frame = useCurrentFrame();
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `radial-gradient(circle at 50% 45%, transparent 48%, rgba(0,0,0,0.28) 78%, rgba(0,0,0,0.5) 100%)`,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: look.grain,
+          backgroundImage: `radial-gradient(rgba(255,255,255,0.35) 0.7px, transparent 0.8px)`,
+          backgroundSize: `${2 + (frame % 2)}px ${2 + ((frame + 1) % 2)}px`,
+          mixBlendMode: "overlay",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `linear-gradient(105deg, transparent 34%, rgba(${look.accent}, ${0.04 + audio.high * 0.08}) 50%, transparent 66%)`,
+          transform: `translateX(${Math.sin(frame / 36) * 18}px)`,
+          mixBlendMode: "screen",
+        }}
+      />
+    </>
+  );
+}
+
+function MainFlyer({ imageUrl, look, audio, durationSeconds }: { imageUrl: string; look: Look; audio: AudioEnergy; durationSeconds: number }) {
+  const frame = useCurrentFrame();
+  const { fps, durationInFrames } = useVideoConfig();
+  const progress = frame / durationInFrames;
+  const scene = sceneProgress(progress);
+
+  const intro = spring({ fps, frame, config: { damping: 18, stiffness: 110 } });
+  const punch = audio.peak ? 1 : audio.bass * 0.45;
+
+  const sceneScale = scene === 0 ? 1.14 : scene === 1 ? 1.06 : scene === 2 ? 1.02 : scene === 3 ? 1.08 : 1.03;
+  const moveX =
+    (scene === 0 ? interpolate(progress, [0, 0.18], [28, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0) +
+    Math.sin(frame / 48) * (6 + audio.mid * 8);
+  const moveY =
+    (scene === 4 ? interpolate(progress, [0.86, 1], [0, -24], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0) +
+    Math.cos(frame / 55) * (6 + audio.energy * 10);
+  const rotate = Math.sin(frame / 62) * (0.6 + audio.energy * 1.4) + (scene === 3 ? 0.7 : 0);
+  const scale = sceneScale + intro * 0.02 + punch * 0.05;
+  const shadowOpacity = 0.42 + audio.energy * 0.22;
+  const bottomSafeLift = durationSeconds >= 12 ? -10 : 0;
+
+  return (
+    <div
       style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "white",
-        fontFamily: "Arial, sans-serif",
-        textAlign: "center",
-        padding: 80,
-        background:
-          "radial-gradient(circle at top, #1e1b4b 0%, #080711 48%, #020202 100%)",
       }}
     >
       <div
         style={{
-          fontSize: 78,
-          fontWeight: 900,
-          lineHeight: 0.95,
-          letterSpacing: -3,
-          textTransform: "uppercase",
+          position: "relative",
+          width: "84%",
+          maxWidth: 820,
+          aspectRatio: "1024 / 1536",
+          transform: `translate3d(${moveX}px, ${moveY + bottomSafeLift}px, 0) rotate(${rotate}deg) scale(${scale})`,
+          filter: `drop-shadow(0 34px 70px rgba(0,0,0,0.45)) drop-shadow(0 0 30px rgba(${look.primary}, ${shadowOpacity}))`,
         }}
       >
-        Motion Flyer
+        <div
+          style={{
+            position: "absolute",
+            inset: -20,
+            borderRadius: 38,
+            background: `linear-gradient(135deg, rgba(${look.primary}, 0.36), rgba(${look.secondary}, 0.14), rgba(${look.accent}, 0.24))`,
+            filter: `blur(${18 + audio.energy * 16}px)`,
+            opacity: 0.8,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            overflow: "hidden",
+            borderRadius: 36,
+            border: `1.5px solid rgba(255,255,255,0.18)`,
+            background: "rgba(255,255,255,0.04)",
+          }}
+        >
+          <Img
+            src={imageUrl}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: `linear-gradient(180deg, rgba(255,255,255,0.08), transparent 24%, transparent 68%, rgba(0,0,0,0.1) 100%)`,
+            }}
+          />
+        </div>
       </div>
-
-      <div
-        style={{
-          marginTop: 28,
-          fontSize: 30,
-          opacity: 0.72,
-          lineHeight: 1.35,
-        }}
-      >
-        Envie imageUrl e audioUrl para renderizar com um flyer real.
-      </div>
-    </AbsoluteFill>
+    </div>
   );
 }
 
 function MotionFlyerScene({
   imageUrl,
-  audioUrl = "",
+  audioUrl,
   preset,
-  transitionVariant = "AUTO",
+  transitionVariant,
+  durationSeconds,
   audio,
 }: MotionFlyerProps & { audio: AudioEnergy }) {
-  const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
-  const look = PRESET_LOOK[preset];
-
-  const intro = spring({
-    frame,
-    fps,
-    config: {
-      damping: 120,
-      stiffness: 80,
-      mass: 0.9,
-    },
-  });
-
-  const slowZoom = interpolate(frame, [0, durationInFrames], [1, 1.055], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  const introScale = interpolate(intro, [0, 1], [1.1, 1]);
-
-  const beatScale = 1 + audio.bass * 0.022;
-  const microFloatX = Math.sin(frame / 58) * 3.5;
-  const microFloatY = Math.cos(frame / 72) * 3;
-
-  const strongHit = audio.peak > 0 && frame % 18 < 3;
-
-  const cameraShake =
-    strongHit && preset !== "CINEMATIC_ZOOM"
-      ? Math.sin(frame * 2.8) * (2.5 + audio.bass * 5)
-      : 0;
-
-  const glitch =
-    preset === "DARK_TECHNO_GLITCH" && (frame % 43 < 3 || audio.bass > 0.84)
-      ? Math.sin(frame * 4.2) * (6 + audio.energy * 12)
-      : 0;
-
-  const fadeIn = interpolate(frame, [0, 18], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-
-  const fadeOut = interpolate(
-    frame,
-    [durationInFrames - 24, durationInFrames],
-    [1, 0],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    }
-  );
-
-  const opacity = fadeIn * fadeOut;
-
-  const mainTransform = `
-    translateX(${microFloatX + cameraShake + glitch}px)
-    translateY(${microFloatY}px)
-    scale(${introScale * slowZoom * beatScale})
-  `;
-
-  const imageFilter =
-    preset === "DARK_TECHNO_GLITCH"
-      ? `contrast(${1.06 + audio.energy * 0.12}) saturate(${
-          1.1 + audio.energy * 0.3
-        }) brightness(${1.04 + audio.bass * 0.04}) hue-rotate(${glitch * 1.2}deg)`
-      : `contrast(${1.02 + audio.energy * 0.06}) saturate(${
-          1.08 + audio.energy * 0.2
-        }) brightness(${1.05 + audio.bass * 0.05})`;
+  const { durationInFrames } = useVideoConfig();
+  const look = PRESET_LOOK[preset] ?? PRESET_LOOK.NEON_PULSE;
+  const cutFrames = buildCutFrames(durationInFrames, look.cutDensity);
+  const activeTransition = transitionVariant || look.transition;
 
   return (
-    <AbsoluteFill
-      style={{
-        background: `radial-gradient(circle at 50% 18%, rgba(${look.secondary}, 0.18), transparent 34%), ${look.bg}`,
-        overflow: "hidden",
-      }}
-    >
-      {audioUrl ? <Html5Audio src={audioUrl} volume={1} /> : null}
+    <AbsoluteFill style={{ backgroundColor: look.bg, overflow: "hidden" }}>
+      {audioUrl ? <Html5Audio src={audioUrl} /> : null}
 
-      {imageUrl ? (
-        <>
-          <Img
-            src={imageUrl}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              transform: `scale(${1.18 + audio.energy * 0.06})`,
-              filter: `blur(${18 + audio.energy * 6}px) brightness(0.68) saturate(1.25)`,
-              opacity: 0.45,
-            }}
-          />
+      <BackgroundPlate imageUrl={imageUrl} look={look} audio={audio} />
+      <PremiumLightLeaks look={look} audio={audio} />
+      <StageLasersPro look={look} audio={audio} />
+      <AmbientParticles look={look} audio={audio} />
+      <MainFlyer imageUrl={imageUrl} look={look} audio={audio} durationSeconds={durationSeconds} />
+      <BeatImpactPro look={look} audio={audio} />
 
-          <Img
-            src={imageUrl}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              opacity: 0.1 + audio.energy * 0.06,
-              transform: `translateX(${glitch * -1.2}px) scale(${
-                introScale * slowZoom * 1.012
-              })`,
-              filter: "blur(1.2px) saturate(1.45) hue-rotate(12deg)",
-              mixBlendMode: "screen",
-            }}
-          />
+      <PremiumCapCutTransitions
+        imageUrl={imageUrl}
+        cutFrames={cutFrames}
+        durationInFrames={16}
+        variant={activeTransition}
+        primaryRgb={look.primary}
+        secondaryRgb={look.secondary}
+        accentRgb={look.accent}
+        bass={audio.bass}
+        energy={audio.energy}
+        peak={audio.peak}
+        intensity={1.15}
+      />
 
-          <Img
-            src={imageUrl}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              opacity,
-              transform: mainTransform,
-              filter: imageFilter,
-              willChange: "transform, filter",
-            }}
-          />
-        </>
-      ) : (
-        <FlyerFallback />
-      )}
-
-      {imageUrl ? (
-        <PremiumCapCutTransitions
-          imageUrl={imageUrl}
-          cutFrames={[
-            0,
-            Math.round(durationInFrames * 0.24),
-            Math.round(durationInFrames * 0.48),
-            Math.round(durationInFrames * 0.72),
-            Math.max(durationInFrames - 30, 0),
-          ]}
-          durationInFrames={16}
-          variant={transitionVariant}
-          primaryRgb={look.primary}
-          secondaryRgb={look.secondary}
-          accentRgb={look.accent}
-          bass={audio.bass}
-          energy={audio.energy}
-          peak={audio.peak}
-          intensity={preset === "FESTIVAL_LIGHTS" ? 1.18 : 0.95}
-        />
-      ) : null}
-
-      <LaserBeams audio={audio} preset={preset} />
-      <AmbientParticles audio={audio} preset={preset} />
-      <EdgeLightSystem audio={audio} preset={preset} />
-      <CinematicOverlays audio={audio} preset={preset} />
-      <FilmGrain audio={audio} />
+      <CinematicFinish look={look} audio={audio} />
     </AbsoluteFill>
   );
 }
 
 export function MotionFlyer(props: MotionFlyerProps) {
-  if (props.audioUrl) {
-    return <MotionFlyerWithAudio {...props} audioUrl={props.audioUrl} />;
+  if (!props.audioUrl) {
+    return (
+      <MotionFlyerScene
+        {...props}
+        audio={{ bass: 0, mid: 0, high: 0, energy: 0, peak: 0 }}
+      />
+    );
   }
 
-  return (
-    <MotionFlyerScene
-      {...props}
-      audio={{
-        bass: 0.25,
-        mid: 0.18,
-        high: 0.16,
-        energy: 0.2,
-        peak: 0,
-      }}
-    />
-  );
+  return <MotionFlyerWithAudio {...props} audioUrl={props.audioUrl} />;
 }
+
+export default MotionFlyer;

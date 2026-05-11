@@ -9,7 +9,12 @@ type MotionPreset =
   | "CLUB_FLASH"
   | "CINEMATIC_ZOOM"
   | "FESTIVAL_LIGHTS"
-  | "DARK_TECHNO_GLITCH";
+  | "DARK_TECHNO_GLITCH"
+  | "FESTIVAL_DROP_PRO"
+  | "VIRAL_REELS_CUT"
+  | "DARK_TECHNO_RGB"
+  | "LUXURY_GOLD_CLUB"
+  | "CYBER_RAVE";
 
 type TransitionVariant =
   | "AUTO"
@@ -171,6 +176,11 @@ const copyByLocale = {
 } satisfies Record<SupportedLocale, Record<string, string>>;
 
 const motionPresets: { value: MotionPreset; label: string; hint: string }[] = [
+  { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Drops fortes, lasers premium e energia máxima de palco." },
+  { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Cortes rápidos, transições estilo reels e impacto viral." },
+  { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Glitch agressivo, RGB split e clima underground." },
+  { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Brilho dourado, acabamento elegante e vibe premium." },
+  { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Estética futurista, neon intenso e atmosfera cyber." },
   { value: "FESTIVAL_LIGHTS", label: "Festival Lights", hint: "Lasers, flashes e energia de palco." },
   { value: "NEON_PULSE", label: "Neon Pulse", hint: "Glow neon limpo e batida pulsante." },
   { value: "CLUB_FLASH", label: "Club Flash", hint: "Strobes, flash cuts e vibe balada." },

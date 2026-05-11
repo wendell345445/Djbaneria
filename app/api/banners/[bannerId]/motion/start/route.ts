@@ -1,4 +1,3 @@
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -38,6 +37,11 @@ const motionSchema = z.object({
     "CINEMATIC_ZOOM",
     "FESTIVAL_LIGHTS",
     "DARK_TECHNO_GLITCH",
+    "FESTIVAL_DROP_PRO",
+    "VIRAL_REELS_CUT",
+    "DARK_TECHNO_RGB",
+    "LUXURY_GOLD_CLUB",
+    "CYBER_RAVE",
   ]),
   transitionVariant: z.enum([
     "AUTO",
@@ -306,11 +310,6 @@ export async function POST(
         renderProgress: true,
       },
     });
-
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
-    revalidatePath("/dashboard/banners/new");
-    revalidatePath(`/dashboard/banners/${banner.id}`);
 
     return NextResponse.json({
       motionId: motion.id,
