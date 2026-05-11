@@ -18,6 +18,9 @@ type MotionPreset =
 
 type TransitionVariant =
   | "AUTO"
+  | "WHIP_ZOOM_PRO"
+  | "SPIN_ZOOM_PRO"
+  | "WARP_PUSH_PRO"
   | "ROTATE_ZOOM"
   | "WHIP_ZOOM"
   | "SPIN_BLUR"
@@ -189,7 +192,10 @@ const motionPresets: { value: MotionPreset; label: string; hint: string }[] = [
 ];
 
 const transitionVariants: { value: TransitionVariant; label: string }[] = [
-  { value: "AUTO", label: "Auto Mix" },
+  { value: "AUTO", label: "Auto Pro Mix" },
+  { value: "WHIP_ZOOM_PRO", label: "Whip Zoom Pro" },
+  { value: "SPIN_ZOOM_PRO", label: "Spin Zoom Pro" },
+  { value: "WARP_PUSH_PRO", label: "Warp Push Pro" },
   { value: "ROTATE_ZOOM", label: "Rotate Zoom" },
   { value: "WHIP_ZOOM", label: "Whip Zoom" },
   { value: "SPIN_BLUR", label: "Spin Blur" },

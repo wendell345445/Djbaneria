@@ -12,6 +12,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
 
 import { uploadBufferToR2 } from "../lib/storage";
+import sharp from "sharp";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -131,19 +132,64 @@ function createProgressReporter(motionId: string) {
   return { setProgress, flush };
 }
 
+
+async function getRemoteImageDimensions(imageUrl: string) {
+  const response = await fetch(imageUrl);
+
+  if (!response.ok) {
+    throw new Error(`Não foi possível baixar a imagem do flyer para medir dimensões. HTTP ${response.status}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const metadata = await sharp(buffer).metadata();
+
+  if (!metadata.width || !metadata.height) {
+    throw new Error("Não foi possível identificar largura/altura reais do flyer.");
+  }
+
+  return {
+    width: metadata.width,
+    height: metadata.height,
+  };
+}
+
 async function renderMotion(job: any) {
   mkdirSync(TMP_DIR, { recursive: true });
 
   const outputPath = join(TMP_DIR, `${job.id}.mp4`);
   const durationSeconds = Number(job.durationSeconds || 10);
+  const imageDimensions = await getRemoteImageDimensions(job.inputImageUrl);
+
+  log("detected flyer dimensions", {
+    motionId: job.id,
+    width: imageDimensions.width,
+    height: imageDimensions.height,
+    storedWidth: job.width,
+    storedHeight: job.height,
+    format: job.format,
+  });
+
   const props = {
     imageUrl: job.inputImageUrl,
     audioUrl: job.inputAudioUrl || "",
     preset: job.preset || "FESTIVAL_LIGHTS",
     transitionVariant: job.transitionVariant || "AUTO",
     format: job.format || "STORY",
+    width: imageDimensions.width,
+    height: imageDimensions.height,
     durationSeconds,
   };
+
+  await (prisma as any).bannerMotion
+    .update({
+      where: { id: job.id },
+      data: {
+        width: imageDimensions.width,
+        height: imageDimensions.height,
+      },
+    })
+    .catch(() => null);
 
   const progress = createProgressReporter(job.id);
   progress.setProgress(8, true);

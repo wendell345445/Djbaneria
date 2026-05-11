@@ -45,6 +45,9 @@ const motionSchema = z.object({
   ]),
   transitionVariant: z.enum([
     "AUTO",
+    "WHIP_ZOOM_PRO",
+    "SPIN_ZOOM_PRO",
+    "WARP_PUSH_PRO",
     "ROTATE_ZOOM",
     "WHIP_ZOOM",
     "SPIN_BLUR",
