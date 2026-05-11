@@ -431,75 +431,54 @@ function MainFlyer({ imageUrl, look, audio, durationSeconds }: { imageUrl: strin
   const intro = spring({ fps, frame, config: { damping: 18, stiffness: 110 } });
   const punch = audio.peak ? 1 : audio.bass * 0.45;
 
-  const sceneScale = scene === 0 ? 1.14 : scene === 1 ? 1.06 : scene === 2 ? 1.02 : scene === 3 ? 1.08 : 1.03;
+  const sceneScale = scene === 0 ? 1.16 : scene === 1 ? 1.08 : scene === 2 ? 1.04 : scene === 3 ? 1.10 : 1.06;
   const moveX =
-    (scene === 0 ? interpolate(progress, [0, 0.18], [28, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0) +
+    (scene === 0 ? interpolate(progress, [0, 0.18], [26, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0) +
     Math.sin(frame / 48) * (6 + audio.mid * 8);
   const moveY =
-    (scene === 4 ? interpolate(progress, [0.86, 1], [0, -24], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0) +
+    (scene === 4 ? interpolate(progress, [0.86, 1], [0, -18], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0) +
     Math.cos(frame / 55) * (6 + audio.energy * 10);
-  const rotate = Math.sin(frame / 62) * (0.6 + audio.energy * 1.4) + (scene === 3 ? 0.7 : 0);
+  const rotate = Math.sin(frame / 62) * (0.35 + audio.energy * 0.9) + (scene === 3 ? 0.35 : 0);
   const scale = sceneScale + intro * 0.02 + punch * 0.05;
-  const shadowOpacity = 0.42 + audio.energy * 0.22;
-  const bottomSafeLift = durationSeconds >= 12 ? -10 : 0;
+  const bottomSafeLift = durationSeconds >= 12 ? -6 : 0;
 
   return (
     <div
       style={{
         position: "absolute",
         inset: 0,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        overflow: "hidden",
       }}
     >
+      <Img
+        src={imageUrl}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: `translate3d(${moveX}px, ${moveY + bottomSafeLift}px, 0) rotate(${rotate}deg) scale(${scale})`,
+          filter: `saturate(1.06) contrast(1.03)`,
+        }}
+      />
       <div
         style={{
-          position: "relative",
-          width: "84%",
-          maxWidth: 820,
-          aspectRatio: "1024 / 1536",
-          transform: `translate3d(${moveX}px, ${moveY + bottomSafeLift}px, 0) rotate(${rotate}deg) scale(${scale})`,
-          filter: `drop-shadow(0 34px 70px rgba(0,0,0,0.45)) drop-shadow(0 0 30px rgba(${look.primary}, ${shadowOpacity}))`,
+          position: "absolute",
+          inset: 0,
+          background: `linear-gradient(180deg, rgba(255,255,255,0.06), transparent 24%, transparent 68%, rgba(0,0,0,0.08) 100%)`,
+          mixBlendMode: "screen",
+          opacity: 0.65,
         }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: -20,
-            borderRadius: 38,
-            background: `linear-gradient(135deg, rgba(${look.primary}, 0.36), rgba(${look.secondary}, 0.14), rgba(${look.accent}, 0.24))`,
-            filter: `blur(${18 + audio.energy * 16}px)`,
-            opacity: 0.8,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            overflow: "hidden",
-            borderRadius: 36,
-            border: `1.5px solid rgba(255,255,255,0.18)`,
-            background: "rgba(255,255,255,0.04)",
-          }}
-        >
-          <Img
-            src={imageUrl}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: `linear-gradient(180deg, rgba(255,255,255,0.08), transparent 24%, transparent 68%, rgba(0,0,0,0.1) 100%)`,
-            }}
-          />
-        </div>
-      </div>
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          boxShadow: `inset 0 0 ${28 + audio.energy * 40}px rgba(${look.primary}, 0.08)`,
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
 }
