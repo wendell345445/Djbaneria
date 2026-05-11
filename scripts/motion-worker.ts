@@ -25,6 +25,12 @@ const TMP_DIR = resolve(ROOT_DIR, "tmp", "motion-renders");
 const REMOTION_ENTRYPOINT = resolve(ROOT_DIR, "remotion", "index.ts");
 const COMPOSITION_ID = "MotionFlyer";
 
+// Performance tuning.
+// With your upgraded 16GB VPS, start with 3.
+// If the VPS has 8 vCPU and remains stable, test 4.
+// If it becomes unstable, set MOTION_RENDER_CONCURRENCY=2 in PM2/env.
+const RENDER_CONCURRENCY = Number(process.env.MOTION_RENDER_CONCURRENCY || 3);
+
 const isRunOnce = process.argv.includes("--once");
 
 function log(message: string, data?: unknown) {
@@ -194,7 +200,10 @@ async function renderMotion(job: any) {
   const progress = createProgressReporter(job.id);
   progress.setProgress(8, true);
 
-  log("bundling remotion project", { motionId: job.id });
+  log("bundling remotion project", {
+    motionId: job.id,
+    renderConcurrency: RENDER_CONCURRENCY,
+  });
   const serveUrl = await bundle({
     entryPoint: REMOTION_ENTRYPOINT,
     webpackOverride: (config) => config,
@@ -215,6 +224,7 @@ async function renderMotion(job: any) {
     serveUrl,
     composition,
     codec: "h264",
+    concurrency: RENDER_CONCURRENCY,
     outputLocation: outputPath,
     inputProps: props,
     overwrite: true,
