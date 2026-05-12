@@ -20,77 +20,205 @@ import { landingBannerExamples } from "@/lib/landing-banner-examples";
 const LandingBannerCarousel = dynamic(
   () =>
     import("@/components/landing-banner-carousel").then(
-      (mod) => mod.LandingBannerCarousel
+      (mod) => mod.LandingBannerCarousel,
     ),
-  { loading: () => <LandingCarouselLoading /> }
+  { loading: () => <LandingCarouselLoading /> },
 );
 
 const advantages = [
-  { icon: Zap,        title: "Animated flyers in minutes",    description: "Turn any static flyer into a VFX-enhanced MP4 video — with transitions, light effects, and motion — ready to post on Reels, TikTok, and Stories." },
-  { icon: Sparkles,   title: "AI flyers built for the scene", description: "Generate premium event flyers for club nights, festivals, lineups, and releases — without touching design software." },
-  { icon: Camera,     title: "DJ photo upgrade",              description: "Upload a casual or low-quality DJ photo and get back a sharper, cleaner, more professional image for profiles, ads, and press kits." },
-  { icon: Layers3,    title: "Test multiple creative angles", description: "Create several versions of your flyer or animated video and pick the one that hits hardest — no extra cost per revision." },
-  { icon: Gauge,      title: "Zero design experience needed", description: "A guided workflow takes you from event details to finished visual in minutes — flyer, animation, or enhanced photo." },
-  { icon: ShieldCheck,title: "Your workspace, always ready",  description: "Secure account, email verification, and a dashboard where all your visuals are saved and ready to export anytime." },
+  {
+    icon: Zap,
+    title: "Animated flyers in minutes",
+    description:
+      "Turn any static flyer into a VFX-enhanced MP4 video — with transitions, light effects, and motion — ready to post on Reels, TikTok, and Stories.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI flyers built for the scene",
+    description:
+      "Generate premium event flyers for club nights, festivals, lineups, and releases — without touching design software.",
+  },
+  {
+    icon: Camera,
+    title: "DJ photo upgrade",
+    description:
+      "Upload a casual or low-quality DJ photo and get back a sharper, cleaner, more professional image for profiles, ads, and press kits.",
+  },
+  {
+    icon: Layers3,
+    title: "Test multiple creative angles",
+    description:
+      "Create several versions of your flyer or animated video and pick the one that hits hardest — no extra cost per revision.",
+  },
+  {
+    icon: Gauge,
+    title: "Zero design experience needed",
+    description:
+      "A guided workflow takes you from event details to finished visual in minutes — flyer, animation, or enhanced photo.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Your workspace, always ready",
+    description:
+      "Secure account, email verification, and a dashboard where all your visuals are saved and ready to export anytime.",
+  },
 ];
 
 const faqs = [
-  { question: "Do I need design experience?",              answer: "No. DJ Visuals AI is built for DJs, producers, and event promoters who want professional visuals without learning design software." },
-  { question: "What exactly is an animated flyer?",        answer: "You generate a static flyer on our platform, then use the animation engine to add VFX — light leaks, particle effects, transitions, and motion — and export it as an MP4 video you can post directly on Reels, TikTok, or Stories." },
-  { question: "What formats do I get?",                    answer: "Static flyers are delivered as high-resolution images. Animated flyers are exported as MP4 video files ready for social media. Enhanced DJ photos are delivered as high-resolution images." },
-  { question: "Can I use my own photo in a flyer?",        answer: "Yes. You can upload your own image as a reference when generating a flyer or animation, so the final result reflects your identity and brand." },
-  { question: "How does the DJ photo enhancement work?",   answer: "You upload a casual or lower-quality photo and the AI cleans it up — improving sharpness, lighting, and overall quality — producing a more professional-looking image for your profiles, ads, and press kits." },
-  { question: "What happens after I sign up?",             answer: "After checkout, you receive a secure email link to create your password. Then you access the dashboard and can start generating right away." },
+  {
+    question: "Do I need design experience?",
+    answer:
+      "No. DJ Visuals AI is built for DJs, producers, and event promoters who want professional visuals without learning design software.",
+  },
+  {
+    question: "What exactly is an animated flyer?",
+    answer:
+      "You generate a static flyer on our platform, then use the animation engine to add VFX — light leaks, particle effects, transitions, and motion — and export it as an MP4 video you can post directly on Reels, TikTok, or Stories.",
+  },
+  {
+    question: "What formats do I get?",
+    answer:
+      "Static flyers are delivered as high-resolution images. Animated flyers are exported as MP4 video files ready for social media. Enhanced DJ photos are delivered as high-resolution images.",
+  },
+  {
+    question: "Can I use my own photo in a flyer?",
+    answer:
+      "Yes. You can upload your own image as a reference when generating a flyer or animation, so the final result reflects your identity and brand.",
+  },
+  {
+    question: "How does the DJ photo enhancement work?",
+    answer:
+      "You upload a casual or lower-quality photo and the AI cleans it up — improving sharpness, lighting, and overall quality — producing a more professional-looking image for your profiles, ads, and press kits.",
+  },
+  {
+    question: "What happens after I sign up?",
+    answer:
+      "After checkout, you receive a secure email link to create your password. Then you access the dashboard and can start generating right away.",
+  },
 ];
 
 const pricingPlans = [
   {
-    plan: "PRO", name: "Pro", price: "$16.24", checkoutPrice: "$12.99", period: "/month",
-    description: "For DJs who want consistent, professional visuals without the agency price tag.",
-    credits: "20 credits / month", costNote: "About $0.81 per generation before the welcome gift", cta: "Start Pro",
+    plan: "PRO",
+    name: "Pro",
+    price: "$16.24",
+    checkoutPrice: "$12.99",
+    period: "/month",
+    description:
+      "For DJs who want consistent, professional visuals without the agency price tag.",
+    credits: "20 credits / month",
+    costNote: "About $0.81 per generation before the welcome gift",
+    cta: "Start Pro",
     highlighted: false,
-    features: ["20 AI generations per month", "Static flyer creation", "Animated flyer export (MP4)", "AI DJ photo enhancement", "Feed and story formats"],
+    features: [
+      "20 AI generations per month",
+      "Static flyer creation",
+      "Animated flyer export (MP4)",
+      "AI DJ photo enhancement",
+      "Feed and story formats",
+    ],
   },
   {
-    plan: "PROFESSIONAL", name: "Professional", price: "$31.24", checkoutPrice: "$24.99", period: "/month",
-    description: "The go-to plan for DJs running events, ads, and frequent promos every month.",
-    credits: "40 credits / month", costNote: "About $0.78 per generation before the welcome gift", cta: "Start Professional",
+    plan: "PROFESSIONAL",
+    name: "Professional",
+    price: "$31.24",
+    checkoutPrice: "$24.99",
+    period: "/month",
+    description:
+      "The go-to plan for DJs running events, ads, and frequent promos every month.",
+    credits: "40 credits / month",
+    costNote: "About $0.78 per generation before the welcome gift",
+    cta: "Start Professional",
     highlighted: true,
-    features: ["40 AI generations per month", "Premium flyers + animated MP4 export", "High-quality image & video generation", "Professional DJ photo enhancement", "Built for paid ads and social media"],
+    features: [
+      "40 AI generations per month",
+      "Premium flyers + animated MP4 export",
+      "High-quality image & video generation",
+      "Professional DJ photo enhancement",
+      "Built for paid ads and social media",
+    ],
   },
   {
-    plan: "STUDIO", name: "Studio", price: "$49.99", checkoutPrice: "$39.99", period: "/month",
-    description: "For agencies, DJ collectives, and promoters managing multiple artists or events.",
-    credits: "80 credits / month", costNote: "About $0.62 per generation before the welcome gift", cta: "Start Studio",
+    plan: "STUDIO",
+    name: "Studio",
+    price: "$49.99",
+    checkoutPrice: "$39.99",
+    period: "/month",
+    description:
+      "For agencies, DJ collectives, and promoters managing multiple artists or events.",
+    credits: "80 credits / month",
+    costNote: "About $0.62 per generation before the welcome gift",
+    cta: "Start Studio",
     highlighted: false,
-    features: ["80 AI generations per month", "Full access: flyers, animations, photos", "High-quality image & video output", "Ideal for teams and high-volume promo", "Priority creative output"],
+    features: [
+      "80 AI generations per month",
+      "Full access: flyers, animations, photos",
+      "High-quality image & video output",
+      "Ideal for teams and high-volume promo",
+      "Priority creative output",
+    ],
   },
 ] as const;
 
 const testimonials = [
   {
-    initials: "NW", name: "Noah Walker", role: "Open format DJ", location: "Miami, FL",
-    outcome: "Saves time", metric: "Looks legit",
-    quote: "I was paying a graphic designer $80–100 a flyer and half the time I'd go back and forth three times before it looked right. Now I just do it myself. Took me like 10 minutes the first time and it came out better than what I was getting. The animated version is what really got people's attention on Instagram.",
+    initials: "NW",
+    name: "Noah Walker",
+    role: "Open format DJ",
+    location: "Miami, FL",
+    outcome: "Saves time",
+    metric: "Looks legit",
+    quote:
+      "I was paying a graphic designer $80–100 a flyer and half the time I'd go back and forth three times before it looked right. Now I just do it myself. Took me like 10 minutes the first time and it came out better than what I was getting. The animated version is what really got people's attention on Instagram.",
   },
   {
-    initials: "DM", name: "Daniel Morgan", role: "Club DJ", location: "Orlando, FL",
-    outcome: "More bookings", metric: "Better content",
-    quote: "Honestly I was skeptical. I've tried other AI tools and they always look fake or generic. This one actually understands the vibe — dark, bold, club-ready. Posted an animated flyer for a Friday night set and got three DM inquiries that weekend. That never happened with my old graphics.",
+    initials: "DM",
+    name: "Daniel Morgan",
+    role: "Club DJ",
+    location: "Orlando, FL",
+    outcome: "More bookings",
+    metric: "Better content",
+    quote:
+      "Honestly I was skeptical. I've tried other AI tools and they always look fake or generic. This one actually understands the vibe — dark, bold, club-ready. Posted an animated flyer for a Friday night set and got three DM inquiries that weekend. That never happened with my old graphics.",
   },
   {
-    initials: "TC", name: "Tyler Carter", role: "Event DJ", location: "Los Angeles, CA",
-    outcome: "Cut design costs", metric: "Full control",
-    quote: "I do about 6–8 events a month so the design costs were adding up fast. I switched to this and the first month I probably saved $300. But honestly the bigger thing is I can make changes on the fly — if the lineup changes or the venue swaps I just regenerate it. No waiting on anyone.",
+    initials: "TC",
+    name: "Tyler Carter",
+    role: "Event DJ",
+    location: "Los Angeles, CA",
+    outcome: "Cut design costs",
+    metric: "Full control",
+    quote:
+      "I do about 6–8 events a month so the design costs were adding up fast. I switched to this and the first month I probably saved $300. But honestly the bigger thing is I can make changes on the fly — if the lineup changes or the venue swaps I just regenerate it. No waiting on anyone.",
   },
 ] as const;
 
 // ── STATIC vs ANIMATED SECTION ───────────────────────────────────
 const flyerExamples = [
-  { id: 1, label: "Club Night",     static: "/landing/animation-demo/flyer-static.webp",  video: "/landing/animation-demo/flyer-animated.mp4"  },
-  { id: 2, label: "Festival Set",   static: "/landing/animation-demo/flyer-static2.webp", video: "/landing/animation-demo/flyer-animated2.mp4" },
-  { id: 3, label: "Release Party",  static: "/landing/animation-demo/flyer-static3.webp", video: "/landing/animation-demo/flyer-animated3.mp4" },
-  { id: 4, label: "Residency",      static: "/landing/animation-demo/flyer-static4.webp", video: "/landing/animation-demo/flyer-animated4.mp4" },
+  {
+    id: 1,
+    label: "Club Night",
+    static: "/landing/animation-demo/flyer-static.webp",
+    video: "/landing/animation-demo/flyer-animated.mp4",
+  },
+  {
+    id: 2,
+    label: "Festival Set",
+    static: "/landing/animation-demo/flyer-static2.webp",
+    video: "/landing/animation-demo/flyer-animated2.mp4",
+  },
+  {
+    id: 3,
+    label: "Release Party",
+    static: "/landing/animation-demo/flyer-static3.webp",
+    video: "/landing/animation-demo/flyer-animated3.mp4",
+  },
+  {
+    id: 4,
+    label: "Residency",
+    static: "/landing/animation-demo/flyer-static4.webp",
+    video: "/landing/animation-demo/flyer-animated4.mp4",
+  },
 ] as const;
 
 function VideoCard({
@@ -124,28 +252,55 @@ function VideoCard({
   }
 
   return (
-    <div className="hud-box-v relative overflow-hidden rounded-none p-0" style={{ borderColor: 'rgba(191,95,255,0.28)' }}>
+    <div
+      className="hud-box-v relative overflow-hidden rounded-none p-0"
+      style={{ borderColor: "rgba(191,95,255,0.28)" }}
+    >
       {/* Top glow line */}
-      <div className="absolute inset-x-0 top-0 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, var(--cv), var(--cx), transparent)', opacity: 0.7 }} />
+      <div
+        className="absolute inset-x-0 top-0 h-[1px]"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, var(--cv), var(--cx), transparent)",
+          opacity: 0.7,
+        }}
+      />
 
       {/* Top bar */}
       <div className="flex items-center justify-between gap-2 border-b border-[rgba(191,95,255,0.14)] px-3 py-2">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: playing ? 'var(--cg)' : 'rgba(255,255,255,0.25)', boxShadow: playing ? '0 0 5px var(--cg)' : 'none', transition: 'all 0.3s', animation: playing ? 'cornerPulse 1.5s ease-in-out infinite' : 'none' }} />
-          <span className="mono truncate text-[7px] text-[rgba(255,255,255,0.4)]" style={{ letterSpacing: '0.1em' }}>
+          <span
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
+            style={{
+              background: playing ? "var(--cg)" : "rgba(255,255,255,0.25)",
+              boxShadow: playing ? "0 0 5px var(--cg)" : "none",
+              transition: "all 0.3s",
+              animation: playing
+                ? "cornerPulse 1.5s ease-in-out infinite"
+                : "none",
+            }}
+          />
+          <span
+            className="mono truncate text-[7px] text-[rgba(255,255,255,0.4)]"
+            style={{ letterSpacing: "0.1em" }}
+          >
             ANIMATED_{index + 1}.MP4
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <span className="chip-v" style={{ fontSize: 6, padding: '3px 6px' }}>VFX</span>
-          <span className="chip-cx" style={{ fontSize: 6, padding: '3px 6px' }}>MP4</span>
+          <span className="chip-v" style={{ fontSize: 6, padding: "3px 6px" }}>
+            VFX
+          </span>
+          <span className="chip-cx" style={{ fontSize: 6, padding: "3px 6px" }}>
+            MP4
+          </span>
         </div>
       </div>
 
       {/* Video — 1024×1280 ratio */}
       <div
         className="relative w-full cursor-pointer bg-[#03040A]"
-        style={{ aspectRatio: '1024 / 1280' }}
+        style={{ aspectRatio: "1024 / 1280" }}
         onClick={handleClick}
         role="button"
         aria-label={playing ? "Pause video" : "Play video"}
@@ -160,13 +315,37 @@ function VideoCard({
 
         {/* Tap-to-play overlay */}
         {!playing && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: 'rgba(3,4,10,0.65)', backdropFilter: 'blur(2px)' }}>
-            <div className="flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.5)]" style={{ background: 'rgba(0,245,255,0.1)', boxShadow: '0 0 20px rgba(0,245,255,0.35)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--cx)" aria-hidden>
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+            style={{
+              background: "rgba(3,4,10,0.65)",
+              backdropFilter: "blur(2px)",
+            }}
+          >
+            <div
+              className="flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.5)]"
+              style={{
+                background: "rgba(0,245,255,0.1)",
+                boxShadow: "0 0 20px rgba(0,245,255,0.35)",
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="var(--cx)"
+                aria-hidden
+              >
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
             </div>
-            <p className="mono text-[9px] text-white" style={{ letterSpacing: '0.18em', textShadow: '0 0 10px rgba(0,245,255,0.6)' }}>
+            <p
+              className="mono text-[9px] text-white"
+              style={{
+                letterSpacing: "0.18em",
+                textShadow: "0 0 10px rgba(0,245,255,0.6)",
+              }}
+            >
               TAP TO PLAY
             </p>
             <p className="sans px-4 text-center text-[10px] text-[rgba(255,255,255,0.4)]">
@@ -178,24 +357,73 @@ function VideoCard({
         {/* Playing overlays */}
         {playing && (
           <div className="pointer-events-none absolute inset-0">
-            <span className="absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cx)', boxShadow: '0 0 6px var(--cx)', animation: 'cornerPulse 2s ease-in-out infinite' }} />
-            <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cv)', boxShadow: '0 0 6px var(--cv)', animation: 'cornerPulse 2s ease-in-out infinite 0.5s' }} />
-            <span className="absolute bottom-1.5 left-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cv)', boxShadow: '0 0 6px var(--cv)', animation: 'cornerPulse 2s ease-in-out infinite 1s' }} />
-            <span className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full" style={{ background: 'var(--cx)', boxShadow: '0 0 6px var(--cx)', animation: 'cornerPulse 2s ease-in-out infinite 1.5s' }} />
-            <div className="absolute inset-x-0 h-[1px] opacity-20" style={{ top: '35%', background: 'linear-gradient(90deg, transparent, var(--cx), transparent)', animation: 'scanBeam 3s ease-in-out infinite' }} />
+            <span
+              className="absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cx)",
+                boxShadow: "0 0 6px var(--cx)",
+                animation: "cornerPulse 2s ease-in-out infinite",
+              }}
+            />
+            <span
+              className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cv)",
+                boxShadow: "0 0 6px var(--cv)",
+                animation: "cornerPulse 2s ease-in-out infinite 0.5s",
+              }}
+            />
+            <span
+              className="absolute bottom-1.5 left-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cv)",
+                boxShadow: "0 0 6px var(--cv)",
+                animation: "cornerPulse 2s ease-in-out infinite 1s",
+              }}
+            />
+            <span
+              className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cx)",
+                boxShadow: "0 0 6px var(--cx)",
+                animation: "cornerPulse 2s ease-in-out infinite 1.5s",
+              }}
+            />
+            <div
+              className="absolute inset-x-0 h-[1px] opacity-20"
+              style={{
+                top: "35%",
+                background:
+                  "linear-gradient(90deg, transparent, var(--cx), transparent)",
+                animation: "scanBeam 3s ease-in-out infinite",
+              }}
+            />
             <div className="absolute right-2 top-2 flex items-center gap-1 border border-[rgba(191,95,255,0.3)] bg-[rgba(3,4,10,0.7)] px-2 py-1 backdrop-blur-sm">
               <span className="flex gap-[2px]">
                 <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
                 <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
               </span>
-              <span className="mono text-[6px] text-[rgba(255,255,255,0.5)]" style={{ letterSpacing: '0.12em' }}>PAUSE</span>
+              <span
+                className="mono text-[6px] text-[rgba(255,255,255,0.5)]"
+                style={{ letterSpacing: "0.12em" }}
+              >
+                PAUSE
+              </span>
             </div>
           </div>
         )}
 
         {/* Bottom label */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-          <span className="mono whitespace-nowrap border border-[rgba(191,95,255,0.4)] px-2 py-0.5 text-[7px] backdrop-blur-sm" style={{ background: 'rgba(191,95,255,0.15)', color: 'var(--cv)', letterSpacing: '0.16em', boxShadow: '0 0 8px rgba(191,95,255,0.25)' }}>
+          <span
+            className="mono whitespace-nowrap border border-[rgba(191,95,255,0.4)] px-2 py-0.5 text-[7px] backdrop-blur-sm"
+            style={{
+              background: "rgba(191,95,255,0.15)",
+              color: "var(--cv)",
+              letterSpacing: "0.16em",
+              boxShadow: "0 0 8px rgba(191,95,255,0.25)",
+            }}
+          >
             ANIMATED · MP4
           </span>
         </div>
@@ -204,13 +432,32 @@ function VideoCard({
       {/* Bottom bar */}
       <div className="border-t border-[rgba(191,95,255,0.1)] px-3 py-2">
         <div className="flex flex-wrap items-center gap-1.5">
-          {[{ label: "LIGHT LEAK", color: "var(--cx)" }, { label: "PARTICLES", color: "var(--cv)" }, { label: "TRANSITION", color: "var(--cg)" }].map(fx => (
-            <span key={fx.label} className="mono flex items-center gap-1 text-[6px]" style={{ color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>
-              <span className="h-1 w-1 rounded-full" style={{ background: fx.color, boxShadow: `0 0 3px ${fx.color}` }} />
+          {[
+            { label: "LIGHT LEAK", color: "var(--cx)" },
+            { label: "PARTICLES", color: "var(--cv)" },
+            { label: "TRANSITION", color: "var(--cg)" },
+          ].map((fx) => (
+            <span
+              key={fx.label}
+              className="mono flex items-center gap-1 text-[6px]"
+              style={{ color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}
+            >
+              <span
+                className="h-1 w-1 rounded-full"
+                style={{
+                  background: fx.color,
+                  boxShadow: `0 0 3px ${fx.color}`,
+                }}
+              />
               {fx.label}
             </span>
           ))}
-          <span className="mono ml-auto text-[6px] text-[rgba(255,255,255,0.22)]" style={{ letterSpacing: '0.08em' }}>1024×1280</span>
+          <span
+            className="mono ml-auto text-[6px] text-[rgba(255,255,255,0.22)]"
+            style={{ letterSpacing: "0.08em" }}
+          >
+            1024×1280
+          </span>
         </div>
       </div>
     </div>
@@ -221,7 +468,6 @@ function StaticVsAnimatedSection() {
   const [playingId, setPlayingId] = useState<number | null>(null);
   return (
     <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
-
       {/* Header */}
       <div className="mb-10 sm:mb-14">
         <div className="sect-label">
@@ -229,11 +475,27 @@ function StaticVsAnimatedSection() {
         </div>
         <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
           SAME FLYER.{" "}
-          <span style={{ color: 'var(--cv)', textShadow: '0 0 28px rgba(191,95,255,0.6)' }}>NOW WITH</span>{" "}
-          <span style={{ color: 'var(--cx)', textShadow: '0 0 28px rgba(0,245,255,0.6)' }}>VFX.</span>
+          <span
+            style={{
+              color: "var(--cv)",
+              textShadow: "0 0 28px rgba(191,95,255,0.6)",
+            }}
+          >
+            NOW WITH
+          </span>{" "}
+          <span
+            style={{
+              color: "var(--cx)",
+              textShadow: "0 0 28px rgba(0,245,255,0.6)",
+            }}
+          >
+            VFX.
+          </span>
         </h2>
         <p className="sans mt-3 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
-          Generate your flyer, then hit animate. The AI adds light leaks, particle effects, and transitions — and exports a ready-to-post MP4 in seconds.
+          Generate your flyer, then hit animate. The AI adds light leaks,
+          particle effects, and transitions — and exports a ready-to-post MP4 in
+          seconds.
         </p>
       </div>
 
@@ -243,10 +505,16 @@ function StaticVsAnimatedSection() {
           <div key={ex.id}>
             {/* Pair label */}
             <div className="mb-3 flex items-center gap-3">
-              <span className="mono text-[9px] text-[rgba(0,245,255,0.5)]" style={{ letterSpacing: '0.2em' }}>
+              <span
+                className="mono text-[9px] text-[rgba(0,245,255,0.5)]"
+                style={{ letterSpacing: "0.2em" }}
+              >
                 {String(i + 1).padStart(2, "0")} //
               </span>
-              <span className="mono text-[9px] text-[rgba(255,255,255,0.35)]" style={{ letterSpacing: '0.18em' }}>
+              <span
+                className="mono text-[9px] text-[rgba(255,255,255,0.35)]"
+                style={{ letterSpacing: "0.18em" }}
+              >
                 {ex.label.toUpperCase()}
               </span>
               <div className="flex-1 h-px bg-[rgba(255,255,255,0.05)]" />
@@ -254,42 +522,67 @@ function StaticVsAnimatedSection() {
 
             {/* Side-by-side — always 2 cols, even on mobile */}
             <div className="grid grid-cols-2 gap-2 sm:gap-5 items-start">
-
               {/* Static */}
               <div className="hud-box relative overflow-hidden rounded-none p-0">
                 <div className="flex items-center justify-between gap-2 border-b border-[rgba(0,245,255,0.1)] px-3 py-2">
                   <div className="flex min-w-0 items-center gap-1.5">
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[rgba(255,255,255,0.2)]" />
-                    <span className="mono truncate text-[7px] text-[rgba(255,255,255,0.38)]" style={{ letterSpacing: '0.1em' }}>
+                    <span
+                      className="mono truncate text-[7px] text-[rgba(255,255,255,0.38)]"
+                      style={{ letterSpacing: "0.1em" }}
+                    >
                       STATIC_{i + 1}.PNG
                     </span>
                   </div>
-                  <span className="chip-cx shrink-0" style={{ fontSize: 6, padding: '3px 6px' }}>IMG</span>
+                  <span
+                    className="chip-cx shrink-0"
+                    style={{ fontSize: 6, padding: "3px 6px" }}
+                  >
+                    IMG
+                  </span>
                 </div>
 
                 {/* 1024×1280 ratio */}
-                <div className="relative w-full bg-[#03040A]" style={{ aspectRatio: '1024 / 1280' }}>
+                <div
+                  className="relative w-full bg-[#03040A]"
+                  style={{ aspectRatio: "1024 / 1280" }}
+                >
                   <img
                     src={ex.static}
                     alt={`${ex.label} static flyer`}
                     className="absolute inset-0 h-full w-full object-cover"
                   />
-                  <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(to bottom, transparent 70%, rgba(3,4,10,0.55))' }} />
+                  <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to bottom, transparent 70%, rgba(3,4,10,0.55))",
+                    }}
+                  />
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                    <span className="mono whitespace-nowrap border border-[rgba(255,255,255,0.12)] bg-[rgba(3,4,10,0.75)] px-2 py-0.5 text-[7px] text-[rgba(255,255,255,0.4)] backdrop-blur-sm" style={{ letterSpacing: '0.14em' }}>
+                    <span
+                      className="mono whitespace-nowrap border border-[rgba(255,255,255,0.12)] bg-[rgba(3,4,10,0.75)] px-2 py-0.5 text-[7px] text-[rgba(255,255,255,0.4)] backdrop-blur-sm"
+                      style={{ letterSpacing: "0.14em" }}
+                    >
                       NO MOTION
                     </span>
                   </div>
                 </div>
 
                 <div className="border-t border-[rgba(0,245,255,0.07)] px-3 py-2">
-                  <p className="sans text-[10px] text-[rgba(255,255,255,0.28)]">Static image</p>
+                  <p className="sans text-[10px] text-[rgba(255,255,255,0.28)]">
+                    Static image
+                  </p>
                 </div>
               </div>
 
               {/* Animated */}
-              <VideoCard src={ex.video} index={i} playingId={playingId} setPlayingId={setPlayingId} />
-
+              <VideoCard
+                src={ex.video}
+                index={i}
+                playingId={playingId}
+                setPlayingId={setPlayingId}
+              />
             </div>
           </div>
         ))}
@@ -297,11 +590,17 @@ function StaticVsAnimatedSection() {
 
       {/* CTA */}
       <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-        <a href="#pricing" className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:px-10">
+        <a
+          href="#pricing"
+          className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:px-10"
+        >
           ANIMATE MY FLYER
           <ArrowRight size={13} />
         </a>
-        <p className="mono text-center text-[9px] text-[rgba(255,255,255,0.3)]" style={{ letterSpacing: '0.14em' }}>
+        <p
+          className="mono text-center text-[9px] text-[rgba(255,255,255,0.3)]"
+          style={{ letterSpacing: "0.14em" }}
+        >
           INCLUDED IN ALL PLANS · NO VIDEO EDITING NEEDED
         </p>
       </div>
@@ -310,10 +609,7 @@ function StaticVsAnimatedSection() {
 }
 
 // ── PRICING BUTTONS ──────────────────────────────────────────────
-import {
-  createMetaEventId,
-  trackMetaInitiateCheckout,
-} from "@/lib/meta-pixel";
+import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
 
@@ -322,7 +618,10 @@ type CheckoutOptions = {
   source?: string;
 };
 
-async function openPublicCheckout(plan: PlanVariant, options: CheckoutOptions = {}) {
+async function openPublicCheckout(
+  plan: PlanVariant,
+  options: CheckoutOptions = {},
+) {
   const metaEventId = createMetaEventId("InitiateCheckout");
   const response = await fetch("/api/public/checkout", {
     method: "POST",
@@ -383,9 +682,35 @@ function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
   const labelText = loading ? "OPENING..." : label;
 
   const icon = loading ? (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      style={{ animation: "spin 1s linear infinite" }}
+    >
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
   ) : (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
   );
 
   const sharedProps = {
@@ -402,9 +727,14 @@ function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
         <button {...sharedProps} className="pricing-btn-featured">
           <span className="pricing-btn-stripes" aria-hidden />
           <span className="pricing-btn-shimmer" aria-hidden />
-          <span className="pricing-btn-label">{labelText}{icon}</span>
+          <span className="pricing-btn-label">
+            {labelText}
+            {icon}
+          </span>
         </button>
-        {error && <p className="sans text-xs leading-5 text-rose-300">{error}</p>}
+        {error && (
+          <p className="sans text-xs leading-5 text-rose-300">{error}</p>
+        )}
       </div>
     );
   }
@@ -418,9 +748,14 @@ function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
           <span className="pricing-btn-corner tr" aria-hidden />
           <span className="pricing-btn-corner bl" aria-hidden />
           <span className="pricing-btn-corner br" aria-hidden />
-          <span className="pricing-btn-label">{labelText}{icon}</span>
+          <span className="pricing-btn-label">
+            {labelText}
+            {icon}
+          </span>
         </button>
-        {error && <p className="sans text-xs leading-5 text-rose-300">{error}</p>}
+        {error && (
+          <p className="sans text-xs leading-5 text-rose-300">{error}</p>
+        )}
       </div>
     );
   }
@@ -429,13 +764,15 @@ function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
     <div className="grid gap-2">
       <button {...sharedProps} className="pricing-btn-pro">
         <span className="pricing-btn-scan" aria-hidden />
-        <span className="pricing-btn-label">{labelText}{icon}</span>
+        <span className="pricing-btn-label">
+          {labelText}
+          {icon}
+        </span>
       </button>
       {error && <p className="sans text-xs leading-5 text-rose-300">{error}</p>}
     </div>
   );
 }
-
 
 function FirstPurchaseGiftPopup({
   open,
@@ -453,7 +790,9 @@ function FirstPurchaseGiftPopup({
 
   if (!open) return null;
 
-  const selectedPlanData = pricingPlans.find((plan) => plan.plan === selectedPlan);
+  const selectedPlanData = pricingPlans.find(
+    (plan) => plan.plan === selectedPlan,
+  );
 
   function handleClaimGift() {
     const cleanName = name.trim();
@@ -492,14 +831,16 @@ function FirstPurchaseGiftPopup({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center bg-black/72 px-3 pb-3 pt-8 backdrop-blur-xl sm:items-center sm:p-6"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/72 px-3 py-6 backdrop-blur-xl sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="first-purchase-gift-title"
     >
       <div
         className={`hud-box relative w-full overflow-hidden rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] ${
-          step === "intro" ? "max-w-[420px]" : "max-h-[calc(100dvh-24px)] max-w-[560px] overflow-y-auto sm:max-h-[calc(100dvh-64px)]"
+          step === "intro"
+            ? "max-h-[calc(100dvh-48px)] max-w-[420px] overflow-y-auto"
+            : "max-h-[calc(100dvh-24px)] max-w-[560px] overflow-y-auto sm:max-h-[calc(100dvh-64px)]"
         }`}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
@@ -520,7 +861,10 @@ function FirstPurchaseGiftPopup({
             <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.08)] shadow-[0_0_36px_rgba(0,245,255,0.26)] gift-pop">
               <div className="absolute h-20 w-20 rounded-full border border-[rgba(0,245,255,0.38)] gift-ring" />
               <div className="absolute h-28 w-28 rounded-full border border-[rgba(191,95,255,0.18)] gift-ring gift-ring-delay" />
-              <Sparkles size={34} className="relative z-10 text-[var(--cx)] drop-shadow-[0_0_16px_rgba(0,245,255,0.9)]" />
+              <Sparkles
+                size={34}
+                className="relative z-10 text-[var(--cx)] drop-shadow-[0_0_16px_rgba(0,245,255,0.9)]"
+              />
               <span className="gift-spark gift-spark-a" />
               <span className="gift-spark gift-spark-b" />
               <span className="gift-spark gift-spark-c" />
@@ -530,7 +874,10 @@ function FirstPurchaseGiftPopup({
               <span className="chip-cx">● GIFT UNLOCKED</span>
             </div>
 
-            <h2 id="first-purchase-gift-title" className="orb text-[22px] font-black leading-tight text-white sm:text-[27px]">
+            <h2
+              id="first-purchase-gift-title"
+              className="orb text-[22px] font-black leading-tight text-white sm:text-[27px]"
+            >
               You just received 20% off today.
             </h2>
 
@@ -551,7 +898,11 @@ function FirstPurchaseGiftPopup({
               />
             </label>
 
-            {error ? <p className="sans mt-3 text-sm leading-6 text-rose-300">{error}</p> : null}
+            {error ? (
+              <p className="sans mt-3 text-sm leading-6 text-rose-300">
+                {error}
+              </p>
+            ) : null}
 
             <button
               type="button"
@@ -574,8 +925,18 @@ function FirstPurchaseGiftPopup({
           <div className="relative z-10 p-4 sm:p-5">
             <div className="pr-10">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="chip-cx" style={{ fontSize: 7, padding: "4px 7px" }}>● DISCOUNT APPLIED</span>
-                <span className="chip-v" style={{ fontSize: 7, padding: "4px 7px" }}>WELCOME20</span>
+                <span
+                  className="chip-cx"
+                  style={{ fontSize: 7, padding: "4px 7px" }}
+                >
+                  ● DISCOUNT APPLIED
+                </span>
+                <span
+                  className="chip-v"
+                  style={{ fontSize: 7, padding: "4px 7px" }}
+                >
+                  WELCOME20
+                </span>
               </div>
 
               <h2 className="orb text-[20px] font-black leading-tight text-white sm:text-[26px]">
@@ -583,7 +944,8 @@ function FirstPurchaseGiftPopup({
               </h2>
 
               <p className="sans mt-2 max-w-[460px] text-xs leading-5 text-[rgba(255,255,255,0.52)] sm:text-sm sm:leading-6">
-                Your welcome gift is visually applied below. Select a plan and continue to checkout.
+                Your welcome gift is visually applied below. Select a plan and
+                continue to checkout.
               </p>
             </div>
 
@@ -652,17 +1014,26 @@ function FirstPurchaseGiftPopup({
 
             <div className="coupon-applied mt-3 border border-[rgba(191,95,255,0.22)] bg-[rgba(191,95,255,0.075)] px-3 py-2.5">
               <p className="sans text-xs leading-5 text-white/72 sm:text-sm">
-                Selected: <strong className="text-white">{selectedPlanData?.name}</strong>{" "}
+                Selected:{" "}
+                <strong className="text-white">{selectedPlanData?.name}</strong>{" "}
                 <span className="text-white/38">·</span>{" "}
-                <span className="line-through text-white/35">{selectedPlanData?.price}</span>{" "}
-                <strong className="text-[var(--cx)]">{selectedPlanData?.checkoutPrice}</strong>
+                <span className="line-through text-white/35">
+                  {selectedPlanData?.price}
+                </span>{" "}
+                <strong className="text-[var(--cx)]">
+                  {selectedPlanData?.checkoutPrice}
+                </strong>
               </p>
               <p className="mono mt-1 text-[7px] uppercase tracking-[0.12em] text-[rgba(255,255,255,0.34)]">
-                WELCOME20 · visually applied
+                WELCOME20 · Applied successfully
               </p>
             </div>
 
-            {error ? <p className="sans mt-3 text-sm leading-6 text-rose-300">{error}</p> : null}
+            {error ? (
+              <p className="sans mt-3 text-sm leading-6 text-rose-300">
+                {error}
+              </p>
+            ) : null}
 
             <button
               type="button"
@@ -670,7 +1041,9 @@ function FirstPurchaseGiftPopup({
               disabled={loading}
               className="btn-cx-solid mt-3 inline-flex min-h-[50px] w-full items-center justify-center gap-2 px-5 py-3 text-[10px] disabled:cursor-wait disabled:opacity-70"
             >
-              {loading ? "OPENING CHECKOUT..." : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
+              {loading
+                ? "OPENING CHECKOUT..."
+                : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
               <ArrowRight size={13} />
             </button>
 
@@ -712,7 +1085,9 @@ export default function HomePage() {
     const pricingSection = document.getElementById("pricing");
     if (!pricingSection) return;
 
-    const alreadyShown = window.sessionStorage.getItem("first-subscription-gift-seen");
+    const alreadyShown = window.sessionStorage.getItem(
+      "first-subscription-gift-seen",
+    );
     if (alreadyShown) return;
 
     const observer = new IntersectionObserver(
@@ -737,9 +1112,18 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden" style={{ background: "#03040A", color: "#E8EAF0", fontFamily: "'DM Sans', sans-serif" }}>
+    <main
+      className="min-h-screen overflow-x-hidden"
+      style={{
+        background: "#03040A",
+        color: "#E8EAF0",
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
       <FirstPurchaseGiftPopup open={giftPopupOpen} onClose={closeGiftPopup} />
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
@@ -1417,43 +1801,101 @@ export default function HomePage() {
           animation: couponScan 2.6s ease-in-out infinite;
           pointer-events: none;
         }
-      `}} />
+      `,
+        }}
+      />
 
       {/* ── AMBIENT ORBS ── */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="float-orb-a absolute -left-48 top-1/4 h-[600px] w-[600px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(0,245,255,0.07), transparent 60%)' }} />
-        <div className="float-orb-b absolute -right-32 top-2/3 h-[500px] w-[500px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(191,95,255,0.07), transparent 60%)' }} />
-        <div className="absolute left-1/2 top-0 h-[300px] w-px -translate-x-1/2" style={{ background: 'linear-gradient(180deg, rgba(0,245,255,0.3), transparent)' }} />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      >
+        <div
+          className="float-orb-a absolute -left-48 top-1/4 h-[600px] w-[600px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(0,245,255,0.07), transparent 60%)",
+          }}
+        />
+        <div
+          className="float-orb-b absolute -right-32 top-2/3 h-[500px] w-[500px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(191,95,255,0.07), transparent 60%)",
+          }}
+        />
+        <div
+          className="absolute left-1/2 top-0 h-[300px] w-px -translate-x-1/2"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(0,245,255,0.3), transparent)",
+          }}
+        />
       </div>
 
       {/* ── HEADER ── */}
-      <header className="sticky top-0 z-40" style={{ background: 'rgba(3,4,10,0.88)', borderBottom: '1px solid rgba(0,245,255,0.1)', backdropFilter: 'blur(20px)' }}>
+      <header
+        className="sticky top-0 z-40"
+        style={{
+          background: "rgba(3,4,10,0.88)",
+          borderBottom: "1px solid rgba(0,245,255,0.1)",
+          backdropFilter: "blur(20px)",
+        }}
+      >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8 lg:px-10">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <div className="flex h-7 items-end gap-[2px]">
-              {Array.from({length: 7}).map((_, i) => (
-                <span key={i} className="wave-bar" style={{ height: '8px' }} />
+              {Array.from({ length: 7 }).map((_, i) => (
+                <span key={i} className="wave-bar" style={{ height: "8px" }} />
               ))}
             </div>
-            <p className="orb text-[13px] font-bold tracking-[0.18em] uppercase sm:text-[15px]" style={{ color: '#fff' }}>
-              DJ <span style={{ color: 'var(--cx)', textShadow: '0 0 14px var(--cx)' }}>VISUALS</span> AI
+            <p
+              className="orb text-[13px] font-bold tracking-[0.18em] uppercase sm:text-[15px]"
+              style={{ color: "#fff" }}
+            >
+              DJ{" "}
+              <span
+                style={{ color: "var(--cx)", textShadow: "0 0 14px var(--cx)" }}
+              >
+                VISUALS
+              </span>{" "}
+              AI
             </p>
           </div>
 
           {/* Desktop Nav */}
           <nav className="hidden items-center gap-8 md:flex">
-            {[["What you get", "#vantagens"], ["Examples", "#exemplos"], ["How it works", "#como-funciona"], ["Pricing", "#pricing"]].map(([label, href]) => (
-              <a key={href} href={href} className="nav-link">{label}</a>
+            {[
+              ["What you get", "#vantagens"],
+              ["Examples", "#exemplos"],
+              ["How it works", "#como-funciona"],
+              ["Pricing", "#pricing"],
+            ].map(([label, href]) => (
+              <a key={href} href={href} className="nav-link">
+                {label}
+              </a>
             ))}
           </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <Link href="/login" className="nav-link hidden sm:block px-4 py-2 border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.5)] hover:border-[var(--border-x)] hover:text-[var(--cx)] transition-all" style={{ fontSize: '10px', letterSpacing: '0.15em', fontFamily: 'Space Mono, monospace', textTransform: 'uppercase' }}>
+            <Link
+              href="/login"
+              className="nav-link hidden sm:block px-4 py-2 border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.5)] hover:border-[var(--border-x)] hover:text-[var(--cx)] transition-all"
+              style={{
+                fontSize: "10px",
+                letterSpacing: "0.15em",
+                fontFamily: "Space Mono, monospace",
+                textTransform: "uppercase",
+              }}
+            >
               LOG IN
             </Link>
-            <a href="#pricing" className="btn-cx-solid hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-none">
+            <a
+              href="#pricing"
+              className="btn-cx-solid hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-none"
+            >
               CHOOSE PLAN
               <ArrowRight size={12} />
             </a>
@@ -1463,20 +1905,47 @@ export default function HomePage() {
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Toggle menu"
             >
-              <span /><span /><span />
+              <span />
+              <span />
+              <span />
             </button>
           </div>
         </div>
 
         {/* Mobile Menu Overlay */}
         <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
-          {[["What you get", "#vantagens"], ["Examples", "#exemplos"], ["How it works", "#como-funciona"], ["Pricing", "#pricing"]].map(([label, href]) => (
-            <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}</a>
+          {[
+            ["What you get", "#vantagens"],
+            ["Examples", "#exemplos"],
+            ["How it works", "#como-funciona"],
+            ["Pricing", "#pricing"],
+          ].map(([label, href]) => (
+            <a key={href} href={href} onClick={() => setMenuOpen(false)}>
+              {label}
+            </a>
           ))}
-          <Link href="/login" onClick={() => setMenuOpen(false)} style={{ fontFamily: 'Orbitron, monospace', fontSize: 13, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', padding: '18px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', textDecoration: 'none' }}>
+          <Link
+            href="/login"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              fontFamily: "Orbitron, monospace",
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.55)",
+              padding: "18px 0",
+              borderBottom: "1px solid rgba(255,255,255,0.05)",
+              textDecoration: "none",
+            }}
+          >
             LOG IN
           </Link>
-          <a href="#pricing" onClick={() => setMenuOpen(false)} className="btn-cx-solid menu-cta inline-flex items-center gap-2">
+          <a
+            href="#pricing"
+            onClick={() => setMenuOpen(false)}
+            className="btn-cx-solid menu-cta inline-flex items-center gap-2"
+          >
             CHOOSE PLAN <ArrowRight size={13} />
           </a>
         </div>
@@ -1485,8 +1954,11 @@ export default function HomePage() {
       {/* ── HERO ── */}
       <section className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 pt-10 sm:px-8 sm:pb-28 sm:pt-20 lg:px-10 lg:pb-36 lg:pt-44">
         {/* HUD status bar */}
-        <div className="mono mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] sm:text-[10px] text-[rgba(255,255,255,0.3)]" style={{ letterSpacing: '0.1em' }}>
-          <span style={{ color: 'var(--cg)' }}>● SYSTEM ONLINE</span>
+        <div
+          className="mono mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] sm:text-[10px] text-[rgba(255,255,255,0.3)]"
+          style={{ letterSpacing: "0.1em" }}
+        >
+          <span style={{ color: "var(--cg)" }}>● SYSTEM ONLINE</span>
           <span className="hidden sm:inline">|</span>
           <span className="hidden sm:inline">AI_ENGINE v4.2.1</span>
           <span className="hidden sm:inline">|</span>
@@ -1500,32 +1972,77 @@ export default function HomePage() {
             </div>
 
             <h1 className="hero-h1 orb text-[36px] font-black leading-[1.04] tracking-[-0.02em] text-white sm:text-[58px] lg:text-[72px]">
-              FLYERS.<br />
-              <span style={{ color: 'var(--cx)', textShadow: '0 0 40px rgba(0,245,255,0.6)' }}>ANIMATED</span>{" "}
-              <span style={{ color: 'var(--cv)', textShadow: '0 0 40px rgba(191,95,255,0.6)' }}>VIDEOS.</span><br />
-              DJ PHOTOS<span className="cursor" />
+              FLYERS.
+              <br />
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 40px rgba(0,245,255,0.6)",
+                }}
+              >
+                ANIMATED
+              </span>{" "}
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 40px rgba(191,95,255,0.6)",
+                }}
+              >
+                VIDEOS.
+              </span>
+              <br />
+              DJ PHOTOS
+              <span className="cursor" />
             </h1>
 
             <p className="sans mt-5 text-[14px] leading-7 text-[rgba(255,255,255,0.55)] sm:text-[15px]">
-              Generate premium event flyers, turn them into animated MP4 videos with VFX, and upgrade your DJ photos — all from one AI-powered platform built for the music scene.
+              Generate premium event flyers, turn them into animated MP4 videos
+              with VFX, and upgrade your DJ photos — all from one AI-powered
+              platform built for the music scene.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-              <a href="#pricing" className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8">
+              <a
+                href="#pricing"
+                className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8"
+              >
                 START CREATING NOW
                 <ArrowRight size={13} />
               </a>
-              <a href="#exemplos" className="btn-cx inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8">
+              <a
+                href="#exemplos"
+                className="btn-cx inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8"
+              >
                 SEE EXAMPLES
               </a>
             </div>
 
             {/* Stats row */}
             <div className="mt-10 grid grid-cols-3 gap-0 border border-[rgba(0,245,255,0.12)]">
-              {[["2,800+", "ACTIVE DJs"], ["50K+", "VISUALS MADE"], ["4.9★", "RATING"]].map(([val, label]) => (
-                <div key={label} className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-3 py-3 text-center sm:px-6 sm:py-4">
-                  <p className="orb text-base font-bold sm:text-xl" style={{ color: 'var(--cx)', textShadow: '0 0 14px rgba(0,245,255,0.5)' }}>{val}</p>
-                  <p className="mono mt-1 text-[7px] text-[rgba(255,255,255,0.35)] sm:text-[9px]" style={{ letterSpacing: '0.12em' }}>{label}</p>
+              {[
+                ["2,800+", "ACTIVE DJs"],
+                ["50K+", "VISUALS MADE"],
+                ["4.9★", "RATING"],
+              ].map(([val, label]) => (
+                <div
+                  key={label}
+                  className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-3 py-3 text-center sm:px-6 sm:py-4"
+                >
+                  <p
+                    className="orb text-base font-bold sm:text-xl"
+                    style={{
+                      color: "var(--cx)",
+                      textShadow: "0 0 14px rgba(0,245,255,0.5)",
+                    }}
+                  >
+                    {val}
+                  </p>
+                  <p
+                    className="mono mt-1 text-[7px] text-[rgba(255,255,255,0.35)] sm:text-[9px]"
+                    style={{ letterSpacing: "0.12em" }}
+                  >
+                    {label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -1534,28 +2051,55 @@ export default function HomePage() {
           {/* Right: HUD panel — desktop only */}
           <div className="hidden lg:block">
             <div className="hud-box rounded-none p-6">
-              <div className="mono mb-4 text-[9px] text-[rgba(0,245,255,0.6)]" style={{ letterSpacing: '0.2em' }}>// AI_CREATIVE_ENGINE</div>
+              <div
+                className="mono mb-4 text-[9px] text-[rgba(0,245,255,0.6)]"
+                style={{ letterSpacing: "0.2em" }}
+              >
+                // AI_CREATIVE_ENGINE
+              </div>
               <div className="space-y-3">
                 {[
-                  { label: "FLYER QUALITY",     val: 98, color: "var(--cx)" },
-                  { label: "ANIMATION RENDER",  val: 96, color: "var(--cv)" },
-                  { label: "PHOTO ENHANCE",     val: 94, color: "var(--cg)" },
-                  { label: "PROMO SPEED",       val: 100, color: "var(--cx)" },
-                ].map(m => (
+                  { label: "FLYER QUALITY", val: 98, color: "var(--cx)" },
+                  { label: "ANIMATION RENDER", val: 96, color: "var(--cv)" },
+                  { label: "PHOTO ENHANCE", val: 94, color: "var(--cg)" },
+                  { label: "PROMO SPEED", val: 100, color: "var(--cx)" },
+                ].map((m) => (
                   <div key={m.label}>
                     <div className="mb-1 flex justify-between">
-                      <span className="mono text-[9px] text-[rgba(255,255,255,0.45)]" style={{ letterSpacing: '0.16em' }}>{m.label}</span>
-                      <span className="mono text-[9px]" style={{ color: m.color }}>{m.val}%</span>
+                      <span
+                        className="mono text-[9px] text-[rgba(255,255,255,0.45)]"
+                        style={{ letterSpacing: "0.16em" }}
+                      >
+                        {m.label}
+                      </span>
+                      <span
+                        className="mono text-[9px]"
+                        style={{ color: m.color }}
+                      >
+                        {m.val}%
+                      </span>
                     </div>
                     <div className="h-[3px] w-full bg-[rgba(255,255,255,0.06)]">
-                      <div className="h-full" style={{ width: `${m.val}%`, background: m.color, boxShadow: `0 0 8px ${m.color}` }} />
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${m.val}%`,
+                          background: m.color,
+                          boxShadow: `0 0 8px ${m.color}`,
+                        }}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
               <div className="mt-6 border-t border-[rgba(0,245,255,0.1)] pt-4">
-                <p className="mono text-[9px] text-[rgba(255,255,255,0.3)]" style={{ letterSpacing: '0.14em' }}>
-                  NEXT_GEN: <span style={{ color: 'var(--cx)' }}>READY</span> &nbsp;|&nbsp; QUEUE: <span style={{ color: 'var(--cg)' }}>OPEN</span>
+                <p
+                  className="mono text-[9px] text-[rgba(255,255,255,0.3)]"
+                  style={{ letterSpacing: "0.14em" }}
+                >
+                  NEXT_GEN: <span style={{ color: "var(--cx)" }}>READY</span>{" "}
+                  &nbsp;|&nbsp; QUEUE:{" "}
+                  <span style={{ color: "var(--cg)" }}>OPEN</span>
                 </p>
               </div>
             </div>
@@ -1568,7 +2112,6 @@ export default function HomePage() {
       {/* ── STATIC vs ANIMATED COMPARISON ── */}
       <StaticVsAnimatedSection />
 
-
       <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           {/* Left: HUD animation preview card */}
@@ -1576,41 +2119,119 @@ export default function HomePage() {
             <div className="hud-box rounded-none p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="mono text-[9px] text-[rgba(0,245,255,0.7)]" style={{ letterSpacing: '0.18em' }}>// ANIMATION_ENGINE</p>
-                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">Static flyer → animated MP4 with VFX</p>
+                  <p
+                    className="mono text-[9px] text-[rgba(0,245,255,0.7)]"
+                    style={{ letterSpacing: "0.18em" }}
+                  >
+                    // ANIMATION_ENGINE
+                  </p>
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">
+                    Static flyer → animated MP4 with VFX
+                  </p>
                 </div>
                 <span className="chip-cx shrink-0">MP4 EXPORT</span>
               </div>
               {/* Mock animation timeline */}
               <div className="relative overflow-hidden border border-[rgba(0,245,255,0.1)] bg-[#03040A] p-5">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center border border-[rgba(0,245,255,0.3)]" style={{ background: 'rgba(0,245,255,0.08)' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--cx)" aria-hidden><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <div
+                    className="flex h-8 w-8 items-center justify-center border border-[rgba(0,245,255,0.3)]"
+                    style={{ background: "rgba(0,245,255,0.08)" }}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="var(--cx)"
+                      aria-hidden
+                    >
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
                   </div>
                   <div className="flex-1">
                     <div className="h-1.5 w-full overflow-hidden bg-[rgba(255,255,255,0.06)]">
-                      <div className="h-full w-2/3" style={{ background: 'linear-gradient(90deg, var(--cx), var(--cv))', boxShadow: '0 0 8px var(--cx)', animation: 'stripeDrift 2s linear infinite' }} />
+                      <div
+                        className="h-full w-2/3"
+                        style={{
+                          background:
+                            "linear-gradient(90deg, var(--cx), var(--cv))",
+                          boxShadow: "0 0 8px var(--cx)",
+                          animation: "stripeDrift 2s linear infinite",
+                        }}
+                      />
                     </div>
                   </div>
-                  <span className="mono text-[9px]" style={{ color: 'var(--cx)' }}>0:04 / 0:06</span>
+                  <span
+                    className="mono text-[9px]"
+                    style={{ color: "var(--cx)" }}
+                  >
+                    0:04 / 0:06
+                  </span>
                 </div>
                 {/* VFX layers */}
                 <div className="space-y-2">
                   {[
-                    { label: "LIGHT LEAK", active: true,  color: "var(--cx)" },
-                    { label: "PARTICLES",  active: true,  color: "var(--cv)" },
-                    { label: "TRANSITION", active: true,  color: "var(--cg)" },
-                    { label: "GLOW FX",    active: false, color: "rgba(255,255,255,0.2)" },
-                  ].map(layer => (
-                    <div key={layer.label} className="flex items-center gap-3 border border-[rgba(255,255,255,0.05)] px-3 py-2">
-                      <span className="h-2 w-2 rounded-full shrink-0" style={{ background: layer.active ? layer.color : 'rgba(255,255,255,0.15)', boxShadow: layer.active ? `0 0 6px ${layer.color}` : 'none', animation: layer.active ? 'cornerPulse 2s ease-in-out infinite' : 'none' }} />
-                      <span className="mono text-[9px] flex-1" style={{ color: layer.active ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)', letterSpacing: '0.14em' }}>{layer.label}</span>
-                      <span className="mono text-[9px]" style={{ color: layer.active ? layer.color : 'rgba(255,255,255,0.2)' }}>{layer.active ? "ON" : "OFF"}</span>
+                    { label: "LIGHT LEAK", active: true, color: "var(--cx)" },
+                    { label: "PARTICLES", active: true, color: "var(--cv)" },
+                    { label: "TRANSITION", active: true, color: "var(--cg)" },
+                    {
+                      label: "GLOW FX",
+                      active: false,
+                      color: "rgba(255,255,255,0.2)",
+                    },
+                  ].map((layer) => (
+                    <div
+                      key={layer.label}
+                      className="flex items-center gap-3 border border-[rgba(255,255,255,0.05)] px-3 py-2"
+                    >
+                      <span
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{
+                          background: layer.active
+                            ? layer.color
+                            : "rgba(255,255,255,0.15)",
+                          boxShadow: layer.active
+                            ? `0 0 6px ${layer.color}`
+                            : "none",
+                          animation: layer.active
+                            ? "cornerPulse 2s ease-in-out infinite"
+                            : "none",
+                        }}
+                      />
+                      <span
+                        className="mono text-[9px] flex-1"
+                        style={{
+                          color: layer.active
+                            ? "rgba(255,255,255,0.7)"
+                            : "rgba(255,255,255,0.25)",
+                          letterSpacing: "0.14em",
+                        }}
+                      >
+                        {layer.label}
+                      </span>
+                      <span
+                        className="mono text-[9px]"
+                        style={{
+                          color: layer.active
+                            ? layer.color
+                            : "rgba(255,255,255,0.2)",
+                        }}
+                      >
+                        {layer.active ? "ON" : "OFF"}
+                      </span>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 border-t border-[rgba(0,245,255,0.08)] pt-3">
-                  <p className="mono text-[9px] text-[rgba(255,255,255,0.3)]" style={{ letterSpacing: '0.14em' }}>OUTPUT: <span style={{ color: 'var(--cg)' }}>MP4 · 1080×1920 · 30fps</span></p>
+                  <p
+                    className="mono text-[9px] text-[rgba(255,255,255,0.3)]"
+                    style={{ letterSpacing: "0.14em" }}
+                  >
+                    OUTPUT:{" "}
+                    <span style={{ color: "var(--cg)" }}>
+                      MP4 · 1080×1920 · 30fps
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -1622,11 +2243,22 @@ export default function HomePage() {
               <span className="chip-cx">● ANIMATED FLYERS</span>
             </div>
             <h2 className="orb text-[24px] font-bold leading-tight tracking-tight text-white sm:text-[40px]">
-              YOUR FLYER,<br />
-              <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>NOW IN MOTION.</span>
+              YOUR FLYER,
+              <br />
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 24px rgba(0,245,255,0.5)",
+                }}
+              >
+                NOW IN MOTION.
+              </span>
             </h2>
             <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
-              Generate your event flyer, then bring it to life with the animation engine. Add VFX effects — light leaks, particle bursts, glows, and transitions — and export a ready-to-post MP4 video for Reels, TikTok, and Stories.
+              Generate your event flyer, then bring it to life with the
+              animation engine. Add VFX effects — light leaks, particle bursts,
+              glows, and transitions — and export a ready-to-post MP4 video for
+              Reels, TikTok, and Stories.
             </p>
             <div className="mt-6 space-y-3">
               {[
@@ -1635,13 +2267,26 @@ export default function HomePage() {
                 "Export as MP4 — ready for Reels, TikTok, and Stories",
                 "No video editing skills needed",
               ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3 border border-[rgba(0,245,255,0.14)] bg-[rgba(0,245,255,0.04)] px-4 py-3">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]" style={{ fontSize: 10, color: 'var(--cx)' }}>✓</span>
-                  <span className="sans text-sm text-[rgba(255,255,255,0.65)]">{item}</span>
+                <div
+                  key={i}
+                  className="flex items-start gap-3 border border-[rgba(0,245,255,0.14)] bg-[rgba(0,245,255,0.04)] px-4 py-3"
+                >
+                  <span
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]"
+                    style={{ fontSize: 10, color: "var(--cx)" }}
+                  >
+                    ✓
+                  </span>
+                  <span className="sans text-sm text-[rgba(255,255,255,0.65)]">
+                    {item}
+                  </span>
                 </div>
               ))}
             </div>
-            <a href="#pricing" className="btn-cx-solid mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8">
+            <a
+              href="#pricing"
+              className="btn-cx-solid mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8"
+            >
               START ANIMATING
               <ArrowRight size={12} />
             </a>
@@ -1659,11 +2304,22 @@ export default function HomePage() {
               <span className="chip-v">● AI PHOTO ENHANCEMENT</span>
             </div>
             <h2 className="orb text-[24px] font-bold leading-tight tracking-tight text-white sm:text-[40px]">
-              LOOK THE PART<br />
-              <span style={{ color: 'var(--cv)', textShadow: '0 0 24px rgba(191,95,255,0.5)' }}>ON EVERY PLATFORM.</span>
+              LOOK THE PART
+              <br />
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 24px rgba(191,95,255,0.5)",
+                }}
+              >
+                ON EVERY PLATFORM.
+              </span>
             </h2>
             <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
-              Upload a casual or low-quality DJ photo and get back a sharper, more professional-looking image — ready for your profile, press kit, social ads, and anywhere your brand needs to make an impression.
+              Upload a casual or low-quality DJ photo and get back a sharper,
+              more professional-looking image — ready for your profile, press
+              kit, social ads, and anywhere your brand needs to make an
+              impression.
             </p>
             <div className="mt-6 space-y-3">
               {[
@@ -1671,13 +2327,26 @@ export default function HomePage() {
                 "Better lighting, detail, and overall quality",
                 "Use across profiles, press kits, ads, and promo materials",
               ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3 border border-[rgba(191,95,255,0.14)] bg-[rgba(191,95,255,0.04)] px-4 py-3">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]" style={{ fontSize: 10, color: 'var(--cx)' }}>✓</span>
-                  <span className="sans text-sm text-[rgba(255,255,255,0.65)]">{item}</span>
+                <div
+                  key={i}
+                  className="flex items-start gap-3 border border-[rgba(191,95,255,0.14)] bg-[rgba(191,95,255,0.04)] px-4 py-3"
+                >
+                  <span
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]"
+                    style={{ fontSize: 10, color: "var(--cx)" }}
+                  >
+                    ✓
+                  </span>
+                  <span className="sans text-sm text-[rgba(255,255,255,0.65)]">
+                    {item}
+                  </span>
                 </div>
               ))}
             </div>
-            <a href="#pricing" className="btn-cv mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8">
+            <a
+              href="#pricing"
+              className="btn-cv mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8"
+            >
               SEE PLANS
               <ArrowRight size={12} />
             </a>
@@ -1688,26 +2357,72 @@ export default function HomePage() {
             <div className="hud-box-v p-4 sm:p-5" style={{ borderRadius: 0 }}>
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="mono text-[9px] text-[rgba(0,245,255,0.7)]" style={{ letterSpacing: '0.18em' }}>// BEFORE_AFTER_MODULE</p>
-                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">See how a rough photo transforms.</p>
+                  <p
+                    className="mono text-[9px] text-[rgba(0,245,255,0.7)]"
+                    style={{ letterSpacing: "0.18em" }}
+                  >
+                    // BEFORE_AFTER_MODULE
+                  </p>
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">
+                    See how a rough photo transforms.
+                  </p>
                 </div>
                 <span className="chip-cx shrink-0">AI ENHANCED</span>
               </div>
               <div className="relative aspect-[4/5] overflow-hidden border border-[rgba(0,245,255,0.1)] sm:aspect-[5/4]">
-                <img src="/landing/before-after/dj-before.webp" alt="Before" className="absolute inset-0 h-full w-full object-cover" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(3,4,10,0.5), transparent)' }} />
+                <img
+                  src="/landing/before-after/dj-before.webp"
+                  alt="Before"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(3,4,10,0.5), transparent)",
+                  }}
+                />
                 <div className="ba-bl absolute left-3 top-3 z-30">
-                  <span className="chip-cx px-2 py-1" style={{ fontSize: 8 }}>BEFORE</span>
+                  <span className="chip-cx px-2 py-1" style={{ fontSize: 8 }}>
+                    BEFORE
+                  </span>
                 </div>
                 <div className="ba-after absolute inset-0 z-10">
-                  <img src="/landing/before-after/dj-after.jpg" alt="After" className="absolute inset-0 h-full w-full object-cover" />
-                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(3,4,10,0.5), transparent)' }} />
+                  <img
+                    src="/landing/before-after/dj-after.jpg"
+                    alt="After"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(3,4,10,0.5), transparent)",
+                    }}
+                  />
                 </div>
                 <div className="ba-al absolute right-3 top-3 z-30">
-                  <span className="chip-v px-2 py-1" style={{ fontSize: 8 }}>AFTER</span>
+                  <span className="chip-v px-2 py-1" style={{ fontSize: 8 }}>
+                    AFTER
+                  </span>
                 </div>
-                <div className="ba-handle absolute top-0 z-20 h-full w-[1px] -translate-x-1/2" style={{ background: 'var(--cx)', boxShadow: '0 0 14px var(--cx)' }}>
-                  <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-[rgba(0,245,255,0.5)]" style={{ background: '#03040A', color: 'var(--cx)', fontSize: 12 }}>⇆</span>
+                <div
+                  className="ba-handle absolute top-0 z-20 h-full w-[1px] -translate-x-1/2"
+                  style={{
+                    background: "var(--cx)",
+                    boxShadow: "0 0 14px var(--cx)",
+                  }}
+                >
+                  <span
+                    className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-[rgba(0,245,255,0.5)]"
+                    style={{
+                      background: "#03040A",
+                      color: "var(--cx)",
+                      fontSize: 12,
+                    }}
+                  >
+                    ⇆
+                  </span>
                 </div>
               </div>
             </div>
@@ -1718,16 +2433,28 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       {/* ── VISUAL EXAMPLES ── */}
-      <section id="exemplos" className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+      <section
+        id="exemplos"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
+      >
         <div className="max-w-3xl">
           <div className="sect-label">
             <span className="chip-cx">● VISUAL EXAMPLES</span>
           </div>
           <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-            FLYERS, VIDEOS & PHOTOS — <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>ALL AI-GENERATED</span>
+            FLYERS, VIDEOS & PHOTOS —{" "}
+            <span
+              style={{
+                color: "var(--cx)",
+                textShadow: "0 0 24px rgba(0,245,255,0.5)",
+              }}
+            >
+              ALL AI-GENERATED
+            </span>
           </h2>
           <p className="sans mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
-            See what DJs on the platform are creating — premium event flyers, animated MP4 videos with VFX, and AI-enhanced promo photos.
+            See what DJs on the platform are creating — premium event flyers,
+            animated MP4 videos with VFX, and AI-enhanced promo photos.
           </p>
         </div>
         <div className="mt-10 min-h-[420px] sm:min-h-[640px] lg:min-h-[720px]">
@@ -1738,36 +2465,74 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       {/* ── TESTIMONIALS ── */}
-      <section className="relative z-10" style={{ background: 'rgba(0,245,255,0.02)' }}>
+      <section
+        className="relative z-10"
+        style={{ background: "rgba(0,245,255,0.02)" }}
+      >
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
           <div className="text-center">
             <div className="sect-label justify-center">
               <span className="chip-cx">● CLIENT TRANSMISSIONS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              DJS WHO <span style={{ color: 'var(--cv)', textShadow: '0 0 24px rgba(191,95,255,0.5)' }}>LEVELED UP</span> THEIR PROMO
+              DJS WHO{" "}
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 24px rgba(191,95,255,0.5)",
+                }}
+              >
+                LEVELED UP
+              </span>{" "}
+              THEIR PROMO
             </h2>
           </div>
 
           {/* Scroll hint — mobile only */}
-          <p className="mono mt-4 text-center text-[9px] text-[rgba(255,255,255,0.25)] sm:hidden" style={{ letterSpacing: '0.14em' }}>← SWIPE →</p>
+          <p
+            className="mono mt-4 text-center text-[9px] text-[rgba(255,255,255,0.25)] sm:hidden"
+            style={{ letterSpacing: "0.14em" }}
+          >
+            ← SWIPE →
+          </p>
 
           <div className="testi-scroll mt-8 sm:mt-12 sm:grid sm:gap-5 lg:grid-cols-3">
             {testimonials.map((t) => (
               <article key={t.name} className="testi-card">
-                <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full" style={{ background: 'radial-gradient(circle, rgba(0,245,255,0.06), transparent 60%)' }} />
-                <Quote size={18} style={{ color: 'rgba(0,245,255,0.35)' }} />
+                <div
+                  className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(0,245,255,0.06), transparent 60%)",
+                  }}
+                />
+                <Quote size={18} style={{ color: "rgba(0,245,255,0.35)" }} />
                 <p className="sans mt-4 text-[13px] italic leading-7 text-[rgba(255,255,255,0.62)] sm:text-[14px] sm:min-h-[160px]">
                   "{t.quote}"
                 </p>
                 <div className="mt-5 border-t border-[rgba(255,255,255,0.06)] pt-5">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.3)]" style={{ background: 'rgba(0,245,255,0.08)' }}>
-                      <span className="orb text-sm font-bold" style={{ color: 'var(--cx)' }}>{t.initials}</span>
+                    <div
+                      className="flex h-11 w-11 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.3)]"
+                      style={{ background: "rgba(0,245,255,0.08)" }}
+                    >
+                      <span
+                        className="orb text-sm font-bold"
+                        style={{ color: "var(--cx)" }}
+                      >
+                        {t.initials}
+                      </span>
                     </div>
                     <div>
-                      <p className="sans text-sm font-semibold text-white">{t.name}</p>
-                      <p className="mono text-[9px] text-[rgba(255,255,255,0.35)]" style={{ letterSpacing: '0.12em' }}>{t.role} · {t.location}</p>
+                      <p className="sans text-sm font-semibold text-white">
+                        {t.name}
+                      </p>
+                      <p
+                        className="mono text-[9px] text-[rgba(255,255,255,0.35)]"
+                        style={{ letterSpacing: "0.12em" }}
+                      >
+                        {t.role} · {t.location}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -1784,16 +2549,29 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       {/* ── ADVANTAGES ── */}
-      <section id="vantagens" className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+      <section
+        id="vantagens"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
+      >
         <div className="max-w-3xl">
           <div className="sect-label">
             <span className="chip-v">● SYSTEM FEATURES</span>
           </div>
           <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-            THREE TOOLS. ONE <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>PLATFORM.</span>
+            THREE TOOLS. ONE{" "}
+            <span
+              style={{
+                color: "var(--cx)",
+                textShadow: "0 0 24px rgba(0,245,255,0.5)",
+              }}
+            >
+              PLATFORM.
+            </span>
           </h2>
           <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
-            DJ Visuals AI gives you everything you need to create, animate, and present your brand — without designers, video editors, or expensive agencies.
+            DJ Visuals AI gives you everything you need to create, animate, and
+            present your brand — without designers, video editors, or expensive
+            agencies.
           </p>
         </div>
 
@@ -1802,12 +2580,24 @@ export default function HomePage() {
             const Icon = item.icon;
             return (
               <div key={item.title} className="adv-card">
-                <span className="orb absolute right-4 top-3 text-[44px] font-black" style={{ color: 'rgba(0,245,255,0.05)', lineHeight: 1 }}>{String(i + 1).padStart(2, "0")}</span>
-                <div className="inline-flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.25)]" style={{ background: 'rgba(0,245,255,0.07)' }}>
-                  <Icon size={18} style={{ color: 'var(--cx)' }} />
+                <span
+                  className="orb absolute right-4 top-3 text-[44px] font-black"
+                  style={{ color: "rgba(0,245,255,0.05)", lineHeight: 1 }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div
+                  className="inline-flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.25)]"
+                  style={{ background: "rgba(0,245,255,0.07)" }}
+                >
+                  <Icon size={18} style={{ color: "var(--cx)" }} />
                 </div>
-                <h3 className="orb mt-4 text-[12px] font-bold tracking-wider text-white uppercase sm:mt-5 sm:text-[13px]">{item.title}</h3>
-                <p className="sans mt-2 text-sm leading-7 text-[rgba(255,255,255,0.48)] sm:mt-3">{item.description}</p>
+                <h3 className="orb mt-4 text-[12px] font-bold tracking-wider text-white uppercase sm:mt-5 sm:text-[13px]">
+                  {item.title}
+                </h3>
+                <p className="sans mt-2 text-sm leading-7 text-[rgba(255,255,255,0.48)] sm:mt-3">
+                  {item.description}
+                </p>
               </div>
             );
           })}
@@ -1817,7 +2607,11 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       {/* ── HOW IT WORKS ── */}
-      <section id="como-funciona" className="relative z-10" style={{ background: 'rgba(191,95,255,0.02)' }}>
+      <section
+        id="como-funciona"
+        className="relative z-10"
+        style={{ background: "rgba(191,95,255,0.02)" }}
+      >
         <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
             <div>
@@ -1825,14 +2619,31 @@ export default function HomePage() {
                 <span className="chip-cx">● WORKFLOW PROTOCOL</span>
               </div>
               <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-                THREE STEPS TO A <span style={{ color: 'var(--cg)', textShadow: '0 0 20px rgba(0,255,159,0.5)' }}>COMPLETE</span><br />PROMO DROP.
+                THREE STEPS TO A{" "}
+                <span
+                  style={{
+                    color: "var(--cg)",
+                    textShadow: "0 0 20px rgba(0,255,159,0.5)",
+                  }}
+                >
+                  COMPLETE
+                </span>
+                <br />
+                PROMO DROP.
               </h2>
               <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
-                Generate your flyer, animate it into a video, and polish your DJ photo — three tools in one workflow, built to get you from idea to posted content fast.
+                Generate your flyer, animate it into a video, and polish your DJ
+                photo — three tools in one workflow, built to get you from idea
+                to posted content fast.
               </p>
             </div>
             <div className="hud-box-v p-5 sm:p-7">
-              <p className="mono mb-5 text-[9px] text-[rgba(191,95,255,0.7)]" style={{ letterSpacing: '0.18em' }}>// WORKFLOW: FLYER → ANIMATION → PHOTO</p>
+              <p
+                className="mono mb-5 text-[9px] text-[rgba(191,95,255,0.7)]"
+                style={{ letterSpacing: "0.18em" }}
+              >
+                // WORKFLOW: FLYER → ANIMATION → PHOTO
+              </p>
               <div className="space-y-0">
                 {[
                   "Generate a premium event flyer with AI in minutes",
@@ -1840,9 +2651,19 @@ export default function HomePage() {
                   "Enhance your DJ photo for profiles and ads",
                   "Post across Instagram, TikTok, and Stories",
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-4 border-b border-[rgba(255,255,255,0.05)] py-4 last:border-0">
-                    <span className="orb text-[20px] font-black shrink-0" style={{ color: 'rgba(191,95,255,0.3)', lineHeight: 1.2 }}>0{i + 1}</span>
-                    <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.62)]">{item}</span>
+                  <div
+                    key={i}
+                    className="flex items-start gap-4 border-b border-[rgba(255,255,255,0.05)] py-4 last:border-0"
+                  >
+                    <span
+                      className="orb text-[20px] font-black shrink-0"
+                      style={{ color: "rgba(191,95,255,0.3)", lineHeight: 1.2 }}
+                    >
+                      0{i + 1}
+                    </span>
+                    <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.62)]">
+                      {item}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -1861,18 +2682,36 @@ export default function HomePage() {
               <span className="chip-cx">● ACCESS TIERS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              FULL ACCESS. <span style={{ color: 'var(--cx)', textShadow: '0 0 24px rgba(0,245,255,0.5)' }}>THREE TIERS.</span>
+              FULL ACCESS.{" "}
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 24px rgba(0,245,255,0.5)",
+                }}
+              >
+                THREE TIERS.
+              </span>
             </h2>
             <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
-              Every plan includes flyer generation, animated MP4 export, and DJ photo enhancement. Pick the volume that fits your promo schedule.
+              Every plan includes flyer generation, animated MP4 export, and DJ
+              photo enhancement. Pick the volume that fits your promo schedule.
             </p>
           </div>
 
           <div className="mt-8 grid gap-5 sm:mt-12 lg:grid-cols-3">
             {pricingPlans.map((plan) => (
-              <div key={plan.plan} className={`hud-box relative overflow-hidden p-6 transition-all sm:hover:-translate-y-1 ${plan.highlighted ? "plan-featured" : ""}`}>
+              <div
+                key={plan.plan}
+                className={`hud-box relative overflow-hidden p-6 transition-all sm:hover:-translate-y-1 ${plan.highlighted ? "plan-featured" : ""}`}
+              >
                 {plan.highlighted && (
-                  <div className="absolute inset-x-0 top-0 h-[1px]" style={{ background: 'linear-gradient(90deg, transparent, var(--cx), var(--cv), transparent)' }} />
+                  <div
+                    className="absolute inset-x-0 top-0 h-[1px]"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent, var(--cx), var(--cv), transparent)",
+                    }}
+                  />
                 )}
                 {plan.highlighted && (
                   <div className="mb-3">
@@ -1880,17 +2719,35 @@ export default function HomePage() {
                   </div>
                 )}
 
-                <h3 className="orb text-lg font-bold tracking-wider text-white uppercase">{plan.name}</h3>
-                <p className="sans mt-2 text-sm leading-6 text-[rgba(255,255,255,0.48)]">{plan.description}</p>
+                <h3 className="orb text-lg font-bold tracking-wider text-white uppercase">
+                  {plan.name}
+                </h3>
+                <p className="sans mt-2 text-sm leading-6 text-[rgba(255,255,255,0.48)]">
+                  {plan.description}
+                </p>
 
                 <div className="mt-5 flex items-end gap-1">
-                  <span className="orb text-[38px] font-black leading-none text-white" style={{ letterSpacing: '-0.04em' }}>{plan.price}</span>
-                  <span className="sans mb-1 text-sm text-[rgba(255,255,255,0.3)]">{plan.period}</span>
+                  <span
+                    className="orb text-[38px] font-black leading-none text-white"
+                    style={{ letterSpacing: "-0.04em" }}
+                  >
+                    {plan.price}
+                  </span>
+                  <span className="sans mb-1 text-sm text-[rgba(255,255,255,0.3)]">
+                    {plan.period}
+                  </span>
                 </div>
 
                 <div className="mt-4 border border-[rgba(0,245,255,0.15)] bg-[rgba(0,245,255,0.05)] px-4 py-3">
-                  <p className="sans text-sm font-medium" style={{ color: 'var(--cx)' }}>{plan.credits}</p>
-                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.35)]">{plan.costNote}</p>
+                  <p
+                    className="sans text-sm font-medium"
+                    style={{ color: "var(--cx)" }}
+                  >
+                    {plan.credits}
+                  </p>
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.35)]">
+                    {plan.costNote}
+                  </p>
                 </div>
 
                 <div className="mt-5">
@@ -1900,8 +2757,15 @@ export default function HomePage() {
                 <div className="mt-6 space-y-3">
                   {plan.features.map((feature) => (
                     <div key={feature} className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.35)]" style={{ fontSize: 9, color: 'var(--cx)' }}>✓</span>
-                      <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.55)]">{feature}</span>
+                      <span
+                        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.35)]"
+                        style={{ fontSize: 9, color: "var(--cx)" }}
+                      >
+                        ✓
+                      </span>
+                      <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.55)]">
+                        {feature}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1910,7 +2774,8 @@ export default function HomePage() {
           </div>
 
           <p className="sans mx-auto mt-7 max-w-2xl text-center text-xs leading-6 text-[rgba(255,255,255,0.28)]">
-            After payment, your account is created from the email used at checkout. You will receive a secure link to create your password.
+            After payment, your account is created from the email used at
+            checkout. You will receive a secure link to create your password.
           </p>
         </div>
       </section>
@@ -1925,18 +2790,35 @@ export default function HomePage() {
               <span className="chip-v">● SYSTEM FAQ</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              QUESTIONS BEFORE YOU <span style={{ color: 'var(--cv)', textShadow: '0 0 20px rgba(191,95,255,0.5)' }}>DROP YOUR FIRST VISUAL</span>
+              QUESTIONS BEFORE YOU{" "}
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 20px rgba(191,95,255,0.5)",
+                }}
+              >
+                DROP YOUR FIRST VISUAL
+              </span>
             </h2>
           </div>
           <div className="mt-8 space-y-2 sm:mt-12">
             {faqs.map((item) => (
-              <details key={item.question} className="group border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,245,255,0.2)]">
+              <details
+                key={item.question}
+                className="group border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,245,255,0.2)]"
+              >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 sm:px-6 sm:py-5">
-                  <span className="sans text-sm font-medium text-white sm:text-base">{item.question}</span>
-                  <span className="faq-plus flex h-7 w-7 shrink-0 items-center justify-center border border-[rgba(255,255,255,0.1)] text-lg leading-none">+</span>
+                  <span className="sans text-sm font-medium text-white sm:text-base">
+                    {item.question}
+                  </span>
+                  <span className="faq-plus flex h-7 w-7 shrink-0 items-center justify-center border border-[rgba(255,255,255,0.1)] text-lg leading-none">
+                    +
+                  </span>
                 </summary>
                 <div className="border-t border-[rgba(0,245,255,0.08)] px-5 pb-5 pt-4 sm:px-6">
-                  <p className="sans text-sm leading-7 text-[rgba(255,255,255,0.52)]">{item.answer}</p>
+                  <p className="sans text-sm leading-7 text-[rgba(255,255,255,0.52)]">
+                    {item.answer}
+                  </p>
                 </div>
               </details>
             ))}
@@ -1947,23 +2829,55 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       {/* ── FINAL CTA ── */}
-      <section className="relative z-10 overflow-hidden" style={{ background: 'rgba(0,245,255,0.02)' }}>
+      <section
+        className="relative z-10 overflow-hidden"
+        style={{ background: "rgba(0,245,255,0.02)" }}
+      >
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[400px] sm:w-[400px]" style={{ background: 'radial-gradient(circle, rgba(0,245,255,0.08), transparent 60%)' }} />
+          <div
+            className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[400px] sm:w-[400px]"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(0,245,255,0.08), transparent 60%)",
+            }}
+          />
         </div>
         <div className="relative mx-auto w-full max-w-4xl px-4 py-14 text-center sm:px-8 sm:py-24">
           <div className="sect-label justify-center">
             <span className="chip-cx">● START YOUR FIRST DROP</span>
           </div>
           <h2 className="orb text-[28px] font-black leading-tight text-white sm:text-[54px]">
-            YOUR NEXT EVENT<br />
-            DESERVES A <span style={{ color: 'var(--cx)', textShadow: '0 0 40px rgba(0,245,255,0.7)' }}>FLYER,</span><br />
-            <span style={{ color: 'var(--cv)', textShadow: '0 0 40px rgba(191,95,255,0.7)' }}>A VIDEO,</span> AND A LOOK.
+            YOUR NEXT EVENT
+            <br />
+            DESERVES A{" "}
+            <span
+              style={{
+                color: "var(--cx)",
+                textShadow: "0 0 40px rgba(0,245,255,0.7)",
+              }}
+            >
+              FLYER,
+            </span>
+            <br />
+            <span
+              style={{
+                color: "var(--cv)",
+                textShadow: "0 0 40px rgba(191,95,255,0.7)",
+              }}
+            >
+              A VIDEO,
+            </span>{" "}
+            AND A LOOK.
           </h2>
           <p className="sans mx-auto mt-5 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base">
-            Join thousands of DJs generating premium flyers, animated videos, and professional photos — all from one AI platform built for the music scene.
+            Join thousands of DJs generating premium flyers, animated videos,
+            and professional photos — all from one AI platform built for the
+            music scene.
           </p>
-          <a href="#pricing" className="btn-cx-solid mt-8 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:mt-9 sm:px-12 sm:py-4 sm:text-[12px]">
+          <a
+            href="#pricing"
+            className="btn-cx-solid mt-8 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:mt-9 sm:px-12 sm:py-4 sm:text-[12px]"
+          >
             START CREATING NOW
             <ArrowRight size={14} />
           </a>
@@ -1971,14 +2885,30 @@ export default function HomePage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="relative z-10 border-t border-[rgba(0,245,255,0.1)]" style={{ background: '#03040A' }}>
+      <footer
+        className="relative z-10 border-t border-[rgba(0,245,255,0.1)]"
+        style={{ background: "#03040A" }}
+      >
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-8 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
-          <p className="mono text-xs text-[rgba(255,255,255,0.25)]" style={{ letterSpacing: '0.12em' }}>
+          <p
+            className="mono text-xs text-[rgba(255,255,255,0.25)]"
+            style={{ letterSpacing: "0.12em" }}
+          >
             © 2026 DJ VISUALS AI · ALL RIGHTS RESERVED
           </p>
           <nav className="flex flex-wrap items-center gap-6">
-            <Link href="/terms" className="mono text-[10px] text-[rgba(255,255,255,0.28)] tracking-widest uppercase transition hover:text-[var(--cx)]">Terms of Use</Link>
-            <Link href="/privacy" className="mono text-[10px] text-[rgba(255,255,255,0.28)] tracking-widest uppercase transition hover:text-[var(--cx)]">Privacy Policy</Link>
+            <Link
+              href="/terms"
+              className="mono text-[10px] text-[rgba(255,255,255,0.28)] tracking-widest uppercase transition hover:text-[var(--cx)]"
+            >
+              Terms of Use
+            </Link>
+            <Link
+              href="/privacy"
+              className="mono text-[10px] text-[rgba(255,255,255,0.28)] tracking-widest uppercase transition hover:text-[var(--cx)]"
+            >
+              Privacy Policy
+            </Link>
           </nav>
         </div>
       </footer>
@@ -1990,8 +2920,17 @@ function LandingCarouselLoading() {
   return (
     <div className="mx-auto w-full max-w-[1120px]">
       <div className="relative mx-auto w-full max-w-[420px] sm:max-w-[520px] lg:max-w-[620px]">
-        <div className="aspect-[4/5] max-h-[76vh] overflow-hidden border border-[rgba(0,245,255,0.12)]" style={{ background: 'linear-gradient(135deg, #0D0F1A, #03040A)' }}>
-          <div className="h-full w-full animate-pulse" style={{ background: 'linear-gradient(135deg, rgba(0,245,255,0.05), transparent)' }} />
+        <div
+          className="aspect-[4/5] max-h-[76vh] overflow-hidden border border-[rgba(0,245,255,0.12)]"
+          style={{ background: "linear-gradient(135deg, #0D0F1A, #03040A)" }}
+        >
+          <div
+            className="h-full w-full animate-pulse"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(0,245,255,0.05), transparent)",
+            }}
+          />
         </div>
       </div>
     </div>
