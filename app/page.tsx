@@ -1900,15 +1900,6 @@ export default function HomePage() {
               <ArrowRight size={12} />
             </a>
             {/* Hamburger — mobile only */}
-            <button
-              className={`hamburger md:hidden ${menuOpen ? "open" : ""}`}
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Toggle menu"
-            >
-              <span />
-              <span />
-              <span />
-            </button>
           </div>
         </div>
 
