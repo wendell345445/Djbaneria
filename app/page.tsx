@@ -1986,7 +1986,7 @@ export default function HomePage() {
               <span className="cursor" />
             </h1>
 
-            <p className="sans mt-5 text-[14px] leading-7 text-[rgba(255,255,255,0.55)] sm:text-[15px]">
+            <p className="sans mt-5 text-[14px] leading-5 text-[rgba(255,255,255,0.55)] sm:text-[15px]">
               Generate premium event flyers, turn them into animated MP4 videos
               with VFX, and upgrade your DJ photos — all from one AI-powered
               platform built for the music scene.
