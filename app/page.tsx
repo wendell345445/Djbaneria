@@ -1962,7 +1962,7 @@ export default function HomePage() {
               <span className="chip-cx">● AI CREATIVE STUDIO FOR DJS</span>
             </div>
 
-            <h1 className="hero-h1 orb text-[36px] font-black leading-[1.04] tracking-[-0.02em] text-white sm:text-[58px] lg:text-[72px]">
+            <h1 className="hero-h1 orb text-[33px] font-black leading-[1.04] tracking-[-0.02em] text-white sm:text-[58px] lg:text-[72px]">
               FLYERS.
               <br />
               <span
@@ -1982,7 +1982,7 @@ export default function HomePage() {
                 VIDEOS.
               </span>
               <br />
-              DJ PHOTOS
+              PROFESSIONAL PHOTOS
               <span className="cursor" />
             </h1>
 
