@@ -56,6 +56,13 @@ enum MotionRenderStatus {
   FAILED
 }
 
+enum SeedanceVideoStatus {
+  PENDING
+  RENDERING
+  COMPLETED
+  FAILED
+}
+
 enum MotionPreset {
   NEON_PULSE
   CLUB_FLASH
@@ -119,6 +126,7 @@ model Workspace {
   subscription  Subscription?
   banners       Banner[]
   motionRenders BannerMotion[]
+  seedanceVideos SeedanceVideo[]
   assets        Asset[]
   usageEvents   UsageEvent[]
 }
@@ -198,6 +206,44 @@ model BannerMotion {
   @@index([status, createdAt])
 }
 
+model SeedanceVideo {
+  id                    String              @id @default(cuid())
+  workspaceId           String
+  usageEventId          String?
+  providerName          String              @default("seedance")
+  providerModel         String?
+  providerJobId         String?             @unique
+  providerOutputUrl     String?
+  status                SeedanceVideoStatus @default(PENDING)
+  inputImageUrl         String
+  inputImageStorageKey  String?
+  inputAudioUrl         String?
+  inputAudioStorageKey  String?
+  audioOriginalName     String?
+  audioMimeType         String?
+  audioSizeBytes        Int?
+  outputVideoUrl        String?
+  outputVideoStorageKey String?
+  resolution            String
+  motionInstructions    String?
+  prompt                String?
+  width                 Int?
+  height                Int?
+  creditsUsed           Int                 @default(0)
+  durationSeconds       Int                 @default(10)
+  progress              Int                 @default(0)
+  errorMessage          String?
+  expiresAt             DateTime
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([status, createdAt])
+  @@index([expiresAt])
+}
+
 model Asset {
   id              String    @id @default(cuid())
   workspaceId     String
@@ -223,4 +269,14 @@ model UsageEvent {
   workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, createdAt])
+}
+
+model RateLimitBucket {
+  key       String   @id
+  count     Int      @default(0)
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
 }

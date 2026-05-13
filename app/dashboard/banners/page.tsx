@@ -1,56 +1,75 @@
 import Link from "next/link";
 
-import { normalizeLocale } from "@/lib/i18n";
+import { DashboardLibraryStyle } from "@/components/dashboard-library-style";
+import { normalizeLocale, type AppLocale } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
 const bannersPageCopy = {
   "pt-BR": {
-    eyebrow: "Meus banners",
-    title: "Artes do seu workspace",
+    eyebrow: "Biblioteca de flyers",
+    title: "Seus flyers profissionais em um só lugar",
     description:
-      "Visualize os banners criados na sua conta, abra versões recentes e acesse rapidamente a criação de uma nova arte.",
-    newBanner: "Novo banner",
-    emptyTitle: "Você ainda não gerou nenhum banner.",
+      "Acesse, revise e reutilize as artes geradas para seus eventos. Tudo organizado para você abrir pelo celular e continuar criando rápido.",
+    newBanner: "Criar novo flyer",
+    totalLabel: "Flyers criados",
+    readyLabel: "Com preview",
+    formatLabel: "Formatos usados",
+    libraryTitle: "Últimos flyers",
+    libraryDescription: "Abra qualquer arte para visualizar, editar ou baixar novamente.",
+    emptyTitle: "Sua biblioteca ainda está vazia",
     emptyDescription:
-      "Crie sua primeira arte com IA para começar a montar seu histórico de banners neste workspace.",
-    firstBanner: "Criar meu primeiro banner",
+      "Crie seu primeiro flyer com IA e comece a montar um histórico visual premium para suas divulgações.",
+    firstBanner: "Criar meu primeiro flyer",
     noPreview: "Sem preview",
-    fallbackTitle: "Sem título",
-    fallbackDjName: "Sem nome do DJ",
-    fallbackAlt: "Banner",
+    fallbackTitle: "Flyer sem título",
+    fallbackDjName: "Nome do DJ não informado",
+    fallbackAlt: "Flyer gerado",
+    open: "Abrir flyer",
     dateLocale: "pt-BR",
   },
   en: {
-    eyebrow: "My banners",
-    title: "Your workspace artwork",
+    eyebrow: "Flyer library",
+    title: "Your professional flyers in one place",
     description:
-      "View the banners created in your account, open recent versions, and quickly start a new artwork.",
-    newBanner: "New banner",
-    emptyTitle: "You have not generated any banners yet.",
+      "Access, review and reuse the artwork generated for your events. Everything is organized for fast mobile creation.",
+    newBanner: "Create new flyer",
+    totalLabel: "Flyers created",
+    readyLabel: "With preview",
+    formatLabel: "Formats used",
+    libraryTitle: "Latest flyers",
+    libraryDescription: "Open any artwork to preview, edit or download it again.",
+    emptyTitle: "Your library is still empty",
     emptyDescription:
-      "Create your first AI artwork to start building your banner history in this workspace.",
-    firstBanner: "Create my first banner",
+      "Create your first AI flyer and start building a premium visual history for your promotions.",
+    firstBanner: "Create my first flyer",
     noPreview: "No preview",
-    fallbackTitle: "Untitled",
-    fallbackDjName: "No DJ name",
-    fallbackAlt: "Banner",
+    fallbackTitle: "Untitled flyer",
+    fallbackDjName: "No DJ name provided",
+    fallbackAlt: "Generated flyer",
+    open: "Open flyer",
     dateLocale: "en-US",
   },
   es: {
-    eyebrow: "Mis banners",
-    title: "Artes de tu workspace",
+    eyebrow: "Biblioteca de flyers",
+    title: "Tus flyers profesionales en un solo lugar",
     description:
-      "Visualiza los banners creados en tu cuenta, abre versiones recientes y accede rápidamente a la creación de una nueva arte.",
-    newBanner: "Nuevo banner",
-    emptyTitle: "Aún no has generado ningún banner.",
+      "Accede, revisa y reutiliza las artes generadas para tus eventos. Todo organizado para crear rápido desde el móvil.",
+    newBanner: "Crear nuevo flyer",
+    totalLabel: "Flyers creados",
+    readyLabel: "Con vista previa",
+    formatLabel: "Formatos usados",
+    libraryTitle: "Últimos flyers",
+    libraryDescription: "Abre cualquier arte para verla, editarla o descargarla de nuevo.",
+    emptyTitle: "Tu biblioteca aún está vacía",
     emptyDescription:
-      "Crea tu primera arte con IA para empezar a construir tu historial de banners en este workspace.",
-    firstBanner: "Crear mi primer banner",
+      "Crea tu primer flyer con IA y empieza a construir un historial visual premium para tus promociones.",
+    firstBanner: "Crear mi primer flyer",
     noPreview: "Sin vista previa",
-    fallbackTitle: "Sin título",
-    fallbackDjName: "Sin nombre del DJ",
-    fallbackAlt: "Banner",
+    fallbackTitle: "Flyer sin título",
+    fallbackDjName: "Nombre del DJ no informado",
+    fallbackAlt: "Flyer generado",
+    open: "Abrir flyer",
     dateLocale: "es-ES",
   },
 } as const;
@@ -77,98 +96,214 @@ export default async function BannersPage() {
     },
   });
 
+  const readyCount = banners.filter((banner) => Boolean(banner.outputImageUrl)).length;
+  const formatCount = new Set(banners.map((banner) => banner.format)).size;
+
   return (
-    <main className="mx-auto max-w-[1320px] px-5 py-7">
-      <div className="mb-7 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div className="max-w-3xl">
-          <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/45">
-            {copy.eyebrow}
-          </p>
-          <h1 className="text-3xl font-semibold leading-tight text-white xl:text-[40px]">
-            {copy.title}
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-white/60">
-            {copy.description}
-          </p>
-        </div>
+    <main className="library-root relative min-h-screen overflow-hidden px-4 pb-10 pt-4 text-white sm:px-6 lg:px-8 lg:py-8">
+      <DashboardLibraryStyle />
+      <div className="pointer-events-none absolute inset-0 z-0 library-grid-bg" />
+      <div className="pointer-events-none absolute left-[-120px] top-[-120px] z-0 h-[320px] w-[320px] rounded-full bg-[rgba(0,245,255,0.16)] blur-[90px] library-glow-a" />
+      <div className="pointer-events-none absolute right-[-160px] top-[24%] z-0 h-[360px] w-[360px] rounded-full bg-[rgba(191,95,255,0.17)] blur-[100px] library-glow-b" />
+      <div className="pointer-events-none absolute bottom-[-180px] left-[18%] z-0 h-[360px] w-[360px] rounded-full bg-[rgba(255,45,107,0.10)] blur-[110px]" />
 
-        <Link
-          href="/dashboard/banners/new"
-          className="inline-flex min-h-[50px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
-        >
-          {copy.newBanner}
-        </Link>
-      </div>
+      <div className="relative z-10 mx-auto w-full max-w-[1320px]">
+        <section id="flyers" className="library-panel p-4 sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="library-mono text-[9px] uppercase tracking-[0.24em] text-[rgba(0,245,255,0.52)]">
+                {copy.libraryTitle}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-white/58">
+                {copy.libraryDescription}
+              </p>
+            </div>
 
-      {banners.length === 0 ? (
-        <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,14,28,0.96),rgba(5,10,20,0.94))] p-8 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
-          <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-14 text-center">
-            <p className="text-base font-medium text-white/90">
-              {copy.emptyTitle}
-            </p>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-white/55">
-              {copy.emptyDescription}
-            </p>
-
-            <div className="mt-6">
+            {banners.length > 0 ? (
               <Link
                 href="/dashboard/banners/new"
-                className="inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-5 text-sm font-medium text-white transition hover:bg-white/[0.08]"
+                className="library-btn min-h-[44px] px-4 text-[9px]"
+              >
+                {copy.newBanner}
+              </Link>
+            ) : null}
+          </div>
+
+          {banners.length === 0 ? (
+            <div className="mt-5 border border-dashed border-[rgba(0,245,255,0.18)] bg-[rgba(0,245,255,0.035)] p-6 text-center sm:p-10">
+              <p className="library-orb text-lg font-bold uppercase text-white sm:text-2xl">
+                {copy.emptyTitle}
+              </p>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-white/58">
+                {copy.emptyDescription}
+              </p>
+
+              <Link
+                href="/dashboard/banners/new"
+                className="library-btn-solid mt-6 inline-flex min-h-[48px] px-5 text-[10px]"
               >
                 {copy.firstBanner}
               </Link>
             </div>
+          ) : (
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {banners.map((banner) => (
+                <BannerLibraryCard
+                  key={banner.id}
+                  banner={banner}
+                  copy={copy}
+                  locale={locale}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_400px]">
+          <div className="library-panel library-hero relative overflow-hidden p-5 sm:p-6 lg:p-7">
+            <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent opacity-70" />
+            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
+
+            <div className="relative z-10">
+              <div className="library-section-label">
+                <span className="library-chip">● {copy.eyebrow}</span>
+              </div>
+
+              <h1 className="library-orb mt-5 max-w-4xl text-[30px] font-black uppercase leading-[0.96] tracking-[-0.05em] text-white sm:text-5xl lg:text-[62px]">
+                {copy.title}
+              </h1>
+
+              <p className="mt-4 max-w-2xl text-[14px] leading-7 text-white/58 sm:text-[15px]">
+                {copy.description}
+              </p>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/dashboard/banners/new"
+                  className="library-btn-solid min-h-[50px] px-5 text-[10px]"
+                >
+                  {copy.newBanner}
+                </Link>
+              </div>
+            </div>
           </div>
+
+          <aside className="library-panel relative overflow-hidden p-5">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[rgba(191,95,255,0.14)] blur-3xl" />
+            <div className="relative z-10 grid gap-3">
+              <LibraryMetric label={copy.totalLabel} value={String(banners.length)} tone="cyan" />
+              <LibraryMetric label={copy.readyLabel} value={String(readyCount)} tone="violet" />
+              <LibraryMetric label={copy.formatLabel} value={String(formatCount)} tone="green" />
+            </div>
+          </aside>
         </section>
-      ) : (
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {banners.map((banner) => (
-            <Link
-              key={banner.id}
-              href={`/dashboard/banners/${banner.id}`}
-              className="group overflow-hidden rounded-[24px] border border-white/8 bg-white/[0.03] transition hover:border-white/15 hover:bg-white/[0.05]"
-            >
-              <div className="relative aspect-[4/5] overflow-hidden bg-white/[0.02]">
-                {banner.outputImageUrl ? (
-                  <img
-                    src={banner.outputImageUrl}
-                    alt={banner.title || copy.fallbackAlt}
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                  />
-                ) : (
-                  <div className="grid h-full place-items-center text-sm text-white/45">
-                    {copy.noPreview}
-                  </div>
-                )}
-              </div>
-
-              <div className="grid gap-2 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="line-clamp-1 text-base font-semibold text-white">
-                      {banner.title || copy.fallbackTitle}
-                    </h2>
-                    <p className="mt-1 text-sm text-white/55">
-                      {banner.djName || copy.fallbackDjName}
-                    </p>
-                  </div>
-
-                  <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-white/60">
-                    {banner.format}
-                  </span>
-                </div>
-
-                <p className="text-xs text-white/45">
-                  {new Intl.DateTimeFormat(copy.dateLocale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  }).format(banner.createdAt)}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </section>
-      )}
+      </div>
     </main>
   );
+}
+
+function LibraryMetric({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "cyan" | "violet" | "green";
+}) {
+  const toneClass =
+    tone === "cyan"
+      ? "text-[var(--cx)]"
+      : tone === "violet"
+        ? "text-[var(--cv)]"
+        : "text-[var(--cg)]";
+
+  return (
+    <div className="library-soft-panel p-4">
+      <p className={`library-mono text-[9px] uppercase tracking-[0.2em] ${toneClass}`}>
+        {label}
+      </p>
+      <p className="library-orb mt-2 text-3xl font-black text-white sm:text-4xl">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function BannerLibraryCard({
+  banner,
+  copy,
+  locale,
+}: {
+  banner: {
+    id: string;
+    title: string | null;
+    djName: string | null;
+    format: string;
+    outputImageUrl: string | null;
+    createdAt: Date;
+  };
+  copy: (typeof bannersPageCopy)[AppLocale];
+  locale: AppLocale;
+}) {
+  const title = banner.title || copy.fallbackTitle;
+
+  return (
+    <Link
+      href={`/dashboard/banners/${banner.id}`}
+      className="library-card group block active:scale-[0.99]"
+    >
+      <div className="library-media relative aspect-[4/5] overflow-hidden">
+        {banner.outputImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={banner.outputImageUrl}
+            alt={title}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
+          />
+        ) : (
+          <div className="grid h-full place-items-center text-sm text-white/45">
+            {copy.noPreview}
+          </div>
+        )}
+
+        <span className="library-chip absolute left-3 top-3 z-10 bg-black/55 backdrop-blur">
+          {formatBannerFormat(banner.format)}
+        </span>
+      </div>
+
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="truncate text-base font-semibold text-white">
+              {title}
+            </h2>
+            <p className="mt-1 truncate text-sm text-white/50">
+              {banner.djName || copy.fallbackDjName}
+            </p>
+          </div>
+        </div>
+
+        <p className="library-mono mt-3 text-[9px] uppercase tracking-[0.12em] text-white/36">
+          {formatDate(banner.createdAt, locale)}
+        </p>
+
+        <span className="library-btn mt-4 flex min-h-[40px] w-full px-3 text-[9px]">
+          {copy.open}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function formatBannerFormat(value: string) {
+  return value.replace(/_/g, " ");
+}
+
+function formatDate(date: Date, locale: AppLocale) {
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }

@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const r2Client = new S3Client({
   region: "auto",
@@ -56,5 +56,40 @@ export async function uploadBannerBuffer(params: {
 
   return {
     url: uploaded.url,
+  };
+}
+
+export async function deleteObjectFromR2(key?: string | null) {
+  if (!key) return false;
+
+  const bucket = process.env.R2_BUCKET_NAME;
+
+  if (!bucket) {
+    throw new Error("R2 não configurado.");
+  }
+
+  await r2Client.send(
+    new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    }),
+  );
+
+  return true;
+}
+
+export async function deleteObjectsFromR2(keys: Array<string | null | undefined>) {
+  const uniqueKeys = Array.from(
+    new Set(keys.filter((key): key is string => Boolean(key))),
+  );
+
+  const results = await Promise.allSettled(
+    uniqueKeys.map((key) => deleteObjectFromR2(key)),
+  );
+
+  return {
+    attempted: uniqueKeys.length,
+    deleted: results.filter((result) => result.status === "fulfilled").length,
+    failed: results.filter((result) => result.status === "rejected").length,
   };
 }

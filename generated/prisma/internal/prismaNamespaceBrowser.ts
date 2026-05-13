@@ -56,6 +56,7 @@ export const ModelName = {
   Subscription: 'Subscription',
   Banner: 'Banner',
   BannerMotion: 'BannerMotion',
+  SeedanceVideo: 'SeedanceVideo',
   Asset: 'Asset',
   UsageEvent: 'UsageEvent'
 } as const
@@ -185,6 +186,41 @@ export const BannerMotionScalarFieldEnum = {
 } as const
 
 export type BannerMotionScalarFieldEnum = (typeof BannerMotionScalarFieldEnum)[keyof typeof BannerMotionScalarFieldEnum]
+
+
+export const SeedanceVideoScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  usageEventId: 'usageEventId',
+  providerName: 'providerName',
+  providerModel: 'providerModel',
+  providerJobId: 'providerJobId',
+  providerOutputUrl: 'providerOutputUrl',
+  status: 'status',
+  inputImageUrl: 'inputImageUrl',
+  inputImageStorageKey: 'inputImageStorageKey',
+  inputAudioUrl: 'inputAudioUrl',
+  inputAudioStorageKey: 'inputAudioStorageKey',
+  audioOriginalName: 'audioOriginalName',
+  audioMimeType: 'audioMimeType',
+  audioSizeBytes: 'audioSizeBytes',
+  outputVideoUrl: 'outputVideoUrl',
+  outputVideoStorageKey: 'outputVideoStorageKey',
+  resolution: 'resolution',
+  motionInstructions: 'motionInstructions',
+  prompt: 'prompt',
+  width: 'width',
+  height: 'height',
+  creditsUsed: 'creditsUsed',
+  durationSeconds: 'durationSeconds',
+  progress: 'progress',
+  errorMessage: 'errorMessage',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SeedanceVideoScalarFieldEnum = (typeof SeedanceVideoScalarFieldEnum)[keyof typeof SeedanceVideoScalarFieldEnum]
 
 
 export const AssetScalarFieldEnum = {

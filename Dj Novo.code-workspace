@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"name": "Dj Novo",
+		"path": "."
+	},
+	{
+		"name": "scripts",
+		"path": "../../Downloads/remotion-vps-worker-flow/scripts"
+	}
+],
+  "settings": {}
+}

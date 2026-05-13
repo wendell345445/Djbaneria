@@ -140,7 +140,7 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const ip = getClientIp(request);
-  const rateLimit = consumeRateLimit(`public-checkout:${ip}`, {
+  const rateLimit = await consumeRateLimit(`public-checkout:${ip}`, {
     limit: 20,
     windowMs: 60 * 60 * 1000,
   });

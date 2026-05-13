@@ -400,7 +400,7 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const ip = getClientIp(request);
-  const rateLimit = consumeRateLimit(`banners:edit:${ip}`, {
+  const rateLimit = await consumeRateLimit(`banners:edit:${ip}`, {
     limit: 20,
     windowMs: 10 * 60 * 1000,
   });
@@ -595,8 +595,7 @@ export async function POST(request: Request) {
     await refundReservedCredit(reservedUsageEventId);
 
     const creditExhausted =
-      error instanceof Error &&
-      error.message === "Você usou todos os seus créditos deste mês.";
+      error instanceof Error && error.message.includes("créditos");
 
     if (!creditExhausted) {
       console.error("Erro ao iniciar edição do banner:", error);

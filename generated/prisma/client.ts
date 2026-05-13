@@ -67,6 +67,11 @@ export type Banner = Prisma.BannerModel
  */
 export type BannerMotion = Prisma.BannerMotionModel
 /**
+ * Model SeedanceVideo
+ * 
+ */
+export type SeedanceVideo = Prisma.SeedanceVideoModel
+/**
  * Model Asset
  * 
  */

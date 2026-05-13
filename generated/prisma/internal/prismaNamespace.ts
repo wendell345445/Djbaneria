@@ -389,6 +389,7 @@ export const ModelName = {
   Subscription: 'Subscription',
   Banner: 'Banner',
   BannerMotion: 'BannerMotion',
+  SeedanceVideo: 'SeedanceVideo',
   Asset: 'Asset',
   UsageEvent: 'UsageEvent'
 } as const
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "subscription" | "banner" | "bannerMotion" | "asset" | "usageEvent"
+    modelProps: "user" | "workspace" | "subscription" | "banner" | "bannerMotion" | "seedanceVideo" | "asset" | "usageEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -780,6 +781,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SeedanceVideo: {
+      payload: Prisma.$SeedanceVideoPayload<ExtArgs>
+      fields: Prisma.SeedanceVideoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SeedanceVideoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SeedanceVideoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>
+        }
+        findFirst: {
+          args: Prisma.SeedanceVideoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SeedanceVideoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>
+        }
+        findMany: {
+          args: Prisma.SeedanceVideoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>[]
+        }
+        create: {
+          args: Prisma.SeedanceVideoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>
+        }
+        createMany: {
+          args: Prisma.SeedanceVideoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SeedanceVideoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>[]
+        }
+        delete: {
+          args: Prisma.SeedanceVideoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>
+        }
+        update: {
+          args: Prisma.SeedanceVideoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>
+        }
+        deleteMany: {
+          args: Prisma.SeedanceVideoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SeedanceVideoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SeedanceVideoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>[]
+        }
+        upsert: {
+          args: Prisma.SeedanceVideoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SeedanceVideoPayload>
+        }
+        aggregate: {
+          args: Prisma.SeedanceVideoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSeedanceVideo>
+        }
+        groupBy: {
+          args: Prisma.SeedanceVideoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SeedanceVideoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SeedanceVideoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SeedanceVideoCountAggregateOutputType> | number
+        }
+      }
+    }
     Asset: {
       payload: Prisma.$AssetPayload<ExtArgs>
       fields: Prisma.AssetFieldRefs
@@ -1078,6 +1153,41 @@ export const BannerMotionScalarFieldEnum = {
 export type BannerMotionScalarFieldEnum = (typeof BannerMotionScalarFieldEnum)[keyof typeof BannerMotionScalarFieldEnum]
 
 
+export const SeedanceVideoScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  usageEventId: 'usageEventId',
+  providerName: 'providerName',
+  providerModel: 'providerModel',
+  providerJobId: 'providerJobId',
+  providerOutputUrl: 'providerOutputUrl',
+  status: 'status',
+  inputImageUrl: 'inputImageUrl',
+  inputImageStorageKey: 'inputImageStorageKey',
+  inputAudioUrl: 'inputAudioUrl',
+  inputAudioStorageKey: 'inputAudioStorageKey',
+  audioOriginalName: 'audioOriginalName',
+  audioMimeType: 'audioMimeType',
+  audioSizeBytes: 'audioSizeBytes',
+  outputVideoUrl: 'outputVideoUrl',
+  outputVideoStorageKey: 'outputVideoStorageKey',
+  resolution: 'resolution',
+  motionInstructions: 'motionInstructions',
+  prompt: 'prompt',
+  width: 'width',
+  height: 'height',
+  creditsUsed: 'creditsUsed',
+  durationSeconds: 'durationSeconds',
+  progress: 'progress',
+  errorMessage: 'errorMessage',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SeedanceVideoScalarFieldEnum = (typeof SeedanceVideoScalarFieldEnum)[keyof typeof SeedanceVideoScalarFieldEnum]
+
+
 export const AssetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -1316,6 +1426,20 @@ export type ListEnumMotionRenderStatusFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'SeedanceVideoStatus'
+ */
+export type EnumSeedanceVideoStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SeedanceVideoStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SeedanceVideoStatus[]'
+ */
+export type ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SeedanceVideoStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'UsageEventType'
  */
 export type EnumUsageEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsageEventType'>
@@ -1471,6 +1595,7 @@ export type GlobalOmitConfig = {
   subscription?: Prisma.SubscriptionOmit
   banner?: Prisma.BannerOmit
   bannerMotion?: Prisma.BannerMotionOmit
+  seedanceVideo?: Prisma.SeedanceVideoOmit
   asset?: Prisma.AssetOmit
   usageEvent?: Prisma.UsageEventOmit
 }

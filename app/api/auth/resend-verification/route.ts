@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const ip = getClientIp(request);
-  const rateLimit = consumeRateLimit(`auth:resend-email:${ip}`, {
+  const rateLimit = await consumeRateLimit(`auth:resend-email:${ip}`, {
     limit: 10,
     windowMs: 60 * 60 * 1000,
   });

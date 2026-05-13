@@ -1,5 +1,7 @@
 import Link from "next/link";
 import {
+  BannerStatus,
+  SeedanceVideoStatus,
   SubscriptionPlan,
   SubscriptionStatus,
   UsageEventType,
@@ -16,7 +18,22 @@ import {
 import { prisma } from "@/lib/prisma";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
+type DashboardAction = {
+  title: string;
+  description: string;
+  cta: string;
+  href: string;
+  badge: string;
+  icon: string;
+  featured?: boolean;
+};
+
 type DashboardPageCopy = {
+  header: {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
   plan: {
     adminSuffix: string;
     unlimited: string;
@@ -29,27 +46,42 @@ type DashboardPageCopy = {
     metricRemaining: string;
     unlimitedTesting: string;
     periodConsumption: string;
+    creditsAvailable: string;
+    creditsDescription: string;
+    lowCreditsTitle: string;
+    lowCreditsDescription: string;
+    upgradeCta: string;
+    costFlyer: string;
+    costImage: string;
+    costVideo480: string;
+    costVideo720: string;
   };
-  hero: {
-    eyebrow: string;
+  actions: {
     title: string;
     description: string;
-    primaryCta: string;
-    secondaryCta: string;
+    items: DashboardAction[];
   };
-  steps: Array<{
-    number: string;
+  continue: {
+    title: string;
+    idleTitle: string;
+    idleDescription: string;
+    pendingTitle: string;
+    pendingDescription: string;
+    pendingBanner: string;
+    pendingVideo: string;
+    viewBanners: string;
+    viewVideos: string;
+  };
+  suggestion: {
     title: string;
     description: string;
-  }>;
+    cta: string;
+  };
   cards: {
     generatedTitle: string;
     generatedHelper: string;
-    creditsTitle: string;
-    creditsAdminHelper: string;
-    creditsHelper: string;
-    remainingTitle: string;
-    remainingHelper: string;
+    videosTitle: string;
+    videosHelper: string;
   };
   adminNotice: {
     eyebrow: string;
@@ -59,8 +91,15 @@ type DashboardPageCopy = {
   plans: Record<SubscriptionPlan, string>;
 };
 
+
 const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
   en: {
+    header: {
+      eyebrow: "Creative studio",
+      title: "Create premium visuals for your next event",
+      description:
+        "Start a flyer, animate an existing design or improve your DJ photo with AI. Everything is organized for fast mobile creation.",
+    },
     plan: {
       adminSuffix: "Admin",
       unlimited: "Unlimited",
@@ -69,49 +108,78 @@ const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
       essential: "Essential",
       admin: "Admin",
       metricPlan: "Plan",
-      metricUsage: "Usage",
-      metricRemaining: "Remaining",
+      metricUsage: "Used",
+      metricRemaining: "Left",
       unlimitedTesting: "Unlimited usage for tests",
-      periodConsumption: "Period consumption",
+      periodConsumption: "Current cycle usage",
+      creditsAvailable: "Credits available",
+      creditsDescription: "Use credits to create flyers, animated videos and professional images.",
+      lowCreditsTitle: "Credits are running low",
+      lowCreditsDescription: "Upgrade your plan to keep creating without interruption.",
+      upgradeCta: "View plans",
+      costFlyer: "Flyer: 1 credit",
+      costImage: "Professional image: 1 credit",
+      costVideo480: "Animated video 480p: 3 credits",
+      costVideo720: "Animated video 720p: 5 credits",
     },
-    hero: {
-      eyebrow: "Quick action",
-      title: "Create a professional banner in a few steps",
+    actions: {
+      title: "What do you want to create today?",
+      description: "Choose the fastest path and start from the right tool.",
+      items: [
+        {
+          title: "Create flyer",
+          description: "Generate a polished flyer for parties, shows and DJ events.",
+          cta: "Start flyer",
+          href: "/dashboard/banners/new",
+          badge: "1 credit",
+          icon: "✦",
+          featured: true,
+        },
+        {
+          title: "Animate flyer",
+          description: "Turn a ready flyer into a 10-second video with motion and automatic music.",
+          cta: "Animate now",
+          href: "/dashboard/flyer-animado",
+          badge: "3–5 credits",
+          icon: "▶",
+        },
+        {
+          title: "Professional image",
+          description: "Create a cleaner promo photo for flyers, profiles and ads.",
+          cta: "Improve photo",
+          href: "/dashboard/imagem-profissional",
+          badge: "1 credit",
+          icon: "◇",
+        },
+      ],
+    },
+    continue: {
+      title: "Continue your work",
+      idleTitle: "Ready for a new creation",
+      idleDescription: "No active render right now. Start a new flyer or animate your last design.",
+      pendingTitle: "Creation in progress",
+      pendingDescription: "One or more creations are still being processed. Open the right area to check progress.",
+      pendingBanner: "flyer in progress",
+      pendingVideo: "video in progress",
+      viewBanners: "View flyers",
+      viewVideos: "View videos",
+    },
+    suggestion: {
+      title: "Recommended next step",
       description:
-        "Fill in the brief, generate the AI preview and download the final artwork without complication.",
-      primaryCta: "Create banner now",
-      secondaryCta: "Go to my banners",
+        "Animate your best flyer and use it in Reels, Stories and paid ads to make the creative stand out faster.",
+      cta: "Animate a flyer",
     },
-    steps: [
-      {
-        number: "1",
-        title: "Fill in the details",
-        description: "Title, DJ name, date and event location.",
-      },
-      {
-        number: "2",
-        title: "Generate the preview",
-        description: "AI creates the banner in the selected format.",
-      },
-      {
-        number: "3",
-        title: "Download or adjust",
-        description: "Make changes and download the final version.",
-      },
-    ],
     cards: {
-      generatedTitle: "Generated banners",
-      generatedHelper: "Total created in this workspace",
-      creditsTitle: "Period credits",
-      creditsAdminHelper: "Admin account with unrestricted usage",
-      creditsHelper: "Usage in the current cycle",
-      remainingTitle: "Remaining",
-      remainingHelper: "Credits available for new generations and edits",
+      generatedTitle: "Flyers created",
+      generatedHelper: "Total in this workspace",
+      videosTitle: "Videos created",
+      videosHelper: "Animated flyers generated",
     },
     adminNotice: {
       eyebrow: "Admin test mode",
       description:
-        "This account is allowed to generate banners without credit limits during tests.",
+        "This account can generate flyers, videos and images without credit limits during tests.",
     },
     status: {
       TRIALING: "Trial active",
@@ -128,6 +196,12 @@ const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
     },
   },
   "pt-BR": {
+    header: {
+      eyebrow: "Estúdio criativo",
+      title: "Crie visuais premium para o seu próximo evento",
+      description:
+        "Comece um flyer, anime uma arte pronta ou melhore sua foto de DJ com IA. Tudo organizado para criar rápido pelo celular.",
+    },
     plan: {
       adminSuffix: "Admin",
       unlimited: "Ilimitado",
@@ -136,49 +210,78 @@ const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
       essential: "Essencial",
       admin: "Admin",
       metricPlan: "Plano",
-      metricUsage: "Uso",
-      metricRemaining: "Restantes",
+      metricUsage: "Usados",
+      metricRemaining: "Restam",
       unlimitedTesting: "Uso ilimitado para testes",
-      periodConsumption: "Consumo do período",
+      periodConsumption: "Uso do ciclo atual",
+      creditsAvailable: "Créditos disponíveis",
+      creditsDescription: "Use seus créditos para criar flyers, vídeos animados e imagens profissionais.",
+      lowCreditsTitle: "Seus créditos estão acabando",
+      lowCreditsDescription: "Faça upgrade para continuar criando sem interrupções.",
+      upgradeCta: "Ver planos",
+      costFlyer: "Flyer: 1 crédito",
+      costImage: "Imagem profissional: 1 crédito",
+      costVideo480: "Vídeo animado 480p: 3 créditos",
+      costVideo720: "Vídeo animado 720p: 5 créditos",
     },
-    hero: {
-      eyebrow: "Ação rápida",
-      title: "Crie um banner profissional em poucos passos",
+    actions: {
+      title: "O que você quer criar hoje?",
+      description: "Escolha o caminho mais rápido e comece pela ferramenta certa.",
+      items: [
+        {
+          title: "Criar flyer",
+          description: "Gere uma arte profissional para festas, shows e eventos de DJ.",
+          cta: "Começar flyer",
+          href: "/dashboard/banners/new",
+          badge: "1 crédito",
+          icon: "✦",
+          featured: true,
+        },
+        {
+          title: "Animar flyer",
+          description: "Transforme um flyer pronto em vídeo de 10 segundos com movimento e música automática.",
+          cta: "Animar agora",
+          href: "/dashboard/flyer-animado",
+          badge: "3–5 créditos",
+          icon: "▶",
+        },
+        {
+          title: "Imagem profissional",
+          description: "Crie uma foto promocional mais limpa para flyers, perfis e anúncios.",
+          cta: "Melhorar foto",
+          href: "/dashboard/imagem-profissional",
+          badge: "1 crédito",
+          icon: "◇",
+        },
+      ],
+    },
+    continue: {
+      title: "Continue de onde parou",
+      idleTitle: "Pronto para uma nova criação",
+      idleDescription: "Não há nenhuma geração ativa agora. Crie um novo flyer ou anime sua última arte.",
+      pendingTitle: "Criação em andamento",
+      pendingDescription: "Uma ou mais criações ainda estão sendo processadas. Abra a área correta para acompanhar.",
+      pendingBanner: "flyer em andamento",
+      pendingVideo: "vídeo em andamento",
+      viewBanners: "Ver flyers",
+      viewVideos: "Ver vídeos",
+    },
+    suggestion: {
+      title: "Próximo passo recomendado",
       description:
-        "Preencha o briefing, gere o preview com IA e baixe a arte pronta sem complicação.",
-      primaryCta: "Criar banner agora",
-      secondaryCta: "Ir para meus banners",
+        "Anime seu melhor flyer e use em Reels, Stories e anúncios para o criativo chamar mais atenção rapidamente.",
+      cta: "Animar um flyer",
     },
-    steps: [
-      {
-        number: "1",
-        title: "Preencha os dados",
-        description: "Título, nome do DJ, data e local do evento.",
-      },
-      {
-        number: "2",
-        title: "Gere o preview",
-        description: "A IA monta o banner no formato escolhido.",
-      },
-      {
-        number: "3",
-        title: "Baixe ou ajuste",
-        description: "Faça alterações e baixe a versão final.",
-      },
-    ],
     cards: {
-      generatedTitle: "Banners gerados",
-      generatedHelper: "Total criado no workspace",
-      creditsTitle: "Créditos do período",
-      creditsAdminHelper: "Conta admin com uso liberado",
-      creditsHelper: "Consumo no ciclo atual",
-      remainingTitle: "Restantes",
-      remainingHelper: "Créditos disponíveis para novas gerações e alterações",
+      generatedTitle: "Flyers criados",
+      generatedHelper: "Total neste workspace",
+      videosTitle: "Vídeos criados",
+      videosHelper: "Flyers animados gerados",
     },
     adminNotice: {
       eyebrow: "Modo teste admin",
       description:
-        "Esta conta está liberada para gerar banners sem limite de créditos durante os testes.",
+        "Esta conta pode gerar flyers, vídeos e imagens sem limite de créditos durante os testes.",
     },
     status: {
       TRIALING: "Teste ativo",
@@ -195,6 +298,12 @@ const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
     },
   },
   es: {
+    header: {
+      eyebrow: "Estudio creativo",
+      title: "Crea visuales premium para tu próximo evento",
+      description:
+        "Empieza un flyer, anima un diseño listo o mejora tu foto de DJ con IA. Todo organizado para crear rápido desde el móvil.",
+    },
     plan: {
       adminSuffix: "Admin",
       unlimited: "Ilimitado",
@@ -203,50 +312,78 @@ const DASHBOARD_PAGE_COPY: Record<AppLocale, DashboardPageCopy> = {
       essential: "Esencial",
       admin: "Admin",
       metricPlan: "Plan",
-      metricUsage: "Uso",
-      metricRemaining: "Restantes",
+      metricUsage: "Usados",
+      metricRemaining: "Quedan",
       unlimitedTesting: "Uso ilimitado para pruebas",
-      periodConsumption: "Consumo del período",
+      periodConsumption: "Uso del ciclo actual",
+      creditsAvailable: "Créditos disponibles",
+      creditsDescription: "Usa tus créditos para crear flyers, videos animados e imágenes profesionales.",
+      lowCreditsTitle: "Tus créditos se están acabando",
+      lowCreditsDescription: "Actualiza tu plan para seguir creando sin interrupciones.",
+      upgradeCta: "Ver planes",
+      costFlyer: "Flyer: 1 crédito",
+      costImage: "Imagen profesional: 1 crédito",
+      costVideo480: "Video animado 480p: 3 créditos",
+      costVideo720: "Video animado 720p: 5 créditos",
     },
-    hero: {
-      eyebrow: "Acción rápida",
-      title: "Crea un banner profesional en pocos pasos",
+    actions: {
+      title: "¿Qué quieres crear hoy?",
+      description: "Elige el camino más rápido y empieza con la herramienta correcta.",
+      items: [
+        {
+          title: "Crear flyer",
+          description: "Genera una pieza profesional para fiestas, shows y eventos de DJ.",
+          cta: "Empezar flyer",
+          href: "/dashboard/banners/new",
+          badge: "1 crédito",
+          icon: "✦",
+          featured: true,
+        },
+        {
+          title: "Animar flyer",
+          description: "Convierte un flyer listo en un video de 10 segundos con movimiento y música automática.",
+          cta: "Animar ahora",
+          href: "/dashboard/flyer-animado",
+          badge: "3–5 créditos",
+          icon: "▶",
+        },
+        {
+          title: "Imagen profesional",
+          description: "Crea una foto promocional más limpia para flyers, perfiles y anuncios.",
+          cta: "Mejorar foto",
+          href: "/dashboard/imagem-profissional",
+          badge: "1 crédito",
+          icon: "◇",
+        },
+      ],
+    },
+    continue: {
+      title: "Continúa donde lo dejaste",
+      idleTitle: "Listo para una nueva creación",
+      idleDescription: "No hay ninguna generación activa ahora. Crea un nuevo flyer o anima tu último diseño.",
+      pendingTitle: "Creación en progreso",
+      pendingDescription: "Una o más creaciones siguen procesándose. Abre el área correcta para revisar el progreso.",
+      pendingBanner: "flyer en progreso",
+      pendingVideo: "video en progreso",
+      viewBanners: "Ver flyers",
+      viewVideos: "Ver videos",
+    },
+    suggestion: {
+      title: "Siguiente paso recomendado",
       description:
-        "Completa el briefing, genera la vista previa con IA y descarga el arte final sin complicaciones.",
-      primaryCta: "Crear banner ahora",
-      secondaryCta: "Ir a mis banners",
+        "Anima tu mejor flyer y úsalo en Reels, Stories y anuncios para que el creativo destaque más rápido.",
+      cta: "Animar un flyer",
     },
-    steps: [
-      {
-        number: "1",
-        title: "Completa los datos",
-        description: "Título, nombre del DJ, fecha y lugar del evento.",
-      },
-      {
-        number: "2",
-        title: "Genera la vista previa",
-        description: "La IA crea el banner en el formato seleccionado.",
-      },
-      {
-        number: "3",
-        title: "Descarga o ajusta",
-        description: "Haz cambios y descarga la versión final.",
-      },
-    ],
     cards: {
-      generatedTitle: "Banners generados",
-      generatedHelper: "Total creado en el workspace",
-      creditsTitle: "Créditos del período",
-      creditsAdminHelper: "Cuenta admin con uso liberado",
-      creditsHelper: "Consumo en el ciclo actual",
-      remainingTitle: "Restantes",
-      remainingHelper:
-        "Créditos disponibles para nuevas generaciones y ediciones",
+      generatedTitle: "Flyers creados",
+      generatedHelper: "Total en este workspace",
+      videosTitle: "Videos creados",
+      videosHelper: "Flyers animados generados",
     },
     adminNotice: {
       eyebrow: "Modo prueba admin",
       description:
-        "Esta cuenta puede generar banners sin límite de créditos durante las pruebas.",
+        "Esta cuenta puede generar flyers, videos e imágenes sin límite de créditos durante las pruebas.",
     },
     status: {
       TRIALING: "Prueba activa",
@@ -284,30 +421,39 @@ export default async function DashboardPage() {
     currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
   });
 
-  const [bannerCount, usageEvents] = await Promise.all([
-    prisma.banner.count({
-      where: { workspaceId: workspace.id },
-    }),
-    prisma.usageEvent.findMany({
-      where: {
-        workspaceId: workspace.id,
-        createdAt: { gte: billingPeriod.start, lt: billingPeriod.end },
-        type: {
-          in: [
-            UsageEventType.BANNER_GENERATION,
-            UsageEventType.BANNER_EDIT,
-            UsageEventType.BANNER_VARIATION,
-            UsageEventType.BANNER_MOTION_RENDER,
-          ],
+  const [bannerCount, videoCount, usageEvents, pendingBannerCount, pendingVideoCount] =
+    await Promise.all([
+      prisma.banner.count({ where: { workspaceId: workspace.id } }),
+      prisma.seedanceVideo.count({ where: { workspaceId: workspace.id } }),
+      prisma.usageEvent.findMany({
+        where: {
+          workspaceId: workspace.id,
+          createdAt: { gte: billingPeriod.start, lt: billingPeriod.end },
+          type: {
+            in: [
+              UsageEventType.BANNER_GENERATION,
+              UsageEventType.BANNER_EDIT,
+              UsageEventType.BANNER_VARIATION,
+              UsageEventType.BANNER_MOTION_RENDER,
+            ],
+          },
         },
-      },
-      select: {
-        units: true,
-        createdAt: true,
-        metadata: true,
-      },
-    }),
-  ]);
+        select: {
+          units: true,
+          createdAt: true,
+          metadata: true,
+        },
+      }),
+      prisma.banner.count({
+        where: { workspaceId: workspace.id, status: BannerStatus.PENDING },
+      }),
+      prisma.seedanceVideo.count({
+        where: {
+          workspaceId: workspace.id,
+          status: { in: [SeedanceVideoStatus.PENDING, SeedanceVideoStatus.RENDERING] },
+        },
+      }),
+    ]);
 
   const summary = buildBillingSummary({
     plan: currentPlan,
@@ -334,7 +480,6 @@ export default async function DashboardPage() {
   const remainingLabel = isAdmin
     ? copy.plan.unlimited
     : String(dashboardRemainingCredits);
-  const carryoverLabel = null;
   const usagePercent = isAdmin
     ? 100
     : dashboardCreditLimit > 0
@@ -344,104 +489,112 @@ export default async function DashboardPage() {
         )
       : 0;
 
+  const hasPendingWork = pendingBannerCount > 0 || pendingVideoCount > 0;
+  const lowCredits = !isAdmin && dashboardRemainingCredits <= 3;
+
+
   return (
-    <main className="mx-auto max-w-[1320px] px-5 py-7">
-      <div className="mb-7 flex justify-center xl:justify-end">
-        <div className="w-full xl:max-w-[460px]">
+    <main className="dash-root relative min-h-screen overflow-hidden px-4 pb-10 pt-4 text-white sm:px-6 lg:px-8 lg:py-8">
+      <DashboardSalesStyle />
+      <div className="pointer-events-none absolute inset-0 z-0 dash-grid" />
+      <div className="pointer-events-none absolute left-[-120px] top-[-120px] z-0 h-[320px] w-[320px] rounded-full bg-[rgba(0,245,255,0.16)] blur-[90px] dash-float-a" />
+      <div className="pointer-events-none absolute right-[-160px] top-[30%] z-0 h-[360px] w-[360px] rounded-full bg-[rgba(191,95,255,0.17)] blur-[100px] dash-float-b" />
+      <div className="pointer-events-none absolute bottom-[-180px] left-[18%] z-0 h-[360px] w-[360px] rounded-full bg-[rgba(255,45,107,0.10)] blur-[110px]" />
+
+      <div className="relative z-10 mx-auto w-full max-w-[1320px]">
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_390px] xl:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="dash-panel dash-hero relative overflow-hidden p-4 sm:p-6 lg:p-7">
+            <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent opacity-70" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-[var(--cx)] via-[var(--cv)] to-transparent opacity-35" />
+
+            <div className="relative z-10 flex flex-col gap-5 lg:min-h-[420px] lg:justify-between">
+              <div>
+                <div className="dash-section-label">
+                  <span className="dash-chip">● {copy.header.eyebrow}</span>
+                </div>
+
+                <h1 className="dash-orb mt-4 max-w-4xl text-[30px] font-black uppercase leading-[0.95] tracking-[-0.05em] text-white sm:text-5xl lg:text-[64px]">
+                  {copy.header.title}
+                </h1>
+
+                <p className="mt-4 max-w-2xl text-[14px] leading-7 text-white/58 sm:text-[15px]">
+                  {copy.header.description}
+                </p>
+              </div>
+
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="dash-mono text-[9px] uppercase tracking-[0.24em] text-[rgba(0,245,255,0.58)]">
+                      {copy.actions.title}
+                    </p>
+                    <p className="mt-1 text-xs text-white/42 sm:text-sm">
+                      {copy.actions.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {copy.actions.items.map((action) => (
+                    <ActionCard key={action.href} action={action} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <PlanUsageCard
             copy={copy}
             plan={summary.plan}
             planLabel={planLabel}
             usageLabel={usageLabel}
             remainingLabel={remainingLabel}
-            carryoverLabel={null}
             usagePercent={usagePercent}
             status={summary.status}
             isAdmin={isAdmin}
+            lowCredits={lowCredits}
           />
-        </div>
-      </div>
-
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_360px]">
-        <div className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,32,0.98),rgba(7,12,24,0.96))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
-          <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-sky-400/10 blur-3xl" />
-          <div className="absolute -bottom-14 left-8 h-44 w-44 rounded-full bg-violet-400/10 blur-3xl" />
-
-          <div className="relative z-10 flex h-full flex-col justify-between gap-6">
-            <div className="max-w-2xl">
-              <span className="inline-flex rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-sky-100">
-                {copy.hero.eyebrow}
-              </span>
-
-              <h2 className="mt-4 text-[28px] font-semibold leading-tight text-white">
-                {copy.hero.title}
-              </h2>
-
-              <p className="mt-3 text-[12px] leading-6 text-white/70">
-                {copy.hero.description}
-              </p>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              {copy.steps.map((step) => (
-                <QuickStep
-                  key={step.number}
-                  number={step.number}
-                  title={step.title}
-                  description={step.description}
-                />
-              ))}
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/dashboard/banners/new"
-                className="inline-flex min-h-[52px] items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95"
-              >
-                {copy.hero.primaryCta}
-              </Link>
-
-              <Link
-                href="/dashboard/banners"
-                className="inline-flex min-h-[52px] items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] px-5 text-sm font-medium text-white transition hover:bg-white/[0.08]"
-              >
-                {copy.hero.secondaryCta}
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-4">
-          <InfoCard
-            title={copy.cards.generatedTitle}
-            value={String(bannerCount)}
-            helper={copy.cards.generatedHelper}
-          />
-          <InfoCard
-            title={copy.cards.creditsTitle}
-            value={usageLabel}
-            helper={
-              isAdmin ? copy.cards.creditsAdminHelper : copy.cards.creditsHelper
-            }
-          />
-          <InfoCard
-            title={copy.cards.remainingTitle}
-            value={remainingLabel}
-            helper={copy.cards.remainingHelper}
-          />
-        </div>
-      </section>
-
-      {isAdmin ? (
-        <section className="mt-5 rounded-3xl border border-white/10 bg-gradient-to-br from-sky-400/8 to-violet-400/10 p-5">
-          <p className="m-0 text-xs uppercase tracking-[0.2em] text-white/50">
-            {copy.adminNotice.eyebrow}
-          </p>
-          <p className="mt-2 text-sm leading-7 text-white/80">
-            {copy.adminNotice.description}
-          </p>
         </section>
-      ) : null}
+
+        <section className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <ContinueCard
+            copy={copy}
+            hasPendingWork={hasPendingWork}
+            pendingBannerCount={pendingBannerCount}
+            pendingVideoCount={pendingVideoCount}
+          />
+
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <InfoCard
+              title={copy.cards.generatedTitle}
+              value={String(bannerCount)}
+              helper={copy.cards.generatedHelper}
+              tone="cyan"
+            />
+            <InfoCard
+              title={copy.cards.videosTitle}
+              value={String(videoCount)}
+              helper={copy.cards.videosHelper}
+              tone="violet"
+            />
+          </div>
+        </section>
+
+        <section className="mt-4">
+          <SuggestionCard copy={copy} />
+        </section>
+
+        {isAdmin ? (
+          <section className="dash-panel mt-4 p-5">
+            <p className="dash-mono text-[9px] uppercase tracking-[0.24em] text-[var(--cg)]">
+              {copy.adminNotice.eyebrow}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-white/68">
+              {copy.adminNotice.description}
+            </p>
+          </section>
+        ) : null}
+      </div>
     </main>
   );
 }
@@ -454,93 +607,140 @@ function getStatusLabel(status: SubscriptionStatus, copy: DashboardPageCopy) {
   return copy.status[status] ?? status;
 }
 
+function ActionCard({ action }: { action: DashboardAction }) {
+  return (
+    <Link
+      href={action.href}
+      className={`dash-action group relative min-h-[154px] overflow-hidden p-4 transition duration-300 active:scale-[0.99] sm:min-h-[188px] ${
+        action.featured ? "dash-action-featured" : ""
+      }`}
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent opacity-0 transition group-hover:opacity-70" />
+      <div className="flex items-start justify-between gap-3">
+        <span className="dash-icon-box">
+          {action.icon}
+        </span>
+        <span className="dash-mono rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.12em] text-white/62 backdrop-blur">
+          {action.badge}
+        </span>
+      </div>
+
+      <h2 className="dash-orb mt-4 text-[15px] font-bold uppercase tracking-[-0.02em] text-white sm:text-[17px]">
+        {action.title}
+      </h2>
+      <p className="mt-2 text-[12px] leading-5 text-white/56 sm:text-[13px] sm:leading-6">
+        {action.description}
+      </p>
+      <span className="dash-mono mt-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--cx)]">
+        {action.cta}
+        <span aria-hidden="true" className="transition group-hover:translate-x-1">
+          →
+        </span>
+      </span>
+    </Link>
+  );
+}
+
 function PlanUsageCard({
   copy,
   plan,
   planLabel,
   usageLabel,
   remainingLabel,
-  carryoverLabel,
   usagePercent,
   status,
   isAdmin,
+  lowCredits,
 }: {
   copy: DashboardPageCopy;
   plan: SubscriptionPlan;
   planLabel: string;
   usageLabel: string;
   remainingLabel: string;
-  carryoverLabel: string | null;
   usagePercent: number;
   status: SubscriptionStatus;
   isAdmin: boolean;
+  lowCredits: boolean;
 }) {
   const isPremium =
     plan === SubscriptionPlan.PROFESSIONAL || plan === SubscriptionPlan.STUDIO;
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.16),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.025))] p-4 shadow-[0_24px_90px_rgba(0,0,0,0.25)] backdrop-blur">
-      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-sky-200/70 to-transparent" />
-      <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-sky-300/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-12 left-8 h-28 w-28 rounded-full bg-violet-400/10 blur-3xl" />
+    <section className="dash-panel relative overflow-hidden p-4 sm:p-5">
+      <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cv)] to-transparent opacity-80" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 left-0 h-44 w-44 rounded-full bg-[rgba(191,95,255,0.13)] blur-3xl" />
 
-      <div className="relative z-10 flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.22em] text-white/45">
-            {copy.plan.currentPlan}
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <strong className="text-xl font-semibold leading-none text-white">
-              {planLabel}
-            </strong>
-            <span
-              className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
-                isPremium
-                  ? "border-amber-200/30 bg-amber-200/10 text-amber-100"
-                  : "border-sky-200/25 bg-sky-200/10 text-sky-100"
-              }`}
-            >
-              {isPremium ? copy.plan.premium : copy.plan.essential}
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="dash-mono text-[9px] uppercase tracking-[0.24em] text-white/42">
+              {copy.plan.creditsAvailable}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <strong className="dash-orb text-[34px] font-black leading-none text-white sm:text-[44px]">
+                {remainingLabel}
+              </strong>
+              <span className="dash-chip-v">{planLabel}</span>
+            </div>
+          </div>
+
+          <span className="dash-status-chip">
+            {isAdmin ? copy.plan.admin : getStatusLabel(status, copy)}
+          </span>
+        </div>
+
+        <p className="mt-3 text-[13px] leading-6 text-white/58 sm:text-sm">
+          {copy.plan.creditsDescription}
+        </p>
+
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <PlanMetric label={copy.plan.metricPlan} value={planLabel} />
+          <PlanMetric label={copy.plan.metricUsage} value={usageLabel} />
+          <PlanMetric label={copy.plan.metricRemaining} value={remainingLabel} highlight />
+        </div>
+
+        <div className="mt-4 rounded-none border border-[rgba(0,245,255,0.16)] bg-black/35 p-3 shadow-[inset_0_0_26px_rgba(0,245,255,0.05)]">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <span className="dash-mono text-[9px] uppercase tracking-[0.16em] text-white/42">
+              {isAdmin ? copy.plan.unlimitedTesting : copy.plan.periodConsumption}
             </span>
+            <strong className="dash-mono text-[10px] text-[var(--cx)]">
+              {isAdmin ? "∞" : `${usagePercent}%`}
+            </strong>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[var(--cx)] via-[var(--cv)] to-[var(--ce)] shadow-[0_0_18px_rgba(0,245,255,0.55)] transition-all duration-700"
+              style={{ width: `${usagePercent}%` }}
+            />
           </div>
         </div>
 
-        <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100">
-          {isAdmin ? copy.plan.admin : getStatusLabel(status, copy)}
-        </span>
+        <div className="mt-4 grid gap-2 text-[12px] text-white/62 sm:grid-cols-2">
+          <CreditCostPill text={copy.plan.costFlyer} />
+          <CreditCostPill text={copy.plan.costImage} />
+          <CreditCostPill text={copy.plan.costVideo480} />
+          <CreditCostPill text={copy.plan.costVideo720} />
+        </div>
+
+        {lowCredits ? (
+          <div className="mt-4 border border-[rgba(255,210,80,0.22)] bg-[rgba(255,210,80,0.08)] p-4">
+            <p className="text-sm font-semibold text-amber-50">
+              {copy.plan.lowCreditsTitle}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-amber-50/72">
+              {copy.plan.lowCreditsDescription}
+            </p>
+            <Link href="/dashboard/billing" className="dash-btn-solid mt-3 flex min-h-[44px] w-full items-center justify-center px-4 text-[10px]">
+              {copy.plan.upgradeCta}
+            </Link>
+          </div>
+        ) : null}
       </div>
 
-      <div className="relative z-10 mt-4 grid grid-cols-3 gap-2">
-        <PlanMetric label={copy.plan.metricPlan} value={planLabel} />
-        <PlanMetric label={copy.plan.metricUsage} value={usageLabel} />
-        <PlanMetric
-          label={copy.plan.metricRemaining}
-          value={remainingLabel}
-          highlight
-        />
-      </div>
-
-      {carryoverLabel ? (
-        <p className="relative z-10 mt-3 rounded-2xl border border-amber-200/20 bg-amber-200/10 px-3 py-2 text-xs leading-5 text-amber-50">
-          {carryoverLabel}
-        </p>
-      ) : null}
-
-      <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
-        <div className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
-          <span>
-            {isAdmin ? copy.plan.unlimitedTesting : copy.plan.periodConsumption}
-          </span>
-          <strong className="text-white/85">
-            {isAdmin ? "∞" : `${usagePercent}%`}
-          </strong>
-        </div>
-        <div className="h-2 overflow-hidden rounded-full bg-white/10">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 transition-all duration-700"
-            style={{ width: `${usagePercent}%` }}
-          />
-        </div>
+      <div className="sr-only">
+        {isPremium ? copy.plan.premium : copy.plan.essential}
       </div>
     </section>
   );
@@ -557,39 +757,95 @@ function PlanMetric({
 }) {
   return (
     <div
-      className={`rounded-2xl border px-3 py-3 text-center ${
+      className={`border px-2 py-3 text-center ${
         highlight
-          ? "border-sky-200/20 bg-sky-200/10"
-          : "border-white/10 bg-white/[0.045]"
+          ? "border-[rgba(0,245,255,0.25)] bg-[rgba(0,245,255,0.08)]"
+          : "border-white/10 bg-white/[0.035]"
       }`}
     >
-      <p className="m-0 text-[9px] uppercase tracking-[0.16em] text-white/42">
+      <p className="dash-mono m-0 text-[8px] uppercase tracking-[0.14em] text-white/36 sm:text-[9px]">
         {label}
       </p>
-      <div className="mt-1.5 truncate text-[13px] font-semibold leading-none text-white">
+      <div className="mt-1.5 truncate text-[12px] font-semibold leading-none text-white sm:text-[13px]">
         {value}
       </div>
     </div>
   );
 }
 
-function QuickStep({
-  number,
-  title,
-  description,
+function CreditCostPill({ text }: { text: string }) {
+  return (
+    <p className="dash-mono border border-white/10 bg-white/[0.035] px-3 py-2 text-[9px] uppercase tracking-[0.08em] text-white/54">
+      {text}
+    </p>
+  );
+}
+
+function ContinueCard({
+  copy,
+  hasPendingWork,
+  pendingBannerCount,
+  pendingVideoCount,
 }: {
-  number: string;
-  title: string;
-  description: string;
+  copy: DashboardPageCopy;
+  hasPendingWork: boolean;
+  pendingBannerCount: number;
+  pendingVideoCount: number;
 }) {
   return (
-    <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
-      <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold text-white">
-        {number}
+    <section className="dash-panel p-5">
+      <p className="dash-mono text-[9px] uppercase tracking-[0.24em] text-[rgba(0,245,255,0.52)]">
+        {copy.continue.title}
+      </p>
+      <h2 className="dash-orb mt-3 text-[21px] font-bold uppercase tracking-[-0.03em] text-white">
+        {hasPendingWork ? copy.continue.pendingTitle : copy.continue.idleTitle}
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-white/58">
+        {hasPendingWork
+          ? copy.continue.pendingDescription
+          : copy.continue.idleDescription}
+      </p>
+
+      {hasPendingWork ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {pendingBannerCount > 0 ? (
+            <span className="dash-chip">{pendingBannerCount} {copy.continue.pendingBanner}</span>
+          ) : null}
+          {pendingVideoCount > 0 ? (
+            <span className="dash-chip-v">{pendingVideoCount} {copy.continue.pendingVideo}</span>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <Link href="/dashboard/banners" className="dash-btn min-h-[46px] px-4 text-[10px]">
+          {copy.continue.viewBanners}
+        </Link>
+        <Link href="/dashboard/meus-videos" className="dash-btn min-h-[46px] px-4 text-[10px]">
+          {copy.continue.viewVideos}
+        </Link>
       </div>
-      <h3 className="text-sm font-semibold text-white">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-white/60">{description}</p>
-    </div>
+    </section>
+  );
+}
+
+function SuggestionCard({ copy }: { copy: DashboardPageCopy }) {
+  return (
+    <section className="dash-panel relative overflow-hidden p-5">
+      <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[rgba(191,95,255,0.16)] blur-3xl" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cv)] to-transparent opacity-70" />
+      <div className="relative z-10">
+        <p className="dash-mono text-[9px] uppercase tracking-[0.24em] text-[var(--cv)]">
+          {copy.suggestion.title}
+        </p>
+        <p className="mt-3 text-sm leading-7 text-white/64">
+          {copy.suggestion.description}
+        </p>
+        <Link href="/dashboard/flyer-animado" className="dash-btn-solid mt-5 flex min-h-[48px] w-full items-center justify-center px-5 text-[10px]">
+          {copy.suggestion.cta}
+        </Link>
+      </div>
+    </section>
   );
 }
 
@@ -597,18 +853,249 @@ function InfoCard({
   title,
   value,
   helper,
+  tone,
 }: {
   title: string;
   value: string;
   helper: string;
+  tone: "cyan" | "violet";
 }) {
   return (
-    <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,14,28,0.96),rgba(5,10,20,0.94))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">
+    <div className="dash-panel p-4 sm:p-5">
+      <p className={`dash-mono text-[9px] uppercase tracking-[0.2em] ${tone === "cyan" ? "text-[var(--cx)]" : "text-[var(--cv)]"}`}>
         {title}
       </p>
-      <h3 className="mt-2 text-2xl font-semibold text-white">{value}</h3>
-      <p className="mt-2 text-sm leading-6 text-white/60">{helper}</p>
+      <h3 className="dash-orb mt-2 text-3xl font-black text-white sm:text-4xl">
+        {value}
+      </h3>
+      <p className="mt-2 text-xs leading-5 text-white/54 sm:text-sm sm:leading-6">
+        {helper}
+      </p>
     </div>
+  );
+}
+
+function DashboardSalesStyle() {
+  return (
+    <style
+      dangerouslySetInnerHTML={{
+        __html: `
+          @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+          .dash-root {
+            --cx: #00F5FF;
+            --cv: #BF5FFF;
+            --ce: #FF2D6B;
+            --cg: #00FF9F;
+            --cx10: rgba(0,245,255,0.10);
+            --cv10: rgba(191,95,255,0.10);
+            --surface: rgba(255,255,255,0.035);
+            --surface2: rgba(255,255,255,0.055);
+            background:
+              radial-gradient(circle at 18% 0%, rgba(0,245,255,0.10), transparent 30%),
+              radial-gradient(circle at 90% 18%, rgba(191,95,255,0.13), transparent 34%),
+              linear-gradient(180deg, #03040A 0%, #060816 45%, #03040A 100%);
+            color: #E8EAF0;
+            font-family: 'DM Sans', sans-serif;
+          }
+
+          .dash-orb { font-family: 'Orbitron', monospace; }
+          .dash-mono { font-family: 'Space Mono', monospace; }
+
+          .dash-grid {
+            background-image:
+              linear-gradient(rgba(0,245,255,0.018) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,245,255,0.018) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, black, rgba(0,0,0,0.72), transparent);
+          }
+
+          @keyframes dashFloatA {
+            0%,100% { transform: translate(0,0) scale(1); }
+            45% { transform: translate(32px,-18px) scale(1.05); }
+            75% { transform: translate(-18px,18px) scale(0.98); }
+          }
+
+          @keyframes dashFloatB {
+            0%,100% { transform: translate(0,0) scale(1); }
+            45% { transform: translate(-24px,22px) scale(1.04); }
+            75% { transform: translate(18px,-12px) scale(0.97); }
+          }
+
+          .dash-float-a { animation: dashFloatA 22s ease-in-out infinite; }
+          .dash-float-b { animation: dashFloatB 28s ease-in-out infinite; }
+
+          .dash-panel,
+          .dash-action {
+            position: relative;
+            border: 1px solid rgba(0,245,255,0.16);
+            background:
+              linear-gradient(135deg, rgba(255,255,255,0.065), rgba(255,255,255,0.022)),
+              radial-gradient(circle at top left, rgba(0,245,255,0.06), transparent 34%),
+              rgba(3,4,10,0.78);
+            box-shadow:
+              0 22px 80px rgba(0,0,0,0.38),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+            backdrop-filter: blur(18px);
+          }
+
+          .dash-panel::before,
+          .dash-panel::after,
+          .dash-action::before,
+          .dash-action::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+            opacity: 0.78;
+          }
+
+          .dash-panel::before,
+          .dash-action::before {
+            top: -1px;
+            left: -1px;
+            border-top: 2px solid var(--cx);
+            border-left: 2px solid var(--cx);
+          }
+
+          .dash-panel::after,
+          .dash-action::after {
+            right: -1px;
+            bottom: -1px;
+            border-right: 2px solid var(--cv);
+            border-bottom: 2px solid var(--cv);
+          }
+
+          .dash-hero {
+            border-color: rgba(0,245,255,0.22);
+            box-shadow:
+              0 0 90px rgba(0,245,255,0.10),
+              0 28px 100px rgba(0,0,0,0.54),
+              inset 0 1px 0 rgba(255,255,255,0.065);
+          }
+
+          .dash-section-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .dash-section-label::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 1px;
+            background: var(--cx);
+            box-shadow: 0 0 8px var(--cx);
+          }
+
+          .dash-chip,
+          .dash-chip-v,
+          .dash-status-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,245,255,0.24);
+            background: rgba(0,245,255,0.08);
+            color: var(--cx);
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            line-height: 1;
+            padding: 8px 10px;
+            text-transform: uppercase;
+          }
+
+          .dash-chip-v {
+            border-color: rgba(191,95,255,0.26);
+            background: rgba(191,95,255,0.10);
+            color: var(--cv);
+          }
+
+          .dash-status-chip {
+            border-color: rgba(0,255,159,0.24);
+            background: rgba(0,255,159,0.08);
+            color: var(--cg);
+          }
+
+          .dash-action {
+            border-color: rgba(255,255,255,0.10);
+          }
+
+          .dash-action:hover {
+            border-color: rgba(0,245,255,0.30);
+            transform: translateY(-2px);
+            box-shadow:
+              0 0 58px rgba(0,245,255,0.10),
+              0 24px 80px rgba(0,0,0,0.44),
+              inset 0 1px 0 rgba(255,255,255,0.07);
+          }
+
+          .dash-action-featured {
+            border-color: rgba(0,245,255,0.30);
+            background:
+              linear-gradient(135deg, rgba(0,245,255,0.10), rgba(191,95,255,0.055)),
+              rgba(3,4,10,0.82);
+          }
+
+          .dash-icon-box {
+            display: inline-flex;
+            height: 44px;
+            width: 44px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,245,255,0.18);
+            background: rgba(0,245,255,0.07);
+            color: var(--cx);
+            font-size: 18px;
+            box-shadow: inset 0 0 20px rgba(0,245,255,0.05);
+          }
+
+          .dash-btn,
+          .dash-btn-solid {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,245,255,0.28);
+            background: rgba(0,245,255,0.055);
+            color: var(--cx);
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            transition: all 180ms ease;
+          }
+
+          .dash-btn:hover {
+            background: rgba(0,245,255,0.10);
+            box-shadow: 0 0 28px rgba(0,245,255,0.16);
+          }
+
+          .dash-btn-solid {
+            border-color: var(--cx);
+            background: var(--cx);
+            color: #03040A;
+            box-shadow: 0 0 28px rgba(0,245,255,0.28);
+          }
+
+          .dash-btn-solid:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 34px rgba(0,245,255,0.42), 0 18px 46px rgba(0,0,0,0.35);
+          }
+
+          @media (max-width: 640px) {
+            .dash-panel::before,
+            .dash-panel::after,
+            .dash-action::before,
+            .dash-action::after {
+              width: 14px;
+              height: 14px;
+            }
+          }
+        `,
+      }}
+    />
   );
 }

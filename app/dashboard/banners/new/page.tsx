@@ -190,7 +190,14 @@ export default async function NewBannerPage() {
       : 0;
 
   return (
-    <main className="mx-auto max-w-[1320px] px-5 py-7">
+    <main className="new-banner-root relative min-h-screen overflow-hidden px-4 pb-10 pt-4 text-white sm:px-6 lg:px-8 lg:py-8">
+      <NewBannerSalesStyle />
+      <div className="pointer-events-none absolute inset-0 z-0 nb-grid" />
+      <div className="pointer-events-none absolute left-[-130px] top-[-120px] z-0 h-[320px] w-[320px] rounded-full bg-[rgba(0,245,255,0.15)] blur-[95px] nb-float-a" />
+      <div className="pointer-events-none absolute right-[-170px] top-[24%] z-0 h-[360px] w-[360px] rounded-full bg-[rgba(191,95,255,0.16)] blur-[105px] nb-float-b" />
+      <div className="pointer-events-none absolute bottom-[-190px] left-[22%] z-0 h-[360px] w-[360px] rounded-full bg-[rgba(255,45,107,0.10)] blur-[115px]" />
+
+      <div className="relative z-10 mx-auto w-full max-w-[1320px]">
       {!isAdmin && !workspace.user?.emailVerifiedAt ? (
         <EmailVerificationRequiredCard
           email={workspace.user?.email || ""}
@@ -208,7 +215,7 @@ export default async function NewBannerPage() {
       )}
 
       {isAdmin ? (
-        <section className="mt-5 rounded-3xl border border-sky-300/15 bg-gradient-to-br from-sky-400/10 via-white/[0.03] to-violet-400/10 p-5 shadow-[0_24px_80px_rgba(56,189,248,0.08)]">
+        <section className="nb-panel mt-5 p-5">
           <p className="m-0 text-xs uppercase tracking-[0.2em] text-white/50">
             {copy.adminTestMode}
           </p>
@@ -217,7 +224,178 @@ export default async function NewBannerPage() {
           </p>
         </section>
       ) : null}
+      </div>
     </main>
+  );
+}
+
+function NewBannerSalesStyle() {
+  return (
+    <style
+      dangerouslySetInnerHTML={{
+        __html: `
+          @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+          .new-banner-root {
+            --cx: #00F5FF;
+            --cv: #BF5FFF;
+            --ce: #FF2D6B;
+            --cg: #00FF9F;
+            background:
+              radial-gradient(circle at 18% 0%, rgba(0,245,255,0.10), transparent 30%),
+              radial-gradient(circle at 88% 18%, rgba(191,95,255,0.13), transparent 34%),
+              linear-gradient(180deg, #03040A 0%, #060816 45%, #03040A 100%);
+            color: #E8EAF0;
+            font-family: 'DM Sans', sans-serif;
+          }
+
+          .nb-orb { font-family: 'Orbitron', monospace; }
+          .nb-mono { font-family: 'Space Mono', monospace; }
+
+          .nb-grid {
+            background-image:
+              linear-gradient(rgba(0,245,255,0.018) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,245,255,0.018) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(to bottom, black, rgba(0,0,0,0.74), transparent);
+          }
+
+          @keyframes nbFloatA {
+            0%,100% { transform: translate(0,0) scale(1); }
+            45% { transform: translate(32px,-18px) scale(1.05); }
+            75% { transform: translate(-18px,18px) scale(0.98); }
+          }
+
+          @keyframes nbFloatB {
+            0%,100% { transform: translate(0,0) scale(1); }
+            45% { transform: translate(-24px,22px) scale(1.04); }
+            75% { transform: translate(18px,-12px) scale(0.97); }
+          }
+
+          .nb-float-a { animation: nbFloatA 22s ease-in-out infinite; }
+          .nb-float-b { animation: nbFloatB 28s ease-in-out infinite; }
+
+          .nb-panel {
+            position: relative;
+            border: 1px solid rgba(0,245,255,0.16);
+            background:
+              linear-gradient(135deg, rgba(255,255,255,0.065), rgba(255,255,255,0.022)),
+              radial-gradient(circle at top left, rgba(0,245,255,0.06), transparent 34%),
+              rgba(3,4,10,0.78);
+            box-shadow:
+              0 22px 80px rgba(0,0,0,0.38),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+            backdrop-filter: blur(18px);
+          }
+
+          .nb-panel::before,
+          .nb-panel::after,
+          .nb-inner-panel::before,
+          .nb-inner-panel::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            pointer-events: none;
+            opacity: 0.78;
+          }
+
+          .nb-panel::before,
+          .nb-inner-panel::before {
+            top: -1px;
+            left: -1px;
+            border-top: 2px solid var(--cx);
+            border-left: 2px solid var(--cx);
+          }
+
+          .nb-panel::after,
+          .nb-inner-panel::after {
+            right: -1px;
+            bottom: -1px;
+            border-right: 2px solid var(--cv);
+            border-bottom: 2px solid var(--cv);
+          }
+
+          .nb-inner-panel {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.10);
+            background:
+              radial-gradient(circle at top left, rgba(0,245,255,0.04), transparent 34%),
+              rgba(255,255,255,0.032);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+          }
+
+          .nb-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,245,255,0.24);
+            background: rgba(0,245,255,0.08);
+            color: var(--cx);
+            font-family: 'Space Mono', monospace;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            line-height: 1;
+            padding: 8px 10px;
+            text-transform: uppercase;
+          }
+
+          .nb-section-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .nb-section-label::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 1px;
+            background: var(--cx);
+            box-shadow: 0 0 8px var(--cx);
+          }
+
+          .nb-input {
+            background: rgba(3,4,10,0.62) !important;
+            border-color: rgba(255,255,255,0.12) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+          }
+
+          .nb-input:focus {
+            border-color: rgba(0,245,255,0.46) !important;
+            box-shadow: 0 0 0 4px rgba(0,245,255,0.10), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+          }
+
+          .nb-primary-btn {
+            border: 1px solid var(--cx);
+            background: var(--cx);
+            color: #03040A;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            box-shadow: 0 0 30px rgba(0,245,255,0.28), 0 18px 46px rgba(0,0,0,0.32);
+          }
+
+          .nb-primary-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 0 40px rgba(0,245,255,0.42), 0 22px 60px rgba(0,0,0,0.38);
+          }
+
+          @media (max-width: 640px) {
+            .nb-panel::before,
+            .nb-panel::after,
+            .nb-inner-panel::before,
+            .nb-inner-panel::after {
+              width: 14px;
+              height: 14px;
+            }
+          }
+        `,
+      }}
+    />
   );
 }
 

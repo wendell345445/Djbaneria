@@ -53,7 +53,7 @@ const apiCopy = {
     invalidImage: "Envie uma imagem válida.",
     rateLimit:
       "Muitas tentativas em sequência. Aguarde um pouco e tente novamente.",
-    noCredits: "Você usou todos os seus créditos deste mês.",
+    noCredits: "Você usou todos os seus créditos deste ciclo.",
     inactiveSubscription: "Sua assinatura não está ativa para gerar imagens.",
     missingOpenAi: "OPENAI_API_KEY não foi configurada.",
     invalidData: "Dados inválidos.",
@@ -276,7 +276,7 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const ip = getClientIp(request);
-  const rateLimit = consumeRateLimit(`professional-image:${ip}`, {
+  const rateLimit = await consumeRateLimit(`professional-image:${ip}`, {
     limit: 10,
     windowMs: 10 * 60 * 1000,
   });

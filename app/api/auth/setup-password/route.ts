@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const ip = getClientIp(request);
-  const rateLimit = consumeRateLimit(`auth:setup-password:${ip}`, {
+  const rateLimit = await consumeRateLimit(`auth:setup-password:${ip}`, {
     limit: 12,
     windowMs: 15 * 60 * 1000,
   });

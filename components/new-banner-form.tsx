@@ -408,7 +408,7 @@ const newBannerFormCopy = {
       failedGeneration: "Não foi possível concluir a geração do banner.",
       timeout:
         "A geração ainda está em andamento. Abra Meus banners em alguns instantes para conferir o resultado.",
-      noCredits: "Você usou todos os seus créditos deste mês.",
+      noCredits: "Você usou todos os seus créditos deste ciclo.",
       generate: "Não foi possível gerar o banner.",
       missingBannerId:
         "A geração foi iniciada, mas a API não retornou o ID do banner.",
@@ -1227,7 +1227,7 @@ async function readFileAsDataUrl(file: File, errorMessage: string) {
 }
 
 const inputClassName =
-  "w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-base text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35 sm:text-sm";
+  "nb-input w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-base text-white outline-none transition focus:border-sky-400/50 focus:ring-4 focus:ring-sky-400/10 placeholder:text-white/35 sm:text-sm";
 
 const selectClassName = `${inputClassName} [color-scheme:dark]`;
 
@@ -2417,33 +2417,35 @@ export function NewBannerForm({
 
   return (
     <div
-      className={`grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px] ${
+      className={`grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_420px] ${
         showFirstAccessTour ? "pb-[150px] sm:pb-0" : ""
       }`}
     >
       <form
         onSubmit={handleSubmit}
-        className="rounded-[28px]  border-white/10 "
+        className="nb-panel relative overflow-hidden rounded-[28px] p-4 sm:p-5 lg:p-6"
       >
+        <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent opacity-70" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-[rgba(0,245,255,0.08)] blur-3xl" />
         {!showFirstAccessTour ? (
-          <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="relative z-10 mb-5 flex flex-col gap-4 rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-5 md:flex-row md:items-start md:justify-between">
             <div className="max-w-2xl">
-              <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
-                {copy.briefingEyebrow}
-              </p>
-              <h2 className="text-[23px] font-semibold leading-tight text-white ">
+              <div className="nb-section-label">
+                <span className="nb-chip">● {copy.briefingEyebrow}</span>
+              </div>
+              <h2 className="nb-orb mt-4 text-[24px] font-black uppercase leading-[0.98] tracking-[-0.04em] text-white sm:text-[32px]">
                 {copy.briefingTitle}
               </h2>
-              <p className="mt-3 text-[13px] leading-6 text-gray-200">
+              <p className="mt-3 text-[13px] leading-6 text-white/58 sm:text-sm">
                 {copy.briefingDescription}
               </p>
             </div>
 
-            <div className="px-1 py-1 text-left text-blue-400 md:min-w-[112px] md:text-right">
-              <span className="block text-[10px] uppercase tracking-[0.18em] text-white/40 text-center">
+            <div className="rounded-2xl border border-[rgba(0,245,255,0.18)] bg-[rgba(0,245,255,0.06)] px-4 py-3 text-left text-[var(--cx)] md:min-w-[118px] md:text-center">
+              <span className="nb-mono block text-[9px] uppercase tracking-[0.18em] text-white/46">
                 {copy.briefingProgress}
               </span>
-              <strong className="mt-1 block text-xl font-semibold text-center">
+              <strong className="nb-orb mt-1 block text-2xl font-black">
                 {completion}%
               </strong>
             </div>
@@ -2958,7 +2960,7 @@ export function NewBannerForm({
               }
             }}
             disabled={displayLoading || hasNoCredits}
-            className={`mt-5 min-h-[52px] w-full scroll-mt-28 items-center justify-center rounded-2xl bg-gradient-to-r from-sky-300 via-violet-300 to-amber-200 px-5 text-sm font-bold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70 ${
+            className={`nb-primary-btn mt-5 min-h-[52px] w-full scroll-mt-28 items-center justify-center rounded-2xl px-5 text-sm transition disabled:cursor-not-allowed disabled:opacity-70 ${
               showFirstAccessTour && activeTourTarget !== "generate"
                 ? "hidden"
                 : "inline-flex"
@@ -2987,13 +2989,15 @@ export function NewBannerForm({
         {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
       </form>
 
-      <aside ref={previewRef} className="rounded-[28px] p-5 xl:sticky xl:top-5">
+      <aside ref={previewRef} className="nb-panel relative overflow-hidden rounded-[28px] p-4 sm:p-5 xl:sticky xl:top-5">
+        <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cv)] to-transparent opacity-60" />
+        <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[rgba(191,95,255,0.07)] blur-3xl" />
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="mb-2 text-[11px] uppercase tracking-[0.22em] text-white/50">
+            <p className="nb-mono mb-2 text-[9px] uppercase tracking-[0.22em] text-[var(--cv)]">
               {copy.previewEyebrow}
             </p>
-            <h3 className="text-lg font-semibold leading-snug text-white">
+            <h3 className="nb-orb text-lg font-black uppercase leading-snug tracking-[-0.02em] text-white">
               {displayLoading
                 ? loadingTexts.title
                 : result
@@ -3667,10 +3671,13 @@ function CreditUpgradeCard({
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="mb-4 grid gap-4 rounded-[22px] border border-white/8 bg-white/[0.025] p-4">
-      <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/60">
-        {title}
-      </h3>
+    <section className="nb-inner-panel mb-4 grid gap-4 rounded-[22px] p-4">
+      <div className="flex items-center gap-3">
+        <span className="h-px w-6 bg-[var(--cx)] shadow-[0_0_8px_var(--cx)]" />
+        <h3 className="nb-mono text-[10px] font-bold uppercase tracking-[0.2em] text-white/62">
+          {title}
+        </h3>
+      </div>
       {children}
     </section>
   );
@@ -3679,7 +3686,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <label className="text-sm font-medium leading-[1.35] text-white/90">
+      <label className="text-sm font-semibold leading-[1.35] text-white/88">
         {label}
       </label>
       {children}

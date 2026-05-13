@@ -338,6 +338,23 @@ export type EnumMotionRenderStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel>
 }
 
+export type EnumSeedanceVideoStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SeedanceVideoStatus | Prisma.EnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel> | $Enums.SeedanceVideoStatus
+}
+
+export type EnumSeedanceVideoStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SeedanceVideoStatus | Prisma.EnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSeedanceVideoStatusWithAggregatesFilter<$PrismaModel> | $Enums.SeedanceVideoStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel>
+}
+
 export type EnumUsageEventTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.UsageEventType | Prisma.EnumUsageEventTypeFieldRefInput<$PrismaModel>
   in?: $Enums.UsageEventType[] | Prisma.ListEnumUsageEventTypeFieldRefInput<$PrismaModel>
@@ -741,6 +758,23 @@ export type NestedEnumMotionRenderStatusWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumMotionRenderStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSeedanceVideoStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SeedanceVideoStatus | Prisma.EnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel> | $Enums.SeedanceVideoStatus
+}
+
+export type NestedEnumSeedanceVideoStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SeedanceVideoStatus | Prisma.EnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SeedanceVideoStatus[] | Prisma.ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSeedanceVideoStatusWithAggregatesFilter<$PrismaModel> | $Enums.SeedanceVideoStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumUsageEventTypeFilter<$PrismaModel = never> = {

@@ -369,7 +369,7 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const ip = getClientIp(request);
-  const rateLimit = consumeRateLimit(`banners:generate:${ip}`, {
+  const rateLimit = await consumeRateLimit(`banners:generate:${ip}`, {
     limit: 12,
     windowMs: 10 * 60 * 1000,
   });
@@ -537,8 +537,7 @@ export async function POST(request: Request) {
       },
       {
         status:
-          error instanceof Error &&
-          error.message === "Você usou todos os seus créditos deste mês."
+          error instanceof Error && error.message.includes("créditos")
             ? 403
             : 500,
         headers: buildRateLimitHeaders(rateLimit),

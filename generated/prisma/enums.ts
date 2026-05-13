@@ -76,6 +76,16 @@ export const MotionRenderStatus = {
 export type MotionRenderStatus = (typeof MotionRenderStatus)[keyof typeof MotionRenderStatus]
 
 
+export const SeedanceVideoStatus = {
+  PENDING: 'PENDING',
+  RENDERING: 'RENDERING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type SeedanceVideoStatus = (typeof SeedanceVideoStatus)[keyof typeof SeedanceVideoStatus]
+
+
 export const MotionPreset = {
   NEON_PULSE: 'NEON_PULSE',
   CLUB_FLASH: 'CLUB_FLASH',
