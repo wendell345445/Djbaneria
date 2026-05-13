@@ -2,16 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/seedance/sync-pending",
-      "schedule": "*/5 * * * *"
-    },
-    {
       "path": "/api/seedance/cleanup",
-      "schedule": "0 * * * *"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/remotion/cleanup",
-      "schedule": "15 * * * *"
+      "schedule": "30 3 * * *"
     }
   ]
 }
