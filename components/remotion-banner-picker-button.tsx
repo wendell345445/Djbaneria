@@ -85,9 +85,11 @@ const dateLocales: Record<SupportedLocale, string> = {
 export function RemotionBannerPickerButton({
   locale,
   banners,
+  onSelectBanner,
 }: {
   locale: SupportedLocale;
   banners: RemotionPickerBanner[];
+  onSelectBanner?: (banner: RemotionPickerBanner) => void;
 }) {
   const copy = copyByLocale[locale] || copyByLocale.en;
   const router = useRouter();
@@ -103,9 +105,15 @@ export function RemotionBannerPickerButton({
     });
   }, [banners, query]);
 
-  function selectBanner(bannerId: string) {
+  function selectBanner(banner: RemotionPickerBanner) {
     setOpen(false);
-    router.replace(`/dashboard/remotion?bannerId=${bannerId}&source=platform`);
+
+    if (onSelectBanner) {
+      onSelectBanner(banner);
+      return;
+    }
+
+    router.replace(`/dashboard/remotion?bannerId=${banner.id}`);
     router.refresh();
   }
 
@@ -175,7 +183,7 @@ export function RemotionBannerPickerButton({
                     <button
                       key={banner.id}
                       type="button"
-                      onClick={() => selectBanner(banner.id)}
+                      onClick={() => selectBanner(banner)}
                       className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] p-3 text-left transition hover:border-[rgba(0,245,255,0.28)] hover:bg-[linear-gradient(160deg,rgba(0,245,255,0.08),rgba(191,95,255,0.06))]"
                     >
                       <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.55)] to-transparent opacity-0 transition group-hover:opacity-100" />

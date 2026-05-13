@@ -7,6 +7,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   ChevronsLeft,
   ChevronsRight,
+  ChevronDown,
   Clapperboard,
   CircleDollarSign,
   CreditCard,
@@ -35,6 +36,7 @@ type NavItemKey =
   | "myBanners"
   | "professionalImage"
   | "animatedFlyer"
+  | "animatedFlyerAi"
   | "remotion"
   | "myVideos"
   | "billing"
@@ -66,12 +68,6 @@ const navItems: NavItem[] = [
   },
   { key: "myVideos", href: "/dashboard/meus-videos", icon: Film },
   {
-    key: "remotion",
-    href: "/dashboard/remotion",
-    icon: Clapperboard,
-    badgeType: "ai",
-  },
-  {
     key: "professionalImage",
     href: "/dashboard/imagem-profissional",
     icon: Wand2,
@@ -81,6 +77,23 @@ const navItems: NavItem[] = [
   { key: "language", href: "/dashboard/settings/language", icon: Globe2 },
   { key: "settings", href: "/dashboard/settings", icon: Settings },
 ];
+
+const animatedFlyerSubItems: NavItem[] = [
+  {
+    key: "animatedFlyerAi",
+    href: "/dashboard/flyer-animado",
+    icon: Sparkles,
+    badgeType: "ai",
+  },
+  {
+    key: "remotion",
+    href: "/dashboard/remotion",
+    icon: Clapperboard,
+    badgeType: "ai",
+  },
+];
+
+const pageNavItems: NavItem[] = [...navItems, ...animatedFlyerSubItems];
 
 function isNavItemActive(pathname: string, href: string) {
   if (href === "/dashboard") {
@@ -116,6 +129,12 @@ function getAnimatedFlyerLabel(locale: SupportedLocale) {
   if (locale === "pt-BR") return "Flyer animado";
   if (locale === "es") return "Flyer animado";
   return "Animated flyer";
+}
+
+function getAnimatedFlyerAiLabel(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Gerar com AI";
+  if (locale === "es") return "Generar con AI";
+  return "Generate with AI";
 }
 
 function getMyVideosLabel(locale: SupportedLocale) {
@@ -158,6 +177,8 @@ function getNavItemLabel(
       return getProfessionalImageLabel(locale);
     case "animatedFlyer":
       return getAnimatedFlyerLabel(locale);
+    case "animatedFlyerAi":
+      return getAnimatedFlyerAiLabel(locale);
     case "myVideos":
       return getMyVideosLabel(locale);
     case "remotion":
@@ -178,7 +199,9 @@ function getPageLabel(
   copy: ReturnType<typeof getDashboardCopy>,
   locale: SupportedLocale,
 ) {
-  const match = navItems.find((item) => isNavItemActive(pathname, item.href));
+  const match = pageNavItems.find((item) =>
+    isNavItemActive(pathname, item.href),
+  );
   return match
     ? getNavItemLabel(match.key, copy, locale)
     : copy.shell.fallbackPage;
@@ -269,10 +292,21 @@ export function DashboardSidebar({
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+  const isAnimatedFlyerRoute =
+    isNavItemActive(pathname, "/dashboard/flyer-animado") ||
+    isNavItemActive(pathname, "/dashboard/remotion");
+  const [animatedFlyerOpen, setAnimatedFlyerOpen] =
+    useState(isAnimatedFlyerRoute);
   const pageLabel = useMemo(
     () => getPageLabel(pathname, copy, normalizedLocale),
     [copy, normalizedLocale, pathname],
   );
+
+  useEffect(() => {
+    if (isAnimatedFlyerRoute) {
+      setAnimatedFlyerOpen(true);
+    }
+  }, [isAnimatedFlyerRoute]);
 
   useEffect(() => {
     const storedValue = window.localStorage.getItem(
@@ -496,16 +530,44 @@ export function DashboardSidebar({
             <nav
               className={`flex-1 space-y-2 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${desktopCollapsed ? "mt-4 pr-0" : "mt-3 pr-1"}`}
             >
-              {navItems.map((item) => (
-                <SidebarLink
-                  key={item.href}
-                  item={item}
-                  label={getNavItemLabel(item.key, copy, normalizedLocale)}
-                  pathname={pathname}
-                  collapsed={desktopCollapsed}
-                  onClick={() => undefined}
-                />
-              ))}
+              {navItems.map((item) =>
+                item.key === "animatedFlyer" ? (
+                  <AnimatedFlyerNavGroup
+                    key={item.key}
+                    item={item}
+                    label={getNavItemLabel(item.key, copy, normalizedLocale)}
+                    subItems={animatedFlyerSubItems}
+                    pathname={pathname}
+                    locale={normalizedLocale}
+                    copy={copy}
+                    collapsed={desktopCollapsed}
+                    open={animatedFlyerOpen}
+                    onToggle={() => {
+                      if (desktopCollapsed) {
+                        setDesktopCollapsed(false);
+                        window.localStorage.setItem(
+                          "dj_visuals_sidebar_collapsed",
+                          "0",
+                        );
+                        setAnimatedFlyerOpen(true);
+                        return;
+                      }
+
+                      setAnimatedFlyerOpen((current) => !current);
+                    }}
+                    onSubItemClick={() => undefined}
+                  />
+                ) : (
+                  <SidebarLink
+                    key={item.href}
+                    item={item}
+                    label={getNavItemLabel(item.key, copy, normalizedLocale)}
+                    pathname={pathname}
+                    collapsed={desktopCollapsed}
+                    onClick={() => setAnimatedFlyerOpen(false)}
+                  />
+                ),
+              )}
             </nav>
 
             <div
@@ -637,15 +699,33 @@ export function DashboardSidebar({
             </div>
 
             <nav className="relative mt-5 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {navItems.map((item) => (
-                <SidebarLink
-                  key={item.href}
-                  item={item}
-                  label={getNavItemLabel(item.key, copy, normalizedLocale)}
-                  pathname={pathname}
-                  onClick={() => setMobileOpen(false)}
-                />
-              ))}
+              {navItems.map((item) =>
+                item.key === "animatedFlyer" ? (
+                  <AnimatedFlyerNavGroup
+                    key={item.key}
+                    item={item}
+                    label={getNavItemLabel(item.key, copy, normalizedLocale)}
+                    subItems={animatedFlyerSubItems}
+                    pathname={pathname}
+                    locale={normalizedLocale}
+                    copy={copy}
+                    open={animatedFlyerOpen}
+                    onToggle={() => setAnimatedFlyerOpen((current) => !current)}
+                    onSubItemClick={() => setMobileOpen(false)}
+                  />
+                ) : (
+                  <SidebarLink
+                    key={item.href}
+                    item={item}
+                    label={getNavItemLabel(item.key, copy, normalizedLocale)}
+                    pathname={pathname}
+                    onClick={() => {
+                      setAnimatedFlyerOpen(false);
+                      setMobileOpen(false);
+                    }}
+                  />
+                ),
+              )}
             </nav>
 
             <div className="relative mt-5 space-y-3 border-t border-cyan-300/10 pt-4">
@@ -670,6 +750,179 @@ export function DashboardSidebar({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function AnimatedFlyerNavGroup({
+  item,
+  label,
+  subItems,
+  pathname,
+  locale,
+  copy,
+  collapsed = false,
+  open,
+  onToggle,
+  onSubItemClick,
+}: {
+  item: NavItem;
+  label: string;
+  subItems: NavItem[];
+  pathname: string;
+  locale: SupportedLocale;
+  copy: ReturnType<typeof getDashboardCopy>;
+  collapsed?: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onSubItemClick: () => void;
+}) {
+  const active = subItems.some((subItem) =>
+    isNavItemActive(pathname, subItem.href),
+  );
+  const highlighted = active;
+  const Icon = item.icon;
+
+  return (
+    <div className={collapsed ? "" : "space-y-1"}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={collapsed ? undefined : open}
+        title={collapsed ? label : undefined}
+        className={`group relative flex min-h-[50px] w-full items-center overflow-hidden text-left transition duration-200 ${
+          collapsed ? "justify-center px-0" : "justify-between gap-3 px-3"
+        } ${
+          collapsed
+            ? highlighted
+              ? "border border-transparent bg-transparent text-cyan-100"
+              : "border border-transparent bg-transparent text-white/42 hover:text-cyan-100"
+            : highlighted
+              ? "dashboard-hud border-cyan-300/25 bg-[linear-gradient(135deg,rgba(0,245,255,0.12),rgba(191,95,255,0.07),rgba(255,255,255,0.025))] text-white shadow-[0_0_34px_rgba(0,245,255,0.11)]"
+              : "border border-transparent bg-transparent text-white/52 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
+        }`}
+      >
+        {highlighted && !collapsed ? (
+          <>
+            <span className="absolute inset-y-2 left-0 w-px bg-cyan-300 shadow-[0_0_16px_rgba(0,245,255,0.72)]" />
+            <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_50%,rgba(0,245,255,0.16),transparent_34%)]" />
+            <span className="dashboard-scanline pointer-events-none absolute inset-x-0 top-0 h-px" />
+          </>
+        ) : null}
+
+        {highlighted && collapsed ? (
+          <span className="absolute left-1 top-1/2 h-5 w-px -translate-y-1/2 bg-cyan-300 shadow-[0_0_14px_rgba(0,245,255,0.82)]" />
+        ) : null}
+
+        <span
+          className={`relative flex min-w-0 items-center ${collapsed ? "justify-center" : "gap-3"}`}
+        >
+          <span
+            className={`inline-flex shrink-0 items-center justify-center transition ${
+              collapsed
+                ? "h-11 w-11 border-0 bg-transparent shadow-none"
+                : "h-9 w-9 border"
+            } ${
+              collapsed
+                ? highlighted
+                  ? "text-cyan-200"
+                  : "text-white/38 group-hover:text-cyan-100"
+                : highlighted
+                  ? "border-cyan-300/25 bg-cyan-300/10 text-cyan-100 shadow-[0_0_22px_rgba(0,245,255,0.13)]"
+                  : "border-white/8 bg-white/[0.035] text-white/45 group-hover:border-cyan-300/18 group-hover:bg-cyan-300/[0.055] group-hover:text-cyan-100"
+            }`}
+          >
+            <Icon className={collapsed ? "h-5 w-5" : "h-4 w-4"} />
+          </span>
+          {!collapsed ? (
+            <span className="dashboard-mono truncate text-[10px] font-bold uppercase tracking-[0.13em]">
+              {label}
+            </span>
+          ) : null}
+        </span>
+
+        {collapsed ? (
+          <span className="absolute right-2 top-2 h-1.5 w-1.5 bg-violet-200 shadow-[0_0_12px_rgba(191,95,255,0.9)]" />
+        ) : (
+          <span className="relative flex items-center gap-2">
+            <span
+              className={`inline-flex h-7 w-7 shrink-0 items-center justify-center border transition ${
+                highlighted
+                  ? "border-violet-200/35 bg-violet-300/12 text-violet-100"
+                  : "border-violet-300/16 bg-violet-300/7 text-violet-200/65 group-hover:border-violet-200/28 group-hover:text-violet-100"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+            </span>
+            <ChevronDown
+              className={`h-4 w-4 text-cyan-100/54 transition duration-200 ${open ? "rotate-180" : ""}`}
+            />
+          </span>
+        )}
+      </button>
+
+      {!collapsed && open ? (
+        <div className="ml-5 space-y-1 border-l border-cyan-300/14 pl-3">
+          {subItems.map((subItem) => (
+            <AnimatedFlyerSubLink
+              key={subItem.href}
+              item={subItem}
+              label={getNavItemLabel(subItem.key, copy, locale)}
+              pathname={pathname}
+              onClick={onSubItemClick}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AnimatedFlyerSubLink({
+  item,
+  label,
+  pathname,
+  onClick,
+}: {
+  item: NavItem;
+  label: string;
+  pathname: string;
+  onClick: () => void;
+}) {
+  const active = isNavItemActive(pathname, item.href);
+
+  return (
+    <Link
+      href={item.href}
+      onClick={onClick}
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
+      className={`group relative flex min-h-[42px] items-center justify-between gap-3 overflow-hidden border px-3 transition ${
+        active
+          ? "border-cyan-300/20 bg-cyan-300/[0.08] text-cyan-50 shadow-[0_0_24px_rgba(0,245,255,0.08)]"
+          : "border-transparent bg-white/[0.018] text-white/46 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
+      }`}
+    >
+      {active ? (
+        <span className="absolute inset-y-2 left-0 w-px bg-cyan-300 shadow-[0_0_14px_rgba(0,245,255,0.7)]" />
+      ) : null}
+      <span className="relative flex min-w-0 items-center pl-2">
+        <span className="dashboard-mono truncate text-[9px] font-bold uppercase tracking-[0.14em]">
+          {label}
+        </span>
+      </span>
+
+      {item.badgeType === "ai" ? (
+        <span
+          className={`relative inline-flex h-6 w-6 shrink-0 items-center justify-center border transition ${
+            active
+              ? "border-violet-200/30 bg-violet-300/12 text-violet-100"
+              : "border-violet-300/12 bg-violet-300/[0.055] text-violet-200/55 group-hover:border-violet-200/24 group-hover:text-violet-100"
+          }`}
+        >
+          <Sparkles className="h-3 w-3" />
+        </span>
+      ) : null}
+    </Link>
   );
 }
 
