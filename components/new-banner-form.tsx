@@ -1266,6 +1266,82 @@ function getAnimateFlyerCta(locale: NewBannerFormLocale) {
   return "Animate this flyer";
 }
 
+function getAnimateChoiceCopy(locale: NewBannerFormLocale) {
+  if (locale === "pt-BR") {
+    return {
+      eyebrow: "Escolha o tipo de animação",
+      title: "Como você quer animar este flyer?",
+      description:
+        "Você pode gerar um vídeo com AI ou usar o fluxo Remotion para controlar música, trecho e motion.",
+      aiTitle: "Gerar com AI",
+      aiDescription:
+        "Use o fluxo AI para transformar o flyer em vídeo animado automaticamente.",
+      remotionTitle: "Remotion",
+      remotionDescription:
+        "Use o editor Remotion para enviar música, escolher o trecho e renderizar com controle maior.",
+      aiBadge: "AI",
+      remotionBadge: "Studio",
+      cancel: "Cancelar",
+    };
+  }
+
+  if (locale === "es") {
+    return {
+      eyebrow: "Elige el tipo de animación",
+      title: "¿Cómo quieres animar este flyer?",
+      description:
+        "Puedes generar un video con AI o usar el flujo Remotion para controlar música, trecho y motion.",
+      aiTitle: "Generar con AI",
+      aiDescription:
+        "Usa el flujo AI para convertir el flyer en un video animado automáticamente.",
+      remotionTitle: "Remotion",
+      remotionDescription:
+        "Usa el editor Remotion para subir música, elegir el trecho y renderizar con más control.",
+      aiBadge: "AI",
+      remotionBadge: "Studio",
+      cancel: "Cancelar",
+    };
+  }
+
+  return {
+    eyebrow: "Choose animation type",
+    title: "How do you want to animate this flyer?",
+    description:
+      "Generate an AI animated video or use Remotion to control music, timing and motion.",
+    aiTitle: "Generate with AI",
+    aiDescription:
+      "Use the AI flow to automatically turn this flyer into an animated video.",
+    remotionTitle: "Remotion",
+    remotionDescription:
+      "Use the Remotion editor to upload music, choose the segment and render with more control.",
+    aiBadge: "AI",
+    remotionBadge: "Studio",
+    cancel: "Cancel",
+  };
+}
+
+function getAnimationBannerId(result: GenerationResult | null) {
+  if (!result) return null;
+  if (result.bannerId) return result.bannerId;
+
+  const match = result.bannerUrl?.match(/\/dashboard\/banners\/([^/?#]+)/);
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
+}
+
+function getAnimateWithAiHref(result: GenerationResult | null) {
+  const bannerId = getAnimationBannerId(result);
+  return bannerId
+    ? `/dashboard/flyer-animado?bannerId=${encodeURIComponent(bannerId)}`
+    : "/dashboard/flyer-animado";
+}
+
+function getAnimateWithRemotionHref(result: GenerationResult | null) {
+  const bannerId = getAnimationBannerId(result);
+  return bannerId
+    ? `/dashboard/remotion?bannerId=${encodeURIComponent(bannerId)}`
+    : "/dashboard/remotion";
+}
+
 function getOpenBannerCta(locale: NewBannerFormLocale) {
   if (locale === "pt-BR") return "Abrir página do flyer";
   if (locale === "es") return "Abrir página del flyer";
@@ -1361,6 +1437,7 @@ export function NewBannerForm({
   const [professionalPhotoDirection, setProfessionalPhotoDirection] =
     useState<ProfessionalPhotoDirectionId>(defaultProfessionalPhotoDirection);
   const [result, setResult] = useState<GenerationResult | null>(null);
+  const [animateChoiceOpen, setAnimateChoiceOpen] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [loadingMode, setLoadingMode] = useState<"generate" | "edit" | null>(
@@ -3159,13 +3236,14 @@ export function NewBannerForm({
                 {copy.openImage}
               </a>
 
-              {result.bannerUrl ? (
-                <a
-                  href={`${result.bannerUrl}#motion`}
+              {result.bannerUrl || result.bannerId ? (
+                <button
+                  type="button"
+                  onClick={() => setAnimateChoiceOpen(true)}
                   className="inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200 px-4 text-sm font-black text-slate-950 shadow-[0_18px_60px_rgba(125,211,252,0.16)] transition hover:scale-[1.01]"
                 >
                   {getAnimateFlyerCta(locale)}
-                </a>
+                </button>
               ) : null}
             </div>
 
@@ -3273,6 +3351,14 @@ export function NewBannerForm({
           onBack={() => goToTourStep(Math.max(tourStepIndex - 1, 0))}
           onNext={advanceFirstAccessTour}
           onClose={closeFirstAccessTour}
+        />
+      ) : null}
+
+      {animateChoiceOpen && result ? (
+        <AnimateFlyerChoiceModal
+          locale={locale}
+          result={result}
+          onClose={() => setAnimateChoiceOpen(false)}
         />
       ) : null}
 
@@ -3523,6 +3609,105 @@ export function NewBannerForm({
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+
+function AnimateFlyerChoiceModal({
+  locale,
+  result,
+  onClose,
+}: {
+  locale: NewBannerFormLocale;
+  result: GenerationResult;
+  onClose: () => void;
+}) {
+  const copy = getAnimateChoiceCopy(locale);
+  const aiHref = getAnimateWithAiHref(result);
+  const remotionHref = getAnimateWithRemotionHref(result);
+
+  return (
+    <div className="fixed inset-0 z-[75] flex items-end justify-center bg-slate-950/82 p-0 backdrop-blur-md sm:items-center sm:p-6">
+      <div className="relative w-full overflow-hidden rounded-t-[28px] border border-cyan-300/18 bg-[#050713] p-4 text-white shadow-[0_-24px_80px_rgba(0,0,0,0.48)] sm:max-w-xl sm:rounded-[30px] sm:p-5 sm:shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-cyan-300/12 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-52 w-52 rounded-full bg-violet-400/14 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.12] [background-image:linear-gradient(rgba(0,245,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(191,95,255,0.06)_1px,transparent_1px)] [background-size:28px_28px]" />
+
+        <div className="relative z-10 mx-auto mb-3 h-1 w-12 rounded-full bg-white/18 sm:hidden" />
+
+        <div className="relative z-10 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="nb-mono text-[9px] font-black uppercase tracking-[0.22em] text-cyan-100/62">
+              {copy.eyebrow}
+            </p>
+            <h3 className="nb-orb mt-2 text-xl font-black uppercase leading-tight tracking-[-0.03em] text-white sm:text-2xl">
+              {copy.title}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-white/56">
+              {copy.description}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[0.045] text-lg text-white/70 transition hover:border-cyan-200/30 hover:bg-white/[0.08] hover:text-white"
+            aria-label={copy.cancel}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="relative z-10 mt-5 grid gap-3 sm:grid-cols-2">
+          <a
+            href={aiHref}
+            className="group relative overflow-hidden rounded-[24px] border border-cyan-200/20 bg-cyan-300/[0.055] p-4 transition hover:border-cyan-200/45 hover:bg-cyan-300/[0.10] hover:shadow-[0_0_42px_rgba(0,245,255,0.16)]"
+          >
+            <span className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/80 to-transparent" />
+            <span className="nb-mono inline-flex rounded-full border border-cyan-200/20 bg-cyan-200/[0.10] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.16em] text-cyan-50">
+              {copy.aiBadge}
+            </span>
+            <p className="nb-orb mt-4 text-base font-black uppercase tracking-[-0.02em] text-white">
+              {copy.aiTitle}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-white/55">
+              {copy.aiDescription}
+            </p>
+            <span className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-full bg-cyan-300 px-4 text-center font-mono text-[10px] font-black uppercase tracking-[0.16em] text-[#031013] shadow-[0_0_35px_rgba(0,245,255,0.16)] transition group-hover:bg-white">
+              {copy.aiTitle}
+            </span>
+          </a>
+
+          <a
+            href={remotionHref}
+            className="group relative overflow-hidden rounded-[24px] border border-violet-200/20 bg-violet-300/[0.055] p-4 transition hover:border-violet-200/45 hover:bg-violet-300/[0.10] hover:shadow-[0_0_42px_rgba(191,95,255,0.16)]"
+          >
+            <span className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-violet-200/80 to-transparent" />
+            <span className="nb-mono inline-flex rounded-full border border-violet-200/20 bg-violet-200/[0.10] px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.16em] text-violet-50">
+              {copy.remotionBadge}
+            </span>
+            <p className="nb-orb mt-4 text-base font-black uppercase tracking-[-0.02em] text-white">
+              {copy.remotionTitle}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-white/55">
+              {copy.remotionDescription}
+            </p>
+            <span className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-full border border-violet-200/30 bg-white/[0.06] px-4 text-center font-mono text-[10px] font-black uppercase tracking-[0.16em] text-white transition group-hover:bg-violet-200 group-hover:text-[#080513]">
+              {copy.remotionTitle}
+            </span>
+          </a>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="relative z-10 mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.045] px-4 text-sm font-medium text-white/70 transition hover:bg-white/[0.08] hover:text-white"
+        >
+          {copy.cancel}
+        </button>
+      </div>
     </div>
   );
 }

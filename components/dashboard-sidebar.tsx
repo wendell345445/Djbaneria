@@ -520,7 +520,7 @@ export function DashboardSidebar({
 
             {!desktopCollapsed ? (
               <div className="mt-4 flex items-center gap-3 px-1">
-                <span className="dashboard-mono text-[9px] font-bold uppercase tracking-[0.24em] text-cyan-200/55">
+                <span className="dashboard-mono text-[9px] font-bold uppercase tracking-[0.24em] text-cyan-200/72">
                   {copy.shell.panel}
                 </span>
                 <span className="h-px flex-1 bg-gradient-to-r from-cyan-300/25 via-violet-300/15 to-transparent" />
@@ -595,11 +595,11 @@ export function DashboardSidebar({
                 title={desktopCollapsed ? copy.shell.logout : undefined}
               >
                 <span className="absolute inset-y-0 left-0 w-px bg-red-300/0 transition group-hover:bg-red-300/55" />
-                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/60 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
+                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/76 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
                   <LogOut className="h-4 w-4" />
                 </span>
                 {!desktopCollapsed ? (
-                  <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/55 transition group-hover:text-red-100">
+                  <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/72 transition group-hover:text-red-100">
                     {copy.shell.logout}
                   </span>
                 ) : null}
@@ -627,7 +627,7 @@ export function DashboardSidebar({
                 </button>
 
                 <div className="min-w-0 flex-1 px-1">
-                  <p className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.22em] text-cyan-200/55">
+                  <p className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.22em] text-cyan-200/72">
                     DJ Visuals AI
                   </p>
                   <p className="dashboard-orb truncate text-[13px] font-bold uppercase tracking-[0.08em] text-white">
@@ -647,7 +647,7 @@ export function DashboardSidebar({
                       <CircleDollarSign className="h-4 w-4" />
                     </span>
                     <span className="min-w-0">
-                      <span className="dashboard-mono block text-[7px] font-bold uppercase tracking-[0.18em] text-cyan-100/55">
+                      <span className="dashboard-mono block text-[7px] font-bold uppercase tracking-[0.18em] text-cyan-100/72">
                         {mobileCreditCopy.shortLabel}
                       </span>
                       <span className="mt-0.5 flex items-baseline gap-1.5">
@@ -738,10 +738,10 @@ export function DashboardSidebar({
                 onClick={handleLogout}
                 className="group relative flex min-h-[50px] w-full items-center gap-3 overflow-hidden border border-white/10 bg-white/[0.025] px-3.5 text-left transition hover:border-red-300/30 hover:bg-red-400/[0.08]"
               >
-                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/60 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
+                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/76 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
                   <LogOut className="h-4 w-4" />
                 </span>
-                <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/55 transition group-hover:text-red-100">
+                <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/72 transition group-hover:text-red-100">
                   {copy.shell.logout}
                 </span>
               </button>
@@ -795,10 +795,10 @@ function AnimatedFlyerNavGroup({
           collapsed
             ? highlighted
               ? "border border-transparent bg-transparent text-cyan-100"
-              : "border border-transparent bg-transparent text-white/42 hover:text-cyan-100"
+              : "border border-transparent bg-transparent text-white/64 hover:text-cyan-50"
             : highlighted
               ? "dashboard-hud border-cyan-300/25 bg-[linear-gradient(135deg,rgba(0,245,255,0.12),rgba(191,95,255,0.07),rgba(255,255,255,0.025))] text-white shadow-[0_0_34px_rgba(0,245,255,0.11)]"
-              : "border border-transparent bg-transparent text-white/52 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
+              : "border border-transparent bg-transparent text-white/72 hover:border-cyan-300/18 hover:bg-white/[0.04] hover:text-white"
         }`}
       >
         {highlighted && !collapsed ? (
@@ -825,16 +825,16 @@ function AnimatedFlyerNavGroup({
               collapsed
                 ? highlighted
                   ? "text-cyan-200"
-                  : "text-white/38 group-hover:text-cyan-100"
+                  : "text-white/58 group-hover:text-cyan-50"
                 : highlighted
                   ? "border-cyan-300/25 bg-cyan-300/10 text-cyan-100 shadow-[0_0_22px_rgba(0,245,255,0.13)]"
-                  : "border-white/8 bg-white/[0.035] text-white/45 group-hover:border-cyan-300/18 group-hover:bg-cyan-300/[0.055] group-hover:text-cyan-100"
+                  : "border-white/8 bg-white/[0.035] text-white/64 group-hover:border-cyan-300/24 group-hover:bg-cyan-300/[0.07] group-hover:text-cyan-50"
             }`}
           >
             <Icon className={collapsed ? "h-5 w-5" : "h-4 w-4"} />
           </span>
           {!collapsed ? (
-            <span className="dashboard-mono truncate text-[10px] font-bold uppercase tracking-[0.13em]">
+            <span className="dashboard-mono truncate text-[10.5px] font-black uppercase tracking-[0.13em]">
               {label}
             </span>
           ) : null}
@@ -848,13 +848,13 @@ function AnimatedFlyerNavGroup({
               className={`inline-flex h-7 w-7 shrink-0 items-center justify-center border transition ${
                 highlighted
                   ? "border-violet-200/35 bg-violet-300/12 text-violet-100"
-                  : "border-violet-300/16 bg-violet-300/7 text-violet-200/65 group-hover:border-violet-200/28 group-hover:text-violet-100"
+                  : "border-violet-300/16 bg-violet-300/7 text-violet-200/78 group-hover:border-violet-200/34 group-hover:text-violet-50"
               }`}
             >
               <Sparkles className="h-3.5 w-3.5" />
             </span>
             <ChevronDown
-              className={`h-4 w-4 text-cyan-100/54 transition duration-200 ${open ? "rotate-180" : ""}`}
+              className={`h-4 w-4 text-cyan-100/76 transition duration-200 ${open ? "rotate-180" : ""}`}
             />
           </span>
         )}
@@ -899,14 +899,14 @@ function AnimatedFlyerSubLink({
       className={`group relative flex min-h-[42px] items-center justify-between gap-3 overflow-hidden border px-3 transition ${
         active
           ? "border-cyan-300/20 bg-cyan-300/[0.08] text-cyan-50 shadow-[0_0_24px_rgba(0,245,255,0.08)]"
-          : "border-transparent bg-white/[0.018] text-white/46 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
+          : "border-transparent bg-white/[0.018] text-white/68 hover:border-cyan-300/18 hover:bg-white/[0.04] hover:text-white"
       }`}
     >
       {active ? (
         <span className="absolute inset-y-2 left-0 w-px bg-cyan-300 shadow-[0_0_14px_rgba(0,245,255,0.7)]" />
       ) : null}
       <span className="relative flex min-w-0 items-center pl-2">
-        <span className="dashboard-mono truncate text-[9px] font-bold uppercase tracking-[0.14em]">
+        <span className="dashboard-mono truncate text-[9.5px] font-black uppercase tracking-[0.14em]">
           {label}
         </span>
       </span>
@@ -916,7 +916,7 @@ function AnimatedFlyerSubLink({
           className={`relative inline-flex h-6 w-6 shrink-0 items-center justify-center border transition ${
             active
               ? "border-violet-200/30 bg-violet-300/12 text-violet-100"
-              : "border-violet-300/12 bg-violet-300/[0.055] text-violet-200/55 group-hover:border-violet-200/24 group-hover:text-violet-100"
+              : "border-violet-300/12 bg-violet-300/[0.055] text-violet-200/72 group-hover:border-violet-200/30 group-hover:text-violet-50"
           }`}
         >
           <Sparkles className="h-3 w-3" />
@@ -955,10 +955,10 @@ function SidebarLink({
         collapsed
           ? active
             ? "border border-transparent bg-transparent text-cyan-100"
-            : "border border-transparent bg-transparent text-white/42 hover:text-cyan-100"
+            : "border border-transparent bg-transparent text-white/64 hover:text-cyan-50"
           : active
             ? "dashboard-hud border-cyan-300/25 bg-[linear-gradient(135deg,rgba(0,245,255,0.12),rgba(191,95,255,0.07),rgba(255,255,255,0.025))] text-white shadow-[0_0_34px_rgba(0,245,255,0.11)]"
-            : "border border-transparent bg-transparent text-white/52 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
+            : "border border-transparent bg-transparent text-white/72 hover:border-cyan-300/18 hover:bg-white/[0.04] hover:text-white"
       }`}
     >
       {active && !collapsed ? (
@@ -985,16 +985,16 @@ function SidebarLink({
             collapsed
               ? active
                 ? "text-cyan-200"
-                : "text-white/38 group-hover:text-cyan-100"
+                : "text-white/58 group-hover:text-cyan-50"
               : active
                 ? "border-cyan-300/25 bg-cyan-300/10 text-cyan-100 shadow-[0_0_22px_rgba(0,245,255,0.13)]"
-                : "border-white/8 bg-white/[0.035] text-white/45 group-hover:border-cyan-300/18 group-hover:bg-cyan-300/[0.055] group-hover:text-cyan-100"
+                : "border-white/8 bg-white/[0.035] text-white/64 group-hover:border-cyan-300/24 group-hover:bg-cyan-300/[0.07] group-hover:text-cyan-50"
           }`}
         >
           <Icon className={collapsed ? "h-5 w-5" : "h-4 w-4"} />
         </span>
         {!collapsed ? (
-          <span className="dashboard-mono truncate text-[10px] font-bold uppercase tracking-[0.13em]">
+          <span className="dashboard-mono truncate text-[10.5px] font-black uppercase tracking-[0.13em]">
             {label}
           </span>
         ) : null}
@@ -1007,7 +1007,7 @@ function SidebarLink({
           className={`relative inline-flex h-7 w-7 shrink-0 items-center justify-center border transition ${
             active
               ? "border-violet-200/35 bg-violet-300/12 text-violet-100"
-              : "border-violet-300/16 bg-violet-300/7 text-violet-200/65 group-hover:border-violet-200/28 group-hover:text-violet-100"
+              : "border-violet-300/16 bg-violet-300/7 text-violet-200/78 group-hover:border-violet-200/34 group-hover:text-violet-50"
           }`}
         >
           <Sparkles className="h-3.5 w-3.5" />
@@ -1064,7 +1064,7 @@ function CreditsPanel({
             <p className="dashboard-mono truncate text-[8px] font-black uppercase tracking-[0.16em] text-cyan-100/62">
               {creditInfo.label}
             </p>
-            <p className="dashboard-mono mt-0.5 truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/34">
+            <p className="dashboard-mono mt-0.5 truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/54">
               {creditInfo.planLabel}
             </p>
           </div>
@@ -1074,7 +1074,7 @@ function CreditsPanel({
           <p className="dashboard-orb text-[18px] font-black uppercase leading-none tracking-[-0.04em] text-white">
             {creditInfo.isUnlimited ? "∞" : creditInfo.value}
           </p>
-          <p className="dashboard-mono mt-0.5 max-w-[92px] truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/42">
+          <p className="dashboard-mono mt-0.5 max-w-[92px] truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/62">
             {creditInfo.usage}
           </p>
         </div>
@@ -1111,7 +1111,7 @@ function BrandBlock({
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <span className="dashboard-chip-cx">● AI Studio</span>
-          <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.18em] text-white/28">
+          <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.18em] text-white/44">
             v2
           </span>
         </div>
@@ -1125,7 +1125,7 @@ function BrandBlock({
             <p className="dashboard-orb truncate text-[15px] font-black uppercase tracking-[0.06em] text-white">
               DJ Visuals AI
             </p>
-            <p className="dashboard-mono mt-1 truncate text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-100/55">
+            <p className="dashboard-mono mt-1 truncate text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-100/72">
               {studioLabel}
             </p>
           </div>
