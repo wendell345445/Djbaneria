@@ -57,8 +57,10 @@ export const ModelName = {
   Banner: 'Banner',
   BannerMotion: 'BannerMotion',
   SeedanceVideo: 'SeedanceVideo',
+  ProfessionalImageJob: 'ProfessionalImageJob',
   Asset: 'Asset',
-  UsageEvent: 'UsageEvent'
+  UsageEvent: 'UsageEvent',
+  RateLimitBucket: 'RateLimitBucket'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -223,6 +225,33 @@ export const SeedanceVideoScalarFieldEnum = {
 export type SeedanceVideoScalarFieldEnum = (typeof SeedanceVideoScalarFieldEnum)[keyof typeof SeedanceVideoScalarFieldEnum]
 
 
+export const ProfessionalImageJobScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  usageEventId: 'usageEventId',
+  status: 'status',
+  inputImageUrl: 'inputImageUrl',
+  inputImageStorageKey: 'inputImageStorageKey',
+  inputMimeType: 'inputMimeType',
+  inputSizeBytes: 'inputSizeBytes',
+  outputImageUrl: 'outputImageUrl',
+  outputImageStorageKey: 'outputImageStorageKey',
+  photoDirection: 'photoDirection',
+  locale: 'locale',
+  prompt: 'prompt',
+  modelName: 'modelName',
+  creditsUsed: 'creditsUsed',
+  width: 'width',
+  height: 'height',
+  progress: 'progress',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProfessionalImageJobScalarFieldEnum = (typeof ProfessionalImageJobScalarFieldEnum)[keyof typeof ProfessionalImageJobScalarFieldEnum]
+
+
 export const AssetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -250,6 +279,17 @@ export const UsageEventScalarFieldEnum = {
 } as const
 
 export type UsageEventScalarFieldEnum = (typeof UsageEventScalarFieldEnum)[keyof typeof UsageEventScalarFieldEnum]
+
+
+export const RateLimitBucketScalarFieldEnum = {
+  key: 'key',
+  count: 'count',
+  resetAt: 'resetAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RateLimitBucketScalarFieldEnum = (typeof RateLimitBucketScalarFieldEnum)[keyof typeof RateLimitBucketScalarFieldEnum]
 
 
 export const SortOrder = {

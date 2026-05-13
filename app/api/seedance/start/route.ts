@@ -65,14 +65,9 @@ const motionSchema = z.object({
 });
 
 function getResolutionCreditCost(resolution: SeedanceResolution) {
-  return resolution === "720" ? 5 : 3;
+  return resolution === "720" ? 12 : 5;
 }
 
-function getImageExtensionFromMime(mimeType: string) {
-  if (mimeType.includes("jpeg") || mimeType.includes("jpg")) return "jpg";
-  if (mimeType.includes("webp")) return "webp";
-  return "png";
-}
 
 async function releaseStaleActiveSeedanceVideos(workspaceId: string) {
   const staleBefore = new Date(
@@ -242,44 +237,27 @@ async function readValidImage(file: File) {
   }
 
   const originalBuffer = Buffer.from(await file.arrayBuffer());
-  const originalMetadata = await sharp(originalBuffer).metadata();
-
-  if (!originalMetadata.width || !originalMetadata.height) {
-    throw new Error("Não foi possível identificar as dimensões do flyer.");
-  }
-
-  // Padroniza todo flyer enviado para PNG limpo antes de mandar ao Seedance.
-  // Isso remove metadados, evita problemas com WEBP/JPEG estranho e reduz falsos
-  // positivos/erros de input do provider. Não garante aprovação do safety checker,
-  // mas deixa o input mais previsível e estável.
   const cleanBuffer = await sharp(originalBuffer, { animated: false })
     .rotate()
-    .resize({
-      width: 1280,
-      height: 1280,
-      fit: "inside",
-      withoutEnlargement: true,
-    })
-    .flatten({ background: { r: 0, g: 0, b: 0 } })
     .png({ compressionLevel: 9, adaptiveFiltering: true })
     .toBuffer();
 
-  const cleanMetadata = await sharp(cleanBuffer).metadata();
+  const metadata = await sharp(cleanBuffer).metadata();
 
-  if (!cleanMetadata.width || !cleanMetadata.height) {
-    throw new Error("Não foi possível preparar o flyer para o Seedance.");
+  if (!metadata.width || !metadata.height) {
+    throw new Error("Não foi possível identificar as dimensões do flyer.");
   }
 
   return {
     buffer: cleanBuffer,
-    width: cleanMetadata.width,
-    height: cleanMetadata.height,
+    width: metadata.width,
+    height: metadata.height,
     contentType: "image/png",
     extension: "png",
   };
 }
 
-function isReplicateRateLimitError(message: string) {
+function isVideoProviderRateLimitError(message: string) {
   const normalized = message.toLowerCase();
 
   return (
@@ -299,13 +277,11 @@ function buildSeedanceStartError(error: unknown) {
       ? error.message
       : "Não foi possível iniciar o vídeo no Seedance.";
 
-  if (isReplicateRateLimitError(rawMessage)) {
-    const providerLabel =
-      getSeedanceProvider() === "fal" ? "Fal.ai" : "Replicate";
-
+  if (isVideoProviderRateLimitError(rawMessage)) {
     return {
       status: 429,
-      message: `A geração foi limitada temporariamente pelo provedor de vídeo (${providerLabel}). Aguarde alguns segundos e tente novamente. Se isso acontecer com frequência, adicione mais crédito no provedor para aumentar o limite.`,
+      message:
+        "A geração foi limitada temporariamente pela AtlasCloud. Aguarde alguns segundos e tente novamente. Se isso acontecer com frequência, adicione mais crédito na AtlasCloud para aumentar o limite.",
     };
   }
 
@@ -321,12 +297,26 @@ function buildSeedanceStartError(error: unknown) {
   }
 
   if (rawMessage.includes("créditos")) {
-    return { status: 403, message: rawMessage };
+    const requiredCredits = Number(
+      rawMessage.match(/precisa de (\d+) créditos/i)?.[1] || 0,
+    );
+    const remainingCredits = Number(
+      rawMessage.match(/Créditos disponíveis: (\d+)/i)?.[1] || 0,
+    );
+
+    return {
+      status: 403,
+      message: rawMessage,
+      code: "INSUFFICIENT_CREDITS",
+      requiredCredits: Number.isFinite(requiredCredits) ? requiredCredits : 0,
+      remainingCredits: Number.isFinite(remainingCredits) ? remainingCredits : 0,
+      billingUrl: "/dashboard/billing",
+    };
   }
 
   if (
-    rawMessage.includes("REPLICATE_API_TOKEN") ||
-    rawMessage.includes("FAL_KEY")
+    rawMessage.includes("ATLASCLOUD_API_KEY") ||
+    rawMessage.includes("ATLAS_API_KEY")
   ) {
     return { status: 503, message: rawMessage };
   }
@@ -355,7 +345,16 @@ export async function POST(request: Request) {
         status: { in: ["PENDING", "RENDERING"] },
         expiresAt: { gt: new Date() },
       },
-      select: { id: true, status: true, progress: true, expiresAt: true },
+      select: {
+        id: true,
+        status: true,
+        progress: true,
+        expiresAt: true,
+        inputImageUrl: true,
+        resolution: true,
+        width: true,
+        height: true,
+      },
       orderBy: { createdAt: "desc" },
     })
     .catch(() => null);
@@ -368,6 +367,10 @@ export async function POST(request: Request) {
         videoId: activeSeedanceVideo.id,
         status: activeSeedanceVideo.status,
         renderProgress: activeSeedanceVideo.progress,
+        inputImageUrl: activeSeedanceVideo.inputImageUrl,
+        resolution: activeSeedanceVideo.resolution,
+        width: activeSeedanceVideo.width,
+        height: activeSeedanceVideo.height,
         expiresAt: activeSeedanceVideo.expiresAt,
       },
       { status: 409 },
@@ -400,9 +403,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const image = await readValidImage(flyer);
-
     const credits = getResolutionCreditCost(parsed.data.resolution);
+    const image = await readValidImage(flyer);
     const expiresAt = new Date(
       Date.now() + VIDEO_EXPIRES_IN_HOURS * 60 * 60 * 1000,
     );
@@ -508,6 +510,8 @@ export async function POST(request: Request) {
         provider: prediction.provider || getSeedanceProvider(),
         providerJobId: prediction.id,
         durationSeconds: getSeedanceDurationSeconds(),
+        width: image.width,
+        height: image.height,
         expiresAt: motion.expiresAt,
       },
       { status: 202 },
@@ -528,7 +532,13 @@ export async function POST(request: Request) {
     const friendlyError = buildSeedanceStartError(error);
 
     return NextResponse.json(
-      { error: friendlyError.message },
+      {
+        error: friendlyError.message,
+        code: (friendlyError as any).code,
+        requiredCredits: (friendlyError as any).requiredCredits,
+        remainingCredits: (friendlyError as any).remainingCredits,
+        billingUrl: (friendlyError as any).billingUrl,
+      },
       { status: friendlyError.status },
     );
   }

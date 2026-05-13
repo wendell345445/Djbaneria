@@ -7,15 +7,21 @@ import type { AppLocale } from "@/lib/i18n";
 
 export type SeedanceVideoCardData = {
   id: string;
+  source?: "seedance" | "remotion";
+  sourceLabel?: string;
   status: string;
   progress: number;
   inputImageUrl: string;
   outputVideoUrl: string | null;
   resolution: string;
+  width: number | null;
+  height: number | null;
   motionInstructions: string | null;
   errorMessage: string | null;
   createdAt: string | Date;
   expiresAt: string | Date;
+  downloadHref?: string | null;
+  statusEndpoint?: string | null;
 };
 
 const videoCardCopy = {
@@ -25,9 +31,12 @@ const videoCardCopy = {
     createdAt: "Criado em",
     download: "Baixar vídeo",
     availableUntil: "Disponível até",
+    seedance: "AI",
+    remotion: "Remotion",
     status: {
       PENDING: "Na fila",
       RENDERING: "Renderizando",
+      PROCESSING: "Processando",
       COMPLETED: "Pronto",
       FAILED: "Falhou",
     },
@@ -38,9 +47,12 @@ const videoCardCopy = {
     createdAt: "Created on",
     download: "Download video",
     availableUntil: "Available until",
+    seedance: "AI",
+    remotion: "Remotion",
     status: {
       PENDING: "Queued",
       RENDERING: "Rendering",
+      PROCESSING: "Processing",
       COMPLETED: "Ready",
       FAILED: "Failed",
     },
@@ -51,9 +63,12 @@ const videoCardCopy = {
     createdAt: "Creado el",
     download: "Descargar video",
     availableUntil: "Disponible hasta",
+    seedance: "AI",
+    remotion: "Remotion",
     status: {
       PENDING: "En cola",
       RENDERING: "Renderizando",
+      PROCESSING: "Procesando",
       COMPLETED: "Listo",
       FAILED: "Falló",
     },
@@ -72,9 +87,29 @@ function getResolutionLabel(value: string | null) {
   return value || "";
 }
 
+function getVideoLabel(video: SeedanceVideoCardData, _locale: AppLocale) {
+  return getResolutionLabel(video.resolution);
+}
+
+function getVideoAspectRatio(video: SeedanceVideoCardData) {
+  if (video.width && video.height) {
+    return `${video.width} / ${video.height}`;
+  }
+
+  return "4 / 5";
+}
+
 function getStatusLabel(status: string, locale: AppLocale) {
   const copy = videoCardCopy[locale] ?? videoCardCopy.en;
   return copy.status[status as keyof typeof copy.status] ?? status;
+}
+
+function getSourceLabel(video: SeedanceVideoCardData, locale: AppLocale) {
+  const copy = videoCardCopy[locale] ?? videoCardCopy.en;
+
+  if (video.sourceLabel) return video.sourceLabel;
+  if (video.source === "remotion") return copy.remotion;
+  return copy.seedance;
 }
 
 export function SeedanceVideoCard({
@@ -86,26 +121,40 @@ export function SeedanceVideoCard({
 }) {
   const [currentVideo, setCurrentVideo] = useState(video);
   const copy = videoCardCopy[locale] ?? videoCardCopy.en;
-  const isWorking = ["PENDING", "RENDERING"].includes(currentVideo.status);
+  const isWorking = ["PENDING", "RENDERING", "PROCESSING"].includes(currentVideo.status);
 
   useEffect(() => {
-    if (!isWorking) return;
+    setCurrentVideo(video);
+  }, [video]);
+
+  useEffect(() => {
+    if (!isWorking || !currentVideo.statusEndpoint) return;
 
     let cancelled = false;
 
     async function poll() {
       try {
-        const response = await fetch(`/api/seedance/status/${currentVideo.id}`, {
+        const response = await fetch(currentVideo.statusEndpoint || "", {
           cache: "no-store",
         });
         const data = await response.json().catch(() => null);
 
-        if (!response.ok || !data?.video || cancelled) return;
+        if (!response.ok || cancelled) return;
+
+        const nextVideo = data?.video ?? data?.motion;
+        if (!nextVideo) return;
 
         setCurrentVideo((previous) => ({
           ...previous,
-          ...data.video,
-          progress: Number(data.video.progress ?? previous.progress ?? 0),
+          status: nextVideo.status ?? previous.status,
+          progress: Number(
+            nextVideo.progress ??
+              nextVideo.renderProgress ??
+              previous.progress ??
+              0,
+          ),
+          outputVideoUrl: nextVideo.outputVideoUrl ?? previous.outputVideoUrl,
+          errorMessage: nextVideo.errorMessage ?? previous.errorMessage,
         }));
       } catch {
         // Keep the last known state in the card.
@@ -119,15 +168,20 @@ export function SeedanceVideoCard({
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [currentVideo.id, isWorking]);
+  }, [currentVideo.id, currentVideo.statusEndpoint, isWorking, video]);
 
   const progress = Math.max(0, Math.min(100, currentVideo.progress || 0));
   const statusLabel = getStatusLabel(currentVideo.status, locale);
   const isComplete = currentVideo.status === "COMPLETED" && currentVideo.outputVideoUrl;
+  const downloadHref =
+    currentVideo.downloadHref ||
+    (currentVideo.source === "remotion"
+      ? `/api/remotion/download/${currentVideo.id}`
+      : `/api/seedance/download/${currentVideo.id}`);
 
   return (
     <article className="library-card group block active:scale-[0.99]">
-      <div className="library-media relative aspect-[4/5] overflow-hidden bg-black">
+      <div className="library-media relative overflow-hidden bg-black" style={{ aspectRatio: getVideoAspectRatio(currentVideo) }}>
         {isComplete ? (
           <video
             src={currentVideo.outputVideoUrl || undefined}
@@ -166,16 +220,21 @@ export function SeedanceVideoCard({
           </>
         )}
 
-        <span className="library-chip-v absolute left-3 top-3 z-10 bg-black/55 backdrop-blur">
-          {getResolutionLabel(currentVideo.resolution)}
-        </span>
+        <div className="absolute left-3 top-3 z-10 flex flex-wrap items-center gap-2">
+          <span className="library-chip-v bg-black/55 backdrop-blur">
+            {getVideoLabel(currentVideo, locale)}
+          </span>
+          <span className="library-chip-v border-[rgba(191,95,255,0.26)] bg-black/55 text-[rgba(224,194,255,0.92)] backdrop-blur">
+            {getSourceLabel(currentVideo, locale)}
+          </span>
+        </div>
       </div>
 
       <div className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="truncate text-base font-semibold text-white">
-              {copy.generatedVideo} {getResolutionLabel(currentVideo.resolution)}
+              {copy.generatedVideo} {getVideoLabel(currentVideo, locale)}
             </h2>
             <p className="library-mono mt-1 text-[9px] uppercase tracking-[0.12em] text-white/36">
               {copy.createdAt} {formatDate(currentVideo.createdAt, locale)}
@@ -200,7 +259,7 @@ export function SeedanceVideoCard({
 
         {isComplete ? (
           <a
-            href={`/api/seedance/download/${currentVideo.id}`}
+            href={downloadHref}
             download
             className="library-btn-solid mt-4 flex min-h-[44px] w-full gap-2 px-4 text-[10px]"
           >

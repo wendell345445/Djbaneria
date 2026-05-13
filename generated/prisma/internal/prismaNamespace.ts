@@ -390,8 +390,10 @@ export const ModelName = {
   Banner: 'Banner',
   BannerMotion: 'BannerMotion',
   SeedanceVideo: 'SeedanceVideo',
+  ProfessionalImageJob: 'ProfessionalImageJob',
   Asset: 'Asset',
-  UsageEvent: 'UsageEvent'
+  UsageEvent: 'UsageEvent',
+  RateLimitBucket: 'RateLimitBucket'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "subscription" | "banner" | "bannerMotion" | "seedanceVideo" | "asset" | "usageEvent"
+    modelProps: "user" | "workspace" | "subscription" | "banner" | "bannerMotion" | "seedanceVideo" | "professionalImageJob" | "asset" | "usageEvent" | "rateLimitBucket"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -855,6 +857,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProfessionalImageJob: {
+      payload: Prisma.$ProfessionalImageJobPayload<ExtArgs>
+      fields: Prisma.ProfessionalImageJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProfessionalImageJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProfessionalImageJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>
+        }
+        findFirst: {
+          args: Prisma.ProfessionalImageJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProfessionalImageJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>
+        }
+        findMany: {
+          args: Prisma.ProfessionalImageJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>[]
+        }
+        create: {
+          args: Prisma.ProfessionalImageJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>
+        }
+        createMany: {
+          args: Prisma.ProfessionalImageJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProfessionalImageJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>[]
+        }
+        delete: {
+          args: Prisma.ProfessionalImageJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>
+        }
+        update: {
+          args: Prisma.ProfessionalImageJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProfessionalImageJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProfessionalImageJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProfessionalImageJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProfessionalImageJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfessionalImageJobPayload>
+        }
+        aggregate: {
+          args: Prisma.ProfessionalImageJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProfessionalImageJob>
+        }
+        groupBy: {
+          args: Prisma.ProfessionalImageJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProfessionalImageJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProfessionalImageJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProfessionalImageJobCountAggregateOutputType> | number
+        }
+      }
+    }
     Asset: {
       payload: Prisma.$AssetPayload<ExtArgs>
       fields: Prisma.AssetFieldRefs
@@ -1000,6 +1076,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UsageEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UsageEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    RateLimitBucket: {
+      payload: Prisma.$RateLimitBucketPayload<ExtArgs>
+      fields: Prisma.RateLimitBucketFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RateLimitBucketFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RateLimitBucketFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>
+        }
+        findFirst: {
+          args: Prisma.RateLimitBucketFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RateLimitBucketFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>
+        }
+        findMany: {
+          args: Prisma.RateLimitBucketFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>[]
+        }
+        create: {
+          args: Prisma.RateLimitBucketCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>
+        }
+        createMany: {
+          args: Prisma.RateLimitBucketCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RateLimitBucketCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>[]
+        }
+        delete: {
+          args: Prisma.RateLimitBucketDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>
+        }
+        update: {
+          args: Prisma.RateLimitBucketUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>
+        }
+        deleteMany: {
+          args: Prisma.RateLimitBucketDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RateLimitBucketUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RateLimitBucketUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>[]
+        }
+        upsert: {
+          args: Prisma.RateLimitBucketUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitBucketPayload>
+        }
+        aggregate: {
+          args: Prisma.RateLimitBucketAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRateLimitBucket>
+        }
+        groupBy: {
+          args: Prisma.RateLimitBucketGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RateLimitBucketGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RateLimitBucketCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RateLimitBucketCountAggregateOutputType> | number
         }
       }
     }
@@ -1188,6 +1338,33 @@ export const SeedanceVideoScalarFieldEnum = {
 export type SeedanceVideoScalarFieldEnum = (typeof SeedanceVideoScalarFieldEnum)[keyof typeof SeedanceVideoScalarFieldEnum]
 
 
+export const ProfessionalImageJobScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  usageEventId: 'usageEventId',
+  status: 'status',
+  inputImageUrl: 'inputImageUrl',
+  inputImageStorageKey: 'inputImageStorageKey',
+  inputMimeType: 'inputMimeType',
+  inputSizeBytes: 'inputSizeBytes',
+  outputImageUrl: 'outputImageUrl',
+  outputImageStorageKey: 'outputImageStorageKey',
+  photoDirection: 'photoDirection',
+  locale: 'locale',
+  prompt: 'prompt',
+  modelName: 'modelName',
+  creditsUsed: 'creditsUsed',
+  width: 'width',
+  height: 'height',
+  progress: 'progress',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProfessionalImageJobScalarFieldEnum = (typeof ProfessionalImageJobScalarFieldEnum)[keyof typeof ProfessionalImageJobScalarFieldEnum]
+
+
 export const AssetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -1215,6 +1392,17 @@ export const UsageEventScalarFieldEnum = {
 } as const
 
 export type UsageEventScalarFieldEnum = (typeof UsageEventScalarFieldEnum)[keyof typeof UsageEventScalarFieldEnum]
+
+
+export const RateLimitBucketScalarFieldEnum = {
+  key: 'key',
+  count: 'count',
+  resetAt: 'resetAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RateLimitBucketScalarFieldEnum = (typeof RateLimitBucketScalarFieldEnum)[keyof typeof RateLimitBucketScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1440,6 +1628,20 @@ export type ListEnumSeedanceVideoStatusFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'ProfessionalImageJobStatus'
+ */
+export type EnumProfessionalImageJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfessionalImageJobStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ProfessionalImageJobStatus[]'
+ */
+export type ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfessionalImageJobStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'UsageEventType'
  */
 export type EnumUsageEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsageEventType'>
@@ -1596,8 +1798,10 @@ export type GlobalOmitConfig = {
   banner?: Prisma.BannerOmit
   bannerMotion?: Prisma.BannerMotionOmit
   seedanceVideo?: Prisma.SeedanceVideoOmit
+  professionalImageJob?: Prisma.ProfessionalImageJobOmit
   asset?: Prisma.AssetOmit
   usageEvent?: Prisma.UsageEventOmit
+  rateLimitBucket?: Prisma.RateLimitBucketOmit
 }
 
 /* Types for Logging */

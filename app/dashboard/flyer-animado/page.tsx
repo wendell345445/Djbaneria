@@ -1,9 +1,69 @@
 import { StandaloneSeedanceGenerator } from "@/components/standalone-seedance-generator";
+import { SubscriptionPlan, SubscriptionStatus, UsageEventType } from "@/generated/prisma/enums";
+import { isAdminEmail } from "@/lib/admin";
 import { normalizeLocale } from "@/lib/i18n";
+import {
+  buildBillingSummary,
+  getBillingPeriodRange,
+  hasCreditCyclePaymentConfirmation,
+  requiresCreditCyclePaymentConfirmation,
+} from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
 export const dynamic = "force-dynamic";
+
+const CREDIT_EVENT_TYPES = [
+  UsageEventType.BANNER_GENERATION,
+  UsageEventType.BANNER_EDIT,
+  UsageEventType.BANNER_VARIATION,
+  UsageEventType.BANNER_MOTION_RENDER,
+] as const;
+
+async function getAnimatedFlyerCreditInfo(
+  workspace: Awaited<ReturnType<typeof requireCurrentWorkspace>>,
+) {
+  const isAdminUnlimited = isAdminEmail(workspace.user?.email);
+  const currentPlan = workspace.subscription?.plan || SubscriptionPlan.FREE;
+  const billingPeriod = getBillingPeriodRange({
+    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+    currentPeriodStart: workspace.subscription?.currentPeriodStart,
+    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+    now: new Date(),
+  });
+  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
+    plan: currentPlan,
+    providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+    currentPeriodStart: workspace.subscription?.currentPeriodStart,
+    currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+  });
+
+  const usageEvents = await prisma.usageEvent.findMany({
+    where: {
+      workspaceId: workspace.id,
+      createdAt: { gte: billingPeriod.start, lt: billingPeriod.end },
+      type: { in: [...CREDIT_EVENT_TYPES] },
+    },
+    select: {
+      units: true,
+      createdAt: true,
+      metadata: true,
+    },
+  });
+
+  const summary = buildBillingSummary({
+    plan: currentPlan,
+    status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
+    usageEvents,
+    requiresPaymentConfirmation,
+    creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
+  });
+
+  return {
+    isAdminUnlimited,
+    remainingCredits: isAdminUnlimited ? null : summary.remainingCredits,
+  };
+}
 
 export default async function AnimatedFlyerPage() {
   const workspace = await requireCurrentWorkspace();
@@ -16,6 +76,7 @@ export default async function AnimatedFlyerPage() {
   const locale = normalizeLocale(
     userLanguage?.preferredLocale ?? workspace.user?.preferredLocale,
   );
+  const creditInfo = await getAnimatedFlyerCreditInfo(workspace);
 
   return (
     <main className="av-shell relative min-h-screen overflow-hidden bg-[#03040A] px-3 py-4 text-white sm:px-5 sm:py-6 lg:px-8">
@@ -26,7 +87,12 @@ export default async function AnimatedFlyerPage() {
       <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.08] [background-image:repeating-linear-gradient(0deg,transparent_0px,transparent_5px,rgba(255,255,255,0.12)_6px)]" />
 
       <div className="relative z-10 mx-auto w-full max-w-[1480px]">
-        <StandaloneSeedanceGenerator key={locale} locale={locale} />
+        <StandaloneSeedanceGenerator
+          key={locale}
+          locale={locale}
+          remainingCredits={creditInfo.remainingCredits}
+          isAdminUnlimited={creditInfo.isAdminUnlimited}
+        />
       </div>
 
       <style

@@ -35,6 +35,7 @@ type NavItemKey =
   | "myBanners"
   | "professionalImage"
   | "animatedFlyer"
+  | "remotion"
   | "myVideos"
   | "billing"
   | "language"
@@ -64,6 +65,12 @@ const navItems: NavItem[] = [
     badgeType: "ai",
   },
   { key: "myVideos", href: "/dashboard/meus-videos", icon: Film },
+  {
+    key: "remotion",
+    href: "/dashboard/remotion",
+    icon: Clapperboard,
+    badgeType: "ai",
+  },
   {
     key: "professionalImage",
     href: "/dashboard/imagem-profissional",
@@ -117,6 +124,24 @@ function getMyVideosLabel(locale: SupportedLocale) {
   return "My videos";
 }
 
+function getRemotionLabel(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Remotion Studio";
+  if (locale === "es") return "Remotion Studio";
+  return "Remotion Studio";
+}
+
+function getNewFlyerLabel(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Novo flyer";
+  if (locale === "es") return "Nuevo flyer";
+  return "New flyer";
+}
+
+function getMyFlyersLabel(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Meus flyers";
+  if (locale === "es") return "Mis flyers";
+  return "My flyers";
+}
+
 function getNavItemLabel(
   key: NavItemKey,
   copy: ReturnType<typeof getDashboardCopy>,
@@ -126,15 +151,17 @@ function getNavItemLabel(
     case "dashboard":
       return copy.nav.dashboard;
     case "newBanner":
-      return copy.nav.newBanner;
+      return getNewFlyerLabel(locale);
     case "myBanners":
-      return copy.nav.myBanners;
+      return getMyFlyersLabel(locale);
     case "professionalImage":
       return getProfessionalImageLabel(locale);
     case "animatedFlyer":
       return getAnimatedFlyerLabel(locale);
     case "myVideos":
       return getMyVideosLabel(locale);
+    case "remotion":
+      return getRemotionLabel(locale);
     case "billing":
       return copy.nav.billing;
     case "language":
@@ -152,7 +179,9 @@ function getPageLabel(
   locale: SupportedLocale,
 ) {
   const match = navItems.find((item) => isNavItemActive(pathname, item.href));
-  return match ? getNavItemLabel(match.key, copy, locale) : copy.shell.fallbackPage;
+  return match
+    ? getNavItemLabel(match.key, copy, locale)
+    : copy.shell.fallbackPage;
 }
 
 function getSidebarControlCopy(locale: SupportedLocale) {
@@ -176,6 +205,30 @@ function getSidebarControlCopy(locale: SupportedLocale) {
     collapse: "Collapse sidebar",
     expand: "Expand sidebar",
     compactHint: "Compact menu",
+  };
+}
+
+function getMobileCreditCopy(locale: SupportedLocale) {
+  if (locale === "pt-BR") {
+    return {
+      shortLabel: "Créditos",
+      available: "disponíveis",
+      unlimited: "ilimitados",
+    };
+  }
+
+  if (locale === "es") {
+    return {
+      shortLabel: "Créditos",
+      available: "disponibles",
+      unlimited: "ilimitados",
+    };
+  }
+
+  return {
+    shortLabel: "Credits",
+    available: "available",
+    unlimited: "unlimited",
   };
 }
 
@@ -208,6 +261,10 @@ export function DashboardSidebar({
     () => getSidebarControlCopy(normalizedLocale),
     [normalizedLocale],
   );
+  const mobileCreditCopy = useMemo(
+    () => getMobileCreditCopy(normalizedLocale),
+    [normalizedLocale],
+  );
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -218,7 +275,9 @@ export function DashboardSidebar({
   );
 
   useEffect(() => {
-    const storedValue = window.localStorage.getItem("dj_visuals_sidebar_collapsed");
+    const storedValue = window.localStorage.getItem(
+      "dj_visuals_sidebar_collapsed",
+    );
     if (storedValue === "1") {
       setDesktopCollapsed(true);
     }
@@ -397,8 +456,16 @@ export function DashboardSidebar({
             type="button"
             onClick={toggleDesktopSidebar}
             className="group absolute right-0 top-[92px] z-[80] hidden h-10 w-10 translate-x-1/2 items-center justify-center border border-cyan-300/28 bg-[#050712] text-cyan-100 shadow-[0_0_32px_rgba(0,245,255,0.24),0_18px_55px_rgba(0,0,0,0.68)] transition hover:border-cyan-200/50 hover:bg-cyan-300/10 hover:text-white lg:inline-flex"
-            aria-label={desktopCollapsed ? sidebarControlCopy.expand : sidebarControlCopy.collapse}
-            title={desktopCollapsed ? sidebarControlCopy.expand : sidebarControlCopy.collapse}
+            aria-label={
+              desktopCollapsed
+                ? sidebarControlCopy.expand
+                : sidebarControlCopy.collapse
+            }
+            title={
+              desktopCollapsed
+                ? sidebarControlCopy.expand
+                : sidebarControlCopy.collapse
+            }
           >
             <span className="pointer-events-none absolute inset-1 border border-violet-300/12 transition group-hover:border-violet-200/24" />
             <span className="pointer-events-none absolute -inset-2 -z-10 bg-cyan-300/10 blur-xl opacity-80 transition group-hover:opacity-100" />
@@ -409,8 +476,13 @@ export function DashboardSidebar({
             )}
           </button>
 
-          <div className={`relative flex h-full flex-col ${desktopCollapsed ? "p-3" : "p-4"}`}>
-            <BrandBlock studioLabel={copy.brand.studio} collapsed={desktopCollapsed} />
+          <div
+            className={`relative flex h-full flex-col ${desktopCollapsed ? "p-3" : "p-4"}`}
+          >
+            <BrandBlock
+              studioLabel={copy.brand.studio}
+              collapsed={desktopCollapsed}
+            />
 
             {!desktopCollapsed ? (
               <div className="mt-4 flex items-center gap-3 px-1">
@@ -421,7 +493,9 @@ export function DashboardSidebar({
               </div>
             ) : null}
 
-            <nav className={`flex-1 space-y-2 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${desktopCollapsed ? "mt-4 pr-0" : "mt-3 pr-1"}`}>
+            <nav
+              className={`flex-1 space-y-2 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${desktopCollapsed ? "mt-4 pr-0" : "mt-3 pr-1"}`}
+            >
               {navItems.map((item) => (
                 <SidebarLink
                   key={item.href}
@@ -503,26 +577,31 @@ export function DashboardSidebar({
                   <button
                     type="button"
                     onClick={() => setMobileOpen(true)}
-                    className="min-w-[82px] shrink-0 border border-cyan-300/16 bg-white/[0.035] px-2.5 py-2 text-right shadow-[0_0_22px_rgba(0,245,255,0.08)]"
-                    aria-label={creditInfo.label}
+                    className="group relative inline-flex min-h-11 shrink-0 items-center gap-2 overflow-hidden border border-cyan-300/18 bg-[linear-gradient(135deg,rgba(0,245,255,0.095),rgba(191,95,255,0.055),rgba(255,255,255,0.03))] px-2.5 py-2 text-left shadow-[0_0_24px_rgba(0,245,255,0.10)] transition hover:border-cyan-200/35 hover:bg-cyan-300/[0.09]"
+                    aria-label={`${creditInfo.label}: ${creditInfo.value}`}
                   >
-                    <span className="dashboard-mono block text-[7px] font-bold uppercase tracking-[0.16em] text-cyan-100/55">
-                      {creditInfo.label}
+                    <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/55 to-transparent" />
+                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-cyan-300/20 bg-cyan-300/10 text-cyan-100 shadow-[0_0_18px_rgba(0,245,255,0.12)]">
+                      <CircleDollarSign className="h-4 w-4" />
                     </span>
-                    <span className="dashboard-orb mt-1 block truncate text-[13px] font-black uppercase text-white">
-                      {creditInfo.value}
+                    <span className="min-w-0">
+                      <span className="dashboard-mono block text-[7px] font-bold uppercase tracking-[0.18em] text-cyan-100/55">
+                        {mobileCreditCopy.shortLabel}
+                      </span>
+                      <span className="mt-0.5 flex items-baseline gap-1.5">
+                        <span className="dashboard-orb max-w-[58px] truncate text-[16px] font-black uppercase leading-none text-white">
+                          {creditInfo.value}
+                        </span>
+                        <span className="hidden dashboard-mono text-[7px] font-bold uppercase tracking-[0.12em] text-white/38 min-[380px]:inline">
+                          {creditInfo.isUnlimited
+                            ? mobileCreditCopy.unlimited
+                            : mobileCreditCopy.available}
+                        </span>
+                      </span>
                     </span>
                   </button>
                 ) : null}
               </div>
-
-              <Link
-                href="/dashboard/banners/new"
-                className="dashboard-orb relative mt-3 flex h-11 w-full items-center justify-center overflow-hidden bg-cyan-300 px-4 text-[10px] font-black uppercase tracking-[0.14em] text-[#03040a] shadow-[0_0_34px_rgba(0,245,255,0.28)] transition hover:shadow-[0_0_46px_rgba(0,245,255,0.42)]"
-              >
-                <span className="dashboard-scanline absolute inset-y-0 left-0 w-full" />
-                <span className="relative">{copy.shell.new}</span>
-              </Link>
             </div>
           </header>
 
@@ -570,7 +649,9 @@ export function DashboardSidebar({
             </nav>
 
             <div className="relative mt-5 space-y-3 border-t border-cyan-300/10 pt-4">
-              {creditInfo ? <CreditsPanel creditInfo={creditInfo} compact /> : null}
+              {creditInfo ? (
+                <CreditsPanel creditInfo={creditInfo} compact />
+              ) : null}
 
               <button
                 type="button"
@@ -639,10 +720,14 @@ function SidebarLink({
         <span className="absolute left-1 top-1/2 h-5 w-px -translate-y-1/2 bg-cyan-300 shadow-[0_0_14px_rgba(0,245,255,0.82)]" />
       ) : null}
 
-      <span className={`relative flex min-w-0 items-center ${collapsed ? "justify-center" : "gap-3"}`}>
+      <span
+        className={`relative flex min-w-0 items-center ${collapsed ? "justify-center" : "gap-3"}`}
+      >
         <span
           className={`inline-flex shrink-0 items-center justify-center transition ${
-            collapsed ? "h-11 w-11 border-0 bg-transparent shadow-none" : "h-9 w-9 border"
+            collapsed
+              ? "h-11 w-11 border-0 bg-transparent shadow-none"
+              : "h-9 w-9 border"
           } ${
             collapsed
               ? active
@@ -675,15 +760,17 @@ function SidebarLink({
           <Sparkles className="h-3.5 w-3.5" />
         </span>
       ) : item.badge ? (
-        <span className="dashboard-chip-v py-1 text-[7px]">
-          {item.badge}
-        </span>
+        <span className="dashboard-chip-v py-1 text-[7px]">{item.badge}</span>
       ) : null}
     </Link>
   );
 }
 
-function CollapsedCreditsPill({ creditInfo }: { creditInfo: SidebarCreditInfo }) {
+function CollapsedCreditsPill({
+  creditInfo,
+}: {
+  creditInfo: SidebarCreditInfo;
+}) {
   return (
     <div
       className="group relative flex h-12 w-12 items-center justify-center border border-cyan-300/16 bg-cyan-300/[0.055] text-cyan-100 shadow-[0_0_24px_rgba(0,245,255,0.08)]"
@@ -720,7 +807,7 @@ function CreditsPanel({
       <div className="relative">
         <div className="flex items-start justify-between gap-3">
           <span className="dashboard-chip-cx">● {creditInfo.label}</span>
-          <span className="dashboard-mono max-w-[120px] truncate border border-violet-300/18 bg-violet-300/[0.055] px-2 py-1 text-[8px] font-bold uppercase tracking-[0.14em] text-violet-100/75">
+          <span className="dashboard-mono max-w-[68px] truncate border border-violet-300/10 bg-violet-300/[0.035] px-1 py-0.5 text-[6px] font-semibold uppercase tracking-[0.1em] text-violet-100/55 sm:max-w-[76px]">
             {creditInfo.planLabel}
           </span>
         </div>
@@ -756,7 +843,6 @@ function CreditsPanel({
             />
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -786,10 +872,7 @@ function BrandBlock({
   }
 
   return (
-    <Link
-      href="/dashboard"
-      className="group relative block p-4 transition"
-    >
+    <Link href="/dashboard" className="group relative block p-4 transition">
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <span className="dashboard-chip-cx">● AI Studio</span>

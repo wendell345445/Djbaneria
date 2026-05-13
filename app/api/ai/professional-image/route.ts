@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
+import { after, NextResponse } from "next/server";
 import sharp from "sharp";
+import { z } from "zod";
 
 import {
   SubscriptionPlan,
@@ -23,10 +23,11 @@ import {
   buildRateLimitHeaders,
 } from "@/lib/rate-limit";
 import { validateMutationOrigin } from "@/lib/request-security";
-import { uploadBannerBuffer } from "@/lib/storage";
+import { deleteObjectFromR2, uploadBufferToR2 } from "@/lib/storage";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 const professionalImageSchema = z.object({
   imageDataUrl: z
@@ -66,7 +67,7 @@ const apiCopy = {
   en: {
     invalidImage: "Upload a valid image.",
     rateLimit: "Too many attempts. Wait a moment and try again.",
-    noCredits: "You have used all your credits for this month.",
+    noCredits: "You have used all your credits for this cycle.",
     inactiveSubscription: "Your subscription is not active for image generation.",
     missingOpenAi: "OPENAI_API_KEY was not configured.",
     invalidData: "Invalid data.",
@@ -79,7 +80,7 @@ const apiCopy = {
   es: {
     invalidImage: "Sube una imagen válida.",
     rateLimit: "Demasiados intentos seguidos. Espera un momento e inténtalo de nuevo.",
-    noCredits: "Has usado todos tus créditos de este mes.",
+    noCredits: "Has usado todos tus créditos de este ciclo.",
     inactiveSubscription: "Tu suscripción no está activa para generar imágenes.",
     missingOpenAi: "OPENAI_API_KEY no fue configurada.",
     invalidData: "Datos inválidos.",
@@ -95,6 +96,29 @@ type ApiCopy = (typeof apiCopy)[keyof typeof apiCopy];
 type ProfessionalPhotoDirection = z.infer<
   typeof professionalImageSchema
 >["photoDirection"];
+
+type ProfessionalImageStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+
+function isProfessionalPhotoDirection(
+  value: string | null | undefined,
+): value is ProfessionalPhotoDirection {
+  return (
+    value === "artist_press" ||
+    value === "studio_portrait" ||
+    value === "profile_picture" ||
+    value === "booking_promo" ||
+    value === "editorial_artist" ||
+    value === "lifestyle_dj"
+  );
+}
+
+function normalizeProfessionalPhotoDirection(
+  value: string | null | undefined,
+): ProfessionalPhotoDirection {
+  return isProfessionalPhotoDirection(value) ? value : "artist_press";
+}
+
+const PROFESSIONAL_IMAGE_COST = 1;
 
 const professionalPhotoDirectionPrompts: Record<
   ProfessionalPhotoDirection,
@@ -149,6 +173,12 @@ function dataUrlToFileParts(dataUrl: string, copy: ApiCopy) {
   };
 }
 
+function bufferToBlobPart(buffer: Buffer): ArrayBuffer {
+  const arrayBuffer = new ArrayBuffer(buffer.byteLength);
+  new Uint8Array(arrayBuffer).set(buffer);
+  return arrayBuffer;
+}
+
 async function getProfessionalImageBillingSummary(
   workspace: Awaited<ReturnType<typeof requireCurrentWorkspace>>,
 ) {
@@ -198,23 +228,52 @@ async function getProfessionalImageBillingSummary(
   };
 }
 
-async function createProfessionalImageFromPhoto(input: {
-  imageDataUrl: string;
-  workspaceName?: string | null;
-  locale?: string;
-  photoDirection: ProfessionalPhotoDirection;
+async function reserveProfessionalImageCredit(params: {
+  workspaceId: string;
+  isAdmin: boolean;
 }) {
-  const copy = getApiCopy(input.locale);
-  const { buffer, mimeType } = dataUrlToFileParts(input.imageDataUrl, copy);
+  if (params.isAdmin) {
+    return {
+      usageEventId: null as string | null,
+      remainingCreditsAfterReserve: null as number | null,
+    };
+  }
 
-  const prompt = [
+  const usageEvent = await prisma.usageEvent.create({
+    data: {
+      workspaceId: params.workspaceId,
+      type: UsageEventType.BANNER_GENERATION,
+      units: PROFESSIONAL_IMAGE_COST,
+      metadata: {
+        flow: "professional-image",
+        source: "professional-photo-page",
+        status: "reserved",
+        reservedAt: new Date().toISOString(),
+      },
+    },
+    select: { id: true },
+  });
+
+  return {
+    usageEventId: usageEvent.id,
+    remainingCreditsAfterReserve: null as number | null,
+  };
+}
+
+function buildProfessionalImagePrompt(input: {
+  workspaceName?: string | null;
+  photoDirection?: string | null;
+}) {
+  const photoDirection = normalizeProfessionalPhotoDirection(input.photoDirection);
+
+  return [
     "Use a foto enviada como base principal.",
     "Transforme essa foto comum em uma imagem profissional de portfólio para DJ.",
     "Preserve fielmente a identidade da pessoa, rosto, expressão, traços principais, cabelo e estrutura facial.",
     "Mantenha as características reais da foto original.",
     "Melhore iluminação, nitidez, contraste, composição e acabamento visual.",
     "A imagem final deve parecer premium, elegante, forte e pronta para divulgação artística.",
-    professionalPhotoDirectionPrompts[input.photoDirection],
+    professionalPhotoDirectionPrompts[photoDirection],
     "Prefira enquadramento profissional com rosto inteiro, cabeça inteira e margem de respiro ao redor.",
     "Não corte testa, cabelo, topo da cabeça, orelhas, laterais do rosto, queixo, pescoço ou ombros.",
     "Evite close excessivo e enquadramento apertado.",
@@ -226,20 +285,25 @@ async function createProfessionalImageFromPhoto(input: {
   ]
     .filter(Boolean)
     .join(" ");
+}
 
+async function createProfessionalImageFromBuffer(input: {
+  buffer: Buffer;
+  mimeType: string;
+  copy: ApiCopy;
+  prompt: string;
+}) {
   const formData = new FormData();
   formData.append("model", process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2");
-  formData.append("prompt", prompt);
+  formData.append("prompt", input.prompt);
   formData.append("size", "1024x1536");
   formData.append("quality", "medium");
   formData.append("n", "1");
-  formData.append(
-    "image",
-    new Blob([buffer], {
-      type: mimeType,
-    }),
-    "dj-reference-photo.png",
-  );
+  const imageBlob = new Blob([bufferToBlobPart(input.buffer)], {
+    type: input.mimeType,
+  });
+
+  formData.append("image", imageBlob, "dj-reference-photo.png");
 
   const response = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
@@ -259,16 +323,171 @@ async function createProfessionalImageFromPhoto(input: {
   };
 
   if (!response.ok) {
-    throw new Error(data.error?.message || copy.openAiFailed);
+    throw new Error(data.error?.message || input.copy.openAiFailed);
   }
 
   const imageBase64 = data.data?.[0]?.b64_json;
 
   if (!imageBase64) {
-    throw new Error(copy.openAiMissingImage);
+    throw new Error(input.copy.openAiMissingImage);
   }
 
   return Buffer.from(imageBase64, "base64");
+}
+
+async function downloadInputImage(job: {
+  inputImageUrl?: string | null;
+  inputMimeType?: string | null;
+}) {
+  if (!job.inputImageUrl) {
+    throw new Error("Imagem de entrada não encontrada.");
+  }
+
+  const response = await fetch(job.inputImageUrl, { cache: "no-store" });
+
+  if (!response.ok) {
+    throw new Error("Não foi possível baixar a imagem de entrada.");
+  }
+
+  return {
+    buffer: Buffer.from(await response.arrayBuffer()),
+    mimeType: job.inputMimeType || response.headers.get("content-type") || "image/png",
+  };
+}
+
+async function processProfessionalImageJob(params: {
+  jobId: string;
+  sourceBuffer?: Buffer;
+  sourceMimeType?: string;
+}) {
+  const professionalImageJob = (prisma as typeof prisma & {
+    professionalImageJob: {
+      findUnique: (args: unknown) => Promise<any>;
+      update: (args: unknown) => Promise<any>;
+    };
+  }).professionalImageJob;
+
+  const job = await professionalImageJob.findUnique({
+    where: { id: params.jobId },
+    include: { workspace: true },
+  });
+
+  if (!job || job.status === "COMPLETED") return;
+
+  const copy = getApiCopy(job.locale || "en");
+
+  try {
+    await professionalImageJob.update({
+      where: { id: job.id },
+      data: {
+        status: "PROCESSING" satisfies ProfessionalImageStatus,
+        progress: 35,
+        errorMessage: null,
+      },
+    });
+
+    const source = params.sourceBuffer
+      ? {
+          buffer: params.sourceBuffer,
+          mimeType: params.sourceMimeType || job.inputMimeType || "image/png",
+        }
+      : await downloadInputImage(job);
+
+    await professionalImageJob.update({
+      where: { id: job.id },
+      data: { progress: 58 },
+    });
+
+    const prompt = job.prompt ||
+      buildProfessionalImagePrompt({
+        workspaceName: job.workspace?.name,
+        photoDirection: job.photoDirection,
+      });
+
+    const generatedBuffer = await createProfessionalImageFromBuffer({
+      buffer: source.buffer,
+      mimeType: source.mimeType,
+      copy,
+      prompt,
+    });
+
+    await professionalImageJob.update({
+      where: { id: job.id },
+      data: { progress: 82 },
+    });
+
+    const finalPng = await sharp(generatedBuffer).png().toBuffer();
+    const meta = await sharp(finalPng).metadata();
+    const filenameBase =
+      sanitizeForFileName(`${job.workspace?.name || "workspace"}-professional-photo`) ||
+      `professional-photo-${Date.now()}`;
+    const outputKey = `workspaces/${job.workspaceId}/professional-images/${Date.now()}-${filenameBase}.png`;
+
+    const uploaded = await uploadBufferToR2({
+      key: outputKey,
+      body: finalPng,
+      contentType: "image/png",
+    });
+
+    await prisma.asset.create({
+      data: {
+        workspaceId: job.workspaceId,
+        url: uploaded.url,
+        originalName: `${filenameBase}.png`,
+        storageProvider: "cloudflare-r2",
+        storageKey: outputKey,
+        mimeType: "image/png",
+        sizeBytes: finalPng.byteLength,
+        width: meta.width || null,
+        height: meta.height || null,
+      },
+    });
+
+    await professionalImageJob.update({
+      where: { id: job.id },
+      data: {
+        status: "COMPLETED" satisfies ProfessionalImageStatus,
+        outputImageUrl: uploaded.url,
+        outputImageStorageKey: outputKey,
+        width: meta.width || null,
+        height: meta.height || null,
+        progress: 100,
+        errorMessage: null,
+      },
+    });
+
+    if (job.inputImageStorageKey) {
+      await deleteObjectFromR2(job.inputImageStorageKey).catch(() => null);
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/billing");
+    revalidatePath("/dashboard/imagem-profissional");
+    revalidatePath("/dashboard/banners/new");
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : copy.generic;
+
+    if (job.usageEventId) {
+      await prisma.usageEvent
+        .delete({ where: { id: job.usageEventId } })
+        .catch(() => null);
+    }
+
+    await professionalImageJob.update({
+      where: { id: job.id },
+      data: {
+        status: "FAILED" satisfies ProfessionalImageStatus,
+        progress: 100,
+        errorMessage,
+      },
+    });
+
+    if (job.inputImageStorageKey) {
+      await deleteObjectFromR2(job.inputImageStorageKey).catch(() => null);
+    }
+
+    console.error("Erro ao processar job de imagem profissional:", error);
+  }
 }
 
 export async function POST(request: Request) {
@@ -340,75 +559,115 @@ export async function POST(request: Request) {
       );
     }
 
-    const generatedBuffer = await createProfessionalImageFromPhoto({
-      imageDataUrl: parsed.data.imageDataUrl,
+    const { buffer, mimeType } = dataUrlToFileParts(parsed.data.imageDataUrl, copy);
+    const filenameBase =
+      sanitizeForFileName(`${workspace.name}-professional-photo-source`) ||
+      `professional-photo-source-${Date.now()}`;
+    const inputKey = `workspaces/${workspace.id}/professional-image-inputs/${Date.now()}-${filenameBase}.png`;
+    const normalizedInput = await sharp(buffer).png().toBuffer();
+    const inputUpload = await uploadBufferToR2({
+      key: inputKey,
+      body: normalizedInput,
+      contentType: "image/png",
+      cacheControl: "private, max-age=86400",
+    });
+
+    const prompt = buildProfessionalImagePrompt({
       workspaceName: workspace.name,
-      locale,
       photoDirection: parsed.data.photoDirection,
     });
 
-    const finalPng = await sharp(generatedBuffer).png().toBuffer();
-    const meta = await sharp(finalPng).metadata();
+    const professionalImageJob = (prisma as typeof prisma & {
+      professionalImageJob: {
+        create: (args: unknown) => Promise<any>;
+      };
+    }).professionalImageJob;
 
-    const filenameBase =
-      sanitizeForFileName(`${workspace.name}-professional-photo`) ||
-      `professional-photo-${Date.now()}`;
-    const key = `workspaces/${workspace.id}/professional-images/${Date.now()}-${filenameBase}.png`;
+    const baseJobData = {
+      workspaceId: workspace.id,
+      status: "PENDING" satisfies ProfessionalImageStatus,
+      inputImageUrl: inputUpload.url,
+      inputImageStorageKey: inputKey,
+      inputMimeType: "image/png",
+      inputSizeBytes: normalizedInput.byteLength,
+      photoDirection: parsed.data.photoDirection,
+      locale,
+      prompt,
+      modelName: process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2",
+      creditsUsed: billingSummary.isAdmin ? 0 : PROFESSIONAL_IMAGE_COST,
+      progress: 12,
+    };
 
-    const uploaded = await uploadBannerBuffer({
-      key,
-      body: finalPng,
-      contentType: "image/png",
-    });
-
-    await prisma.asset.create({
-      data: {
-        workspaceId: workspace.id,
-        url: uploaded.url,
-        originalName: `${filenameBase}.png`,
-        storageProvider: "cloudflare-r2",
-        storageKey: key,
-        mimeType: "image/png",
-        sizeBytes: finalPng.byteLength,
-        width: meta.width || null,
-        height: meta.height || null,
-      },
-    });
-
-    if (!billingSummary.isAdmin) {
-      await prisma.usageEvent.create({
-        data: {
-          workspaceId: workspace.id,
-          type: UsageEventType.BANNER_GENERATION,
-          units: 1,
-          metadata: {
-            flow: "professional-image",
-            source: "professional-photo-page",
-            photoDirection: parsed.data.photoDirection,
-            model: process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2",
-            createdAt: new Date().toISOString(),
+    const job = billingSummary.isAdmin
+      ? await professionalImageJob.create({
+          data: {
+            ...baseJobData,
+            usageEventId: null,
           },
-        },
-      });
-    }
+          select: {
+            id: true,
+            status: true,
+            progress: true,
+            createdAt: true,
+          },
+        })
+      : await prisma.$transaction(async (tx) => {
+          const usageEvent = await tx.usageEvent.create({
+            data: {
+              workspaceId: workspace.id,
+              type: UsageEventType.BANNER_GENERATION,
+              units: PROFESSIONAL_IMAGE_COST,
+              metadata: {
+                flow: "professional-image",
+                source: "professional-photo-page",
+                photoDirection: parsed.data.photoDirection,
+                status: "reserved",
+                reservedAt: new Date().toISOString(),
+              },
+            },
+            select: { id: true },
+          });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
-    revalidatePath("/dashboard/imagem-profissional");
-    revalidatePath("/dashboard/banners/new");
+          return (tx as typeof tx & {
+            professionalImageJob: {
+              create: (args: unknown) => Promise<any>;
+            };
+          }).professionalImageJob.create({
+            data: {
+              ...baseJobData,
+              usageEventId: usageEvent.id,
+            },
+            select: {
+              id: true,
+              status: true,
+              progress: true,
+              createdAt: true,
+            },
+          });
+        });
+
+    after(() =>
+      processProfessionalImageJob({
+        jobId: job.id,
+        sourceBuffer: normalizedInput,
+        sourceMimeType: "image/png",
+      }),
+    );
 
     return NextResponse.json(
       {
         success: true,
-        imageUrl: uploaded.url,
+        jobId: job.id,
+        status: job.status,
+        progress: job.progress,
         remainingCredits: billingSummary.isAdmin
           ? null
-          : Math.max(billingSummary.remainingCredits - 1, 0),
+          : Math.max(billingSummary.remainingCredits - PROFESSIONAL_IMAGE_COST, 0),
       },
       { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
-    console.error("Erro ao gerar imagem profissional:", error);
+    console.error("Erro ao iniciar imagem profissional:", error);
 
     return NextResponse.json(
       {

@@ -25,10 +25,10 @@ const copyByLocale: Record<
     editorStep: "03 · Configure o motion",
     remotionTitle: "Editor Remotion",
     remotionHint:
-      "Depois de selecionar uma imagem, envie a música, escolha o trecho mais forte e selecione o estilo de animação para criar seu vídeo.",
+      "Depois de selecionar um flyer, envie a música, escolha o trecho mais forte e selecione o estilo de animação para criar seu vídeo.",
     fallbackTitle: "Imagem sem título",
     noSelectionText:
-      "Envie uma foto/arte própria ou clique no botão acima para escolher um flyer gerado na plataforma. O editor será liberado logo depois.",
+      "Envie um flyer pronto do seu dispositivo ou escolha um flyer gerado na plataforma. O editor será liberado logo depois.",
   },
   en: {
     mainCardEyebrow: "Remotion flow",
@@ -38,10 +38,10 @@ const copyByLocale: Record<
     editorStep: "03 · Configure the motion",
     remotionTitle: "Remotion editor",
     remotionHint:
-      "After selecting an image, upload the track, pick the strongest clip and choose the motion style to create your video.",
+      "After selecting a flyer, upload the track, pick the strongest clip and choose the motion style to create your video.",
     fallbackTitle: "Untitled image",
     noSelectionText:
-      "Upload your own photo/artwork or use the button above to choose a flyer generated on the platform. The editor will unlock right after that.",
+      "Upload a finished flyer from your device or choose a flyer generated on the platform. The editor will unlock right after that.",
   },
   es: {
     mainCardEyebrow: "Flujo Remotion",
@@ -51,10 +51,10 @@ const copyByLocale: Record<
     editorStep: "03 · Configura el motion",
     remotionTitle: "Editor Remotion",
     remotionHint:
-      "Después de seleccionar una imagen, sube la música, elige el trecho más fuerte y selecciona el estilo de animación para crear tu video.",
+      "Después de seleccionar un flyer, sube la música, elige el trecho más fuerte y selecciona el estilo de animación para crear tu video.",
     fallbackTitle: "Imagen sin título",
     noSelectionText:
-      "Sube tu propia foto/arte o usa el botón de arriba para elegir un flyer generado en la plataforma. El editor se libera justo después.",
+      "Sube un flyer listo desde tu dispositivo o elige un flyer generado en la plataforma. El editor se libera justo después.",
   },
 };
 
@@ -62,6 +62,8 @@ type SearchParams = {
   bannerId?: string;
   source?: string;
 };
+
+const REMOTION_UPLOAD_MODEL_NAME = "user-upload-remotion";
 
 export default async function DashboardRemotionPage({
   searchParams,
@@ -78,11 +80,14 @@ export default async function DashboardRemotionPage({
       ? resolvedSearchParams.source
       : null;
 
-  const banners = await prisma.banner.findMany({
+  const libraryBanners = await prisma.banner.findMany({
     where: {
       workspaceId: workspace.id,
       status: "COMPLETED",
       outputImageUrl: { not: null },
+      NOT: {
+        modelName: REMOTION_UPLOAD_MODEL_NAME,
+      },
     },
     select: {
       id: true,
@@ -98,9 +103,24 @@ export default async function DashboardRemotionPage({
     take: 30,
   });
 
-  const selectedBanner =
-    banners.find((banner) => banner.id === resolvedSearchParams.bannerId) ??
-    null;
+  const selectedBanner = resolvedSearchParams.bannerId
+    ? await prisma.banner.findFirst({
+        where: {
+          id: resolvedSearchParams.bannerId,
+          workspaceId: workspace.id,
+          status: "COMPLETED",
+          outputImageUrl: { not: null },
+        },
+        select: {
+          id: true,
+          title: true,
+          djName: true,
+          format: true,
+          outputImageUrl: true,
+          createdAt: true,
+        },
+      })
+    : null;
 
   const motionRenders = selectedBanner
     ? await (prisma as any).bannerMotion.findMany({
@@ -126,7 +146,7 @@ export default async function DashboardRemotionPage({
       })
     : [];
 
-  const pickerBanners = banners.map((banner) => ({
+  const pickerBanners = libraryBanners.map((banner) => ({
     id: banner.id,
     title: banner.title || banner.djName || copy.fallbackTitle,
     format: banner.format,

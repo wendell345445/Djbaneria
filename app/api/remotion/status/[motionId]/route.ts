@@ -7,9 +7,15 @@ import { getCurrentWorkspace } from "@/lib/workspace";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const RETENTION_HOURS = 24;
+
+function getCutoffDate() {
+  return new Date(Date.now() - RETENTION_HOURS * 60 * 60 * 1000);
+}
+
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ bannerId: string; motionId: string }> },
+  { params }: { params: Promise<{ motionId: string }> },
 ) {
   const workspace = await getCurrentWorkspace();
 
@@ -17,7 +23,7 @@ export async function GET(
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
 
-  const { bannerId, motionId } = await params;
+  const { motionId } = await params;
 
   await cleanupExpiredRemotionAssets({
     workspaceId: workspace.id,
@@ -27,13 +33,11 @@ export async function GET(
   const motion = await (prisma as any).bannerMotion.findFirst({
     where: {
       id: motionId,
-      bannerId,
       workspaceId: workspace.id,
+      createdAt: { gt: getCutoffDate() },
     },
     select: {
       id: true,
-      preset: true,
-      transitionVariant: true,
       status: true,
       renderProgress: true,
       outputVideoUrl: true,
@@ -45,28 +49,23 @@ export async function GET(
   });
 
   if (!motion) {
-    return NextResponse.json({ error: "Vídeo não encontrado." }, { status: 404 });
-  }
-
-  let queuePosition: number | null = null;
-
-  if (motion.status === "PENDING") {
-    const jobsAhead = await (prisma as any).bannerMotion.count({
-      where: {
-        status: "PENDING",
-        createdAt: { lt: motion.createdAt },
-      },
-    });
-
-    queuePosition = jobsAhead + 1;
-  } else if (motion.status === "RENDERING") {
-    queuePosition = 0;
+    return NextResponse.json(
+      { error: "Vídeo não encontrado ou já expirado." },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json({
-    motion: {
-      ...motion,
-      queuePosition,
+    video: {
+      id: motion.id,
+      status: motion.status,
+      progress: Number(motion.renderProgress || 0),
+      renderProgress: Number(motion.renderProgress || 0),
+      outputVideoUrl: motion.outputVideoUrl,
+      errorMessage: motion.errorMessage,
+      durationSeconds: motion.durationSeconds,
+      createdAt: motion.createdAt,
+      updatedAt: motion.updatedAt,
     },
   });
 }

@@ -74,6 +74,8 @@ const bannersPageCopy = {
   },
 } as const;
 
+const REMOTION_UPLOAD_MODEL_NAME = "user-upload-remotion";
+
 export default async function BannersPage() {
   const workspace = await requireCurrentWorkspace();
   const locale = normalizeLocale(workspace.user?.preferredLocale);
@@ -82,6 +84,9 @@ export default async function BannersPage() {
   const banners = await prisma.banner.findMany({
     where: {
       workspaceId: workspace.id,
+      NOT: {
+        modelName: REMOTION_UPLOAD_MODEL_NAME,
+      },
     },
     orderBy: {
       createdAt: "desc",

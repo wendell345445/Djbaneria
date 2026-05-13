@@ -63,6 +63,13 @@ enum SeedanceVideoStatus {
   FAILED
 }
 
+enum ProfessionalImageJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 enum MotionPreset {
   NEON_PULSE
   CLUB_FLASH
@@ -127,6 +134,7 @@ model Workspace {
   banners       Banner[]
   motionRenders BannerMotion[]
   seedanceVideos SeedanceVideo[]
+  professionalImageJobs ProfessionalImageJob[]
   assets        Asset[]
   usageEvents   UsageEvent[]
 }
@@ -242,6 +250,36 @@ model SeedanceVideo {
   @@index([workspaceId, createdAt])
   @@index([status, createdAt])
   @@index([expiresAt])
+}
+
+
+model ProfessionalImageJob {
+  id                    String                     @id @default(cuid())
+  workspaceId           String
+  usageEventId          String?
+  status                ProfessionalImageJobStatus @default(PENDING)
+  inputImageUrl         String?
+  inputImageStorageKey  String?
+  inputMimeType         String?
+  inputSizeBytes        Int?
+  outputImageUrl        String?
+  outputImageStorageKey String?
+  photoDirection        String
+  locale                String                     @default("en")
+  prompt                String?
+  modelName             String?
+  creditsUsed           Int                        @default(1)
+  width                 Int?
+  height                Int?
+  progress              Int                        @default(0)
+  errorMessage          String?
+  createdAt             DateTime                   @default(now())
+  updatedAt             DateTime                   @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([status, createdAt])
 }
 
 model Asset {

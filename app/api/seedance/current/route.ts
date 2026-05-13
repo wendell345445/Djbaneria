@@ -15,36 +15,29 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ videoId: string }> },
-) {
+export async function GET() {
   const workspace = await getCurrentWorkspace();
 
   if (!workspace) {
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
 
-  const { videoId } = await params;
-
-  await cleanupExpiredSeedanceVideos({ workspaceId: workspace.id, videoId }).catch(
+  await cleanupExpiredSeedanceVideos({ workspaceId: workspace.id }).catch(
     () => null,
   );
 
   const video = (await (prisma as any).seedanceVideo.findFirst({
     where: {
-      id: videoId,
       workspaceId: workspace.id,
+      status: { in: ["PENDING", "RENDERING"] },
       expiresAt: { gt: new Date() },
     },
+    orderBy: { createdAt: "desc" },
     select: seedanceVideoSelect,
   })) as SeedanceVideoRecord | null;
 
   if (!video) {
-    return NextResponse.json(
-      { error: "Vídeo não encontrado ou já expirado." },
-      { status: 404 },
-    );
+    return NextResponse.json({ video: null });
   }
 
   try {
@@ -64,23 +57,8 @@ export async function GET(
       message || "A geração falhou ao consultar o provedor.",
     ).catch(() => null);
 
-    if (failedVideo) {
-      return NextResponse.json({
-        video: serializeSeedanceVideo(failedVideo),
-      });
-    }
-
-    return NextResponse.json(
-      {
-        video: {
-          ...serializeSeedanceVideo(video),
-          status: "FAILED",
-          progress: 100,
-          renderProgress: 100,
-          errorMessage: message,
-        },
-      },
-      { status: 200 },
-    );
+    return NextResponse.json({
+      video: failedVideo ? serializeSeedanceVideo(failedVideo) : null,
+    });
   }
 }

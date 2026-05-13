@@ -15,6 +15,7 @@ import {
 } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { validateMutationOrigin } from "@/lib/request-security";
+import { cleanupExpiredRemotionAssets } from "@/lib/remotion/cleanup";
 import { uploadBufferToR2 } from "@/lib/storage";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
@@ -191,6 +192,8 @@ export async function POST(
   if (!workspace) {
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
+
+  await cleanupExpiredRemotionAssets({ workspaceId: workspace.id, limit: 20 }).catch(() => null);
 
   const { bannerId } = await params;
   const formData = await request.formData();

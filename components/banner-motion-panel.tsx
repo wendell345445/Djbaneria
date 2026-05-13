@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 
 type SupportedLocale = "pt-BR" | "en" | "es";
 
@@ -44,6 +51,7 @@ type BannerMotionPanelProps = {
   locale: SupportedLocale;
   disabled?: boolean;
   initialMotions?: MotionItem[];
+  embedded?: boolean;
 };
 
 const copyByLocale = {
@@ -53,12 +61,14 @@ const copyByLocale = {
     subtitle:
       "Envie uma música, escolha o melhor trecho e gere um vídeo profissional sincronizado com a batida.",
     music: "Música",
-    musicHint: "MP3, WAV, M4A, AAC ou OGG até 30 MB. Apenas o trecho selecionado será enviado.",
+    musicHint:
+      "MP3, WAV, M4A, AAC ou OGG até 30 MB. Apenas o trecho selecionado será enviado.",
     selectedClip: "Trecho selecionado",
     startAt: "Início",
     endAt: "Fim",
     clipDuration: "Duração do vídeo e créditos",
-    creditCostHint: "O valor cobrado será baseado na duração escolhida ao gerar.",
+    creditCostHint:
+      "O valor cobrado será baseado na duração escolhida ao gerar.",
     listenClip: "Ouvir trecho",
     stopClip: "Parar",
     trimUnavailable: "Carregue uma música para escolher o trecho.",
@@ -79,27 +89,33 @@ const copyByLocale = {
     motionHistoryEyebrow: "Histórico de vídeos",
     empty: "Nenhum vídeo criado ainda.",
     errorFallback: "Não foi possível iniciar o vídeo.",
-    cropError: "Não foi possível cortar esse áudio. Tente outro arquivo MP3 ou WAV.",
-    progressHint: "Estamos processando seu vídeo em alta qualidade. Acompanhe o progresso em tempo real.",
+    cropError:
+      "Não foi possível cortar esse áudio. Tente outro arquivo MP3 ou WAV.",
+    progressHint:
+      "Estamos processando seu vídeo em alta qualidade. Acompanhe o progresso em tempo real.",
+    generationTimeHint: "A geração pode levar de 2 a 4 minutos.",
     queuePosition: "Posição na fila",
     trimModalTitle: "Escolha o melhor trecho da música",
     trimModalEyebrow: "Corte de áudio",
-    trimModalSubtitle: "Abrimos um corte com a duração escolhida. Mova a janela até a parte mais forte da música antes de gerar o vídeo.",
+    trimModalSubtitle:
+      "Abrimos um corte com a duração escolhida. Mova a janela até a parte mais forte da música antes de gerar o vídeo.",
     selectedFile: "Arquivo selecionado",
     editClip: "Editar corte",
     confirmClip: "Usar este trecho",
     close: "Fechar",
     clipReady: "Trecho definido",
-    chooseBestPart: "Mova o corte para o drop, refrão ou parte mais forte da música.",
+    chooseBestPart:
+      "Mova o corte para o drop, refrão ou parte mais forte da música.",
     loadingAudio: "Carregando duração do áudio...",
     confirmClipFirst: "Confirme o trecho da música antes de gerar o vídeo.",
     timelineView: "Visão da música",
-    timelineScrollHint: "{copy.timelineScrollHint}",
+    timelineScrollHint: "",
     fullTimeline: "Completa",
     previousWindow: "Voltar",
     nextWindow: "Avançar",
     focusClip: "Centralizar corte",
-    zoomHint: "Use a visão ampliada para escolher o trecho com precisão em músicas longas.",
+    zoomHint:
+      "Use a visão ampliada para escolher o trecho com precisão em músicas longas.",
   },
   en: {
     title: "Create animated video",
@@ -107,12 +123,14 @@ const copyByLocale = {
     subtitle:
       "Upload a track, pick the strongest part and create a professional beat-synced video.",
     music: "Music",
-    musicHint: "MP3, WAV, M4A, AAC or OGG up to 30 MB. Only the selected clip will be uploaded.",
+    musicHint:
+      "MP3, WAV, M4A, AAC or OGG up to 30 MB. Only the selected clip will be uploaded.",
     selectedClip: "Selected clip",
     startAt: "Start",
     endAt: "End",
     clipDuration: "Video duration and credits",
-    creditCostHint: "The charge is based on the duration selected when generating.",
+    creditCostHint:
+      "The charge is based on the duration selected when generating.",
     listenClip: "Preview clip",
     stopClip: "Stop",
     trimUnavailable: "Upload a track to choose the clip.",
@@ -134,11 +152,14 @@ const copyByLocale = {
     empty: "No videos created yet.",
     errorFallback: "Could not start the video.",
     cropError: "Could not trim this audio. Try another MP3 or WAV file.",
-    progressHint: "We are processing your video in high quality. Follow the progress in real time.",
+    progressHint:
+      "We are processing your video in high quality. Follow the progress in real time.",
+    generationTimeHint: "Generation may take 2 to 4 minutes.",
     queuePosition: "Queue position",
     trimModalTitle: "Pick the best part of the track",
     trimModalEyebrow: "Audio cut",
-    trimModalSubtitle: "We open a clip using the selected duration. Move the window to the strongest part of the track before rendering.",
+    trimModalSubtitle:
+      "We open a clip using the selected duration. Move the window to the strongest part of the track before rendering.",
     selectedFile: "Selected file",
     editClip: "Edit clip",
     confirmClip: "Use this clip",
@@ -148,7 +169,8 @@ const copyByLocale = {
     loadingAudio: "Loading audio duration...",
     confirmClipFirst: "Confirm the music clip before generating the video.",
     timelineView: "Track view",
-    timelineScrollHint: "Drag the track sideways to navigate the full song. The full song is not squeezed into a single screen.",
+    timelineScrollHint:
+      "Drag the track sideways to navigate the full song. The full song is not squeezed into a single screen.",
     fullTimeline: "Full",
     previousWindow: "Back",
     nextWindow: "Forward",
@@ -161,7 +183,8 @@ const copyByLocale = {
     subtitle:
       "Sube una música, elige el mejor tramo y crea un video profesional sincronizado con el ritmo.",
     music: "Música",
-    musicHint: "MP3, WAV, M4A, AAC u OGG hasta 30 MB. Solo se subirá el trecho seleccionado.",
+    musicHint:
+      "MP3, WAV, M4A, AAC u OGG hasta 30 MB. Solo se subirá el trecho seleccionado.",
     selectedClip: "Trecho seleccionado",
     startAt: "Inicio",
     endAt: "Fin",
@@ -188,11 +211,14 @@ const copyByLocale = {
     empty: "Ningún video creado aún.",
     errorFallback: "No fue posible iniciar el video.",
     cropError: "No fue posible cortar este audio. Prueba otro MP3 o WAV.",
-    progressHint: "Estamos procesando tu video en alta calidad. Sigue el progreso en tiempo real.",
+    progressHint:
+      "Estamos procesando tu video en alta calidad. Sigue el progreso en tiempo real.",
+    generationTimeHint: "La generación puede tardar de 2 a 4 minutos.",
     queuePosition: "Posición en la fila",
     trimModalTitle: "Elige la mejor parte de la música",
     trimModalEyebrow: "Corte de audio",
-    trimModalSubtitle: "Abrimos un corte con la duración elegida. Mueve la ventana hasta la parte más fuerte antes de renderizar.",
+    trimModalSubtitle:
+      "Abrimos un corte con la duración elegida. Mueve la ventana hasta la parte más fuerte antes de renderizar.",
     selectedFile: "Archivo seleccionado",
     editClip: "Editar corte",
     confirmClip: "Usar este trecho",
@@ -200,14 +226,17 @@ const copyByLocale = {
     clipReady: "Trecho definido",
     chooseBestPart: "Mueve el corte al drop, coro o parte más fuerte.",
     timelineView: "Vista de la música",
-    timelineScrollHint: "Arrastra la pista hacia los lados para navegar por la canción completa. La música no queda comprimida en una sola pantalla.",
+    timelineScrollHint:
+      "Arrastra la pista hacia los lados para navegar por la canción completa. La música no queda comprimida en una sola pantalla.",
     fullTimeline: "Completa",
     previousWindow: "Volver",
     nextWindow: "Avanzar",
     focusClip: "Centrar corte",
-    zoomHint: "Usa la vista ampliada para elegir el tramo con precisión en músicas largas.",
+    zoomHint:
+      "Usa la vista ampliada para elegir el tramo con precisión en músicas largas.",
     loadingAudio: "Cargando duración del audio...",
-    confirmClipFirst: "Confirma el trecho de la música antes de generar el video.",
+    confirmClipFirst:
+      "Confirma el trecho de la música antes de generar el video.",
   },
 } satisfies Record<SupportedLocale, Record<string, string>>;
 
@@ -216,31 +245,115 @@ const motionPresetsByLocale: Record<
   Array<{ value: MotionPreset; label: string; hint: string }>
 > = {
   "pt-BR": [
-    { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Drops fortes, lasers premium e energia máxima de palco." },
-    { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Cortes rápidos, transições estilo Reels e impacto viral." },
-    { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Glitch agressivo, RGB split e clima underground." },
-    { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Brilho dourado, acabamento elegante e vibe premium." },
-    { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Estética futurista, neon intenso e atmosfera cyber." },
-    { value: "NEON_PULSE", label: "Neon Pulse", hint: "Glow neon limpo e batida pulsante." },
-    { value: "DARK_TECHNO_GLITCH", label: "Dark Techno", hint: "Glitch, RGB split e estética underground." },
+    {
+      value: "FESTIVAL_DROP_PRO",
+      label: "Festival Drop Pro",
+      hint: "Drops fortes, lasers premium e energia máxima de palco.",
+    },
+    {
+      value: "VIRAL_REELS_CUT",
+      label: "Viral Reels Cut",
+      hint: "Cortes rápidos, transições estilo Reels e impacto viral.",
+    },
+    {
+      value: "DARK_TECHNO_RGB",
+      label: "Dark Techno RGB",
+      hint: "Glitch agressivo, RGB split e clima underground.",
+    },
+    {
+      value: "LUXURY_GOLD_CLUB",
+      label: "Luxury Gold Club",
+      hint: "Brilho dourado, acabamento elegante e vibe premium.",
+    },
+    {
+      value: "CYBER_RAVE",
+      label: "Cyber Rave",
+      hint: "Estética futurista, neon intenso e atmosfera cyber.",
+    },
+    {
+      value: "NEON_PULSE",
+      label: "Neon Pulse",
+      hint: "Glow neon limpo e batida pulsante.",
+    },
+    {
+      value: "DARK_TECHNO_GLITCH",
+      label: "Dark Techno",
+      hint: "Glitch, RGB split e estética underground.",
+    },
   ],
   en: [
-    { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Strong drops, premium lasers and maximum stage energy." },
-    { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Fast cuts, Reels-style transitions and viral impact." },
-    { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Aggressive glitch, RGB split and underground mood." },
-    { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Golden shine, elegant finish and premium club vibe." },
-    { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Futuristic style, intense neon and cyber atmosphere." },
-    { value: "NEON_PULSE", label: "Neon Pulse", hint: "Clean neon glow and pulsing beat energy." },
-    { value: "DARK_TECHNO_GLITCH", label: "Dark Techno", hint: "Glitch, RGB split and underground aesthetics." },
+    {
+      value: "FESTIVAL_DROP_PRO",
+      label: "Festival Drop Pro",
+      hint: "Strong drops, premium lasers and maximum stage energy.",
+    },
+    {
+      value: "VIRAL_REELS_CUT",
+      label: "Viral Reels Cut",
+      hint: "Fast cuts, Reels-style transitions and viral impact.",
+    },
+    {
+      value: "DARK_TECHNO_RGB",
+      label: "Dark Techno RGB",
+      hint: "Aggressive glitch, RGB split and underground mood.",
+    },
+    {
+      value: "LUXURY_GOLD_CLUB",
+      label: "Luxury Gold Club",
+      hint: "Golden shine, elegant finish and premium club vibe.",
+    },
+    {
+      value: "CYBER_RAVE",
+      label: "Cyber Rave",
+      hint: "Futuristic style, intense neon and cyber atmosphere.",
+    },
+    {
+      value: "NEON_PULSE",
+      label: "Neon Pulse",
+      hint: "Clean neon glow and pulsing beat energy.",
+    },
+    {
+      value: "DARK_TECHNO_GLITCH",
+      label: "Dark Techno",
+      hint: "Glitch, RGB split and underground aesthetics.",
+    },
   ],
   es: [
-    { value: "FESTIVAL_DROP_PRO", label: "Festival Drop Pro", hint: "Drops fuertes, láseres premium y máxima energía de escenario." },
-    { value: "VIRAL_REELS_CUT", label: "Viral Reels Cut", hint: "Cortes rápidos, transiciones estilo Reels e impacto viral." },
-    { value: "DARK_TECHNO_RGB", label: "Dark Techno RGB", hint: "Glitch agresivo, RGB split y ambiente underground." },
-    { value: "LUXURY_GOLD_CLUB", label: "Luxury Gold Club", hint: "Brillo dorado, acabado elegante y vibra premium." },
-    { value: "CYBER_RAVE", label: "Cyber Rave", hint: "Estética futurista, neón intenso y atmósfera cyber." },
-    { value: "NEON_PULSE", label: "Neon Pulse", hint: "Glow neón limpio y energía pulsante con la batida." },
-    { value: "DARK_TECHNO_GLITCH", label: "Dark Techno", hint: "Glitch, RGB split y estética underground." },
+    {
+      value: "FESTIVAL_DROP_PRO",
+      label: "Festival Drop Pro",
+      hint: "Drops fuertes, láseres premium y máxima energía de escenario.",
+    },
+    {
+      value: "VIRAL_REELS_CUT",
+      label: "Viral Reels Cut",
+      hint: "Cortes rápidos, transiciones estilo Reels e impacto viral.",
+    },
+    {
+      value: "DARK_TECHNO_RGB",
+      label: "Dark Techno RGB",
+      hint: "Glitch agresivo, RGB split y ambiente underground.",
+    },
+    {
+      value: "LUXURY_GOLD_CLUB",
+      label: "Luxury Gold Club",
+      hint: "Brillo dorado, acabado elegante y vibra premium.",
+    },
+    {
+      value: "CYBER_RAVE",
+      label: "Cyber Rave",
+      hint: "Estética futurista, neón intenso y atmósfera cyber.",
+    },
+    {
+      value: "NEON_PULSE",
+      label: "Neon Pulse",
+      hint: "Glow neón limpio y energía pulsante con la batida.",
+    },
+    {
+      value: "DARK_TECHNO_GLITCH",
+      label: "Dark Techno",
+      hint: "Glitch, RGB split y estética underground.",
+    },
   ],
 };
 
@@ -285,12 +398,14 @@ const transitionVariantsByLocale: Record<
 
 const durations = [10, 15] as const;
 
-
 function getMotionCreditCost(durationSeconds: number) {
   return durationSeconds === 15 ? 3 : 2;
 }
 
-function formatMotionCreditCost(durationSeconds: number, locale: SupportedLocale) {
+function formatMotionCreditCost(
+  durationSeconds: number,
+  locale: SupportedLocale,
+) {
   const credits = getMotionCreditCost(durationSeconds);
 
   if (locale === "en") {
@@ -335,7 +450,11 @@ function writeString(view: DataView, offset: number, value: string) {
   }
 }
 
-function audioBufferSegmentToWav(audioBuffer: AudioBuffer, startSeconds: number, durationSeconds: number) {
+function audioBufferSegmentToWav(
+  audioBuffer: AudioBuffer,
+  startSeconds: number,
+  durationSeconds: number,
+) {
   const sampleRate = audioBuffer.sampleRate;
   const numberOfChannels = Math.min(audioBuffer.numberOfChannels, 2);
   const startSample = Math.max(0, Math.floor(startSeconds * sampleRate));
@@ -377,7 +496,8 @@ function audioBufferSegmentToWav(audioBuffer: AudioBuffer, startSeconds: number,
     for (let channel = 0; channel < numberOfChannels; channel += 1) {
       const sourceValue = channelData[channel]?.[startSample + sample] || 0;
       const clampedValue = Math.max(-1, Math.min(1, sourceValue));
-      const intValue = clampedValue < 0 ? clampedValue * 0x8000 : clampedValue * 0x7fff;
+      const intValue =
+        clampedValue < 0 ? clampedValue * 0x8000 : clampedValue * 0x7fff;
       view.setInt16(offset, intValue, true);
       offset += 2;
     }
@@ -386,10 +506,15 @@ function audioBufferSegmentToWav(audioBuffer: AudioBuffer, startSeconds: number,
   return buffer;
 }
 
-async function trimAudioFile(file: File, startSeconds: number, durationSeconds: number) {
+async function trimAudioFile(
+  file: File,
+  startSeconds: number,
+  durationSeconds: number,
+) {
   const AudioContextConstructor =
     window.AudioContext ||
-    (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
 
   if (!AudioContextConstructor) {
     throw new Error("AudioContext is not supported in this browser.");
@@ -399,8 +524,14 @@ async function trimAudioFile(file: File, startSeconds: number, durationSeconds: 
 
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const decodedAudio = await audioContext.decodeAudioData(arrayBuffer.slice(0));
-    const wavBuffer = audioBufferSegmentToWav(decodedAudio, startSeconds, durationSeconds);
+    const decodedAudio = await audioContext.decodeAudioData(
+      arrayBuffer.slice(0),
+    );
+    const wavBuffer = audioBufferSegmentToWav(
+      decodedAudio,
+      startSeconds,
+      durationSeconds,
+    );
     const clipName = `${getBaseFileName(file.name)}-clip-${Math.round(startSeconds)}s-${durationSeconds}s.wav`;
 
     return new File([wavBuffer], clipName, { type: "audio/wav" });
@@ -414,6 +545,7 @@ export function BannerMotionPanel({
   locale,
   disabled = false,
   initialMotions = [],
+  embedded = false,
 }: BannerMotionPanelProps) {
   const copy = copyByLocale[locale] || copyByLocale.en;
   const motionPresets = motionPresetsByLocale[locale];
@@ -427,11 +559,14 @@ export function BannerMotionPanel({
   const [isPreviewingClip, setIsPreviewingClip] = useState(false);
   const [isTrimmingAudio, setIsTrimmingAudio] = useState(false);
   const [preset, setPreset] = useState<MotionPreset>("CYBER_RAVE");
-  const [transitionVariant, setTransitionVariant] = useState<TransitionVariant>("ROTATE_ZOOM");
+  const [transitionVariant, setTransitionVariant] =
+    useState<TransitionVariant>("ROTATE_ZOOM");
   const [durationSeconds, setDurationSeconds] = useState<number>(10);
   const [motions, setMotions] = useState<MotionItem[]>(initialMotions);
   const [activeMotionId, setActiveMotionId] = useState<string | null>(
-    initialMotions.find((motion) => ["PENDING", "RENDERING"].includes(motion.status))?.id ||
+    initialMotions.find((motion) =>
+      ["PENDING", "RENDERING"].includes(motion.status),
+    )?.id ||
       initialMotions[0]?.id ||
       null,
   );
@@ -447,21 +582,35 @@ export function BannerMotionPanel({
   const previewEndRef = useRef(0);
 
   const maxTrimStart = Math.max(0, audioDuration - durationSeconds);
-  const trimEndSeconds = Math.min(audioDuration || durationSeconds, trimStartSeconds + durationSeconds);
+  const trimEndSeconds = Math.min(
+    audioDuration || durationSeconds,
+    trimStartSeconds + durationSeconds,
+  );
   const effectiveClipDuration = Math.max(0, trimEndSeconds - trimStartSeconds);
-  const clipLeftPercent = audioDuration > 0 ? (trimStartSeconds / audioDuration) * 100 : 0;
-  const clipWidthPercent = audioDuration > 0 ? (effectiveClipDuration / audioDuration) * 100 : 100;
+  const clipLeftPercent =
+    audioDuration > 0 ? (trimStartSeconds / audioDuration) * 100 : 0;
+  const clipWidthPercent =
+    audioDuration > 0 ? (effectiveClipDuration / audioDuration) * 100 : 100;
   const timelinePixelsPerSecond = 18;
   const timelineMinWidth = 920;
   const timelineContentWidth =
     audioDuration > 0
-      ? Math.max(timelineMinWidth, Math.ceil(audioDuration * timelinePixelsPerSecond))
+      ? Math.max(
+          timelineMinWidth,
+          Math.ceil(audioDuration * timelinePixelsPerSecond),
+        )
       : timelineMinWidth;
   const canUseClip = Boolean(audioFile && audioObjectUrl && audioDuration > 0);
 
   const activeMotion = useMemo(
-    () => motions.find((motion) => motion.id === activeMotionId) || motions[0] || null,
+    () =>
+      motions.find((motion) => motion.id === activeMotionId) ||
+      motions[0] ||
+      null,
     [activeMotionId, motions],
+  );
+  const isMotionInProgress = Boolean(
+    activeMotion && ["PENDING", "RENDERING"].includes(activeMotion.status),
   );
 
   useEffect(() => {
@@ -502,7 +651,9 @@ export function BannerMotionPanel({
 
         setMotions((current) =>
           current.map((motion) =>
-            motion.id === data.motion?.id ? { ...motion, ...data.motion } : motion,
+            motion.id === data.motion?.id
+              ? { ...motion, ...data.motion }
+              : motion,
           ),
         );
       } catch {
@@ -578,7 +729,10 @@ export function BannerMotionPanel({
     }, 90);
   }
 
-  function getStartFromTimelineClientX(clientX: number, options?: { centerClip?: boolean }) {
+  function getStartFromTimelineClientX(
+    clientX: number,
+    options?: { centerClip?: boolean },
+  ) {
     const timeline = timelineRef.current;
     const scroll = timelineScrollRef.current;
     if (!timeline || !scroll || !audioDuration) return trimStartSeconds;
@@ -588,7 +742,9 @@ export function BannerMotionPanel({
 
     const xInsideTimeline = clientX - rect.left + scroll.scrollLeft;
     const rawSeconds = (xInsideTimeline / timelineContentWidth) * audioDuration;
-    const adjustedSeconds = options?.centerClip ? rawSeconds - durationSeconds / 2 : rawSeconds;
+    const adjustedSeconds = options?.centerClip
+      ? rawSeconds - durationSeconds / 2
+      : rawSeconds;
 
     return Math.max(0, Math.min(maxTrimStart, adjustedSeconds));
   }
@@ -598,7 +754,8 @@ export function BannerMotionPanel({
     if (!scroll || !audioDuration || timelineContentWidth <= 0) return;
 
     const clipStartPx = (safeStart / audioDuration) * timelineContentWidth;
-    const clipEndPx = ((safeStart + durationSeconds) / audioDuration) * timelineContentWidth;
+    const clipEndPx =
+      ((safeStart + durationSeconds) / audioDuration) * timelineContentWidth;
     const padding = 48;
     const visibleStart = scroll.scrollLeft;
     const visibleEnd = scroll.scrollLeft + scroll.clientWidth;
@@ -613,7 +770,10 @@ export function BannerMotionPanel({
     }
   }
 
-  function applyTrimStart(nextStart: number, options?: { preview?: boolean; keepVisible?: boolean }) {
+  function applyTrimStart(
+    nextStart: number,
+    options?: { preview?: boolean; keepVisible?: boolean },
+  ) {
     const safeStart = Math.max(0, Math.min(maxTrimStart, nextStart));
 
     setTrimStartSeconds(safeStart);
@@ -635,12 +795,17 @@ export function BannerMotionPanel({
   function handleTimelinePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     if (!audioDuration || disabled || isSubmitting) return;
 
-    const nextStart = getStartFromTimelineClientX(event.clientX, { centerClip: true });
+    const nextStart = getStartFromTimelineClientX(event.clientX, {
+      centerClip: true,
+    });
     applyTrimStart(nextStart);
   }
 
-  function handleSelectedClipPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    if (!audioDuration || disabled || isSubmitting || !timelineRef.current) return;
+  function handleSelectedClipPointerDown(
+    event: ReactPointerEvent<HTMLDivElement>,
+  ) {
+    if (!audioDuration || disabled || isSubmitting || !timelineRef.current)
+      return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -657,8 +822,13 @@ export function BannerMotionPanel({
     const handlePointerMove = (moveEvent: PointerEvent) => {
       if (!audioDuration || timelineContentWidth <= 0) return;
 
-      const deltaSeconds = ((moveEvent.clientX - dragStartX) / timelineContentWidth) * audioDuration;
-      latestStart = Math.max(0, Math.min(maxTrimStart, initialStart + deltaSeconds));
+      const deltaSeconds =
+        ((moveEvent.clientX - dragStartX) / timelineContentWidth) *
+        audioDuration;
+      latestStart = Math.max(
+        0,
+        Math.min(maxTrimStart, initialStart + deltaSeconds),
+      );
       applyTrimStart(latestStart);
     };
 
@@ -705,6 +875,10 @@ export function BannerMotionPanel({
       return;
     }
 
+    if (isMotionInProgress) {
+      return;
+    }
+
     if (!audioFile) {
       setError(copy.chooseFile);
       inputRef.current?.focus();
@@ -722,9 +896,17 @@ export function BannerMotionPanel({
     try {
       setIsSubmitting(true);
       setIsTrimmingAudio(true);
-      uploadAudioFile = await trimAudioFile(audioFile, trimStartSeconds, durationSeconds);
+      uploadAudioFile = await trimAudioFile(
+        audioFile,
+        trimStartSeconds,
+        durationSeconds,
+      );
     } catch (trimError) {
-      setError(trimError instanceof Error ? trimError.message || copy.cropError : copy.cropError);
+      setError(
+        trimError instanceof Error
+          ? trimError.message || copy.cropError
+          : copy.cropError,
+      );
       setIsSubmitting(false);
       setIsTrimmingAudio(false);
       return;
@@ -736,7 +918,10 @@ export function BannerMotionPanel({
     formData.append("audio", uploadAudioFile);
     formData.append("originalAudioName", audioFile.name);
     formData.append("audioTrimStartSeconds", String(trimStartSeconds));
-    formData.append("audioTrimEndSeconds", String(trimStartSeconds + durationSeconds));
+    formData.append(
+      "audioTrimEndSeconds",
+      String(trimStartSeconds + durationSeconds),
+    );
     formData.append("audioWasTrimmed", "true");
     formData.append("preset", preset);
     formData.append("transitionVariant", transitionVariant);
@@ -769,32 +954,59 @@ export function BannerMotionPanel({
       handleAudioFileChange(null);
       if (inputRef.current) inputRef.current.value = "";
     } catch (submissionError) {
-      setError(submissionError instanceof Error ? submissionError.message : copy.errorFallback);
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : copy.errorFallback,
+      );
     } finally {
       setIsSubmitting(false);
       setIsTrimmingAudio(false);
     }
   }
 
-  const currentProgress = Math.max(0, Math.min(100, activeMotion?.renderProgress || 0));
+  const currentProgress = Math.max(
+    0,
+    Math.min(100, activeMotion?.renderProgress || 0),
+  );
 
   return (
-    <section id="motion" className="mt-5 scroll-mt-6 rounded-[24px] border border-cyan-300/15 bg-white/[0.045] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
-      <div className="flex flex-col gap-2">
-        <p className="m-0 text-[11px] uppercase tracking-[0.22em] text-cyan-200/70">
-          Motion flyer
-        </p>
-        <h2 className="m-0 text-2xl font-semibold text-white">{copy.title}</h2>
-        <p className="m-0 text-sm leading-6 text-white/58">{copy.subtitle}</p>
-      </div>
+    <section
+      id="motion"
+      className={
+        embedded
+          ? "scroll-mt-6"
+          : "mt-5 scroll-mt-6 rounded-[24px] border border-cyan-300/15 bg-white/[0.045] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)]"
+      }
+    >
+      {!embedded ? (
+        <div className="flex flex-col gap-2">
+          <p className="m-0 text-[11px] uppercase tracking-[0.22em] text-cyan-200/70">
+            {copy.eyebrow}
+          </p>
+          <h2 className="m-0 text-2xl font-semibold text-white">
+            {copy.title}
+          </h2>
+          <p className="m-0 text-sm leading-6 text-white/58">{copy.subtitle}</p>
+        </div>
+      ) : null}
 
       {disabled ? (
-        <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+        <div
+          className={
+            embedded
+              ? "rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100"
+              : "mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100"
+          }
+        >
           {copy.noBanner}
         </div>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="mt-5 grid gap-4">
+      <form
+        onSubmit={handleSubmit}
+        className={embedded ? "grid gap-4" : "mt-5 grid gap-4"}
+      >
         <label className="grid gap-2 text-sm font-medium text-white/80">
           {copy.music}
           <input
@@ -802,10 +1014,14 @@ export function BannerMotionPanel({
             type="file"
             accept="audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/aac,audio/mp4,audio/m4a,audio/ogg"
             disabled={disabled || isSubmitting}
-            onChange={(event) => handleAudioFileChange(event.target.files?.[0] || null)}
+            onChange={(event) =>
+              handleAudioFileChange(event.target.files?.[0] || null)
+            }
             className="block w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white file:mr-4 file:rounded-xl file:border-0 file:bg-cyan-200 file:px-4 file:py-2 file:text-sm file:font-bold file:text-slate-950 disabled:opacity-50"
           />
-          <span className="text-xs font-normal text-white/42">{copy.musicHint}</span>
+          <span className="text-xs font-normal text-white/42">
+            {copy.musicHint}
+          </span>
         </label>
 
         {audioObjectUrl ? (
@@ -814,7 +1030,9 @@ export function BannerMotionPanel({
               ref={audioRef}
               src={audioObjectUrl}
               preload="metadata"
-              onLoadedMetadata={(event) => setAudioDuration(event.currentTarget.duration || 0)}
+              onLoadedMetadata={(event) =>
+                setAudioDuration(event.currentTarget.duration || 0)
+              }
               onTimeUpdate={handleAudioTimeUpdate}
               onPause={() => setIsPreviewingClip(false)}
               className="hidden"
@@ -822,9 +1040,13 @@ export function BannerMotionPanel({
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="m-0 text-sm font-bold text-white">{copy.clipReady}</p>
+                <p className="m-0 text-sm font-bold text-white">
+                  {copy.clipReady}
+                </p>
                 <p className="mt-1 text-xs text-white/45">
-                  {audioFile?.name ? `${copy.selectedFile}: ${audioFile.name}` : copy.selectedClip}
+                  {audioFile?.name
+                    ? `${copy.selectedFile}: ${audioFile.name}`
+                    : copy.selectedClip}
                 </p>
                 <p className="mt-1 text-xs text-cyan-100/75">
                   {audioDuration > 0
@@ -869,7 +1091,9 @@ export function BannerMotionPanel({
         <div className="grid gap-2 text-sm font-medium text-white/80">
           <div className="flex flex-col gap-1">
             <span>{copy.clipDuration}</span>
-            <span className="text-xs font-normal text-white/42">{copy.creditCostHint}</span>
+            <span className="text-xs font-normal text-white/42">
+              {copy.creditCostHint}
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {durations.map((duration) => (
@@ -881,7 +1105,12 @@ export function BannerMotionPanel({
                   setDurationSeconds(duration);
                   setClipConfirmed(false);
                   if (isTrimModalOpen && audioDuration > 0) {
-                    scheduleAutoPreview(Math.min(trimStartSeconds, Math.max(0, audioDuration - duration)));
+                    scheduleAutoPreview(
+                      Math.min(
+                        trimStartSeconds,
+                        Math.max(0, audioDuration - duration),
+                      ),
+                    );
                   }
                 }}
                 className={`rounded-2xl border px-3 py-2.5 text-sm font-bold transition sm:px-4 sm:py-3 ${
@@ -905,7 +1134,9 @@ export function BannerMotionPanel({
             <select
               value={preset}
               disabled={disabled || isSubmitting}
-              onChange={(event) => setPreset(event.target.value as MotionPreset)}
+              onChange={(event) =>
+                setPreset(event.target.value as MotionPreset)
+              }
               className="h-12 rounded-2xl border border-white/10 bg-[#090b16] px-4 text-sm text-white outline-none focus:border-cyan-200/60"
             >
               {motionPresets.map((item) => (
@@ -924,7 +1155,9 @@ export function BannerMotionPanel({
             <select
               value={transitionVariant}
               disabled={disabled || isSubmitting}
-              onChange={(event) => setTransitionVariant(event.target.value as TransitionVariant)}
+              onChange={(event) =>
+                setTransitionVariant(event.target.value as TransitionVariant)
+              }
               className="h-12 rounded-2xl border border-white/10 bg-[#090b16] px-4 text-sm text-white outline-none focus:border-cyan-200/60"
             >
               {transitionVariants.map((item) => (
@@ -936,21 +1169,58 @@ export function BannerMotionPanel({
           </label>
         </div>
 
-        {activeMotion && ["PENDING", "RENDERING"].includes(activeMotion.status) ? (
-          <div className="rounded-2xl border border-cyan-200/15 bg-cyan-200/[0.06] p-4">
+        {activeMotion &&
+        ["PENDING", "RENDERING"].includes(activeMotion.status) ? (
+          <div className="rounded-[24px] border border-cyan-200/15 bg-cyan-200/[0.06] p-4 shadow-[0_24px_80px_rgba(34,211,238,0.10)]">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="m-0 text-sm font-bold text-white">
                   {getStatusLabel(activeMotion.status, copy)}
                 </p>
                 <p className="mt-1 text-xs text-white/45">
-                  {activeMotion.status === "PENDING" && activeMotion.queuePosition
+                  {activeMotion.status === "PENDING" &&
+                  activeMotion.queuePosition
                     ? `${copy.queuePosition}: ${activeMotion.queuePosition}`
                     : copy.progressHint}
                 </p>
               </div>
-              <strong className="text-lg text-cyan-100">{currentProgress}%</strong>
+              <strong className="text-lg text-cyan-100">
+                {currentProgress}%
+              </strong>
             </div>
+
+            <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-black/35 shadow-[inset_0_0_50px_rgba(34,211,238,0.08)]">
+              <div className="relative aspect-video w-full overflow-hidden bg-[radial-gradient(circle_at_25%_20%,rgba(34,211,238,0.20),transparent_34%),radial-gradient(circle_at_72%_30%,rgba(167,139,250,0.18),transparent_32%),linear-gradient(135deg,rgba(2,6,23,0.95),rgba(15,23,42,0.88))]">
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+                <div className="absolute inset-x-5 top-5 flex items-center justify-between">
+                  <div className="h-2 w-24 rounded-full bg-white/[0.18]" />
+                  <div className="h-7 w-14 rounded-full border border-cyan-200/20 bg-cyan-200/10" />
+                </div>
+                <div className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/[0.08] shadow-[0_0_40px_rgba(34,211,238,0.20)]">
+                  <div className="h-0 w-0 border-y-[11px] border-l-[18px] border-y-transparent border-l-cyan-100/80" />
+                </div>
+                <div className="absolute inset-x-5 bottom-5">
+                  <div className="mb-3 grid grid-cols-5 gap-2">
+                    <div className="h-2 rounded-full bg-cyan-100/35" />
+                    <div className="h-2 rounded-full bg-violet-100/25" />
+                    <div className="h-2 rounded-full bg-white/[0.16]" />
+                    <div className="h-2 rounded-full bg-cyan-100/25" />
+                    <div className="h-2 rounded-full bg-white/[0.12]" />
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-white/[0.12]">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200 transition-[width] duration-500"
+                      style={{ width: `${Math.max(8, currentProgress)}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-3 text-center text-xs font-medium text-cyan-50/70">
+              {copy.generationTimeHint}
+            </p>
+
             <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/10">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200 transition-[width] duration-500"
@@ -966,13 +1236,46 @@ export function BannerMotionPanel({
           </div>
         ) : null}
 
-        <button
-          type="submit"
-          disabled={disabled || isSubmitting}
-          className="min-h-12 rounded-2xl bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200 px-5 py-3 text-sm font-black text-slate-950 shadow-[0_18px_60px_rgba(125,211,252,0.18)] transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isTrimmingAudio ? copy.trimming : isSubmitting ? copy.generating : copy.generate}
-        </button>
+        {!isMotionInProgress ? (
+          <button
+            type="submit"
+            disabled={disabled || isSubmitting}
+            className="group relative min-h-[54px] w-full isolate overflow-hidden border border-[#00F5FF] bg-[#00F5FF] px-5 py-4 text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#03040A] shadow-[0_0_0_1px_rgba(0,245,255,0.58),0_0_34px_rgba(0,245,255,0.45),0_18px_54px_rgba(0,245,255,0.22),inset_0_1px_0_rgba(255,255,255,0.38)] transition duration-300 [font-family:'Orbitron',monospace] hover:-translate-y-0.5 hover:shadow-[0_0_0_2px_rgba(0,245,255,0.92),0_0_58px_rgba(0,245,255,0.66),0_24px_70px_rgba(0,245,255,0.28),inset_0_1px_0_rgba(255,255,255,0.48)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 sm:text-[11px]"
+          >
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 z-0 bg-[repeating-linear-gradient(-52deg,transparent,transparent_9px,rgba(0,0,0,0.07)_9px,rgba(0,0,0,0.07)_10px)] opacity-70 transition group-hover:opacity-90"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-0 left-[-65%] z-[1] w-[56%] -skew-x-[18deg] bg-gradient-to-r from-transparent via-white/45 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[320%]"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 z-[2] h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"
+            />
+            <span className="relative z-[3] flex items-center justify-center gap-3">
+              {isTrimmingAudio
+                ? copy.trimming
+                : isSubmitting
+                  ? copy.generating
+                  : copy.generate}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </span>
+          </button>
+        ) : null}
       </form>
 
       {activeMotion?.status === "COMPLETED" && activeMotion.outputVideoUrl ? (
@@ -982,7 +1285,9 @@ export function BannerMotionPanel({
               <p className="m-0 text-[11px] uppercase tracking-[0.2em] text-cyan-100/70">
                 {copy.completed}
               </p>
-              <h3 className="mt-1 text-lg font-semibold text-white">{copy.preview}</h3>
+              <h3 className="mt-1 text-lg font-semibold text-white">
+                {copy.preview}
+              </h3>
             </div>
             <a
               href={activeMotion.outputVideoUrl}
@@ -1008,7 +1313,9 @@ export function BannerMotionPanel({
             <p className="m-0 text-[11px] uppercase tracking-[0.18em] text-white/35">
               Motion history
             </p>
-            <h3 className="mt-1 text-base font-semibold text-white">{copy.previous}</h3>
+            <h3 className="mt-1 text-base font-semibold text-white">
+              {copy.previous}
+            </h3>
           </div>
         </div>
 
@@ -1018,8 +1325,12 @@ export function BannerMotionPanel({
           <div className="mt-4 grid gap-3">
             {motions.map((motion) => {
               const isActive = activeMotion?.id === motion.id;
-              const progress = Math.max(0, Math.min(100, motion.renderProgress || 0));
-              const isCompleted = motion.status === "COMPLETED" && Boolean(motion.outputVideoUrl);
+              const progress = Math.max(
+                0,
+                Math.min(100, motion.renderProgress || 0),
+              );
+              const isCompleted =
+                motion.status === "COMPLETED" && Boolean(motion.outputVideoUrl);
 
               return (
                 <div
@@ -1041,7 +1352,8 @@ export function BannerMotionPanel({
                           {motion.preset?.replaceAll("_", " ") || copy.eyebrow}
                         </p>
                         <p className="mt-1 text-xs uppercase tracking-[0.16em] text-white/42">
-                          {motion.transitionVariant || "ROTATE_ZOOM"} · {motion.durationSeconds || 10}s
+                          {motion.transitionVariant || "ROTATE_ZOOM"} ·{" "}
+                          {motion.durationSeconds || 10}s
                         </p>
                       </div>
                       <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-bold text-white/70">
@@ -1062,7 +1374,9 @@ export function BannerMotionPanel({
                     ) : null}
 
                     {motion.errorMessage ? (
-                      <p className="mt-3 text-sm text-red-200">{motion.errorMessage}</p>
+                      <p className="mt-3 text-sm text-red-200">
+                        {motion.errorMessage}
+                      </p>
                     ) : null}
                   </button>
 
@@ -1093,55 +1407,86 @@ export function BannerMotionPanel({
 
       {audioObjectUrl && isTrimModalOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/[0.78] px-3 pb-3 pt-8 backdrop-blur-xl sm:items-center sm:px-4 sm:py-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(3,4,10,0.88)] px-3 pb-3 pt-8 backdrop-blur-2xl sm:items-center sm:px-4 sm:py-6"
           role="dialog"
           aria-modal="true"
           aria-label={copy.trimModalTitle}
         >
-          <div className="relative max-h-[92vh] w-full max-w-[720px] overflow-y-auto rounded-t-[28px] border border-cyan-200/[0.18] bg-[#070914] p-4 shadow-[0_30px_120px_rgba(0,0,0,0.65)] sm:rounded-[28px] sm:p-6">
-            <button
-              type="button"
-              onClick={() => setIsTrimModalOpen(false)}
-              className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-lg font-black text-white/70 hover:bg-white/[0.1] sm:right-4 sm:top-4"
-              aria-label={copy.close}
-            >
-              ×
-            </button>
+          <div className="relative flex max-h-[90dvh] w-full max-w-[820px] flex-col overflow-hidden rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_90px_rgba(0,245,255,0.18),0_32px_120px_rgba(0,0,0,0.78)]">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,245,255,0.95)] to-transparent" />
+            <div className="pointer-events-none absolute -right-24 -top-20 h-56 w-56 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -left-20 h-56 w-56 rounded-full bg-[rgba(191,95,255,0.13)] blur-3xl" />
+            <div className="pointer-events-none absolute inset-0 opacity-[0.15] [background-image:linear-gradient(rgba(0,245,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(0,245,255,0.04)_1px,transparent_1px)] [background-size:24px_24px]" />
+            <span className="pointer-events-none absolute left-0 top-0 h-4 w-4 border-l-2 border-t-2 border-cyan-300" />
+            <span className="pointer-events-none absolute right-0 top-0 h-4 w-4 border-r-2 border-t-2 border-violet-300" />
+            <span className="pointer-events-none absolute bottom-0 left-0 h-4 w-4 border-b-2 border-l-2 border-violet-300" />
+            <span className="pointer-events-none absolute bottom-0 right-0 h-4 w-4 border-b-2 border-r-2 border-cyan-300" />
 
-            <div className="pr-10 sm:pr-12">
-              <p className="m-0 text-[10px] uppercase tracking-[0.2em] text-cyan-200/70 sm:text-[11px] sm:tracking-[0.22em]">
-                Audio cut
-              </p>
-              <h3 className="mt-2 text-xl font-semibold text-white sm:text-2xl">{copy.trimModalTitle}</h3>
-              <p className="mt-2 text-xs leading-5 text-white/58 sm:text-sm sm:leading-6">{copy.trimModalSubtitle}</p>
-              <p className="mt-2 text-xs font-bold uppercase tracking-[0.16em] text-cyan-100/75">
-                {copy.clipDuration}: {durationSeconds}s · {formatMotionCreditCost(durationSeconds, locale)}
-              </p>
-              <p className="mt-1 text-xs leading-5 text-white/46">{copy.creditCostHint}</p>
-            </div>
+            <div className="relative px-4 pb-3 pt-3 sm:px-6 sm:pb-4 sm:pt-5">
+              <div className="mx-auto mb-3 h-1 w-12 bg-[rgba(0,245,255,0.45)] shadow-[0_0_14px_rgba(0,245,255,0.45)] sm:hidden" />
 
-            <div className="mt-4 rounded-2xl border border-white/10 bg-black/[0.24] p-3 sm:mt-5 sm:p-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="m-0 text-sm font-bold text-white">{copy.selectedClip}</p>
-                  <p className="mt-1 text-xs text-white/45">
-                    {audioDuration > 0
-                      ? `${copy.startAt}: ${formatTime(trimStartSeconds)} · ${copy.endAt}: ${formatTime(trimEndSeconds)}`
-                      : copy.loadingAudio}
-                  </p>
+              <button
+                type="button"
+                onClick={() => setIsTrimModalOpen(false)}
+                className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-none border border-white/10 bg-white/[0.04] text-lg font-black text-white/70 transition hover:border-[rgba(0,245,255,0.45)] hover:bg-[rgba(0,245,255,0.08)] hover:text-cyan-100 sm:right-5 sm:top-5"
+                aria-label={copy.close}
+              >
+                ×
+              </button>
+
+              <div className="pr-11 sm:pr-14">
+                <div className="inline-flex items-center gap-2 border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.06)] px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-cyan-100/88 shadow-[0_0_20px_rgba(0,245,255,0.08)]">
+                  <span className="h-1.5 w-1.5 bg-cyan-200 shadow-[0_0_16px_rgba(0,245,255,0.9)]" />
+                  {copy.trimModalEyebrow}
                 </div>
-                <div className="rounded-full border border-cyan-200/20 bg-cyan-200/10 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-cyan-100">
-                  {Math.round(effectiveClipDuration || durationSeconds)}s
-                </div>
+
+                <h3 className="mt-3 text-xl font-black uppercase tracking-[-0.04em] text-white sm:text-3xl">
+                  {copy.trimModalTitle}
+                </h3>
+                <p className="mt-2 max-w-2xl text-xs leading-5 text-white/56 sm:text-sm sm:leading-6">
+                  {copy.trimModalSubtitle}
+                </p>
               </div>
 
-              <div className="mt-4 rounded-[22px] border border-white/10 bg-[#050711] p-3 sm:mt-5 sm:p-4">
-                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="mt-4 grid grid-cols-3 gap-2 border-y border-white/10 py-3">
+                <div className="relative overflow-hidden rounded-none border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] px-3 py-2">
+                  <p className="font-mono text-[8px] font-black uppercase tracking-[0.16em] text-white/36">
+                    {copy.startAt}
+                  </p>
+                  <p className="mt-1 text-sm font-black text-white">
+                    {audioDuration > 0 ? formatTime(trimStartSeconds) : "--:--"}
+                  </p>
+                </div>
+                <div className="relative overflow-hidden rounded-none border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] px-3 py-2">
+                  <p className="font-mono text-[8px] font-black uppercase tracking-[0.16em] text-white/36">
+                    {copy.endAt}
+                  </p>
+                  <p className="mt-1 text-sm font-black text-white">
+                    {audioDuration > 0 ? formatTime(trimEndSeconds) : "--:--"}
+                  </p>
+                </div>
+                <div className="relative overflow-hidden rounded-none border border-[rgba(0,245,255,0.28)] bg-[rgba(0,245,255,0.07)] px-3 py-2 shadow-[0_0_24px_rgba(0,245,255,0.08)]">
+                  <p className="font-mono text-[8px] font-black uppercase tracking-[0.16em] text-cyan-100/60">
+                    {copy.clipDuration}
+                  </p>
+                  <p className="mt-1 text-sm font-black text-cyan-50">
+                    {Math.round(effectiveClipDuration || durationSeconds)}s
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6">
+              <div className="relative overflow-hidden rounded-none border border-[rgba(0,245,255,0.16)] bg-[linear-gradient(160deg,rgba(255,255,255,0.045),rgba(255,255,255,0.018))] p-3 shadow-[0_0_50px_rgba(0,245,255,0.06)] sm:p-4">
+                <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
+                <span className="pointer-events-none absolute left-0 top-0 h-3 w-3 border-l-2 border-t-2 border-cyan-300/75" />
+                <span className="pointer-events-none absolute bottom-0 right-0 h-3 w-3 border-b-2 border-r-2 border-violet-300/75" />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="m-0 text-xs font-black uppercase tracking-[0.16em] text-white/62">
+                    <p className="m-0 font-mono text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100/70">
                       {copy.timelineView}
                     </p>
-                    <p className="mt-1 text-[11px] leading-5 text-white/42">
+                    <p className="mt-1 text-[11px] leading-5 text-white/44 sm:text-xs">
                       {copy.timelineScrollHint}
                     </p>
                   </div>
@@ -1150,7 +1495,7 @@ export function BannerMotionPanel({
                     type="button"
                     disabled={!audioDuration || disabled || isSubmitting}
                     onClick={focusTimelineOnClip}
-                    className="min-h-9 rounded-xl border border-cyan-200/20 bg-cyan-200/[0.08] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-cyan-100 disabled:opacity-35"
+                    className="min-h-9 rounded-none border border-[rgba(0,245,255,0.28)] bg-transparent px-3 font-mono text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100 transition hover:border-[rgba(0,245,255,0.5)] hover:bg-[rgba(0,245,255,0.1)] disabled:opacity-35"
                   >
                     {copy.focusClip}
                   </button>
@@ -1158,21 +1503,32 @@ export function BannerMotionPanel({
 
                 <div
                   ref={timelineScrollRef}
-                  className="overflow-x-auto overscroll-x-contain rounded-2xl border border-white/10 bg-black/20 pb-2 [scrollbar-color:rgba(125,211,252,0.7)_rgba(255,255,255,0.08)] [scrollbar-width:thin]"
+                  className="mt-4 overflow-x-auto overscroll-x-contain rounded-none border border-white/10 bg-black/36 pb-2 [scrollbar-color:rgba(0,245,255,0.65)_rgba(255,255,255,0.08)] [scrollbar-width:thin]"
                 >
                   <div
                     ref={timelineRef}
                     onPointerDown={handleTimelinePointerDown}
-                    className="relative h-24 cursor-crosshair rounded-2xl bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-amber-400/10 sm:h-28"
+                    className="relative h-24 cursor-crosshair overflow-hidden rounded-none bg-[linear-gradient(90deg,rgba(0,245,255,0.13),rgba(191,95,255,0.11),rgba(255,214,102,0.07))] sm:h-28"
                     style={{
                       width: timelineContentWidth,
                       minWidth: "100%",
                       touchAction: "pan-x",
                     }}
                   >
-                    <div className="absolute inset-0 opacity-60">
-                      {Array.from({ length: Math.max(120, Math.min(420, Math.ceil(audioDuration || 120))) }).map((_, index, bars) => {
-                        const virtualSecond = audioDuration > 0 ? (index / Math.max(1, bars.length - 1)) * audioDuration : index;
+                    <div className="absolute inset-0 opacity-[0.26] [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.09)_1px,transparent_1px)] [background-size:22px_22px]" />
+
+                    <div className="absolute inset-0 opacity-70">
+                      {Array.from({
+                        length: Math.max(
+                          120,
+                          Math.min(420, Math.ceil(audioDuration || 120)),
+                        ),
+                      }).map((_, index, bars) => {
+                        const virtualSecond =
+                          audioDuration > 0
+                            ? (index / Math.max(1, bars.length - 1)) *
+                              audioDuration
+                            : index;
                         const height =
                           16 +
                           Math.abs(Math.sin(virtualSecond * 0.73)) * 30 +
@@ -1181,7 +1537,7 @@ export function BannerMotionPanel({
                         return (
                           <span
                             key={index}
-                            className="absolute bottom-1/2 w-[2px] translate-y-1/2 rounded-full bg-cyan-100/40 sm:w-[3px] sm:bg-cyan-100/45"
+                            className="absolute bottom-1/2 w-[2px] translate-y-1/2 rounded-none bg-cyan-100/45 shadow-[0_0_12px_rgba(0,245,255,0.18)] sm:w-[3px]"
                             style={{
                               left: `${(index / Math.max(1, bars.length - 1)) * 100}%`,
                               height,
@@ -1191,7 +1547,7 @@ export function BannerMotionPanel({
                       })}
                     </div>
 
-                    <div className="absolute bottom-0 left-0 right-0 top-0 bg-gradient-to-b from-white/[0.02] via-transparent to-black/20" />
+                    <div className="absolute bottom-0 left-0 right-0 top-0 bg-gradient-to-b from-white/[0.035] via-transparent to-black/25" />
 
                     <div
                       role="slider"
@@ -1216,8 +1572,10 @@ export function BannerMotionPanel({
                           applyTrimStart(trimStartSeconds + step);
                         }
                       }}
-                      className={`absolute bottom-0 top-0 select-none rounded-2xl border-2 border-cyan-200 bg-cyan-200/18 shadow-[0_0_42px_rgba(125,211,252,0.34)] ${
-                        isDraggingClip ? "cursor-grabbing scale-[1.01]" : "cursor-grab"
+                      className={`absolute bottom-0 top-0 select-none rounded-none border-2 border-cyan-100 bg-cyan-200/20 shadow-[0_0_56px_rgba(0,245,255,0.40)] backdrop-blur-[1px] ${
+                        isDraggingClip
+                          ? "cursor-grabbing scale-[1.01]"
+                          : "cursor-grab"
                       }`}
                       style={{
                         left: `${clipLeftPercent}%`,
@@ -1225,13 +1583,13 @@ export function BannerMotionPanel({
                         touchAction: "none",
                       }}
                     >
-                      <div className="absolute -left-1 top-0 h-full w-3 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,0.8)] sm:w-2" />
-                      <div className="absolute -right-1 top-0 h-full w-3 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,0.8)] sm:w-2" />
+                      <div className="absolute -left-1 top-0 h-full w-3 rounded-none bg-white shadow-[0_0_18px_rgba(255,255,255,0.9)] sm:w-2" />
+                      <div className="absolute -right-1 top-0 h-full w-3 rounded-none bg-white shadow-[0_0_18px_rgba(255,255,255,0.9)] sm:w-2" />
                       <div className="absolute inset-0 grid place-items-center">
-                        <div className="flex items-center gap-1 rounded-full border border-white/15 bg-black/25 px-3 py-2 backdrop-blur-sm">
-                          <span className="h-5 w-[2px] rounded-full bg-white/70" />
-                          <span className="h-5 w-[2px] rounded-full bg-white/45" />
-                          <span className="h-5 w-[2px] rounded-full bg-white/70" />
+                        <div className="flex items-center gap-1 rounded-none border border-white/18 bg-black/42 px-3 py-2 backdrop-blur-sm">
+                          <span className="h-5 w-[2px] rounded-none bg-white/80" />
+                          <span className="h-5 w-[2px] rounded-none bg-white/48" />
+                          <span className="h-5 w-[2px] rounded-none bg-white/80" />
                         </div>
                       </div>
                     </div>
@@ -1239,9 +1597,9 @@ export function BannerMotionPanel({
                 </div>
 
                 <div className="mt-4 grid gap-3">
-                  <div className="relative h-3 overflow-hidden rounded-full bg-white/10">
+                  <div className="relative h-2.5 overflow-hidden rounded-none bg-white/10">
                     <div
-                      className="absolute bottom-0 top-0 rounded-full bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200"
+                      className="absolute bottom-0 top-0 rounded-none bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200 shadow-[0_0_22px_rgba(0,245,255,0.32)]"
                       style={{
                         left: `${clipLeftPercent}%`,
                         width: `${clipWidthPercent}%`,
@@ -1261,40 +1619,49 @@ export function BannerMotionPanel({
                     }}
                     className="w-full accent-cyan-200"
                   />
-                  <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-white/38">
+                  <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em] text-white/38">
                     <span>00:00.0</span>
                     <span>{formatTime(audioDuration)}</span>
                   </div>
                 </div>
               </div>
 
-              <p className="mt-3 text-[11px] leading-5 text-white/46 sm:mt-4 sm:text-xs">{copy.chooseBestPart}</p>
+              <p className="mt-3 text-[11px] leading-5 text-white/48 sm:text-xs">
+                {copy.chooseBestPart}
+              </p>
 
-              <div className="mt-5 grid gap-2 text-sm font-medium text-white/80">
+              <div className="mt-4 relative overflow-hidden rounded-none border border-white/10 bg-white/[0.025] p-3 sm:p-4">
                 <div className="flex flex-col gap-1">
-                  <span>{copy.clipDuration}</span>
-                  <span className="text-xs font-normal text-white/42">{copy.creditCostHint}</span>
+                  <span className="font-mono text-[10px] font-black uppercase tracking-[0.16em] text-white/62">
+                    {copy.clipDuration}
+                  </span>
+                  <span className="text-xs leading-5 text-white/42">
+                    {copy.creditCostHint}
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   {durations.map((duration) => (
                     <button
                       key={duration}
                       type="button"
                       disabled={disabled || isSubmitting}
                       onClick={() => {
-                        const nextStart = Math.min(trimStartSeconds, Math.max(0, audioDuration - duration));
+                        const nextStart = Math.min(
+                          trimStartSeconds,
+                          Math.max(0, audioDuration - duration),
+                        );
                         setDurationSeconds(duration);
                         setClipConfirmed(false);
                         window.setTimeout(() => applyTrimStart(nextStart), 0);
                       }}
-                      className={`rounded-2xl border px-3 py-2.5 text-sm font-bold transition sm:px-4 sm:py-3 ${
+                      className={`rounded-none border px-3 py-2.5 text-sm font-black transition sm:px-4 sm:py-3 ${
                         durationSeconds === duration
-                          ? "border-cyan-200 bg-cyan-200 text-slate-950"
-                          : "border-white/10 bg-white/[0.04] text-white/70 hover:bg-white/[0.07]"
+                          ? "border-cyan-200 bg-cyan-300 text-[#031013] shadow-[0_0_30px_rgba(0,245,255,0.16)]"
+                          : "border-white/10 bg-white/[0.04] text-white/70 hover:border-[rgba(0,245,255,0.22)] hover:bg-white/[0.07]"
                       } disabled:opacity-50`}
                     >
                       <span className="block">{duration}s</span>
-                      <span className="mt-0.5 block text-[10px] font-black uppercase tracking-[0.12em] opacity-70">
+                      <span className="mt-0.5 block font-mono text-[10px] font-black uppercase tracking-[0.12em] opacity-70">
                         {formatMotionCreditCost(duration, locale)}
                       </span>
                     </button>
@@ -1302,28 +1669,31 @@ export function BannerMotionPanel({
                 </div>
               </div>
 
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  disabled={!canUseClip || disabled || isSubmitting}
-                  onClick={handlePreviewClip}
-                  className="min-h-11 flex-1 rounded-2xl border border-cyan-200/25 bg-cyan-200/10 px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-cyan-100 disabled:opacity-50 sm:min-h-12 sm:px-5 sm:text-sm sm:tracking-[0.13em]"
-                >
-                  {isPreviewingClip ? copy.stopClip : copy.listenClip}
-                </button>
+              <div className="sticky bottom-0 -mx-4 mt-4 border-t border-white/10 bg-[#050713]/92 px-4 pb-1 pt-3 backdrop-blur-xl sm:-mx-6 sm:px-6 sm:pb-0">
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    disabled={!canUseClip || disabled || isSubmitting}
+                    onClick={handlePreviewClip}
+                    className="min-h-12 rounded-none border border-[rgba(0,245,255,0.32)] bg-transparent px-4 py-3 font-mono text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100 transition hover:border-[rgba(0,245,255,0.55)] hover:bg-[rgba(0,245,255,0.12)] disabled:opacity-50 sm:text-xs"
+                  >
+                    {isPreviewingClip ? copy.stopClip : copy.listenClip}
+                  </button>
 
-                <button
-                  type="button"
-                  disabled={!canUseClip || disabled || isSubmitting}
-                  onClick={() => {
-                    setClipConfirmed(true);
-                    stopClipPreview();
-                    setIsTrimModalOpen(false);
-                  }}
-                  className="min-h-11 flex-1 rounded-2xl bg-gradient-to-r from-cyan-200 via-violet-200 to-amber-200 px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-slate-950 shadow-[0_18px_60px_rgba(125,211,252,0.18)] disabled:opacity-50 sm:min-h-12 sm:px-5 sm:text-sm sm:tracking-[0.13em]"
-                >
-                  {copy.confirmClip}
-                </button>
+                  <button
+                    type="button"
+                    disabled={!canUseClip || disabled || isSubmitting}
+                    onClick={() => {
+                      setClipConfirmed(true);
+                      stopClipPreview();
+                      setIsTrimModalOpen(false);
+                    }}
+                    className="group relative min-h-12 overflow-hidden rounded-none border border-[rgba(255,255,255,0.12)] bg-cyan-300 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-[0.16em] text-[#031013] shadow-[0_0_42px_rgba(0,245,255,0.28)] transition hover:bg-white hover:shadow-[0_0_58px_rgba(0,245,255,0.42)] disabled:opacity-50 sm:text-xs"
+                  >
+                    <span className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 skew-x-[-18deg] bg-white/45 opacity-0 blur-sm transition duration-700 group-hover:left-[120%] group-hover:opacity-100" />
+                    <span className="relative">{copy.confirmClip}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

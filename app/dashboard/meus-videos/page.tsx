@@ -2,13 +2,16 @@ import Link from "next/link";
 import { Film, Plus } from "lucide-react";
 
 import { DashboardLibraryStyle } from "@/components/dashboard-library-style";
-import { SeedanceVideoCard } from "@/components/seedance-video-card";
+import { SeedanceVideoCard, type SeedanceVideoCardData } from "@/components/seedance-video-card";
 import { normalizeLocale } from "@/lib/i18n";
+import { cleanupExpiredRemotionAssets } from "@/lib/remotion/cleanup";
 import { cleanupExpiredSeedanceVideos } from "@/lib/seedance/cleanup";
 import { requireCurrentWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+
+const REMOTION_RETENTION_HOURS = 24;
 
 type SeedanceVideo = {
   id: string;
@@ -19,8 +22,27 @@ type SeedanceVideo = {
   resolution: string;
   motionInstructions: string | null;
   errorMessage: string | null;
+  width: number | null;
+  height: number | null;
   createdAt: Date;
   expiresAt: Date;
+};
+
+type RemotionVideo = {
+  id: string;
+  bannerId: string;
+  status: string;
+  renderProgress: number;
+  inputImageUrl: string;
+  outputVideoUrl: string | null;
+  format: string;
+  preset: string;
+  transitionVariant: string;
+  durationSeconds: number;
+  errorMessage: string | null;
+  width: number | null;
+  height: number | null;
+  createdAt: Date;
 };
 
 const myVideosCopy = {
@@ -34,10 +56,11 @@ const myVideosCopy = {
     readyLabel: "Prontos para baixar",
     renderingLabel: "Em processamento",
     libraryTitle: "Últimos vídeos",
-    libraryDescription: "Baixe seus vídeos finalizados ou acompanhe o progresso das renderizações em andamento.",
+    libraryDescription:
+      "Baixe seus vídeos finalizados ou acompanhe o progresso das renderizações em andamento. Vídeos de AI e Remotion aparecem juntos aqui.",
     emptyTitle: "Você ainda não gerou nenhum vídeo",
     emptyDescription:
-      "Envie um flyer pronto e transforme sua arte em um vídeo animado com movimento, efeitos e trilha automática.",
+      "Envie um flyer pronto e transforme sua arte em um vídeo animado com movimento, efeitos e música.",
     firstVideo: "Criar vídeo animado",
     retentionTitle: "Disponível por 24 horas",
     retentionDescription:
@@ -53,10 +76,11 @@ const myVideosCopy = {
     readyLabel: "Ready to download",
     renderingLabel: "Processing",
     libraryTitle: "Latest videos",
-    libraryDescription: "Download finished videos or follow the progress of renders still in progress.",
+    libraryDescription:
+      "Download finished videos or follow the progress of renders still in progress. AI and Remotion videos appear together here.",
     emptyTitle: "You have not generated any video yet",
     emptyDescription:
-      "Upload a ready flyer and turn your artwork into an animated video with motion, effects and automatic music.",
+      "Upload a ready flyer and turn your artwork into an animated video with motion, effects and music.",
     firstVideo: "Create animated video",
     retentionTitle: "Available for 24 hours",
     retentionDescription:
@@ -72,10 +96,11 @@ const myVideosCopy = {
     readyLabel: "Listos para descargar",
     renderingLabel: "Procesando",
     libraryTitle: "Últimos videos",
-    libraryDescription: "Descarga tus videos finalizados o sigue el progreso de las renderizaciones en curso.",
+    libraryDescription:
+      "Descarga tus videos finalizados o sigue el progreso de las renderizaciones en curso. Los videos de AI y Remotion aparecen juntos aquí.",
     emptyTitle: "Aún no has generado ningún video",
     emptyDescription:
-      "Envía un flyer listo y convierte tu arte en un video animado con movimiento, efectos y música automática.",
+      "Envía un flyer listo y convierte tu arte en un video animado con movimiento, efectos y música.",
     firstVideo: "Crear video animado",
     retentionTitle: "Disponible por 24 horas",
     retentionDescription:
@@ -83,36 +108,140 @@ const myVideosCopy = {
   },
 } as const;
 
+function addHours(date: Date, hours: number) {
+  return new Date(date.getTime() + hours * 60 * 60 * 1000);
+}
+
+function getRemotionCutoffDate() {
+  return new Date(Date.now() - REMOTION_RETENTION_HOURS * 60 * 60 * 1000);
+}
+
+function formatEnumLabel(value?: string | null) {
+  if (!value) return "";
+
+  return value
+    .toLowerCase()
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function getRemotionResolutionLabel(video: RemotionVideo) {
+  const duration = video.durationSeconds ? `${video.durationSeconds}s` : "Motion";
+  const format = formatEnumLabel(video.format);
+
+  return format ? `${duration} · ${format}` : duration;
+}
+
+function mapSeedanceVideo(video: SeedanceVideo): SeedanceVideoCardData {
+  return {
+    id: video.id,
+    source: "seedance",
+    sourceLabel: "AI",
+    status: video.status,
+    progress: Number(video.progress || 0),
+    inputImageUrl: video.inputImageUrl,
+    outputVideoUrl: video.outputVideoUrl,
+    resolution: video.resolution,
+    width: video.width,
+    height: video.height,
+    motionInstructions: video.motionInstructions,
+    errorMessage: video.errorMessage,
+    createdAt: video.createdAt.toISOString(),
+    expiresAt: video.expiresAt.toISOString(),
+    downloadHref: `/api/seedance/download/${video.id}`,
+    statusEndpoint: `/api/seedance/status/${video.id}`,
+  };
+}
+
+function mapRemotionVideo(video: RemotionVideo): SeedanceVideoCardData {
+  return {
+    id: video.id,
+    source: "remotion",
+    sourceLabel: "Remotion",
+    status: video.status,
+    progress: Number(video.renderProgress || 0),
+    inputImageUrl: video.inputImageUrl,
+    outputVideoUrl: video.outputVideoUrl,
+    resolution: getRemotionResolutionLabel(video),
+    width: video.width,
+    height: video.height,
+    motionInstructions: [formatEnumLabel(video.preset), formatEnumLabel(video.transitionVariant)]
+      .filter(Boolean)
+      .join(" · "),
+    errorMessage: video.errorMessage,
+    createdAt: video.createdAt.toISOString(),
+    expiresAt: addHours(video.createdAt, REMOTION_RETENTION_HOURS).toISOString(),
+    downloadHref: `/api/remotion/download/${video.id}`,
+    statusEndpoint: `/api/remotion/status/${video.id}`,
+  };
+}
+
 export default async function MyVideosPage() {
   const workspace = await requireCurrentWorkspace();
   const locale = normalizeLocale(workspace.user?.preferredLocale);
   const copy = myVideosCopy[locale] ?? myVideosCopy.en;
 
-  await cleanupExpiredSeedanceVideos({ workspaceId: workspace.id }).catch(() => null);
+  await Promise.allSettled([
+    cleanupExpiredSeedanceVideos({ workspaceId: workspace.id }),
+    cleanupExpiredRemotionAssets({ workspaceId: workspace.id, limit: 30 }),
+  ]);
 
-  const videos = (await (prisma as any).seedanceVideo.findMany({
-    where: {
-      workspaceId: workspace.id,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      status: true,
-      progress: true,
-      inputImageUrl: true,
-      outputVideoUrl: true,
-      resolution: true,
-      motionInstructions: true,
-      errorMessage: true,
-      createdAt: true,
-      expiresAt: true,
-    },
-  })) as SeedanceVideo[];
+  const [seedanceVideos, remotionVideos] = await Promise.all([
+    (prisma as any).seedanceVideo.findMany({
+      where: {
+        workspaceId: workspace.id,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        status: true,
+        progress: true,
+        inputImageUrl: true,
+        outputVideoUrl: true,
+        resolution: true,
+        motionInstructions: true,
+        errorMessage: true,
+        width: true,
+        height: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    }) as Promise<SeedanceVideo[]>,
+    (prisma as any).bannerMotion.findMany({
+      where: {
+        workspaceId: workspace.id,
+        createdAt: { gt: getRemotionCutoffDate() },
+      },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        bannerId: true,
+        status: true,
+        renderProgress: true,
+        inputImageUrl: true,
+        outputVideoUrl: true,
+        format: true,
+        preset: true,
+        transitionVariant: true,
+        durationSeconds: true,
+        errorMessage: true,
+        width: true,
+        height: true,
+        createdAt: true,
+      },
+    }) as Promise<RemotionVideo[]>,
+  ]);
+
+  const videos = [...seedanceVideos.map(mapSeedanceVideo), ...remotionVideos.map(mapRemotionVideo)].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 
   const readyCount = videos.filter((video) => video.status === "COMPLETED").length;
   const renderingCount = videos.filter((video) =>
-    ["PENDING", "RENDERING"].includes(video.status),
+    ["PENDING", "RENDERING", "PROCESSING"].includes(video.status),
   ).length;
 
   return (
@@ -137,7 +266,7 @@ export default async function MyVideosPage() {
 
             {videos.length > 0 ? (
               <Link
-                href="/dashboard/flyer-animado"
+                href="/dashboard/remotion"
                 className="library-btn min-h-[44px] gap-2 px-4 text-[9px]"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -159,7 +288,7 @@ export default async function MyVideosPage() {
               </p>
 
               <Link
-                href="/dashboard/flyer-animado"
+                href="/dashboard/remotion"
                 className="library-btn-solid mt-6 inline-flex min-h-[48px] px-5 text-[10px]"
               >
                 {copy.firstVideo}
@@ -169,13 +298,9 @@ export default async function MyVideosPage() {
             <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {videos.map((video) => (
                 <SeedanceVideoCard
-                  key={video.id}
+                  key={`${video.source}-${video.id}`}
                   locale={locale}
-                  video={{
-                    ...video,
-                    createdAt: video.createdAt.toISOString(),
-                    expiresAt: video.expiresAt.toISOString(),
-                  }}
+                  video={video}
                 />
               ))}
             </div>
@@ -202,7 +327,7 @@ export default async function MyVideosPage() {
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/dashboard/flyer-animado"
+                  href="/dashboard/remotion"
                   className="library-btn-solid min-h-[50px] gap-2 px-5 text-[10px]"
                 >
                   <Plus className="h-4 w-4" />

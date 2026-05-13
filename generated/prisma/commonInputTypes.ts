@@ -355,6 +355,23 @@ export type EnumSeedanceVideoStatusWithAggregatesFilter<$PrismaModel = never> = 
   _max?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel>
 }
 
+export type EnumProfessionalImageJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProfessionalImageJobStatus | Prisma.EnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel> | $Enums.ProfessionalImageJobStatus
+}
+
+export type EnumProfessionalImageJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProfessionalImageJobStatus | Prisma.EnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProfessionalImageJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProfessionalImageJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel>
+}
+
 export type EnumUsageEventTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.UsageEventType | Prisma.EnumUsageEventTypeFieldRefInput<$PrismaModel>
   in?: $Enums.UsageEventType[] | Prisma.ListEnumUsageEventTypeFieldRefInput<$PrismaModel>
@@ -775,6 +792,23 @@ export type NestedEnumSeedanceVideoStatusWithAggregatesFilter<$PrismaModel = nev
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSeedanceVideoStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumProfessionalImageJobStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProfessionalImageJobStatus | Prisma.EnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel> | $Enums.ProfessionalImageJobStatus
+}
+
+export type NestedEnumProfessionalImageJobStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProfessionalImageJobStatus | Prisma.EnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProfessionalImageJobStatus[] | Prisma.ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProfessionalImageJobStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProfessionalImageJobStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumUsageEventTypeFilter<$PrismaModel = never> = {

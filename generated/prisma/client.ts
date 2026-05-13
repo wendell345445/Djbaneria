@@ -72,6 +72,11 @@ export type BannerMotion = Prisma.BannerMotionModel
  */
 export type SeedanceVideo = Prisma.SeedanceVideoModel
 /**
+ * Model ProfessionalImageJob
+ * 
+ */
+export type ProfessionalImageJob = Prisma.ProfessionalImageJobModel
+/**
  * Model Asset
  * 
  */
@@ -81,3 +86,8 @@ export type Asset = Prisma.AssetModel
  * 
  */
 export type UsageEvent = Prisma.UsageEventModel
+/**
+ * Model RateLimitBucket
+ * 
+ */
+export type RateLimitBucket = Prisma.RateLimitBucketModel

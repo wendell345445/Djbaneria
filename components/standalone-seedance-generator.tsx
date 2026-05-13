@@ -33,13 +33,19 @@ type SeedanceJob = {
   errorMessage?: string | null;
   expiresAt?: string | null;
   resolution?: string | null;
+  width?: number | null;
+  height?: number | null;
 };
 
 type AnimatedFlyerLocale = "pt-BR" | "en" | "es";
 
 type StandaloneSeedanceGeneratorProps = {
   locale?: AnimatedFlyerLocale;
+  remainingCredits?: number | null;
+  isAdminUnlimited?: boolean;
 };
+
+const PENDING_SEEDANCE_VIDEO_STORAGE_KEY = "dj_visuals_pending_seedance_video_id";
 
 const animatedFlyerCopy = {
   "pt-BR": {
@@ -66,7 +72,7 @@ const animatedFlyerCopy = {
     quality: {
       title: "Escolha a qualidade do vídeo",
       description:
-        "A qualidade define o custo em créditos. Para uso real em divulgação, recomendamos 720p HD.",
+        "A qualidade define o custo em créditos. O formato do vídeo acompanha automaticamente a proporção do flyer enviado.",
       creditsPerVideo: "créditos por vídeo",
       durationLabel: "10 segundos de vídeo",
     },
@@ -75,14 +81,14 @@ const animatedFlyerCopy = {
         value: "480" as const,
         label: "480p",
         description: "Ideal para testar o estilo do motion com menor custo.",
-        credits: 3,
+        credits: 5,
         bestFor: "Prévia rápida",
       },
       {
         value: "720" as const,
         label: "720p HD",
-        description: "Recomendado para postar em Stories, Reels e anúncios.",
-        credits: 5,
+        description: "Recomendado para publicar com mais nitidez mantendo o formato original.",
+        credits: 12,
         bestFor: "Melhor entrega",
       },
     ],
@@ -110,6 +116,15 @@ const animatedFlyerCopy = {
       generate: "GERAR VÍDEO",
       credits: "créditos",
     },
+    upgrade: {
+      title: "Créditos insuficientes",
+      description:
+        "Você precisa de {requiredCredits} créditos para gerar este vídeo, mas tem {remainingCredits}. Faça uma assinatura ou atualize seu plano para continuar criando flyers animados profissionais.",
+      zeroDescription:
+        "Seus créditos acabaram. Escolha uma assinatura para continuar gerando vídeos animados profissionais para seus eventos.",
+      cta: "Ver planos",
+      secondary: "Planos pagos liberam mais créditos, qualidade superior e mais liberdade para criar.",
+    },
     preview: {
       eyebrow: "Preview",
       title: "Resultado do vídeo",
@@ -123,6 +138,8 @@ const animatedFlyerCopy = {
       viewMyVideos: "Ver em Meus vídeos",
       downloadVideo: "Baixar vídeo",
       expirationFallback: "Disponível por 24 horas",
+      processingNotice:
+        "Tempo estimado: 2 a 4 minutos para renderizar o vídeo. Você pode sair desta tela sem atrapalhar o progresso; quando voltar, o acompanhamento continuará automaticamente.",
     },
     statusLabels: {
       PENDING: "Na fila",
@@ -203,7 +220,7 @@ const animatedFlyerCopy = {
     quality: {
       title: "Choose the video quality",
       description:
-        "Quality defines the credit cost. For real promotional use, we recommend 720p HD.",
+        "Quality defines the credit cost. The video format automatically follows the aspect ratio of the uploaded flyer.",
       creditsPerVideo: "credits per video",
       durationLabel: "10-second video",
     },
@@ -212,14 +229,14 @@ const animatedFlyerCopy = {
         value: "480" as const,
         label: "480p",
         description: "Best for testing the motion style at a lower cost.",
-        credits: 3,
+        credits: 5,
         bestFor: "Quick preview",
       },
       {
         value: "720" as const,
         label: "720p HD",
-        description: "Recommended for Stories, Reels and paid ads.",
-        credits: 5,
+        description: "Recommended for sharper output while keeping the original format.",
+        credits: 12,
         bestFor: "Best output",
       },
     ],
@@ -247,6 +264,15 @@ const animatedFlyerCopy = {
       generate: "GENERATE VIDEO",
       credits: "credits",
     },
+    upgrade: {
+      title: "Not enough credits",
+      description:
+        "You need {requiredCredits} credits to generate this video, but you have {remainingCredits}. Subscribe or upgrade your plan to keep creating professional animated flyers.",
+      zeroDescription:
+        "You are out of credits. Choose a subscription to keep generating professional animated videos for your events.",
+      cta: "View plans",
+      secondary: "Paid plans unlock more credits, higher quality and more creative freedom.",
+    },
     preview: {
       eyebrow: "Preview",
       title: "Video result",
@@ -260,6 +286,8 @@ const animatedFlyerCopy = {
       viewMyVideos: "View in My videos",
       downloadVideo: "Download video",
       expirationFallback: "Available for 24 hours",
+      processingNotice:
+        "Estimated time: 2 to 4 minutes to render the video. You can leave this screen without interrupting progress; when you come back, tracking will continue automatically.",
     },
     statusLabels: {
       PENDING: "Queued",
@@ -340,7 +368,7 @@ const animatedFlyerCopy = {
     quality: {
       title: "Elige la calidad del video",
       description:
-        "La calidad define el costo en créditos. Para uso real en promoción, recomendamos 720p HD.",
+        "La calidad define el costo en créditos. El formato del video sigue automáticamente la proporción del flyer enviado.",
       creditsPerVideo: "créditos por video",
       durationLabel: "video de 10 segundos",
     },
@@ -349,14 +377,14 @@ const animatedFlyerCopy = {
         value: "480" as const,
         label: "480p",
         description: "Ideal para probar el estilo de motion con menor costo.",
-        credits: 3,
+        credits: 5,
         bestFor: "Preview rápido",
       },
       {
         value: "720" as const,
         label: "720p HD",
-        description: "Recomendado para Stories, Reels y anuncios.",
-        credits: 5,
+        description: "Recomendado para publicar con más nitidez manteniendo el formato original.",
+        credits: 12,
         bestFor: "Mejor entrega",
       },
     ],
@@ -384,6 +412,15 @@ const animatedFlyerCopy = {
       generate: "GENERAR VIDEO",
       credits: "créditos",
     },
+    upgrade: {
+      title: "Créditos insuficientes",
+      description:
+        "Necesitas {requiredCredits} créditos para generar este video, pero tienes {remainingCredits}. Suscríbete o actualiza tu plan para seguir creando flyers animados profesionales.",
+      zeroDescription:
+        "Tus créditos se acabaron. Elige una suscripción para seguir generando videos animados profesionales para tus eventos.",
+      cta: "Ver planes",
+      secondary: "Los planes pagos liberan más créditos, mayor calidad y más libertad para crear.",
+    },
     preview: {
       eyebrow: "Preview",
       title: "Resultado del video",
@@ -397,6 +434,8 @@ const animatedFlyerCopy = {
       viewMyVideos: "Ver en Mis videos",
       downloadVideo: "Descargar video",
       expirationFallback: "Disponible por 24 horas",
+      processingNotice:
+        "Tiempo estimado: 2 a 4 minutos para renderizar el video. Puedes salir de esta pantalla sin interrumpir el progreso; cuando vuelvas, el seguimiento continuará automáticamente.",
     },
     statusLabels: {
       PENDING: "En fila",
@@ -533,8 +572,52 @@ function appendInstruction(current: string, instruction: string) {
   return `${trimmed}\n${instruction}`;
 }
 
+function formatUpgradeDescription(
+  template: string,
+  requiredCredits: number,
+  remainingCredits: number,
+) {
+  return template
+    .replace("{requiredCredits}", String(requiredCredits))
+    .replace("{remainingCredits}", String(remainingCredits));
+}
+
+function normalizeSeedanceJob(
+  rawVideo: Record<string, any>,
+  fallback?: Partial<SeedanceJob>,
+): SeedanceJob {
+  const videoId = String(
+    rawVideo.videoId || rawVideo.id || fallback?.videoId || "",
+  );
+
+  return {
+    videoId,
+    status: (rawVideo.status || fallback?.status || "PENDING") as SeedanceStatus,
+    renderProgress: Number(
+      rawVideo.renderProgress ??
+        rawVideo.progress ??
+        fallback?.renderProgress ??
+        0,
+    ),
+    queuePosition:
+      rawVideo.queuePosition ?? fallback?.queuePosition ?? null,
+    outputVideoUrl:
+      rawVideo.outputVideoUrl ?? fallback?.outputVideoUrl ?? null,
+    inputImageUrl:
+      rawVideo.inputImageUrl ?? fallback?.inputImageUrl ?? null,
+    errorMessage:
+      rawVideo.errorMessage ?? fallback?.errorMessage ?? null,
+    expiresAt: rawVideo.expiresAt ?? fallback?.expiresAt ?? null,
+    resolution: rawVideo.resolution ?? fallback?.resolution ?? null,
+    width: rawVideo.width ?? fallback?.width ?? null,
+    height: rawVideo.height ?? fallback?.height ?? null,
+  };
+}
+
 export function StandaloneSeedanceGenerator({
   locale,
+  remainingCredits = null,
+  isAdminUnlimited = false,
 }: StandaloneSeedanceGeneratorProps) {
   const normalizedLocale = normalizeLocale(locale);
   const copy = useMemo(
@@ -546,11 +629,16 @@ export function StandaloneSeedanceGenerator({
 
   const [flyerFile, setFlyerFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [flyerAspectRatio, setFlyerAspectRatio] = useState("3 / 4");
   const [resolution, setResolution] = useState<Resolution>("480");
   const [motionInstructions, setMotionInstructions] = useState("");
   const [motion, setMotion] = useState<SeedanceJob | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [serverCreditError, setServerCreditError] = useState<{
+    requiredCredits: number;
+    remainingCredits: number;
+  } | null>(null);
 
   const isSubmittingRef = useRef(false);
   const lastSubmitAtRef = useRef(0);
@@ -562,13 +650,40 @@ export function StandaloneSeedanceGenerator({
     [resolution, resolutionOptions],
   );
 
+  const normalizedRemainingCredits =
+    typeof remainingCredits === "number" ? Math.max(0, remainingCredits) : null;
+  const hasInsufficientCredits =
+    !isAdminUnlimited &&
+    typeof normalizedRemainingCredits === "number" &&
+    normalizedRemainingCredits < selectedResolution.credits;
+  const upgradePromptCredits = serverCreditError ||
+    (hasInsufficientCredits && typeof normalizedRemainingCredits === "number"
+      ? {
+          requiredCredits: selectedResolution.credits,
+          remainingCredits: normalizedRemainingCredits,
+        }
+      : null);
+  const shouldShowUpgradePrompt = Boolean(upgradePromptCredits);
+  const upgradeDescription = upgradePromptCredits
+    ? upgradePromptCredits.remainingCredits === 0
+      ? copy.upgrade.zeroDescription
+      : formatUpgradeDescription(
+          copy.upgrade.description,
+          upgradePromptCredits.requiredCredits,
+          upgradePromptCredits.remainingCredits,
+        )
+    : null;
+
   const progress = Math.max(
     0,
     Math.min(100, Math.round(motion?.renderProgress || 0)),
   );
+  const previewAspectRatio = motion?.width && motion?.height ? `${motion.width} / ${motion.height}` : flyerAspectRatio;
+  const displayedImageUrl = previewUrl || motion?.inputImageUrl || null;
   const isWorking = Boolean(
     motion && ["PENDING", "RENDERING"].includes(motion.status),
   );
+  const shouldShowProcessingNotice = isWorking;
 
   const panelClass =
     "av-hud av-scan relative overflow-hidden rounded-none bg-[#050713]/90 backdrop-blur-xl";
@@ -576,15 +691,104 @@ export function StandaloneSeedanceGenerator({
     "av-hud-v relative overflow-hidden rounded-none bg-[#050713]/78 backdrop-blur-xl";
 
   useEffect(() => {
+    setServerCreditError(null);
+  }, [resolution]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadVideoFromEndpoint(url: string) {
+      const response = await fetch(url, { cache: "no-store" });
+      const data = await readSafeJsonResponse(response);
+
+      if (!response.ok) {
+        throw new Error(data?.error || copy.errors.statusGeneric);
+      }
+
+      if (!data?.video) {
+        return null;
+      }
+
+      return normalizeSeedanceJob(data.video);
+    }
+
+    async function restoreActiveVideo() {
+      const storedVideoId = window.localStorage.getItem(
+        PENDING_SEEDANCE_VIDEO_STORAGE_KEY,
+      );
+
+      if (storedVideoId) {
+        try {
+          const storedVideo = await loadVideoFromEndpoint(
+            `/api/seedance/status/${storedVideoId}`,
+          );
+
+          if (!cancelled && storedVideo?.videoId) {
+            setMotion(storedVideo);
+            return;
+          }
+        } catch {
+          window.localStorage.removeItem(PENDING_SEEDANCE_VIDEO_STORAGE_KEY);
+        }
+      }
+
+      try {
+        const activeVideo = await loadVideoFromEndpoint("/api/seedance/current");
+
+        if (!cancelled && activeVideo?.videoId) {
+          setMotion(activeVideo);
+        }
+      } catch {
+        // Silent restore: normal page usage should not show an error just because
+        // there is no active generation to resume.
+      }
+    }
+
+    restoreActiveVideo();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [copy.errors.statusGeneric]);
+
+  useEffect(() => {
+    if (!motion?.videoId) return;
+
+    if (["PENDING", "RENDERING"].includes(motion.status)) {
+      window.localStorage.setItem(
+        PENDING_SEEDANCE_VIDEO_STORAGE_KEY,
+        motion.videoId,
+      );
+      return;
+    }
+
+    if (motion.status === "COMPLETED" || motion.status === "FAILED") {
+      window.localStorage.removeItem(PENDING_SEEDANCE_VIDEO_STORAGE_KEY);
+    }
+  }, [motion?.videoId, motion?.status]);
+
+  useEffect(() => {
     if (!flyerFile) {
       setPreviewUrl(null);
+      setFlyerAspectRatio("3 / 4");
       return;
     }
 
     const objectUrl = URL.createObjectURL(flyerFile);
     setPreviewUrl(objectUrl);
 
-    return () => URL.revokeObjectURL(objectUrl);
+    const image = new window.Image();
+    image.onload = () => {
+      if (image.naturalWidth && image.naturalHeight) {
+        setFlyerAspectRatio(`${image.naturalWidth} / ${image.naturalHeight}`);
+      }
+    };
+    image.src = objectUrl;
+
+    return () => {
+      image.onload = null;
+      URL.revokeObjectURL(objectUrl);
+    };
   }, [flyerFile]);
 
   useEffect(() => {
@@ -607,36 +811,12 @@ export function StandaloneSeedanceGenerator({
         }
 
         if (!cancelled && data?.video) {
-          setMotion((current) => {
-            const nextVideo = data.video;
-
-            return {
+          setMotion((current) =>
+            normalizeSeedanceJob(data.video, {
               ...(current || fallbackMotion),
-              ...nextVideo,
-              videoId: nextVideo.videoId || nextVideo.id || activeVideoId,
-              status:
-                nextVideo.status || current?.status || fallbackMotion.status,
-              renderProgress: Number(
-                nextVideo.renderProgress ??
-                  nextVideo.progress ??
-                  current?.renderProgress ??
-                  0,
-              ),
-              queuePosition:
-                nextVideo.queuePosition ?? current?.queuePosition ?? null,
-              outputVideoUrl:
-                nextVideo.outputVideoUrl ?? current?.outputVideoUrl ?? null,
-              inputImageUrl:
-                nextVideo.inputImageUrl ?? current?.inputImageUrl ?? null,
-              errorMessage:
-                nextVideo.errorMessage ?? current?.errorMessage ?? null,
-              expiresAt: nextVideo.expiresAt ?? current?.expiresAt ?? null,
-              resolution:
-                nextVideo.resolution ??
-                current?.resolution ??
-                fallbackMotion.resolution,
-            };
-          });
+              videoId: activeVideoId,
+            }),
+          );
         }
       } catch (pollError) {
         if (!cancelled) {
@@ -661,6 +841,7 @@ export function StandaloneSeedanceGenerator({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setServerCreditError(null);
 
     if (isSubmittingRef.current || isSubmitting) {
       return;
@@ -668,6 +849,11 @@ export function StandaloneSeedanceGenerator({
 
     if (isWorking) {
       setError(copy.errors.generationInProgress);
+      return;
+    }
+
+    if (hasInsufficientCredits) {
+      setError(copy.upgrade.title);
       return;
     }
 
@@ -701,8 +887,29 @@ export function StandaloneSeedanceGenerator({
       const data = await readSafeJsonResponse(response);
 
       if (!response.ok) {
+        if (response.status === 403 && data?.code === "INSUFFICIENT_CREDITS") {
+          setServerCreditError({
+            requiredCredits: Number(data.requiredCredits || selectedResolution.credits),
+            remainingCredits: Math.max(0, Number(data.remainingCredits || 0)),
+          });
+          return;
+        }
+
         if (response.status === 429) {
           throw new Error(data?.error || copy.errors.rateLimited);
+        }
+
+        if (response.status === 409 && data?.videoId) {
+          setMotion(
+            normalizeSeedanceJob(data, {
+              videoId: data.videoId,
+              status: data.status || "PENDING",
+              renderProgress: Number(data.renderProgress || 0),
+              expiresAt: data.expiresAt || null,
+              resolution: `${resolution}p`,
+            }),
+          );
+          return;
         }
 
         if (response.status === 409) {
@@ -716,14 +923,18 @@ export function StandaloneSeedanceGenerator({
         throw new Error(data?.error || copy.errors.missingVideoId);
       }
 
-      setMotion({
-        videoId: data.videoId,
-        status: data.status || "PENDING",
-        renderProgress: Number(data.renderProgress || 0),
-        queuePosition: data.queuePosition,
-        expiresAt: data.expiresAt,
-        resolution: `${resolution}p`,
-      });
+      setMotion(
+        normalizeSeedanceJob(data, {
+          videoId: data.videoId,
+          status: data.status || "PENDING",
+          renderProgress: Number(data.renderProgress || 0),
+          queuePosition: data.queuePosition ?? null,
+          expiresAt: data.expiresAt ?? null,
+          resolution: `${resolution}p`,
+          width: data.width ?? null,
+          height: data.height ?? null,
+        }),
+      );
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -869,6 +1080,7 @@ export function StandaloneSeedanceGenerator({
                 );
               })}
             </div>
+
             </div>
           </section>
 
@@ -944,6 +1156,36 @@ export function StandaloneSeedanceGenerator({
             </div>
           </section>
 
+          {shouldShowUpgradePrompt ? (
+            <div className="av-hud-v relative overflow-hidden bg-fuchsia-300/[0.055] p-4 sm:p-5">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-fuchsia-300/15 blur-3xl" />
+              <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <span className="inline-flex h-11 w-11 flex-none items-center justify-center border border-fuchsia-200/18 bg-fuchsia-200/10 text-fuchsia-100">
+                    <Zap className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="av-orb text-sm font-black uppercase tracking-[0.08em] text-white">
+                      {copy.upgrade.title}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-white/64">
+                      {upgradeDescription}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-fuchsia-50/55">
+                      {copy.upgrade.secondary}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard/billing"
+                  className="av-btn-solid inline-flex min-h-[48px] w-full items-center justify-center gap-2 px-5 text-[10px] font-black sm:w-auto"
+                >
+                  {copy.upgrade.cta}
+                </Link>
+              </div>
+            </div>
+          ) : null}
+
           {error ? (
             <div className="flex items-start gap-3 border border-red-300/20 bg-red-400/10 p-4 text-sm leading-6 text-red-100 shadow-[0_0_40px_rgba(248,113,113,0.08)]">
               <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" />
@@ -953,7 +1195,7 @@ export function StandaloneSeedanceGenerator({
 
           <button
             type="submit"
-            disabled={isSubmitting || isWorking || !flyerFile}
+            disabled={isSubmitting || isWorking || !flyerFile || shouldShowUpgradePrompt}
             className="av-btn-solid inline-flex min-h-[62px] w-full items-center justify-center gap-2 px-6 text-[11px] font-black transition hover:translate-y-[-1px] disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55 sm:text-xs"
           >
             {isSubmitting || isWorking ? (
@@ -991,12 +1233,13 @@ export function StandaloneSeedanceGenerator({
                   src={motion.outputVideoUrl}
                   controls
                   playsInline
-                  className="aspect-[4/5] w-full bg-black object-contain"
+                  className="w-full bg-black object-contain"
+                  style={{ aspectRatio: previewAspectRatio }}
                 />
-              ) : previewUrl ? (
-                <div className="relative aspect-[4/5] bg-black">
+              ) : displayedImageUrl ? (
+                <div className="relative bg-black" style={{ aspectRatio: previewAspectRatio }}>
                   <img
-                    src={previewUrl}
+                    src={displayedImageUrl}
                     alt={copy.preview.uploadedAlt}
                     className="h-full w-full object-contain opacity-72"
                   />
@@ -1019,7 +1262,7 @@ export function StandaloneSeedanceGenerator({
                   </div>
                 </div>
               ) : (
-                <div className="grid aspect-[4/5] place-items-center p-8 text-center">
+                <div className="grid place-items-center p-8 text-center" style={{ aspectRatio: previewAspectRatio }}>
                   <div>
                     <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-none border border-cyan-200/14 bg-cyan-200/[0.06] text-white/78">
                       <UploadCloud className="h-7 w-7" />
@@ -1052,6 +1295,12 @@ export function StandaloneSeedanceGenerator({
                     style={{ width: `${progress}%` }}
                   />
                 </div>
+                {shouldShowProcessingNotice ? (
+                  <div className="mt-3 flex items-start gap-2 border border-cyan-200/14 bg-cyan-200/[0.055] p-3 text-xs leading-5 text-cyan-50/72">
+                    <Info className="mt-0.5 h-4 w-4 flex-none text-cyan-100" />
+                    <p>{copy.preview.processingNotice}</p>
+                  </div>
+                ) : null}
                 {motion.queuePosition && motion.queuePosition > 0 ? (
                   <p className="mt-3 text-xs text-white/45">
                     {copy.preview.queuePosition} {motion.queuePosition}
