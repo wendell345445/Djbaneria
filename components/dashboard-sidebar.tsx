@@ -1045,56 +1045,38 @@ function CreditsPanel({
   creditInfo: SidebarCreditInfo;
   compact?: boolean;
 }) {
-  const progressWidth = `${Math.max(0, Math.min(creditInfo.progressPercent, 100))}%`;
-
   return (
     <div
-      className={`dashboard-hud-v relative overflow-hidden ${
-        compact ? "p-3.5" : "p-4 shadow-[0_20px_70px_rgba(0,0,0,0.32)]"
+      className={`relative overflow-hidden border border-cyan-300/12 bg-white/[0.025] shadow-[0_12px_34px_rgba(0,0,0,0.18)] ${
+        compact ? "px-3 py-2" : "px-3 py-2.5"
       }`}
+      aria-label={`${creditInfo.label}: ${creditInfo.value}`}
     >
-      <div className="dashboard-scanline pointer-events-none absolute inset-x-0 top-0 h-px" />
-      <div className="pointer-events-none absolute -right-10 -top-12 h-24 w-24 rounded-full bg-cyan-300/12 blur-2xl" />
-      <div className="pointer-events-none absolute -left-14 bottom-0 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl" />
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/42 to-transparent" />
 
-      <div className="relative">
-        <div className="flex items-start justify-between gap-3">
-          <span className="dashboard-chip-cx">● {creditInfo.label}</span>
-          <span className="dashboard-mono max-w-[68px] truncate border border-violet-300/10 bg-violet-300/[0.035] px-1 py-0.5 text-[6px] font-semibold uppercase tracking-[0.1em] text-violet-100/55 sm:max-w-[76px]">
-            {creditInfo.planLabel}
+      <div className="relative flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-cyan-300/18 bg-cyan-300/[0.07] text-cyan-100 shadow-[0_0_18px_rgba(0,245,255,0.09)]">
+            <CircleDollarSign className="h-4 w-4" />
           </span>
-        </div>
 
-        <div className="mt-4 flex items-end justify-between gap-3">
           <div className="min-w-0">
-            <p className="dashboard-orb text-[32px] font-black uppercase leading-none tracking-[-0.05em] text-white sm:text-[34px]">
-              {creditInfo.value}
+            <p className="dashboard-mono truncate text-[8px] font-black uppercase tracking-[0.16em] text-cyan-100/62">
+              {creditInfo.label}
             </p>
-            <p className="dashboard-mono mt-2 text-[8px] font-bold uppercase tracking-[0.18em] text-cyan-100/55">
-              {creditInfo.usage}
+            <p className="dashboard-mono mt-0.5 truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/34">
+              {creditInfo.planLabel}
             </p>
           </div>
-
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center border border-cyan-300/20 bg-cyan-300/10 text-cyan-100 shadow-[0_0_24px_rgba(0,245,255,0.13)]">
-            <CircleDollarSign className="h-5 w-5" />
-          </span>
         </div>
 
-        <div className="mt-4 space-y-2">
-          <div className="flex items-center justify-between gap-3">
-            <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.18em] text-white/38">
-              {creditInfo.progressLabel}
-            </span>
-            <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.16em] text-cyan-100/65">
-              {creditInfo.cycleValue}
-            </span>
-          </div>
-          <div className="h-1.5 overflow-hidden bg-white/[0.07]">
-            <div
-              className="dashboard-credit-meter h-full transition-all duration-500"
-              style={{ width: creditInfo.isUnlimited ? "100%" : progressWidth }}
-            />
-          </div>
+        <div className="shrink-0 text-right">
+          <p className="dashboard-orb text-[18px] font-black uppercase leading-none tracking-[-0.04em] text-white">
+            {creditInfo.isUnlimited ? "∞" : creditInfo.value}
+          </p>
+          <p className="dashboard-mono mt-0.5 max-w-[92px] truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/42">
+            {creditInfo.usage}
+          </p>
         </div>
       </div>
     </div>
