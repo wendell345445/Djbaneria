@@ -241,7 +241,7 @@ const newBannerFormCopy = {
     importedProfessionalPhoto: "Imagem profissional conectada",
     importedProfessionalPhotoHelp:
       "Essa imagem foi trazida da tela Imagem profissional e será usada como referência no banner. Se quiser, você pode enviar outro arquivo para substituir.",
-    createProfessionalPhotoCta: "Melhorar minha foto com IA",
+    createProfessionalPhotoCta: "",
     professionalPhotoModalTitle: "Melhorar foto com IA",
     professionalPhotoModalDescription:
       "Envie sua foto, gere uma versão mais profissional e depois escolha se quer usar no banner ou baixar a imagem.",
@@ -561,8 +561,8 @@ const newBannerFormCopy = {
     importedProfessionalPhoto: "Professional image connected",
     importedProfessionalPhotoHelp:
       "This image was imported from the Professional image page and will be used as the banner reference. If you want, upload another file to replace it.",
-    createProfessionalPhotoCta: "Improve my photo with AI",
-    professionalPhotoModalTitle: "Improve photo with AI",
+    createProfessionalPhotoCta: "",
+    professionalPhotoModalTitle: "Improve my photo with AI",
     professionalPhotoModalDescription:
       "Upload your photo, generate a more professional version, then choose whether to use it in the banner or download it.",
     professionalPhotoSelectLabel: "Choose the source photo",
@@ -1831,7 +1831,9 @@ export function NewBannerForm({
       }
 
       if (typeof data.progress === "number") {
-        setGenerationProgress(Math.min(Math.max(Math.round(data.progress), 0), 100));
+        setGenerationProgress(
+          Math.min(Math.max(Math.round(data.progress), 0), 100),
+        );
       }
 
       if (typeof data.remainingCredits === "number") {
@@ -2274,9 +2276,8 @@ export function NewBannerForm({
         }),
       });
 
-      const data = await readSafeApiResponse<ProfessionalImageResponse>(
-        response,
-      );
+      const data =
+        await readSafeApiResponse<ProfessionalImageResponse>(response);
 
       if (!response.ok) {
         throw new Error(
@@ -2988,7 +2989,7 @@ export function NewBannerForm({
                       onClick={openProfessionalImageModal}
                       className="text-xs font-medium text-sky-200 transition hover:text-sky-100"
                     >
-                      {copy.createProfessionalPhotoCta}
+                      {copy.professionalPhotoModalTitle}
                     </button>
                   </div>
                 </Field>
@@ -3066,7 +3067,10 @@ export function NewBannerForm({
         {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
       </form>
 
-      <aside ref={previewRef} className="nb-panel relative overflow-hidden rounded-[28px] p-4 sm:p-5 xl:sticky xl:top-5">
+      <aside
+        ref={previewRef}
+        className="nb-panel relative overflow-hidden rounded-[28px] p-4 sm:p-5 xl:sticky xl:top-5"
+      >
         <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cv)] to-transparent opacity-60" />
         <div className="pointer-events-none absolute -left-16 top-10 h-44 w-44 rounded-full bg-[rgba(191,95,255,0.07)] blur-3xl" />
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -3371,7 +3375,7 @@ export function NewBannerForm({
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-200/75 sm:text-[11px]">
-                    {copy.createProfessionalPhotoCta}
+                    {copy.professionalPhotoModalTitle}
                   </p>
                   <h3 className="mt-1 text-lg font-semibold leading-tight text-white sm:text-2xl">
                     {copy.professionalPhotoModalTitle}
@@ -3612,7 +3616,6 @@ export function NewBannerForm({
     </div>
   );
 }
-
 
 function AnimateFlyerChoiceModal({
   locale,
