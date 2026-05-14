@@ -222,7 +222,11 @@ function getExamplesForState(state: FunnelState): CreativeExample[] {
   }
 
   if (state.need === "all") {
-    return creativeExamples.photos;
+    return [
+      creativeExamples.flyers[0],
+      creativeExamples.videos[0],
+      creativeExamples.photos[0],
+    ];
   }
 
   if (state.goal === "agency") {
@@ -1029,6 +1033,21 @@ export default function FunnelPage() {
                     />
                   ))}
                 </StepBlock>
+              ) : null}
+
+              {step >= 2 && step <= 5 ? (
+                <div className="mt-5 flex justify-end border-t border-white/10 pt-4">
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    className="btn-cx-solid inline-flex min-h-12 w-full items-center justify-center gap-2 px-5 text-[10px] sm:w-auto"
+                  >
+                    <span className="relative z-10">
+                      {step === 5 ? "Show my plan" : "Continue"}
+                    </span>
+                    <ChevronRight size={14} className="relative z-10" />
+                  </button>
+                </div>
               ) : null}
 
               {step >= 2 && step <= 5 && examplesReady ? (
