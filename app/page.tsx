@@ -1,266 +1,622 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentType,
-  type ReactNode,
-} from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
-  ArrowRight,
   BadgeCheck,
-  Camera,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Clock3,
   Gauge,
+  ImageIcon,
   Layers3,
-  Play,
   ShieldCheck,
   Sparkles,
-  WalletCards,
   Zap,
+  Camera,
+  ArrowRight,
+  Quote,
 } from "lucide-react";
-import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
+import { landingBannerExamples } from "@/lib/landing-banner-examples";
 
-type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
-type FunnelStep = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-type Goal = "bookings" | "events" | "content" | "agency";
-type Volume = "low" | "medium" | "high" | "scale";
-type Need = "flyers" | "animations" | "photos" | "all";
-type Pain = "designer" | "speed" | "quality" | "ads";
-type Urgency = "today" | "week" | "month";
+const LandingBannerCarousel = dynamic(
+  () =>
+    import("@/components/landing-banner-carousel").then(
+      (mod) => mod.LandingBannerCarousel,
+    ),
+  { loading: () => <LandingCarouselLoading /> },
+);
 
-type FunnelState = {
-  name: string;
-  goal: Goal | "";
-  volume: Volume | "";
-  need: Need | "";
-  pain: Pain | "";
-  urgency: Urgency | "";
-};
+const advantages = [
+  {
+    icon: Zap,
+    title: "Animated flyers in minutes",
+    description:
+      "Turn any static flyer into a VFX-enhanced MP4 video — with transitions, light effects, and motion — ready to post on Reels, TikTok, and Stories.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI flyers built for the scene",
+    description:
+      "Generate premium event flyers for club nights, festivals, lineups, and releases — without touching design software.",
+  },
+  {
+    icon: Camera,
+    title: "DJ photo upgrade",
+    description:
+      "Upload a casual or low-quality DJ photo and get back a sharper, cleaner, more professional image for profiles, ads, and press kits.",
+  },
+  {
+    icon: Layers3,
+    title: "Test multiple creative angles",
+    description:
+      "Create several versions of your flyer or animated video and pick the one that hits hardest — no extra cost per revision.",
+  },
+  {
+    icon: Gauge,
+    title: "Zero design experience needed",
+    description:
+      "A guided workflow takes you from event details to finished visual in minutes — flyer, animation, or enhanced photo.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Your workspace, always ready",
+    description:
+      "Secure account, email verification, and a dashboard where all your visuals are saved and ready to export anytime.",
+  },
+];
 
-type PlanInfo = {
-  plan: PlanVariant;
-  name: string;
-  price: string;
-  originalPrice: string;
-  credits: number;
-  bestFor: string;
-  summary: string;
-  features: string[];
-};
+const faqs = [
+  {
+    question: "Do I need design experience?",
+    answer:
+      "No. DJ Visuals AI is built for DJs, producers, and event promoters who want professional visuals without learning design software.",
+  },
+  {
+    question: "What exactly is an animated flyer?",
+    answer:
+      "You generate a static flyer on our platform, then use the animation engine to add VFX — light leaks, particle effects, transitions, and motion — and export it as an MP4 video you can post directly on Reels, TikTok, or Stories.",
+  },
+  {
+    question: "What formats do I get?",
+    answer:
+      "Static flyers are delivered as high-resolution images. Animated flyers are exported as MP4 video files ready for social media. Enhanced DJ photos are delivered as high-resolution images.",
+  },
+  {
+    question: "Can I use my own photo in a flyer?",
+    answer:
+      "Yes. You can upload your own image as a reference when generating a flyer or animation, so the final result reflects your identity and brand.",
+  },
+  {
+    question: "How does the DJ photo enhancement work?",
+    answer:
+      "You upload a casual or lower-quality photo and the AI cleans it up — improving sharpness, lighting, and overall quality — producing a more professional-looking image for your profiles, ads, and press kits.",
+  },
+  {
+    question: "What happens after I sign up?",
+    answer:
+      "After checkout, you receive a secure email link to create your password. Then you access the dashboard and can start generating right away.",
+  },
+];
 
-const plans: Record<PlanVariant, PlanInfo> = {
-  PRO: {
+const pricingPlans = [
+  {
     plan: "PRO",
     name: "Pro",
-    price: "$12.99",
-    originalPrice: "$16.24",
-    credits: 20,
-    bestFor: "DJs promoting a few events per month",
-    summary:
-      "A lean setup for consistent flyers, animated promos, and DJ photo upgrades.",
+    price: "$16.24",
+    checkoutPrice: "$12.99",
+    period: "/month",
+    description:
+      "For DJs who want consistent, professional visuals without the agency price tag.",
+    credits: "20 credits / month",
+    costNote: "About $0.81 per generation before the welcome gift",
+    cta: "Start Pro",
+    highlighted: false,
     features: [
-      "20 credits per month",
-      "Static AI flyer creation",
-      "Animated flyer export",
-      "DJ photo enhancement",
+      "20 AI generations per month",
+      "Static flyer creation",
+      "Animated flyer export (MP4)",
+      "AI DJ photo enhancement",
       "Feed and story formats",
     ],
   },
-  PROFESSIONAL: {
+  {
     plan: "PROFESSIONAL",
     name: "Professional",
-    price: "$24.99",
-    originalPrice: "$31.24",
-    credits: 40,
-    bestFor: "DJs and promoters posting every week",
-    summary:
-      "The strongest balance between price, volume, quality, and creative testing.",
+    price: "$31.24",
+    checkoutPrice: "$24.99",
+    period: "/month",
+    description:
+      "The go-to plan for DJs running events, ads, and frequent promos every month.",
+    credits: "40 credits / month",
+    costNote: "About $0.78 per generation before the welcome gift",
+    cta: "Start Professional",
+    highlighted: true,
     features: [
-      "40 credits per month",
-      "Premium flyers and animated MP4s",
-      "High-quality image and video generation",
+      "40 AI generations per month",
+      "Premium flyers + animated MP4 export",
+      "High-quality image & video generation",
       "Professional DJ photo enhancement",
-      "Built for ads and social promo",
+      "Built for paid ads and social media",
     ],
   },
-  STUDIO: {
+  {
     plan: "STUDIO",
     name: "Studio",
-    price: "$39.99",
-    originalPrice: "$49.99",
-    credits: 80,
-    bestFor: "Agencies, promoters, and high-volume creators",
-    summary:
-      "More credits for teams, frequent events, and multiple artists or brands.",
+    price: "$49.99",
+    checkoutPrice: "$39.99",
+    period: "/month",
+    description:
+      "For agencies, DJ collectives, and promoters managing multiple artists or events.",
+    credits: "80 credits / month",
+    costNote: "About $0.62 per generation before the welcome gift",
+    cta: "Start Studio",
+    highlighted: false,
     features: [
-      "80 credits per month",
-      "Full access to flyers, animations, and photos",
-      "High-quality image and video output",
-      "Ideal for multiple events or artists",
-      "Best cost per creative",
+      "80 AI generations per month",
+      "Full access: flyers, animations, photos",
+      "High-quality image & video output",
+      "Ideal for teams and high-volume promo",
+      "Priority creative output",
     ],
   },
-};
+] as const;
 
-type CreativeExample = {
-  kind: "image" | "vimeo";
-  title: string;
-  description: string;
-  image: string;
-  vimeoId?: string;
-  tag: string;
-};
+const testimonials = [
+  {
+    initials: "NW",
+    name: "Noah Walker",
+    role: "Open format DJ",
+    location: "Miami, FL",
+    outcome: "Saves time",
+    metric: "Looks legit",
+    quote:
+      "I was paying a graphic designer $80–100 a flyer and half the time I'd go back and forth three times before it looked right. Now I just do it myself. Took me like 10 minutes the first time and it came out better than what I was getting. The animated version is what really got people's attention on Instagram.",
+  },
+  {
+    initials: "DM",
+    name: "Daniel Morgan",
+    role: "Club DJ",
+    location: "Orlando, FL",
+    outcome: "More bookings",
+    metric: "Better content",
+    quote:
+      "Honestly I was skeptical. I've tried other AI tools and they always look fake or generic. This one actually understands the vibe — dark, bold, club-ready. Posted an animated flyer for a Friday night set and got three DM inquiries that weekend. That never happened with my old graphics.",
+  },
+  {
+    initials: "TC",
+    name: "Tyler Carter",
+    role: "Event DJ",
+    location: "Los Angeles, CA",
+    outcome: "Cut design costs",
+    metric: "Full control",
+    quote:
+      "I do about 6–8 events a month so the design costs were adding up fast. I switched to this and the first month I probably saved $300. But honestly the bigger thing is I can make changes on the fly — if the lineup changes or the venue swaps I just regenerate it. No waiting on anyone.",
+  },
+] as const;
 
-const creativeExamples = {
-  flyers: [
-    {
-      kind: "image" as const,
-      title: "Premium promo flyer",
-      description:
-        "Clean, high-impact artwork for events, releases, offers, and social campaigns.",
-      image: "/examples/card/Summer Vibes.webp",
-      tag: "AI flyer",
-    },
-    {
-      kind: "image" as const,
-      title: "Campaign-ready design",
-      description:
-        "Visuals made for posts, stories, ads, and fast promotional launches.",
-      image: "/examples/banner-02.webp",
-      tag: "Promo creative",
-    },
-    {
-      kind: "image" as const,
-      title: "Story-ready flyer",
-      description:
-        "Vertical and feed-friendly visuals for fast promotional campaigns.",
-      image: "/examples/card/Afro-house2.webp",
-      tag: "Static flyer",
-    },
-  ],
-  videos: [
-    {
-      kind: "vimeo" as const,
-      title: "Animated promo video",
-      description:
-        "Turn a static creative into a motion asset for Reels, TikTok, and Stories.",
-      image: "/landing/animation-demo/flyer-static.webp",
-      vimeoId: "1192217227",
-      tag: "Motion Flyer",
-    },
-    {
-      kind: "vimeo" as const,
-      title: "Motion Flyer",
-      description:
-        "Add movement, energy, and visual effects to make the promo feel more premium.",
-      image: "/landing/animation-demo/flyer-static2.webp",
-      vimeoId: "1192217229",
-      tag: "Motion Flyer",
-    },
-    {
-      kind: "vimeo" as const,
-      title: "Motion creative",
-      description:
-        "Add movement, energy, and visual effects to make the promo feel more premium.",
-      image: "/landing/animation-demo/flyer-static3.webp",
-      vimeoId: "1192223138",
-      tag: "Motion Flyer",
-    },
-  ],
-  photos: [
-    {
-      kind: "image" as const,
-      title: "Professional image upgrade",
-      description:
-        "Upgrade casual images into cleaner, sharper, more professional visuals.",
-      image: "/examples/photo1.png",
-      tag: "Pro image",
-    },
-    {
-      kind: "image" as const,
-      title: "Profile-ready visual",
-      description:
-        "Create polished assets for profile photos, ads, landing pages, and social content.",
-      image: "/examples/photo2.png",
-      tag: "Brand asset",
-    },
-    {
-      kind: "image" as const,
-      title: "Profile-ready visual",
-      description:
-        "Create polished assets for profile photos, ads, landing pages, and social content.",
-      image: "/examples/photo3.png",
-      tag: "Brand asset",
-    },
-  ],
-} satisfies Record<string, CreativeExample[]>;
+// ── STATIC vs ANIMATED SECTION ───────────────────────────────────
+const flyerExamples = [
+  {
+    id: 1,
+    label: "Club Night",
+    static: "/landing/animation-demo/flyer-static.webp",
+    vimeoId: "1192217227",
+  },
+  {
+    id: 2,
+    label: "Festival Set",
+    static: "/landing/animation-demo/flyer-static2.webp",
+    vimeoId: "1192217229",
+  },
+  {
+    id: 3,
+    label: "Release Party",
+    static: "/landing/animation-demo/flyer-static3.webp",
+    vimeoId: "1192223138",
+  },
+  {
+    id: 4,
+    label: "Residency",
+    static: "/landing/animation-demo/flyer-static4.webp",
+    vimeoId: "1192227878",
+  },
+] as const;
 
-function getExamplesForState(state: FunnelState): CreativeExample[] {
-  if (state.need === "flyers") {
-    return [
-      creativeExamples.flyers[0],
-      creativeExamples.flyers[1],
-      creativeExamples.flyers[2],
-    ];
+function VideoCard({
+  vimeoId,
+  previewImage,
+  index,
+  playingId,
+  setPlayingId,
+}: {
+  vimeoId: string;
+  previewImage: string;
+  index: number;
+  playingId: number | null;
+  setPlayingId: (id: number | null) => void;
+}) {
+  const playing = playingId === index;
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const hasVimeoId = Boolean(vimeoId && !vimeoId.startsWith("REPLACE_WITH_"));
+  const vimeoSrc = hasVimeoId
+    ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=0&loop=1&autopause=0&title=0&byline=0&portrait=0&badge=0&playsinline=1`
+    : "";
+
+  function handleClick() {
+    if (!hasVimeoId) return;
+    setIframeLoaded(false);
+    setPlayingId(playing ? null : index);
   }
 
-  if (state.need === "animations") {
-    return [
-      creativeExamples.videos[0],
-      creativeExamples.videos[1],
-      creativeExamples.videos[2],
-    ];
-  }
+  return (
+    <div
+      className="hud-box-v relative overflow-hidden rounded-none p-0"
+      style={{ borderColor: "rgba(191,95,255,0.28)" }}
+    >
+      {/* Top glow line */}
+      <div
+        className="absolute inset-x-0 top-0 h-[1px]"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, var(--cv), var(--cx), transparent)",
+          opacity: 0.7,
+        }}
+      />
 
-  if (state.need === "photos") {
-    return [
-      creativeExamples.photos[0],
-      creativeExamples.photos[1],
-      creativeExamples.flyers[0],
-    ];
-  }
+      {/* Top bar */}
+      <div className="flex items-center justify-between gap-2 border-b border-[rgba(191,95,255,0.14)] px-3 py-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
+            style={{
+              background: playing ? "var(--cg)" : "rgba(255,255,255,0.25)",
+              boxShadow: playing ? "0 0 5px var(--cg)" : "none",
+              transition: "all 0.3s",
+              animation: playing
+                ? "cornerPulse 1.5s ease-in-out infinite"
+                : "none",
+            }}
+          />
+          <span
+            className="mono truncate text-[7px] text-[rgba(255,255,255,0.4)]"
+            style={{ letterSpacing: "0.1em" }}
+          >
+            VIMEO_{index + 1}.MP4
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <span className="chip-v" style={{ fontSize: 6, padding: "3px 6px" }}>
+            VFX
+          </span>
+          <span className="chip-cx" style={{ fontSize: 6, padding: "3px 6px" }}>
+            VIMEO
+          </span>
+        </div>
+      </div>
 
-  if (state.need === "all" || state.goal === "agency") {
-    return [
-      creativeExamples.flyers[0],
-      creativeExamples.videos[0],
-      creativeExamples.photos[0],
-    ];
-  }
+      {/* Vimeo player — loaded only when the user taps */}
+      <div
+        className="relative w-full cursor-pointer bg-[#03040A]"
+        style={{ aspectRatio: "1024 / 1280" }}
+        onClick={handleClick}
+        role="button"
+        aria-label={playing ? "Pause video" : "Play video"}
+      >
+        <img
+          src={previewImage}
+          alt={`Animated flyer preview ${index + 1}`}
+          className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(3,4,10,0.06), rgba(3,4,10,0.24)), radial-gradient(circle at 50% 45%, transparent 0%, rgba(3,4,10,0.28) 100%)",
+          }}
+        />
 
-  if (state.goal === "events") {
-    return [
-      creativeExamples.flyers[0],
-      creativeExamples.videos[0],
-      creativeExamples.flyers[1],
-    ];
-  }
+        {playing && hasVimeoId ? (
+          <iframe
+            src={vimeoSrc}
+            title={`Animated flyer example ${index + 1}`}
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            loading="lazy"
+            onLoad={() => setIframeLoaded(true)}
+            className="absolute inset-0 h-full w-full border-0 transition-opacity duration-500"
+            style={{ opacity: iframeLoaded ? 1 : 0 }}
+          />
+        ) : null}
 
-  if (state.goal === "content") {
-    return [
-      creativeExamples.videos[0],
-      creativeExamples.photos[0],
-      creativeExamples.flyers[0],
-    ];
-  }
+        {playing && hasVimeoId && !iframeLoaded ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-[rgba(3,4,10,0.26)] backdrop-blur-[1px]">
+            <div
+              className="h-9 w-9 rounded-full border border-[rgba(0,245,255,0.35)] border-t-[rgba(0,245,255,0.95)]"
+              style={{ animation: "spin 0.8s linear infinite" }}
+            />
+          </div>
+        ) : null}
 
-  return [
-    creativeExamples.flyers[0],
-    creativeExamples.flyers[1],
-    creativeExamples.videos[0],
-  ];
+        {/* Tap-to-play overlay */}
+        {!playing && (
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+            style={{
+              background: "rgba(3,4,10,0.30)",
+              backdropFilter: "blur(1px)",
+            }}
+          >
+            <div
+              className="flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.5)]"
+              style={{
+                background: "rgba(0,245,255,0.1)",
+                boxShadow: "0 0 20px rgba(0,245,255,0.35)",
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="var(--cx)"
+                aria-hidden
+              >
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+            </div>
+            <p
+              className="mono text-[9px] text-white"
+              style={{
+                letterSpacing: "0.18em",
+                textShadow: "0 0 10px rgba(0,245,255,0.6)",
+              }}
+            >
+              {hasVimeoId ? "TAP TO PLAY" : "ADD VIMEO ID"}
+            </p>
+            <p className="sans px-4 text-center text-[10px] text-[rgba(255,255,255,0.4)]">
+              {hasVimeoId
+                ? "Play with sound"
+                : "Replace the Vimeo ID in app/page.tsx"}
+            </p>
+          </div>
+        )}
+
+        {/* Playing overlays */}
+        {playing && (
+          <div className="pointer-events-none absolute inset-0">
+            <span
+              className="absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cx)",
+                boxShadow: "0 0 6px var(--cx)",
+                animation: "cornerPulse 2s ease-in-out infinite",
+              }}
+            />
+            <span
+              className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cv)",
+                boxShadow: "0 0 6px var(--cv)",
+                animation: "cornerPulse 2s ease-in-out infinite 0.5s",
+              }}
+            />
+            <span
+              className="absolute bottom-1.5 left-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cv)",
+                boxShadow: "0 0 6px var(--cv)",
+                animation: "cornerPulse 2s ease-in-out infinite 1s",
+              }}
+            />
+            <span
+              className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full"
+              style={{
+                background: "var(--cx)",
+                boxShadow: "0 0 6px var(--cx)",
+                animation: "cornerPulse 2s ease-in-out infinite 1.5s",
+              }}
+            />
+            <div
+              className="absolute inset-x-0 h-[1px] opacity-20"
+              style={{
+                top: "35%",
+                background:
+                  "linear-gradient(90deg, transparent, var(--cx), transparent)",
+                animation: "scanBeam 3s ease-in-out infinite",
+              }}
+            />
+            <div className="absolute right-2 top-2 flex items-center gap-1 border border-[rgba(191,95,255,0.3)] bg-[rgba(3,4,10,0.7)] px-2 py-1 backdrop-blur-sm">
+              <span className="flex gap-[2px]">
+                <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
+                <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
+              </span>
+              <span
+                className="mono text-[6px] text-[rgba(255,255,255,0.5)]"
+                style={{ letterSpacing: "0.12em" }}
+              >
+                VIMEO
+              </span>
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-[rgba(191,95,255,0.1)] px-3 py-2">
+        <div className="flex min-h-5 items-center justify-center">
+          <span
+            className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[var(--cv)]"
+            style={{
+              letterSpacing: "0.16em",
+              textShadow: "0 0 10px rgba(191,95,255,0.45)",
+            }}
+          >
+            ANIMATED VIDEO
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 }
+
+function StaticVsAnimatedSection() {
+  const [playingId, setPlayingId] = useState<number | null>(null);
+  return (
+    <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+      {/* Header */}
+      <div className="mb-10 sm:mb-14">
+        <div className="sect-label">
+          <span className="chip-cx">● SEE THE DIFFERENCE</span>
+        </div>
+        <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+          SAME FLYER.{" "}
+          <span
+            style={{
+              color: "var(--cv)",
+              textShadow: "0 0 28px rgba(191,95,255,0.6)",
+            }}
+          >
+            NOW WITH
+          </span>{" "}
+          <span
+            style={{
+              color: "var(--cx)",
+              textShadow: "0 0 28px rgba(0,245,255,0.6)",
+            }}
+          >
+            VFX.
+          </span>
+        </h2>
+        <p className="sans mt-3 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+          Generate your flyer, then hit animate. The AI adds light leaks,
+          particle effects, and transitions — and exports a ready-to-post MP4 in
+          seconds.
+        </p>
+      </div>
+
+      {/* 4 pairs stacked */}
+      <div className="space-y-8 sm:space-y-12">
+        {flyerExamples.map((ex, i) => (
+          <div key={ex.id}>
+            {/* Pair label */}
+            <div className="mb-3 flex items-center gap-3">
+              <span
+                className="mono text-[9px] text-[rgba(0,245,255,0.5)]"
+                style={{ letterSpacing: "0.2em" }}
+              >
+                {String(i + 1).padStart(2, "0")} //
+              </span>
+              <span
+                className="mono text-[9px] text-[rgba(255,255,255,0.35)]"
+                style={{ letterSpacing: "0.18em" }}
+              >
+                {ex.label.toUpperCase()}
+              </span>
+              <div className="flex-1 h-px bg-[rgba(255,255,255,0.05)]" />
+            </div>
+
+            {/* Side-by-side — always 2 cols, even on mobile */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-5 items-start">
+              {/* Static */}
+              <div className="hud-box relative overflow-hidden rounded-none p-0">
+                <div className="flex items-center justify-between gap-2 border-b border-[rgba(0,245,255,0.1)] px-3 py-2">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[rgba(255,255,255,0.2)]" />
+                    <span
+                      className="mono truncate text-[7px] text-[rgba(255,255,255,0.38)]"
+                      style={{ letterSpacing: "0.1em" }}
+                    >
+                      STATIC_{i + 1}.PNG
+                    </span>
+                  </div>
+                  <span
+                    className="chip-cx shrink-0"
+                    style={{ fontSize: 6, padding: "3px 6px" }}
+                  >
+                    IMG
+                  </span>
+                </div>
+
+                {/* 1024×1280 ratio */}
+                <div
+                  className="relative w-full bg-[#03040A]"
+                  style={{ aspectRatio: "1024 / 1280" }}
+                >
+                  <img
+                    src={ex.static}
+                    alt={`${ex.label} static flyer`}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to bottom, transparent 70%, rgba(3,4,10,0.55))",
+                    }}
+                  />
+                </div>
+
+                <div className="border-t border-[rgba(0,245,255,0.07)] px-3 py-2">
+                  <div className="flex min-h-5 items-center justify-center">
+                    <span
+                      className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[rgba(255,255,255,0.48)]"
+                      style={{
+                        letterSpacing: "0.16em",
+                        textShadow: "0 0 8px rgba(255,255,255,0.18)",
+                      }}
+                    >
+                      NO MOTION
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Animated */}
+              <VideoCard
+                vimeoId={ex.vimeoId}
+                previewImage={ex.static}
+                index={i}
+                playingId={playingId}
+                setPlayingId={setPlayingId}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA */}
+      <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <a
+          href="#pricing"
+          className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:px-10"
+        >
+          ANIMATE MY FLYER
+          <ArrowRight size={13} />
+        </a>
+        <p
+          className="mono text-center text-[9px] text-[rgba(255,255,255,0.3)]"
+          style={{ letterSpacing: "0.14em" }}
+        >
+          INCLUDED IN ALL PLANS · NO VIDEO EDITING NEEDED
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ── PRICING BUTTONS ──────────────────────────────────────────────
+import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
+
+type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
+
+type CheckoutOptions = {
+  customerName?: string;
+  source?: string;
+};
 
 async function openPublicCheckout(
   plan: PlanVariant,
-  name: string,
-  source: string,
+  options: CheckoutOptions = {},
 ) {
   const metaEventId = createMetaEventId("InitiateCheckout");
   const response = await fetch("/api/public/checkout", {
@@ -269,8 +625,8 @@ async function openPublicCheckout(
     body: JSON.stringify({
       plan,
       metaEventId,
-      customerName: name || undefined,
-      source,
+      customerName: options.customerName,
+      source: options.source,
     }),
   });
 
@@ -287,434 +643,529 @@ async function openPublicCheckout(
   window.location.assign(data.url);
 }
 
-async function notifyFunnelLead(
-  state: FunnelState,
-  recommendedPlan: PlanVariant,
-) {
+async function notifyGiftLead(name: string, selectedPlan: PlanVariant) {
   try {
     await fetch("/api/public/gift-lead", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: state.name,
-        selectedPlan: recommendedPlan,
-        source: "interactive_sales_funnel",
+        name,
+        selectedPlan,
+        source: "pricing_scroll_gift_popup",
       }),
     });
   } catch {
-    // Lead notification should never block the funnel.
+    // Notification should never block the user from seeing the plans.
   }
 }
 
-const options = {
-  goal: [
-    {
-      value: "bookings" as Goal,
-      label: "Get more bookings",
-      description:
-        "Upgrade your promo image and look more professional online.",
-      icon: BadgeCheck,
-    },
-    {
-      value: "events" as Goal,
-      label: "Promote events",
-      description:
-        "Create flyers and animated promo assets for shows, clubs, and festivals.",
-      icon: Play,
-    },
-    {
-      value: "content" as Goal,
-      label: "Post better content",
-      description:
-        "Make your Instagram, TikTok, and Stories look more premium.",
-      icon: Sparkles,
-    },
-    {
-      value: "agency" as Goal,
-      label: "Create for clients/artists",
-      description:
-        "Generate visuals for multiple DJs, venues, or events every month.",
-      icon: Layers3,
-    },
-  ],
-  volume: [
-    {
-      value: "low" as Volume,
-      label: "1–4 visuals/month",
-      description: "A few key promos per month.",
-      credits: "20 credits is usually enough.",
-    },
-    {
-      value: "medium" as Volume,
-      label: "5–12 visuals/month",
-      description: "Weekly flyers, photo upgrades, and animations.",
-      credits: "40 credits gives more room to test.",
-    },
-    {
-      value: "high" as Volume,
-      label: "13–25 visuals/month",
-      description: "Frequent events, ad creatives, and multiple versions.",
-      credits: "80 credits keeps your workflow moving.",
-    },
-    {
-      value: "scale" as Volume,
-      label: "25+ visuals/month",
-      description: "High-volume promo for teams, venues, or multiple artists.",
-      credits: "Studio is the practical starting point.",
-    },
-  ],
-  need: [
-    {
-      value: "flyers" as Need,
-      label: "Mostly flyers",
-      description: "Static event flyers for feed and story.",
-      icon: ImageIconLite,
-    },
-    {
-      value: "animations" as Need,
-      label: "Animated videos",
-      description: "MP4 promo videos for Reels, TikTok, and Stories.",
-      icon: Play,
-    },
-    {
-      value: "photos" as Need,
-      label: "DJ photo upgrade",
-      description:
-        "Make your artist photos look cleaner and more professional.",
-      icon: Camera,
-    },
-    {
-      value: "all" as Need,
-      label: "Everything",
-      description: "Flyers, animated promos, and professional image upgrades.",
-      icon: Zap,
-    },
-  ],
-  pain: [
-    {
-      value: "designer" as Pain,
-      label: "Designers are expensive",
-      description: "Avoid paying $50–$100 per flyer and waiting for revisions.",
-    },
-    {
-      value: "speed" as Pain,
-      label: "I need visuals faster",
-      description: "Create campaign-ready promo without waiting days.",
-    },
-    {
-      value: "quality" as Pain,
-      label: "My visuals look basic",
-      description: "Get a more premium, club-ready look instantly.",
-    },
-    {
-      value: "ads" as Pain,
-      label: "I need better ad creatives",
-      description: "Test more versions and angles for paid traffic.",
-    },
-  ],
-  urgency: [
-    {
-      value: "today" as Urgency,
-      label: "Today",
-      description: "I want to create something now.",
-    },
-    {
-      value: "week" as Urgency,
-      label: "This week",
-      description: "I have upcoming promos to prepare.",
-    },
-    {
-      value: "month" as Urgency,
-      label: "This month",
-      description: "I am improving my content workflow.",
-    },
-  ],
-};
+const WELCOME_GIFT_TIMER_MS = 10 * 60 * 1000;
 
-function ImageIconLite({
-  size = 20,
-  className = "",
-}: {
-  size?: number;
-  className?: string;
-}) {
-  return <Layers3 size={size} className={className} />;
+function formatCountdown(milliseconds: number) {
+  const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-function getRecommendedPlan(state: FunnelState): PlanVariant {
-  let score = 0;
+function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  if (state.goal === "agency") score += 4;
-  if (state.goal === "events") score += 2;
-  if (state.goal === "content") score += 1;
+  async function handleClick() {
+    if (loading) return;
+    setLoading(true);
+    setError("");
+    try {
+      await openPublicCheckout(plan, { source: "pricing_card" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Payment error.");
+      setLoading(false);
+    }
+  }
 
-  if (state.volume === "medium") score += 2;
-  if (state.volume === "high") score += 5;
-  if (state.volume === "scale") score += 7;
+  const labelText = loading ? "OPENING..." : label;
 
-  if (state.need === "animations") score += 2;
-  if (state.need === "all") score += 4;
-
-  if (state.pain === "ads") score += 2;
-  if (state.urgency === "today") score += 1;
-
-  if (score >= 8) return "STUDIO";
-  if (score >= 3) return "PROFESSIONAL";
-  return "PRO";
-}
-
-function getOutcomeCopy(state: FunnelState, plan: PlanVariant) {
-  const name = state.name.trim() || "Your";
-  const planInfo = plans[plan];
-
-  const goalLine: Record<Goal | "", string> = {
-    bookings: "look more professional before promoters even hear the mix",
-    events:
-      "build event promos that feel ready for clubs, festivals, and paid ads",
-    content: "turn your social feed into a sharper visual brand",
-    agency:
-      "produce more visuals for multiple artists or events without increasing design costs",
-    "": "create premium visuals faster",
-  };
-
-  const painLine: Record<Pain | "", string> = {
-    designer:
-      "This setup helps cut design dependency and reduce back-and-forth revisions.",
-    speed:
-      "This setup is built for quick execution when the event deadline is close.",
-    quality:
-      "This setup focuses on premium visuals that look more intentional and club-ready.",
-    ads: "This setup gives you enough creative volume to test better ad angles.",
-    "": "This setup gives you a simple workflow for stronger visuals.",
-  };
-
-  return {
-    headline: `${name}'s visual growth plan`,
-    subheadline: `Based on your answers, ${planInfo.name} is the best fit to ${goalLine[state.goal]}.`,
-    pain: painLine[state.pain],
-  };
-}
-
-function estimateMonthlySavings(state: FunnelState, plan: PlanVariant) {
-  const volumeMap: Record<Volume | "", number> = {
-    low: 4,
-    medium: 10,
-    high: 20,
-    scale: 30,
-    "": 8,
-  };
-  const expectedVisuals = volumeMap[state.volume];
-  const designerCost = expectedVisuals * 35;
-  const planCost = Number(plans[plan].price.replace("$", ""));
-  return {
-    expectedVisuals,
-    designerCost,
-    planCost,
-    estimatedSavings: Math.max(0, designerCost - planCost),
-  };
-}
-
-function StepOption({
-  selected,
-  label,
-  description,
-  onClick,
-  icon: Icon,
-  meta,
-}: {
-  selected: boolean;
-  label: string;
-  description: string;
-  onClick: () => void;
-  icon?: ComponentType<{ size?: number; className?: string }>;
-  meta?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group relative h-auto self-start overflow-hidden border p-4 text-left transition sm:p-5 ${
-        selected
-          ? "border-[rgba(0,245,255,0.78)] bg-[rgba(0,245,255,0.12)] shadow-[0_0_40px_rgba(0,245,255,0.14)]"
-          : "border-[rgba(255,255,255,0.08)] bg-white/[0.035] hover:border-[rgba(0,245,255,0.28)] hover:bg-[rgba(0,245,255,0.055)]"
-      }`}
+  const icon = loading ? (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      style={{ animation: "spin 1s linear infinite" }}
     >
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent opacity-0 transition group-hover:opacity-80" />
-      <div className="flex items-start gap-3">
-        {Icon ? (
-          <span
-            className={`grid h-10 w-10 shrink-0 place-items-center border ${
-              selected
-                ? "border-[rgba(0,245,255,0.45)] bg-[rgba(0,245,255,0.12)] text-[var(--cx)]"
-                : "border-white/10 bg-black/20 text-white/45"
-            }`}
-          >
-            <Icon size={18} />
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  ) : (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+
+  const sharedProps = {
+    type: "button" as const,
+    onClick: handleClick,
+    disabled: loading,
+    "aria-label": labelText,
+    style: loading ? { opacity: 0.72, cursor: "wait" } : undefined,
+  };
+
+  if (plan === "PROFESSIONAL") {
+    return (
+      <div className="grid gap-2">
+        <button {...sharedProps} className="pricing-btn-featured">
+          <span className="pricing-btn-stripes" aria-hidden />
+          <span className="pricing-btn-shimmer" aria-hidden />
+          <span className="pricing-btn-label">
+            {labelText}
+            {icon}
           </span>
-        ) : null}
-        <span className="min-w-0">
-          <span className="orb block text-sm font-bold uppercase tracking-[0.08em] text-white sm:text-base">
-            {label}
-          </span>
-          <span className="sans mt-2 block text-xs leading-5 text-white/48 sm:text-sm">
-            {description}
-          </span>
-          {meta ? (
-            <span className="mono mt-3 inline-flex border border-[rgba(0,245,255,0.18)] bg-[rgba(0,245,255,0.06)] px-2 py-1 text-[8px] uppercase tracking-[0.14em] text-[var(--cx)]">
-              {meta}
-            </span>
-          ) : null}
-        </span>
+        </button>
+        {error && (
+          <p className="sans text-xs leading-5 text-rose-300">{error}</p>
+        )}
       </div>
-    </button>
+    );
+  }
+
+  if (plan === "STUDIO") {
+    return (
+      <div className="grid gap-2">
+        <button {...sharedProps} className="pricing-btn-studio">
+          <span className="pricing-btn-scan" aria-hidden />
+          <span className="pricing-btn-corner tl" aria-hidden />
+          <span className="pricing-btn-corner tr" aria-hidden />
+          <span className="pricing-btn-corner bl" aria-hidden />
+          <span className="pricing-btn-corner br" aria-hidden />
+          <span className="pricing-btn-label">
+            {labelText}
+            {icon}
+          </span>
+        </button>
+        {error && (
+          <p className="sans text-xs leading-5 text-rose-300">{error}</p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-2">
+      <button {...sharedProps} className="pricing-btn-pro">
+        <span className="pricing-btn-scan" aria-hidden />
+        <span className="pricing-btn-label">
+          {labelText}
+          {icon}
+        </span>
+      </button>
+      {error && <p className="sans text-xs leading-5 text-rose-300">{error}</p>}
+    </div>
   );
 }
 
-function ProgressBar({ step }: { step: FunnelStep }) {
-  const progress = Math.min(100, Math.max(8, ((step + 1) / 7) * 100));
+function FirstPurchaseGiftPopup({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [step, setStep] = useState<"intro" | "plans">("intro");
+  const [selectedPlan, setSelectedPlan] = useState<PlanVariant>("PROFESSIONAL");
+  const [giftLeadNotified, setGiftLeadNotified] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [giftExpiresAt, setGiftExpiresAt] = useState<number | null>(null);
+  const [countdownMs, setCountdownMs] = useState(WELCOME_GIFT_TIMER_MS);
+
+  useEffect(() => {
+    if (!open || step !== "plans" || giftExpiresAt === null) return;
+
+    const expiresAt = giftExpiresAt;
+
+    function updateCountdown() {
+      setCountdownMs(Math.max(0, expiresAt - Date.now()));
+    }
+
+    updateCountdown();
+    const intervalId = window.setInterval(updateCountdown, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [giftExpiresAt, open, step]);
+
+  if (!open) return null;
+
+  const selectedPlanData = pricingPlans.find(
+    (plan) => plan.plan === selectedPlan,
+  );
+  const formattedCountdown = formatCountdown(countdownMs);
+  const countdownFinished = countdownMs <= 0;
+
+  function handleClaimGift() {
+    const cleanName = name.trim();
+
+    if (!cleanName) {
+      setError("Enter your name to unlock your gift.");
+      return;
+    }
+
+    setError("");
+
+    if (!giftLeadNotified) {
+      setGiftLeadNotified(true);
+      void notifyGiftLead(cleanName, selectedPlan);
+    }
+
+    setGiftExpiresAt(Date.now() + WELCOME_GIFT_TIMER_MS);
+    setCountdownMs(WELCOME_GIFT_TIMER_MS);
+    setStep("plans");
+  }
+
+  async function handleCheckout() {
+    if (loading) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      await openPublicCheckout(selectedPlan, {
+        customerName: name.trim(),
+        source: "pricing_scroll_gift_popup",
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not open checkout.");
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="grid gap-2">
-      <div className="flex items-center justify-between">
-        <span className="mono text-[9px] uppercase tracking-[0.18em] text-white/36">
-          Interactive diagnosis
-        </span>
-        <span className="mono text-[9px] uppercase tracking-[0.18em] text-[var(--cx)]">
-          {Math.round(progress)}%
-        </span>
-      </div>
-      <div className="h-1 overflow-hidden bg-white/[0.06]">
-        <div
-          className="h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] transition-all duration-500"
-          style={{ width: `${progress}%` }}
-        />
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/72 px-3 py-6 backdrop-blur-xl sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="first-purchase-gift-title"
+    >
+      <div
+        className={`hud-box relative w-full overflow-hidden rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] ${
+          step === "intro"
+            ? "max-h-[calc(100dvh-48px)] max-w-[420px] overflow-y-auto"
+            : "max-h-[calc(100dvh-24px)] max-w-[560px] overflow-y-auto sm:max-h-[calc(100dvh-64px)]"
+        }`}
+      >
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-52 w-52 rounded-full bg-[rgba(191,95,255,0.14)] blur-3xl" />
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center border border-[rgba(255,255,255,0.12)] bg-[#050713]/85 text-lg text-white/60 backdrop-blur-md transition hover:border-[rgba(0,245,255,0.35)] hover:text-white"
+          aria-label="Close first-subscription gift popup"
+        >
+          ×
+        </button>
+
+        {step === "intro" ? (
+          <div className="relative z-10 p-5 text-center sm:p-6">
+            <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.08)] shadow-[0_0_36px_rgba(0,245,255,0.26)] gift-pop">
+              <div className="absolute h-20 w-20 rounded-full border border-[rgba(0,245,255,0.38)] gift-ring" />
+              <div className="absolute h-28 w-28 rounded-full border border-[rgba(191,95,255,0.18)] gift-ring gift-ring-delay" />
+              <Sparkles
+                size={34}
+                className="relative z-10 text-[var(--cx)] drop-shadow-[0_0_16px_rgba(0,245,255,0.9)]"
+              />
+              <span className="gift-spark gift-spark-a" />
+              <span className="gift-spark gift-spark-b" />
+              <span className="gift-spark gift-spark-c" />
+            </div>
+
+            <div className="mb-3 flex justify-center">
+              <span className="chip-cx">● GIFT UNLOCKED</span>
+            </div>
+
+            <h2
+              id="first-purchase-gift-title"
+              className="orb text-[22px] font-black leading-tight text-white sm:text-[27px]"
+            >
+              You just received 20% off today.
+            </h2>
+
+            <p className="sans mx-auto mt-3 max-w-[320px] text-sm leading-6 text-[rgba(255,255,255,0.58)]">
+              Enter your name to reveal your exclusive first-subscription gift.
+            </p>
+
+            <label className="mt-5 grid gap-2 text-left">
+              <span className="mono text-[9px] uppercase tracking-[0.18em] text-[rgba(255,255,255,0.42)]">
+                Your name
+              </span>
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Enter your name"
+                className="min-h-12 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)]"
+                autoFocus
+              />
+            </label>
+
+            {error ? (
+              <p className="sans mt-3 text-sm leading-6 text-rose-300">
+                {error}
+              </p>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={handleClaimGift}
+              className="btn-cx-solid mt-4 inline-flex min-h-[52px] w-full items-center justify-center gap-2 px-5 py-4 text-[11px]"
+            >
+              REDEEM MY GIFT
+              <ArrowRight size={13} />
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="sans mt-4 text-xs text-white/35 transition hover:text-white/70"
+            >
+              Maybe later
+            </button>
+          </div>
+        ) : (
+          <div className="relative z-10 p-4 sm:p-5">
+            <div className="pr-10">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span
+                  className="chip-cx"
+                  style={{ fontSize: 7, padding: "4px 7px" }}
+                >
+                  ● DISCOUNT APPLIED
+                </span>
+                <span
+                  className="chip-v"
+                  style={{ fontSize: 7, padding: "4px 7px" }}
+                >
+                  WELCOME20
+                </span>
+              </div>
+
+              <h2 className="orb text-[20px] font-black leading-tight text-white sm:text-[26px]">
+                {name.trim()}, choose your plan.
+              </h2>
+            </div>
+
+            <div className="mt-4 overflow-hidden">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.7)]">
+                    {countdownFinished
+                      ? "Gift window ended"
+                      : "Gift reserved for"}
+                  </p>
+                  <p className="sans mt-1 text-xs leading-5 text-white/62 sm:text-sm">
+                    {countdownFinished
+                      ? "Checkout now to see if your first-subscription gift is still available."
+                      : "Your 20% first-subscription gift is reserved while you choose a plan."}
+                  </p>
+                </div>
+
+                <div className="shrink-0 border border-[rgba(0,245,255,0.28)] bg-black/35 px-3 py-2 text-right shadow-[0_0_24px_rgba(0,245,255,0.12)]">
+                  <span className="mono block text-[18px] font-black leading-none text-[var(--cx)] sm:text-[22px]">
+                    {formattedCountdown}
+                  </span>
+                  <span className="mono mt-1 block text-[7px] uppercase tracking-[0.16em] text-white/35">
+                    minutes
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 h-1 overflow-hidden bg-white/[0.06]">
+                <div
+                  className="h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] transition-all duration-500"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, (countdownMs / WELCOME_GIFT_TIMER_MS) * 100))}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-2">
+              {pricingPlans.map((plan) => {
+                const selected = selectedPlan === plan.plan;
+
+                return (
+                  <button
+                    key={plan.plan}
+                    type="button"
+                    onClick={() => setSelectedPlan(plan.plan)}
+                    className={`relative overflow-hidden border p-3 text-left transition ${
+                      selected
+                        ? "border-[rgba(0,245,255,0.86)] bg-[rgba(0,245,255,0.13)] shadow-[0_0_24px_rgba(0,245,255,0.18)]"
+                        : "border-[rgba(255,255,255,0.09)] bg-white/[0.035] hover:border-[rgba(0,245,255,0.28)]"
+                    }`}
+                  >
+                    {selected && (
+                      <span className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+                    )}
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="orb block text-xs font-bold uppercase tracking-[0.14em] text-white">
+                            {plan.name}
+                          </span>
+                          {plan.highlighted ? (
+                            <span className="mono border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.08)] px-2 py-0.5 text-[7px] uppercase tracking-[0.12em] text-[var(--cx)]">
+                              popular
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <p className="sans mt-1 text-[11px] leading-4 text-[rgba(255,255,255,0.42)]">
+                          {plan.credits}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0 text-right">
+                        <span className="sans block text-[11px] text-[rgba(255,255,255,0.38)] line-through">
+                          {plan.price}
+                        </span>
+                        <span className="sans block text-[17px] font-bold leading-tight text-[var(--cx)]">
+                          {plan.checkoutPrice}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <span className="mono text-[7px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.34)]">
+                        20% gift applied
+                      </span>
+
+                      {selected ? (
+                        <span className="mono text-[7px] uppercase tracking-[0.14em] text-[var(--cg)]">
+                          selected
+                        </span>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="coupon-applied mt-3 border border-[rgba(191,95,255,0.22)] bg-[rgba(191,95,255,0.075)] px-3 py-2.5">
+              <p className="sans text-xs leading-5 text-white/72 sm:text-sm">
+                Selected:{" "}
+                <strong className="text-white">{selectedPlanData?.name}</strong>{" "}
+                <span className="text-white/38">·</span>{" "}
+                <span className="line-through text-white/35">
+                  {selectedPlanData?.price}
+                </span>{" "}
+                <strong className="text-[var(--cx)]">
+                  {selectedPlanData?.checkoutPrice}
+                </strong>
+              </p>
+              <p className="mono mt-1 text-[7px] uppercase tracking-[0.12em] text-[rgba(255,255,255,0.34)]">
+                WELCOME20 · Applied successfully
+              </p>
+            </div>
+
+            {error ? (
+              <p className="sans mt-3 text-sm leading-6 text-rose-300">
+                {error}
+              </p>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={handleCheckout}
+              disabled={loading}
+              className="btn-cx-solid mt-3 inline-flex min-h-[50px] w-full items-center justify-center gap-2 px-5 py-3 text-[10px] disabled:cursor-wait disabled:opacity-70"
+            >
+              {loading
+                ? "OPENING CHECKOUT..."
+                : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
+              <ArrowRight size={13} />
+            </button>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("intro");
+                  setError("");
+                }}
+                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/42 transition hover:border-[rgba(0,245,255,0.22)] hover:text-white/75"
+              >
+                Back
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/42 transition hover:border-[rgba(191,95,255,0.28)] hover:text-white/75"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function PlanCard({
-  plan,
-  selected,
-  recommended,
-  onSelect,
-}: {
-  plan: PlanInfo;
-  selected: boolean;
-  recommended: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`relative h-auto self-start overflow-hidden border p-4 text-left transition ${
-        selected
-          ? "border-[rgba(0,245,255,0.82)] bg-[rgba(0,245,255,0.12)] shadow-[0_0_45px_rgba(0,245,255,0.16)]"
-          : "border-white/10 bg-white/[0.03] hover:border-[rgba(0,245,255,0.28)]"
-      }`}
-    >
-      {recommended ? (
-        <span className="mono mb-3 inline-flex border border-[rgba(0,255,159,0.25)] bg-[rgba(0,255,159,0.08)] px-2 py-1 text-[8px] uppercase tracking-[0.16em] text-[var(--cg)]">
-          Recommended
-        </span>
-      ) : null}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h3 className="orb break-words text-base font-black uppercase tracking-[-0.02em] text-white">
-            {plan.name}
-          </h3>
-          <p className="sans mt-2 text-xs leading-5 text-white/48">
-            {plan.bestFor}
-          </p>
-        </div>
-        <div className="flex shrink-0 items-end gap-2 text-left sm:block sm:text-right">
-          <span className="sans block text-xs leading-none text-white/34 line-through sm:leading-normal">
-            {plan.originalPrice}
-          </span>
-          <span className="sans block whitespace-nowrap text-xl font-black leading-none text-[var(--cx)] sm:leading-tight">
-            {plan.price}
-          </span>
-        </div>
-      </div>
-      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
-        <span className="mono text-[8px] uppercase tracking-[0.16em] text-white/40">
-          Credits/month
-        </span>
-        <span className="mono text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-          {plan.credits}
-        </span>
-      </div>
-    </button>
-  );
-}
+export default function HomePage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [giftPopupOpen, setGiftPopupOpen] = useState(false);
+  const [giftPopupDismissed, setGiftPopupDismissed] = useState(false);
 
-export default function FunnelPage() {
-  const [step, setStep] = useState<FunnelStep>(0);
-  const [state, setState] = useState<FunnelState>({
-    name: "",
-    goal: "",
-    volume: "",
-    need: "",
-    pain: "",
-    urgency: "",
-  });
-  const recommendedPlan = useMemo(() => getRecommendedPlan(state), [state]);
-  const [selectedPlan, setSelectedPlan] =
-    useState<PlanVariant>(recommendedPlan);
-  const [leadNotified, setLeadNotified] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [error, setError] = useState("");
   useEffect(() => {
-    setSelectedPlan(recommendedPlan);
-  }, [recommendedPlan]);
+    if (giftPopupDismissed) return;
 
-  const outcome = getOutcomeCopy(state, selectedPlan);
-  const savings = estimateMonthlySavings(state, selectedPlan);
-  const selectedPlanData = plans[selectedPlan];
+    const pricingSection = document.getElementById("pricing");
+    if (!pricingSection) return;
 
-  function goNext() {
-    setError("");
-    if (step === 0 && !state.name.trim()) {
-      setError("Enter your name to personalize the plan.");
-      return;
-    }
-    if (step === 1 && !state.goal) return setError("Choose your main goal.");
-    if (step === 2 && !state.volume)
-      return setError("Choose your monthly visual volume.");
-    if (step === 3 && !state.need)
-      return setError("Choose what you need most.");
-    if (step === 4 && !state.pain)
-      return setError("Choose the bottleneck you want to solve.");
-    if (step === 5 && !state.urgency)
-      return setError("Choose when you want to start.");
+    const alreadyShown = window.sessionStorage.getItem(
+      "first-subscription-gift-seen",
+    );
+    if (alreadyShown) return;
 
-    if (step === 5 && !leadNotified) {
-      setLeadNotified(true);
-      void notifyFunnelLead(state, recommendedPlan);
-    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
 
-    setStep((current) => Math.min(6, current + 1) as FunnelStep);
-  }
+        setGiftPopupOpen(true);
+        window.sessionStorage.setItem("first-subscription-gift-seen", "true");
+        observer.disconnect();
+      },
+      { threshold: 0.28 },
+    );
 
-  function goBack() {
-    setError("");
-    setStep((current) => Math.max(0, current - 1) as FunnelStep);
-  }
+    observer.observe(pricingSection);
 
-  async function handleCheckout() {
-    if (checkoutLoading) return;
-    setCheckoutLoading(true);
-    setError("");
-    try {
-      await openPublicCheckout(
-        selectedPlan,
-        state.name.trim(),
-        "interactive_sales_funnel",
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not open checkout.");
-      setCheckoutLoading(false);
-    }
+    return () => observer.disconnect();
+  }, [giftPopupDismissed]);
+
+  function closeGiftPopup() {
+    setGiftPopupOpen(false);
+    setGiftPopupDismissed(true);
   }
 
   return (
@@ -726,674 +1177,1812 @@ export default function FunnelPage() {
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
+      <FirstPurchaseGiftPopup open={giftPopupOpen} onClose={closeGiftPopup} />
       <style
         dangerouslySetInnerHTML={{
           __html: `
-          @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-          :root {
-            --cx: #00F5FF;
-            --cv: #BF5FFF;
-            --ce: #FF2D6B;
-            --cg: #00FF9F;
-          }
-          .orb { font-family: 'Orbitron', monospace; }
-          .mono { font-family: 'Space Mono', monospace; }
-          .sans { font-family: 'DM Sans', sans-serif; }
-          body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background-image:
-              linear-gradient(rgba(0,245,255,0.015) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,245,255,0.015) 1px, transparent 1px);
-            background-size: 44px 44px;
-          }
-          @keyframes shimmerLine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(320%); }
-          }
-          @keyframes spin { to { transform: rotate(360deg); } }
-          .hud {
-            position: relative;
-            border: 1px solid rgba(0,245,255,0.16);
-            background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
-          }
-          .hud::before, .hud::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            pointer-events: none;
-          }
-          .hud::before { left: -1px; top: -1px; border-left: 2px solid var(--cx); border-top: 2px solid var(--cx); }
-          .hud::after { right: -1px; bottom: -1px; border-right: 2px solid var(--cv); border-bottom: 2px solid var(--cv); }
-          .btn-cx-solid {
-            position: relative;
-            overflow: hidden;
-            background: var(--cx);
-            color: #03040A;
-            font-family: 'Orbitron', monospace;
-            font-weight: 800;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            transition: transform .25s ease, box-shadow .25s ease;
-          }
-          .btn-cx-solid::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            width: 40%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.52), transparent);
-            transform: translateX(-100%);
-            animation: shimmerLine 2.8s ease-in-out infinite;
-          }
-          .btn-cx-solid:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 50px rgba(0,245,255,.48), 0 18px 60px rgba(0,245,255,.22);
-          }
-          .example-scroll {
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+        :root {
+          --cx: #00F5FF;
+          --cv: #BF5FFF;
+          --ce: #FF2D6B;
+          --cg: #00FF9F;
+          --cx10: rgba(0,245,255,0.10);
+          --cx20: rgba(0,245,255,0.20);
+          --cv10: rgba(191,95,255,0.10);
+          --cv20: rgba(191,95,255,0.20);
+          --border-x: rgba(0,245,255,0.22);
+          --border-v: rgba(191,95,255,0.22);
+          --surface: rgba(255,255,255,0.03);
+          --surface2: rgba(255,255,255,0.055);
+        }
+
+        .orb { font-family: 'Orbitron', monospace; }
+        .mono { font-family: 'Space Mono', monospace; }
+        .sans { font-family: 'DM Sans', sans-serif; }
+
+        /* ── GRID NOISE OVERLAY ── */
+        body::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 0;
+          background-image:
+            linear-gradient(rgba(0,245,255,0.015) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,245,255,0.015) 1px, transparent 1px);
+          background-size: 44px 44px;
+        }
+
+        /* ── SCANLINES ── */
+        body::after {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+          background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,0.06) 2px,
+            rgba(0,0,0,0.06) 4px
+          );
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes pulseX {
+          0%, 100% { box-shadow: 0 0 18px rgba(0,245,255,0.25), 0 0 40px rgba(0,245,255,0.10); }
+          50% { box-shadow: 0 0 28px rgba(0,245,255,0.45), 0 0 70px rgba(0,245,255,0.20); }
+        }
+        @keyframes pulseV {
+          0%, 100% { box-shadow: 0 0 18px rgba(191,95,255,0.25), 0 0 40px rgba(191,95,255,0.10); }
+          50% { box-shadow: 0 0 28px rgba(191,95,255,0.45), 0 0 70px rgba(191,95,255,0.20); }
+        }
+        @keyframes floatOrb {
+          0%, 100% { transform: translate(0,0) scale(1); }
+          33% { transform: translate(30px, -20px) scale(1.05); }
+          66% { transform: translate(-20px, 15px) scale(0.96); }
+        }
+        @keyframes floatOrb2 {
+          0%, 100% { transform: translate(0,0) scale(1); }
+          33% { transform: translate(-25px, 18px) scale(1.04); }
+          66% { transform: translate(20px, -12px) scale(0.97); }
+        }
+        @keyframes scanH {
+          0% { transform: translateY(-100%); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+        @keyframes glitch {
+          0%, 90%, 100% { transform: translate(0); clip-path: none; }
+          91% { transform: translate(-2px, 0); clip-path: inset(20% 0 60% 0); }
+          93% { transform: translate(2px, 0); clip-path: inset(60% 0 20% 0); }
+          95% { transform: translate(0); }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          49% { opacity: 1; }
+          50% { opacity: 0; }
+          99% { opacity: 0; }
+        }
+        @keyframes djReveal {
+          0%, 8% { clip-path: inset(0 100% 0 0); }
+          45%, 55% { clip-path: inset(0 0 0 0); }
+          92%, 100% { clip-path: inset(0 100% 0 0); }
+        }
+        @keyframes djHandle {
+          0%, 8% { left: 0%; }
+          45%, 55% { left: 100%; }
+          92%, 100% { left: 0%; }
+        }
+        @keyframes djBLabel {
+          0%,16%{opacity:1;transform:translateY(0)} 32%,68%{opacity:0;transform:translateY(-6px)} 86%,100%{opacity:1;transform:translateY(0)}
+        }
+        @keyframes djALabel {
+          0%,38%{opacity:0;transform:translateY(-6px)} 46%,58%{opacity:1;transform:translateY(0)} 72%,100%{opacity:0;transform:translateY(-6px)}
+        }
+        @keyframes waveBar {
+          0%, 100% { height: 8px; }
+          50% { height: 32px; }
+        }
+        @keyframes shimmerLine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(400%); }
+        }
+
+        .float-orb-a { animation: floatOrb 22s ease-in-out infinite; }
+        .float-orb-b { animation: floatOrb2 28s ease-in-out infinite; }
+        .ba-after { animation: djReveal 4.8s ease-in-out infinite; }
+        .ba-handle { animation: djHandle 4.8s ease-in-out infinite; }
+        .ba-bl { animation: djBLabel 4.8s ease-in-out infinite; }
+        .ba-al { animation: djALabel 4.8s ease-in-out infinite; }
+
+        /* ── HUD CORNERS ── */
+        .hud-box {
+          position: relative;
+          background: var(--surface);
+          border: 1px solid rgba(0,245,255,0.12);
+        }
+        .hud-box::before, .hud-box::after {
+          content: '';
+          position: absolute;
+          width: 14px; height: 14px;
+        }
+        .hud-box::before {
+          top: -1px; left: -1px;
+          border-top: 2px solid var(--cx);
+          border-left: 2px solid var(--cx);
+        }
+        .hud-box::after {
+          bottom: -1px; right: -1px;
+          border-bottom: 2px solid var(--cv);
+          border-right: 2px solid var(--cv);
+        }
+
+        .hud-box-v {
+          position: relative;
+          background: var(--surface);
+          border: 1px solid rgba(191,95,255,0.14);
+        }
+        .hud-box-v::before, .hud-box-v::after {
+          content: '';
+          position: absolute;
+          width: 14px; height: 14px;
+        }
+        .hud-box-v::before { top: -1px; left: -1px; border-top: 2px solid var(--cv); border-left: 2px solid var(--cv); }
+        .hud-box-v::after  { bottom: -1px; right: -1px; border-bottom: 2px solid var(--cx); border-right: 2px solid var(--cx); }
+
+        /* ── NEON BUTTONS ── */
+        .btn-cx {
+          position: relative;
+          background: transparent;
+          border: 1px solid var(--cx);
+          color: var(--cx);
+          font-family: 'Orbitron', monospace;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          cursor: pointer;
+          overflow: hidden;
+          transition: all 0.3s;
+          animation: pulseX 3s ease-in-out infinite;
+        }
+        .btn-cx::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(0,245,255,0.18), transparent);
+          transform: translateX(-100%);
+          animation: shimmerLine 3s ease-in-out infinite;
+        }
+        .btn-cx:hover {
+          background: rgba(0,245,255,0.12);
+          color: #fff;
+          box-shadow: 0 0 40px rgba(0,245,255,0.4), inset 0 0 20px rgba(0,245,255,0.1);
+        }
+        .btn-cx-solid {
+          position: relative;
+          background: var(--cx);
+          border: none;
+          color: #03040A;
+          font-family: 'Orbitron', monospace;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          cursor: pointer;
+          overflow: hidden;
+          transition: all 0.3s;
+        }
+        .btn-cx-solid:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 0 50px rgba(0,245,255,0.55), 0 12px 40px rgba(0,245,255,0.3);
+        }
+        .btn-cv {
+          position: relative;
+          background: transparent;
+          border: 1px solid var(--cv);
+          color: var(--cv);
+          font-family: 'Orbitron', monospace;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.3s;
+          animation: pulseV 3.5s ease-in-out infinite;
+        }
+        .btn-cv:hover {
+          background: rgba(191,95,255,0.12);
+          color: #fff;
+          box-shadow: 0 0 40px rgba(191,95,255,0.4), inset 0 0 20px rgba(191,95,255,0.1);
+        }
+
+        /* ── LABEL CHIPS ── */
+        .chip-cx {
+          display: inline-flex; align-items: center; gap: 6px;
+          border: 1px solid var(--border-x);
+          background: var(--cx10);
+          color: var(--cx);
+          font-family: 'Space Mono', monospace;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          padding: 5px 10px;
+          border-radius: 2px;
+        }
+        .chip-v {
+          display: inline-flex; align-items: center; gap: 6px;
+          border: 1px solid var(--border-v);
+          background: var(--cv10);
+          color: var(--cv);
+          font-family: 'Space Mono', monospace;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          padding: 5px 10px;
+          border-radius: 2px;
+        }
+
+        /* ── WAVEFORM BARS ── */
+        .wave-bar { display: inline-block; width: 3px; background: var(--cx); border-radius: 2px; margin: 0 1px; }
+        .wave-bar:nth-child(1)  { animation: waveBar 0.7s ease-in-out infinite; }
+        .wave-bar:nth-child(2)  { animation: waveBar 0.9s ease-in-out infinite 0.1s; }
+        .wave-bar:nth-child(3)  { animation: waveBar 0.6s ease-in-out infinite 0.2s; }
+        .wave-bar:nth-child(4)  { animation: waveBar 1.1s ease-in-out infinite 0.15s; }
+        .wave-bar:nth-child(5)  { animation: waveBar 0.8s ease-in-out infinite 0.05s; }
+        .wave-bar:nth-child(6)  { animation: waveBar 0.65s ease-in-out infinite 0.3s; }
+        .wave-bar:nth-child(7)  { animation: waveBar 0.95s ease-in-out infinite 0.25s; }
+        .wave-bar:nth-child(8)  { animation: waveBar 0.75s ease-in-out infinite 0.12s; }
+        .wave-bar:nth-child(9)  { animation: waveBar 1.0s ease-in-out infinite 0.08s; }
+        .wave-bar:nth-child(10) { animation: waveBar 0.72s ease-in-out infinite 0.18s; }
+
+        /* ── PRICING ── */
+        .plan-featured {
+          border-color: rgba(0,245,255,0.4) !important;
+          background: linear-gradient(160deg, rgba(0,245,255,0.08), rgba(191,95,255,0.06)) !important;
+        }
+        .plan-featured::before { border-color: var(--cx) !important; }
+        .plan-featured::after  { border-color: var(--cv) !important; }
+
+        /* ── FAQ ── */
+        details summary::-webkit-details-marker { display: none; }
+        details[open] .faq-plus { transform: rotate(45deg); color: var(--cx); }
+        .faq-plus { transition: all 0.25s ease; color: rgba(255,255,255,0.4); }
+
+        /* ── NAV LINK ── */
+        .nav-link {
+          font-family: 'Space Mono', monospace;
+          font-size: 10px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.45);
+          transition: color 0.2s;
+          position: relative;
+        }
+        .nav-link::after {
+          content: '';
+          position: absolute;
+          bottom: -2px; left: 0;
+          height: 1px; width: 0;
+          background: var(--cx);
+          transition: width 0.25s;
+          box-shadow: 0 0 6px var(--cx);
+        }
+        .nav-link:hover { color: var(--cx); }
+        .nav-link:hover::after { width: 100%; }
+
+        /* ── HEADING GLITCH ── */
+        .hero-h1 { animation: glitch 8s ease-in-out infinite; }
+
+        /* ── CURSOR BLINK ── */
+        .cursor::after {
+          content: '█';
+          animation: blink 1s step-end infinite;
+          color: var(--cx);
+          font-size: 0.75em;
+        }
+
+        /* ── ADVANTAGE GRID ── */
+        .adv-card {
+          position: relative;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.06);
+          background: var(--surface);
+          transition: border-color 0.3s, background 0.3s;
+          padding: 28px;
+        }
+        .adv-card::before {
+          content: '';
+          position: absolute;
+          top: -1px; left: -1px;
+          width: 10px; height: 10px;
+          border-top: 2px solid var(--cx);
+          border-left: 2px solid var(--cx);
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+        .adv-card:hover { border-color: rgba(0,245,255,0.25); background: rgba(0,245,255,0.04); }
+        .adv-card:hover::before { opacity: 1; }
+
+        /* ── TESTIMONIAL CARD ── */
+        .testi-card {
+          position: relative;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.07);
+          background: linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+          border-radius: 0;
+          transition: all 0.4s;
+          padding: 28px;
+        }
+        .testi-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0;
+          width: 100%; height: 1px;
+          background: linear-gradient(90deg, var(--cx), var(--cv));
+          opacity: 0;
+          transition: opacity 0.4s;
+        }
+        .testi-card:hover { border-color: rgba(0,245,255,0.2); transform: translateY(-4px); }
+        .testi-card:hover::before { opacity: 1; }
+
+        /* ── SECTION LABEL ── */
+        .sect-label {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .sect-label::before {
+          content: '';
+          display: block;
+          width: 24px; height: 1px;
+          background: var(--cx);
+          box-shadow: 0 0 6px var(--cx);
+        }
+
+        /* ── GLOWING DIVIDER ── */
+        .glow-divider {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--cx), var(--cv), transparent);
+          opacity: 0.4;
+        }
+
+        /* ── MOBILE MENU ── */
+        .mobile-menu {
+          display: none;
+          position: fixed;
+          inset: 0;
+          top: 57px;
+          z-index: 39;
+          background: rgba(3,4,10,0.97);
+          backdrop-filter: blur(24px);
+          border-top: 1px solid rgba(0,245,255,0.1);
+          flex-direction: column;
+          padding: 32px 24px;
+        }
+        .mobile-menu.open { display: flex; }
+        .mobile-menu a {
+          font-family: 'Orbitron', monospace;
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.55);
+          padding: 18px 0;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          transition: color 0.2s;
+          text-decoration: none;
+        }
+        .mobile-menu a:hover { color: var(--cx); }
+        .mobile-menu .menu-cta {
+          margin-top: 28px;
+          width: 100%;
+          justify-content: center;
+          min-height: 52px;
+          font-size: 12px;
+        }
+
+        /* ── HAMBURGER ── */
+        .hamburger {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+          cursor: pointer;
+          padding: 6px;
+          background: transparent;
+          border: none;
+        }
+        .hamburger span {
+          display: block;
+          width: 22px;
+          height: 1.5px;
+          background: rgba(255,255,255,0.7);
+          transition: all 0.25s;
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); background: var(--cx); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: var(--cx); }
+
+        /* ── PRICING SCROLL MOBILE ── */
+        @media (max-width: 767px) {
+          .testi-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            gap: 16px;
+            padding-bottom: 12px;
             scrollbar-width: none;
           }
-          .example-scroll::-webkit-scrollbar {
-            display: none;
+          .testi-scroll::-webkit-scrollbar { display: none; }
+          .testi-scroll > * {
+            flex: 0 0 88vw;
+            scroll-snap-align: start;
           }
-          `,
+          .adv-card { padding: 20px; }
+          .testi-card { padding: 20px; }
+        }
+
+        @media (max-width: 767px) {
+          .chip-cx, .chip-v { font-size: 8px; padding: 4px 8px; }
+        }
+
+        /* ── PREMIUM PLAN BUTTONS ── */
+
+        .pricing-btn-pro,
+        .pricing-btn-featured,
+        .pricing-btn-studio {
+          position: relative;
+          width: 100%;
+          min-height: 54px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: 'Orbitron', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          cursor: pointer;
+          border-radius: 0;
+          overflow: hidden;
+          isolation: isolate;
+          transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .pricing-btn-label {
+          position: relative;
+          z-index: 5;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          pointer-events: none;
+        }
+
+        /* ── PRO: cyan outline + scan beam ── */
+        .pricing-btn-pro {
+          background: transparent;
+          border: 1px solid var(--cx);
+          color: var(--cx);
+          box-shadow: 0 0 18px rgba(0,245,255,0.18), inset 0 0 18px rgba(0,245,255,0.05);
+          animation: pulseX 3s ease-in-out infinite;
+        }
+        .pricing-btn-pro:hover {
+          background: rgba(0,245,255,0.09);
+          color: #fff;
+          box-shadow: 0 0 44px rgba(0,245,255,0.5), inset 0 0 28px rgba(0,245,255,0.12);
+          transform: translateY(-2px);
+        }
+        .pricing-btn-pro:active { transform: translateY(0); }
+        .pricing-btn-pro .pricing-btn-scan {
+          position: absolute;
+          inset: 0; z-index: 3;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(0,245,255,0.15) 38%,
+            rgba(0,245,255,0.55) 50%,
+            rgba(0,245,255,0.15) 62%,
+            transparent 100%
+          );
+          width: 60%;
+          animation: scanBeam 3s ease-in-out infinite;
+        }
+
+        /* ── PROFESSIONAL: solid cyan + diagonal stripes + shimmer ── */
+        .pricing-btn-featured {
+          background: var(--cx);
+          border: none;
+          color: #03040A;
+          font-weight: 800;
+          font-size: 11px;
+          box-shadow:
+            0 0 0 1px rgba(0,245,255,0.65),
+            0 0 32px rgba(0,245,255,0.5),
+            0 0 70px rgba(0,245,255,0.2),
+            inset 0 1px 0 rgba(255,255,255,0.35);
+          animation: featuredGlow 2.2s ease-in-out infinite;
+        }
+        .pricing-btn-featured:hover {
+          transform: translateY(-3px);
+          box-shadow:
+            0 0 0 2px rgba(0,245,255,1),
+            0 0 55px rgba(0,245,255,0.7),
+            0 0 100px rgba(0,245,255,0.32),
+            inset 0 1px 0 rgba(255,255,255,0.45);
+        }
+        .pricing-btn-featured:active { transform: translateY(-1px); }
+        .pricing-btn-featured .pricing-btn-stripes {
+          position: absolute;
+          inset: 0; z-index: 2;
+          background: repeating-linear-gradient(
+            -52deg,
+            transparent,
+            transparent 9px,
+            rgba(0,0,0,0.07) 9px,
+            rgba(0,0,0,0.07) 10px
+          );
+          animation: stripeDrift 2.4s linear infinite;
+        }
+        .pricing-btn-featured .pricing-btn-shimmer {
+          position: absolute;
+          top: 0; left: -60%; z-index: 3;
+          width: 50%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
+          transform: skewX(-18deg);
+          animation: featuredShimmer 2.4s ease-in-out infinite;
+        }
+
+        /* ── STUDIO: violet outline + scan + corner sparks ── */
+        .pricing-btn-studio {
+          background: transparent;
+          border: 1px solid var(--cv);
+          color: var(--cv);
+          box-shadow: 0 0 18px rgba(191,95,255,0.2), inset 0 0 18px rgba(191,95,255,0.06);
+          animation: pulseV 3.5s ease-in-out infinite;
+        }
+        .pricing-btn-studio:hover {
+          background: rgba(191,95,255,0.09);
+          color: #fff;
+          box-shadow: 0 0 44px rgba(191,95,255,0.55), inset 0 0 28px rgba(191,95,255,0.14);
+          transform: translateY(-2px);
+        }
+        .pricing-btn-studio:active { transform: translateY(0); }
+        .pricing-btn-studio .pricing-btn-scan {
+          position: absolute;
+          inset: 0; z-index: 3;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(191,95,255,0.15) 38%,
+            rgba(191,95,255,0.55) 50%,
+            rgba(191,95,255,0.15) 62%,
+            transparent 100%
+          );
+          width: 60%;
+          animation: scanBeam 3.8s ease-in-out infinite 0.9s;
+        }
+        .pricing-btn-corner {
+          position: absolute;
+          z-index: 4;
+          width: 4px; height: 4px;
+          border-radius: 50%;
+          background: var(--cv);
+          box-shadow: 0 0 8px var(--cv), 0 0 16px var(--cv);
+          animation: cornerPulse 2s ease-in-out infinite;
+        }
+        .pricing-btn-corner.tl { top: 5px; left: 5px; animation-delay: 0s; }
+        .pricing-btn-corner.tr { top: 5px; right: 5px; animation-delay: 0.5s; }
+        .pricing-btn-corner.bl { bottom: 5px; left: 5px; animation-delay: 1s; }
+        .pricing-btn-corner.br { bottom: 5px; right: 5px; animation-delay: 1.5s; }
+
+        @keyframes scanBeam {
+          0%, 15%   { transform: translateX(-120%); opacity: 0; }
+          20%       { opacity: 1; }
+          80%       { opacity: 1; }
+          85%, 100% { transform: translateX(260%); opacity: 0; }
+        }
+        @keyframes featuredGlow {
+          0%, 100% {
+            box-shadow: 0 0 0 1px rgba(0,245,255,0.65), 0 0 32px rgba(0,245,255,0.5), 0 0 70px rgba(0,245,255,0.2), inset 0 1px 0 rgba(255,255,255,0.35);
+          }
+          50% {
+            box-shadow: 0 0 0 2px rgba(0,245,255,0.95), 0 0 52px rgba(0,245,255,0.7), 0 0 100px rgba(0,245,255,0.32), inset 0 1px 0 rgba(255,255,255,0.45);
+          }
+        }
+        @keyframes stripeDrift {
+          0%   { background-position: 0 0; }
+          100% { background-position: 28px 0; }
+        }
+        @keyframes featuredShimmer {
+          0%, 25%   { left: -60%; opacity: 0; }
+          30%       { opacity: 1; }
+          70%       { opacity: 1; }
+          75%, 100% { left: 140%; opacity: 0; }
+        }
+        @keyframes cornerPulse {
+          0%, 100% { opacity: 0.25; transform: scale(1); }
+          50%      { opacity: 1;    transform: scale(1.9); }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes giftPop {
+          0% { transform: scale(0.72) rotate(-10deg); opacity: 0; }
+          58% { transform: scale(1.12) rotate(3deg); opacity: 1; }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes giftRing {
+          0% { transform: scale(0.75); opacity: 0.85; }
+          100% { transform: scale(1.45); opacity: 0; }
+        }
+        @keyframes giftSpark {
+          0%, 100% { transform: scale(0.6); opacity: 0.25; }
+          50% { transform: scale(1.35); opacity: 1; }
+        }
+        @keyframes couponScan {
+          0% { transform: translateX(-120%); opacity: 0; }
+          20%, 75% { opacity: 1; }
+          100% { transform: translateX(220%); opacity: 0; }
+        }
+        .gift-pop { position: relative; animation: giftPop 0.72s cubic-bezier(.2,1.35,.32,1) both; }
+        .gift-ring { animation: giftRing 1.4s ease-out infinite; }
+        .gift-ring-delay { animation-delay: 0.45s; }
+        .gift-spark {
+          position: absolute;
+          height: 6px;
+          width: 6px;
+          border-radius: 999px;
+          background: var(--cg);
+          box-shadow: 0 0 12px var(--cg);
+          animation: giftSpark 1.2s ease-in-out infinite;
+        }
+        .gift-spark-a { right: 10px; top: 12px; animation-delay: 0.1s; }
+        .gift-spark-b { bottom: 10px; left: 12px; animation-delay: 0.38s; background: var(--cv); box-shadow: 0 0 12px var(--cv); }
+        .gift-spark-c { left: 6px; top: 26px; animation-delay: 0.68s; background: var(--cx); box-shadow: 0 0 12px var(--cx); }
+
+
+        .coupon-applied { position: relative; overflow: hidden; }
+        .coupon-applied::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          width: 45%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+          animation: couponScan 2.6s ease-in-out infinite;
+          pointer-events: none;
+        }
+      `,
         }}
       />
 
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -left-48 top-1/4 h-[560px] w-[560px] rounded-full bg-[radial-gradient(circle,rgba(0,245,255,0.08),transparent_62%)] blur-3xl" />
-        <div className="absolute -right-48 top-2/3 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(191,95,255,0.08),transparent_62%)] blur-3xl" />
+      {/* ── AMBIENT ORBS ── */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+      >
+        <div
+          className="float-orb-a absolute -left-48 top-1/4 h-[600px] w-[600px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(0,245,255,0.07), transparent 60%)",
+          }}
+        />
+        <div
+          className="float-orb-b absolute -right-32 top-2/3 h-[500px] w-[500px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(191,95,255,0.07), transparent 60%)",
+          }}
+        />
+        <div
+          className="absolute left-1/2 top-0 h-[300px] w-px -translate-x-1/2"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(0,245,255,0.3), transparent)",
+          }}
+        />
       </div>
 
-      <header className="relative z-10 border-b border-white/10 bg-[#03040A]/78 px-4 py-4 backdrop-blur-xl sm:px-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="orb text-sm font-black uppercase tracking-[0.18em] text-white"
-          >
-            DJ Visuals AI
-          </Link>
+      {/* ── HEADER ── */}
+      <header
+        className="sticky top-0 z-40"
+        style={{
+          background: "rgba(3,4,10,0.88)",
+          borderBottom: "1px solid rgba(0,245,255,0.1)",
+          backdropFilter: "blur(20px)",
+        }}
+      >
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8 lg:px-10">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 items-end gap-[2px]">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <span key={i} className="wave-bar" style={{ height: "8px" }} />
+              ))}
+            </div>
+            <p
+              className="orb text-[13px] font-bold tracking-[0.18em] uppercase sm:text-[15px]"
+              style={{ color: "#fff" }}
+            >
+              DJ{" "}
+              <span
+                style={{ color: "var(--cx)", textShadow: "0 0 14px var(--cx)" }}
+              >
+                VISUALS
+              </span>{" "}
+              AI
+            </p>
+          </div>
+
+          {/* Desktop Nav */}
+          <nav className="hidden items-center gap-8 md:flex">
+            {[
+              ["What you get", "#vantagens"],
+              ["Examples", "#exemplos"],
+              ["How it works", "#como-funciona"],
+              ["Pricing", "#pricing"],
+            ].map(([label, href]) => (
+              <a key={href} href={href} className="nav-link">
+                {label}
+              </a>
+            ))}
+          </nav>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="nav-link hidden sm:block px-4 py-2 border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.5)] hover:border-[var(--border-x)] hover:text-[var(--cx)] transition-all"
+              style={{
+                fontSize: "10px",
+                letterSpacing: "0.15em",
+                fontFamily: "Space Mono, monospace",
+                textTransform: "uppercase",
+              }}
+            >
+              LOG IN
+            </Link>
+            <a
+              href="#pricing"
+              className="btn-cx-solid hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-none"
+            >
+              CHOOSE PLAN
+              <ArrowRight size={12} />
+            </a>
+            {/* Hamburger — mobile only */}
+          </div>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
+          {[
+            ["What you get", "#vantagens"],
+            ["Examples", "#exemplos"],
+            ["How it works", "#como-funciona"],
+            ["Pricing", "#pricing"],
+          ].map(([label, href]) => (
+            <a key={href} href={href} onClick={() => setMenuOpen(false)}>
+              {label}
+            </a>
+          ))}
           <Link
             href="/login"
-            className="mono text-[10px] uppercase tracking-[0.18em] text-white/48 transition hover:text-[var(--cx)]"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              fontFamily: "Orbitron, monospace",
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.55)",
+              padding: "18px 0",
+              borderBottom: "1px solid rgba(255,255,255,0.05)",
+              textDecoration: "none",
+            }}
           >
-            Login
+            LOG IN
           </Link>
+          <a
+            href="#pricing"
+            onClick={() => setMenuOpen(false)}
+            className="btn-cx-solid menu-cta inline-flex items-center gap-2"
+          >
+            CHOOSE PLAN <ArrowRight size={13} />
+          </a>
         </div>
       </header>
 
-      <section
-        className={`relative z-10 mx-auto grid min-h-[calc(100vh-66px)] w-full px-4 py-8 sm:px-8 lg:px-10 lg:py-12 ${
-          step === 0
-            ? "max-w-7xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]"
-            : "max-w-4xl items-start gap-0"
-        }`}
-      >
-        {step === 0 ? (
-          <div className="max-w-xl">
-            <h1 className="orb text-[34px] font-black uppercase leading-[0.98] tracking-[-0.05em] text-white sm:text-[54px] lg:text-[68px]">
-              Build your promo workflow in 60 seconds.
-            </h1>
-            <p className="sans mt-5 max-w-lg text-base leading-8 text-white/58 sm:text-lg">
-              Answer a few quick questions and get a personalized plan for
-              flyers, animated videos, and professional images — matched to your
-              monthly content volume.
-            </p>
-          </div>
-        ) : null}
+      {/* ── HERO ── */}
+      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 pt-10 sm:px-8 sm:pb-28 sm:pt-20 lg:px-10 lg:pb-36 lg:pt-44">
+        {/* HUD status bar */}
+        <div
+          className="mono mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] sm:text-[10px] text-[rgba(255,255,255,0.3)]"
+          style={{ letterSpacing: "0.1em" }}
+        >
+          <span style={{ color: "var(--cg)" }}>● SYSTEM ONLINE</span>
+          <span className="hidden sm:inline">|</span>
+          <span className="hidden sm:inline">AI_ENGINE v4.2.1</span>
+          <span className="hidden sm:inline">|</span>
+          <span>NODES: 2,847 ACTIVE</span>
+        </div>
 
-        <div className="hud relative overflow-hidden p-4 shadow-[0_35px_120px_rgba(0,0,0,0.62)] sm:p-6">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
-          <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-[rgba(191,95,255,0.12)] blur-3xl" />
-
-          <div className="relative z-10">
-            <ProgressBar step={step} />
-
-            <div className="mt-6">
-              {step === 0 ? (
-                <div>
-                  <span className="mono text-[9px] uppercase tracking-[0.18em] text-[var(--cx)]">
-                    Step 01
-                  </span>
-                  <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
-                    Who are we building this for?
-                  </h2>
-                  <p className="sans mt-3 text-sm leading-6 text-white/52">
-                    Your name lets the funnel create a more personal plan and
-                    checkout experience.
-                  </p>
-                  <label className="mt-6 grid gap-2">
-                    <span className="mono text-[9px] uppercase tracking-[0.18em] text-white/42">
-                      Your name
-                    </span>
-                    <input
-                      value={state.name}
-                      onChange={(event) =>
-                        setState((prev) => ({
-                          ...prev,
-                          name: event.target.value,
-                        }))
-                      }
-                      placeholder="Example: Alex"
-                      className="min-h-14 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-base text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.62)] focus:shadow-[0_0_32px_rgba(0,245,255,0.13)]"
-                      autoFocus
-                    />
-                  </label>
-                </div>
-              ) : null}
-
-              {step === 1 ? (
-                <StepBlock
-                  eyebrow="Step 02"
-                  title="What is your main goal?"
-                  subtitle="This helps decide whether you need more static creatives, animations, or a high-volume setup."
-                >
-                  {options.goal.map((option) => (
-                    <StepOption
-                      key={option.value}
-                      selected={state.goal === option.value}
-                      label={option.label}
-                      description={option.description}
-                      icon={option.icon}
-                      onClick={() =>
-                        setState((prev) => ({ ...prev, goal: option.value }))
-                      }
-                    />
-                  ))}
-                </StepBlock>
-              ) : null}
-
-              {step === 2 ? (
-                <StepBlock
-                  eyebrow="Step 03"
-                  title="How many visuals do you create per month?"
-                  subtitle="We use this to avoid recommending a plan that runs out of credits too fast."
-                >
-                  {options.volume.map((option) => (
-                    <StepOption
-                      key={option.value}
-                      selected={state.volume === option.value}
-                      label={option.label}
-                      description={option.description}
-                      meta={option.credits}
-                      onClick={() =>
-                        setState((prev) => ({ ...prev, volume: option.value }))
-                      }
-                    />
-                  ))}
-                </StepBlock>
-              ) : null}
-
-              {step === 3 ? (
-                <StepBlock
-                  eyebrow="Step 04"
-                  title="What do you need most right now?"
-                  subtitle="The final recommendation changes depending on whether video, flyer volume, or photo quality matters most."
-                >
-                  {options.need.map((option) => (
-                    <StepOption
-                      key={option.value}
-                      selected={state.need === option.value}
-                      label={option.label}
-                      description={option.description}
-                      icon={option.icon}
-                      onClick={() =>
-                        setState((prev) => ({ ...prev, need: option.value }))
-                      }
-                    />
-                  ))}
-                </StepBlock>
-              ) : null}
-
-              {step === 4 ? (
-                <StepBlock
-                  eyebrow="Step 05"
-                  title="What is slowing you down most?"
-                  subtitle="This lets the funnel frame the offer around the objection the visitor actually feels."
-                >
-                  {options.pain.map((option) => (
-                    <StepOption
-                      key={option.value}
-                      selected={state.pain === option.value}
-                      label={option.label}
-                      description={option.description}
-                      onClick={() =>
-                        setState((prev) => ({ ...prev, pain: option.value }))
-                      }
-                    />
-                  ))}
-                </StepBlock>
-              ) : null}
-
-              {step === 5 ? (
-                <StepBlock
-                  eyebrow="Step 06"
-                  title="How soon do you want to create?"
-                  subtitle="Urgency changes the CTA and the strength of the checkout recommendation."
-                >
-                  {options.urgency.map((option) => (
-                    <StepOption
-                      key={option.value}
-                      selected={state.urgency === option.value}
-                      label={option.label}
-                      description={option.description}
-                      icon={Clock3}
-                      onClick={() =>
-                        setState((prev) => ({ ...prev, urgency: option.value }))
-                      }
-                    />
-                  ))}
-                </StepBlock>
-              ) : null}
-
-              {step >= 2 && step <= 5 ? (
-                <div className="mt-6">
-                  <MatchedExamplesPanel
-                    state={state}
-                    eyebrow="Matched examples"
-                    title="Examples based on your answers"
-                    compact
-                  />
-                </div>
-              ) : null}
-
-              {step === 6 ? (
-                <div className="grid gap-5">
-                  <div>
-                    <span className="mono text-[9px] uppercase tracking-[0.18em] text-[var(--cg)]">
-                      Personalized result
-                    </span>
-                    <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
-                      {outcome.headline}
-                    </h2>
-                    <p className="sans mt-3 text-sm leading-7 text-white/58">
-                      {outcome.subheadline}
-                    </p>
-                  </div>
-
-                  <div className="grid items-start gap-3 sm:grid-cols-2">
-                    <MetricCard
-                      icon={Gauge}
-                      label="Recommended"
-                      value={selectedPlanData.name}
-                    />
-                    <MetricCard
-                      icon={WalletCards}
-                      label="Credits"
-                      value={`${selectedPlanData.credits}/mo`}
-                    />
-                  </div>
-
-                  <div className="grid items-start gap-3 lg:grid-cols-3">
-                    {(Object.keys(plans) as PlanVariant[]).map((planKey) => (
-                      <PlanCard
-                        key={planKey}
-                        plan={plans[planKey]}
-                        selected={selectedPlan === planKey}
-                        recommended={recommendedPlan === planKey}
-                        onSelect={() => setSelectedPlan(planKey)}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="relative overflow-hidden border sm:p-4">
-                    <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
-                    <button
-                      type="button"
-                      onClick={handleCheckout}
-                      disabled={checkoutLoading}
-                      className="btn-cx-solid inline-flex min-h-14 w-full items-center justify-center gap-3 px-5 py-4 text-[11px] disabled:cursor-wait disabled:opacity-70"
-                    >
-                      <span className="relative z-10">
-                        {checkoutLoading
-                          ? "OPENING CHECKOUT..."
-                          : `GO TO CHECKOUT · ${selectedPlanData.name.toUpperCase()}`}
-                      </span>
-                      {checkoutLoading ? (
-                        <span
-                          className="relative z-10 h-4 w-4 rounded-full border-2 border-black/30 border-t-black"
-                          style={{ animation: "spin 0.8s linear infinite" }}
-                        />
-                      ) : (
-                        <ArrowRight size={14} className="relative z-10" />
-                      )}
-                    </button>
-                  </div>
-
-                  <div className="grid items-start gap-3 lg:grid-cols-[1.05fr_0.95fr]">
-                    <div className="hud p-4">
-                      <h3 className="orb text-sm font-bold uppercase tracking-[0.1em] text-white">
-                        Why this fits
-                      </h3>
-                      <p className="sans mt-3 text-sm leading-6 text-white/56">
-                        {outcome.pain}
-                      </p>
-                      <ul className="mt-4 grid gap-2">
-                        {selectedPlanData.features
-                          .slice(0, 4)
-                          .map((feature) => (
-                            <li
-                              key={feature}
-                              className="flex items-start gap-2 text-sm leading-6 text-white/62"
-                            >
-                              <CheckCircle2
-                                size={15}
-                                className="mt-1 shrink-0 text-[var(--cg)]"
-                              />
-                              {feature}
-                            </li>
-                          ))}
-                      </ul>
-                    </div>
-
-                    <div className="hud p-4 sm:p-5">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                          <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.62)]">
-                            Savings estimate
-                          </p>
-                          <h3 className="orb mt-1 text-sm font-bold uppercase tracking-[0.08em] text-white sm:text-base">
-                            Estimated design cost avoided
-                          </h3>
-                        </div>
-                        <span className="mono w-fit border border-[rgba(0,245,255,0.18)] bg-[rgba(0,245,255,0.06)] px-2 py-1 text-[8px] uppercase tracking-[0.14em] text-[var(--cx)]">
-                          $35 / promo
-                        </span>
-                      </div>
-                      <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3">
-                        <MiniStat
-                          label="Visuals/mo"
-                          value={`${savings.expectedVisuals}`}
-                        />
-                        <MiniStat
-                          label="Designer cost"
-                          value={`$${savings.designerCost}`}
-                        />
-                        <MiniStat
-                          label="Plan cost"
-                          value={selectedPlanData.price}
-                        />
-                        <MiniStat
-                          label="Potential gap"
-                          value={`$${Math.round(savings.estimatedSavings)}`}
-                          accent
-                        />
-                      </div>
-                      <p className="sans mt-4 rounded-none border-l border-[rgba(0,245,255,0.22)] bg-white/[0.025] px-3 py-2 text-[11px] leading-5 text-white/42 sm:text-xs">
-                        Estimate based on a conservative $35 per promotional
-                        piece. Actual savings vary by workflow.
-                      </p>
-                    </div>
-                  </div>
-
-                  {error ? (
-                    <p className="sans text-sm leading-6 text-rose-300">
-                      {error}
-                    </p>
-                  ) : null}
-
-                  <button
-                    type="button"
-                    onClick={handleCheckout}
-                    disabled={checkoutLoading}
-                    className="btn-cx-solid inline-flex min-h-14 w-full items-center justify-center gap-3 px-5 py-4 text-[11px] disabled:cursor-wait disabled:opacity-70"
-                  >
-                    <span className="relative z-10">
-                      {checkoutLoading
-                        ? "OPENING CHECKOUT..."
-                        : `CONTINUE WITH ${selectedPlanData.name.toUpperCase()}`}
-                    </span>
-                    {checkoutLoading ? (
-                      <span
-                        className="relative z-10 h-4 w-4 rounded-full border-2 border-black/30 border-t-black"
-                        style={{ animation: "spin 0.8s linear infinite" }}
-                      />
-                    ) : (
-                      <ArrowRight size={14} className="relative z-10" />
-                    )}
-                  </button>
-
-                  <div className="grid items-start gap-3 sm:grid-cols-3">
-                    {[
-                      { icon: ShieldCheck, text: "Secure Stripe checkout" },
-                      { icon: BadgeCheck, text: "Email setup after payment" },
-                      { icon: Sparkles, text: "Start creating after signup" },
-                    ].map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <div
-                          key={item.text}
-                          className="flex items-center gap-2 text-xs text-white/44"
-                        >
-                          <Icon size={14} className="text-[var(--cx)]" />
-                          {item.text}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+          <div>
+            <div className="sect-label">
+              <span className="chip-cx">● AI CREATIVE STUDIO FOR DJS</span>
             </div>
 
-            {error && step !== 6 ? (
-              <p className="sans mt-4 text-sm leading-6 text-rose-300">
-                {error}
-              </p>
-            ) : null}
+            <h1 className="hero-h1 orb text-[33px] font-black leading-[1.04] tracking-[-0.02em] text-white sm:text-[58px] lg:text-[72px]">
+              FLYERS.
+              <br />
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 40px rgba(0,245,255,0.6)",
+                }}
+              >
+                ANIMATED
+              </span>{" "}
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 40px rgba(191,95,255,0.6)",
+                }}
+              >
+                VIDEOS.
+              </span>
+              <br />
+              PROFESSIONAL PHOTOS
+              <span className="cursor" />
+            </h1>
 
-            {step !== 6 ? (
-              <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/10 pt-5">
-                <button
-                  type="button"
-                  onClick={goBack}
-                  disabled={step === 0}
-                  className="inline-flex min-h-11 items-center gap-2 border border-white/10 bg-white/[0.035] px-4 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/48 transition hover:border-white/18 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                >
-                  <ChevronLeft size={14} />
-                  Back
-                </button>
+            <p className="sans mt-5 text-[14px] leading-5 text-[rgba(255,255,255,0.55)] sm:text-[15px]">
+              Generate premium event flyers, turn them into animated MP4 videos
+              with VFX, and upgrade your DJ photos — all from one AI-powered
+              platform built for the music scene.
+            </p>
 
-                <button
-                  type="button"
-                  onClick={goNext}
-                  className="btn-cx-solid inline-flex min-h-11 items-center justify-center gap-2 px-5 text-[10px]"
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+              <a
+                href="#pricing"
+                className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8"
+              >
+                START CREATING NOW
+                <ArrowRight size={13} />
+              </a>
+              <a
+                href="#exemplos"
+                className="btn-cx inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8"
+              >
+                SEE EXAMPLES
+              </a>
+            </div>
+
+            {/* Stats row */}
+            <div className="mt-10 grid grid-cols-3 gap-0 border border-[rgba(0,245,255,0.12)]">
+              {[
+                ["2,800+", "ACTIVE DJs"],
+                ["50K+", "VISUALS MADE"],
+                ["4.9★", "RATING"],
+              ].map(([val, label]) => (
+                <div
+                  key={label}
+                  className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-3 py-3 text-center sm:px-6 sm:py-4"
                 >
-                  <span className="relative z-10">
-                    {step === 5 ? "Show my plan" : "Continue"}
-                  </span>
-                  <ChevronRight size={14} className="relative z-10" />
-                </button>
+                  <p
+                    className="orb text-base font-bold sm:text-xl"
+                    style={{
+                      color: "var(--cx)",
+                      textShadow: "0 0 14px rgba(0,245,255,0.5)",
+                    }}
+                  >
+                    {val}
+                  </p>
+                  <p
+                    className="mono mt-1 text-[7px] text-[rgba(255,255,255,0.35)] sm:text-[9px]"
+                    style={{ letterSpacing: "0.12em" }}
+                  >
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: HUD panel — desktop only */}
+          <div className="hidden lg:block">
+            <div className="hud-box rounded-none p-6">
+              <div
+                className="mono mb-4 text-[9px] text-[rgba(0,245,255,0.6)]"
+                style={{ letterSpacing: "0.2em" }}
+              >
+                // AI_CREATIVE_ENGINE
               </div>
-            ) : (
-              <div className="mt-6 flex justify-start border-t border-white/10 pt-5">
-                <button
-                  type="button"
-                  onClick={() => setStep(5)}
-                  className="inline-flex min-h-11 items-center gap-2 border border-white/10 bg-white/[0.035] px-4 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/48 transition hover:border-white/18 hover:text-white"
+              <div className="space-y-3">
+                {[
+                  { label: "FLYER QUALITY", val: 98, color: "var(--cx)" },
+                  { label: "ANIMATION RENDER", val: 96, color: "var(--cv)" },
+                  { label: "PHOTO ENHANCE", val: 94, color: "var(--cg)" },
+                  { label: "PROMO SPEED", val: 100, color: "var(--cx)" },
+                ].map((m) => (
+                  <div key={m.label}>
+                    <div className="mb-1 flex justify-between">
+                      <span
+                        className="mono text-[9px] text-[rgba(255,255,255,0.45)]"
+                        style={{ letterSpacing: "0.16em" }}
+                      >
+                        {m.label}
+                      </span>
+                      <span
+                        className="mono text-[9px]"
+                        style={{ color: m.color }}
+                      >
+                        {m.val}%
+                      </span>
+                    </div>
+                    <div className="h-[3px] w-full bg-[rgba(255,255,255,0.06)]">
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${m.val}%`,
+                          background: m.color,
+                          boxShadow: `0 0 8px ${m.color}`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 border-t border-[rgba(0,245,255,0.1)] pt-4">
+                <p
+                  className="mono text-[9px] text-[rgba(255,255,255,0.3)]"
+                  style={{ letterSpacing: "0.14em" }}
                 >
-                  <ChevronLeft size={14} />
-                  Edit answers
-                </button>
+                  NEXT_GEN: <span style={{ color: "var(--cx)" }}>READY</span>{" "}
+                  &nbsp;|&nbsp; QUEUE:{" "}
+                  <span style={{ color: "var(--cg)" }}>OPEN</span>
+                </p>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </section>
+
+      <div className="glow-divider" />
+
+      {/* ── STATIC vs ANIMATED COMPARISON ── */}
+      <StaticVsAnimatedSection />
+
+      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+          {/* Left: HUD animation preview card */}
+          <div className="order-2 lg:order-1">
+            <div className="hud-box rounded-none p-4 sm:p-5">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p
+                    className="mono text-[9px] text-[rgba(0,245,255,0.7)]"
+                    style={{ letterSpacing: "0.18em" }}
+                  >
+                    // ANIMATION_ENGINE
+                  </p>
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">
+                    Static flyer → animated MP4 with VFX
+                  </p>
+                </div>
+                <span className="chip-cx shrink-0">MP4 EXPORT</span>
+              </div>
+              {/* Mock animation timeline */}
+              <div className="relative overflow-hidden border border-[rgba(0,245,255,0.1)] bg-[#03040A] p-5">
+                <div className="mb-4 flex items-center gap-3">
+                  <div
+                    className="flex h-8 w-8 items-center justify-center border border-[rgba(0,245,255,0.3)]"
+                    style={{ background: "rgba(0,245,255,0.08)" }}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="var(--cx)"
+                      aria-hidden
+                    >
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-1.5 w-full overflow-hidden bg-[rgba(255,255,255,0.06)]">
+                      <div
+                        className="h-full w-2/3"
+                        style={{
+                          background:
+                            "linear-gradient(90deg, var(--cx), var(--cv))",
+                          boxShadow: "0 0 8px var(--cx)",
+                          animation: "stripeDrift 2s linear infinite",
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <span
+                    className="mono text-[9px]"
+                    style={{ color: "var(--cx)" }}
+                  >
+                    0:04 / 0:06
+                  </span>
+                </div>
+                {/* VFX layers */}
+                <div className="space-y-2">
+                  {[
+                    { label: "LIGHT LEAK", active: true, color: "var(--cx)" },
+                    { label: "PARTICLES", active: true, color: "var(--cv)" },
+                    { label: "TRANSITION", active: true, color: "var(--cg)" },
+                    {
+                      label: "GLOW FX",
+                      active: false,
+                      color: "rgba(255,255,255,0.2)",
+                    },
+                  ].map((layer) => (
+                    <div
+                      key={layer.label}
+                      className="flex items-center gap-3 border border-[rgba(255,255,255,0.05)] px-3 py-2"
+                    >
+                      <span
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{
+                          background: layer.active
+                            ? layer.color
+                            : "rgba(255,255,255,0.15)",
+                          boxShadow: layer.active
+                            ? `0 0 6px ${layer.color}`
+                            : "none",
+                          animation: layer.active
+                            ? "cornerPulse 2s ease-in-out infinite"
+                            : "none",
+                        }}
+                      />
+                      <span
+                        className="mono text-[9px] flex-1"
+                        style={{
+                          color: layer.active
+                            ? "rgba(255,255,255,0.7)"
+                            : "rgba(255,255,255,0.25)",
+                          letterSpacing: "0.14em",
+                        }}
+                      >
+                        {layer.label}
+                      </span>
+                      <span
+                        className="mono text-[9px]"
+                        style={{
+                          color: layer.active
+                            ? layer.color
+                            : "rgba(255,255,255,0.2)",
+                        }}
+                      >
+                        {layer.active ? "ON" : "OFF"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 border-t border-[rgba(0,245,255,0.08)] pt-3">
+                  <p
+                    className="mono text-[9px] text-[rgba(255,255,255,0.3)]"
+                    style={{ letterSpacing: "0.14em" }}
+                  >
+                    OUTPUT:{" "}
+                    <span style={{ color: "var(--cg)" }}>
+                      MP4 · 1080×1920 · 30fps
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: copy */}
+          <div className="order-1 lg:order-2">
+            <div className="sect-label">
+              <span className="chip-cx">● ANIMATED FLYERS</span>
+            </div>
+            <h2 className="orb text-[24px] font-bold leading-tight tracking-tight text-white sm:text-[40px]">
+              YOUR FLYER,
+              <br />
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 24px rgba(0,245,255,0.5)",
+                }}
+              >
+                NOW IN MOTION.
+              </span>
+            </h2>
+            <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+              Generate your event flyer, then bring it to life with the
+              animation engine. Add VFX effects — light leaks, particle bursts,
+              glows, and transitions — and export a ready-to-post MP4 video for
+              Reels, TikTok, and Stories.
+            </p>
+            <div className="mt-6 space-y-3">
+              {[
+                "Animated videos get 3× more reach than static posts",
+                "VFX effects: light leaks, particles, glows, transitions",
+                "Export as MP4 — ready for Reels, TikTok, and Stories",
+                "No video editing skills needed",
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 border border-[rgba(0,245,255,0.14)] bg-[rgba(0,245,255,0.04)] px-4 py-3"
+                >
+                  <span
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]"
+                    style={{ fontSize: 10, color: "var(--cx)" }}
+                  >
+                    ✓
+                  </span>
+                  <span className="sans text-sm text-[rgba(255,255,255,0.65)]">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <a
+              href="#pricing"
+              className="btn-cx-solid mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8"
+            >
+              START ANIMATING
+              <ArrowRight size={12} />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── PHOTO ENHANCEMENT ── */}
+      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div>
+            <div className="sect-label">
+              <span className="chip-v">● AI PHOTO ENHANCEMENT</span>
+            </div>
+            <h2 className="orb text-[24px] font-bold leading-tight tracking-tight text-white sm:text-[40px]">
+              LOOK THE PART
+              <br />
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 24px rgba(191,95,255,0.5)",
+                }}
+              >
+                ON EVERY PLATFORM.
+              </span>
+            </h2>
+            <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+              Upload a casual or low-quality DJ photo and get back a sharper,
+              more professional-looking image — ready for your profile, press
+              kit, social ads, and anywhere your brand needs to make an
+              impression.
+            </p>
+            <div className="mt-6 space-y-3">
+              {[
+                "Sharper, cleaner images from casual or rough photos",
+                "Better lighting, detail, and overall quality",
+                "Use across profiles, press kits, ads, and promo materials",
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 border border-[rgba(191,95,255,0.14)] bg-[rgba(191,95,255,0.04)] px-4 py-3"
+                >
+                  <span
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.4)]"
+                    style={{ fontSize: 10, color: "var(--cx)" }}
+                  >
+                    ✓
+                  </span>
+                  <span className="sans text-sm text-[rgba(255,255,255,0.65)]">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <a
+              href="#pricing"
+              className="btn-cv mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8"
+            >
+              SEE PLANS
+              <ArrowRight size={12} />
+            </a>
+          </div>
+
+          {/* Before/After */}
+          <div className="relative">
+            <div className="hud-box-v p-4 sm:p-5" style={{ borderRadius: 0 }}>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p
+                    className="mono text-[9px] text-[rgba(0,245,255,0.7)]"
+                    style={{ letterSpacing: "0.18em" }}
+                  >
+                    // BEFORE_AFTER_MODULE
+                  </p>
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">
+                    See how a rough photo transforms.
+                  </p>
+                </div>
+                <span className="chip-cx shrink-0">AI ENHANCED</span>
+              </div>
+              <div className="relative aspect-[4/5] overflow-hidden border border-[rgba(0,245,255,0.1)] sm:aspect-[5/4]">
+                <img
+                  src="/landing/before-after/dj-before.webp"
+                  alt="Before"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(3,4,10,0.5), transparent)",
+                  }}
+                />
+                <div className="ba-bl absolute left-3 top-3 z-30">
+                  <span className="chip-cx px-2 py-1" style={{ fontSize: 8 }}>
+                    BEFORE
+                  </span>
+                </div>
+                <div className="ba-after absolute inset-0 z-10">
+                  <img
+                    src="/landing/before-after/dj-after.jpg"
+                    alt="After"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(3,4,10,0.5), transparent)",
+                    }}
+                  />
+                </div>
+                <div className="ba-al absolute right-3 top-3 z-30">
+                  <span className="chip-v px-2 py-1" style={{ fontSize: 8 }}>
+                    AFTER
+                  </span>
+                </div>
+                <div
+                  className="ba-handle absolute top-0 z-20 h-full w-[1px] -translate-x-1/2"
+                  style={{
+                    background: "var(--cx)",
+                    boxShadow: "0 0 14px var(--cx)",
+                  }}
+                >
+                  <span
+                    className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-[rgba(0,245,255,0.5)]"
+                    style={{
+                      background: "#03040A",
+                      color: "var(--cx)",
+                      fontSize: 12,
+                    }}
+                  >
+                    ⇆
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── VISUAL EXAMPLES ── */}
+      <section
+        id="exemplos"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
+      >
+        <div className="max-w-3xl">
+          <div className="sect-label">
+            <span className="chip-cx">● VISUAL EXAMPLES</span>
+          </div>
+          <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+            FLYERS, VIDEOS & PHOTOS —{" "}
+            <span
+              style={{
+                color: "var(--cx)",
+                textShadow: "0 0 24px rgba(0,245,255,0.5)",
+              }}
+            >
+              ALL AI-GENERATED
+            </span>
+          </h2>
+          <p className="sans mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+            See what DJs on the platform are creating — premium event flyers,
+            animated MP4 videos with VFX, and AI-enhanced promo photos.
+          </p>
+        </div>
+        <div className="mt-10 min-h-[420px] sm:min-h-[640px] lg:min-h-[720px]">
+          <LandingBannerCarousel examples={landingBannerExamples} />
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── TESTIMONIALS ── */}
+      <section
+        className="relative z-10"
+        style={{ background: "rgba(0,245,255,0.02)" }}
+      >
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+          <div className="text-center">
+            <div className="sect-label justify-center">
+              <span className="chip-cx">● CLIENT TRANSMISSIONS</span>
+            </div>
+            <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+              DJS WHO{" "}
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 24px rgba(191,95,255,0.5)",
+                }}
+              >
+                LEVELED UP
+              </span>{" "}
+              THEIR PROMO
+            </h2>
+          </div>
+
+          {/* Scroll hint — mobile only */}
+          <p
+            className="mono mt-4 text-center text-[9px] text-[rgba(255,255,255,0.25)] sm:hidden"
+            style={{ letterSpacing: "0.14em" }}
+          >
+            ← SWIPE →
+          </p>
+
+          <div className="testi-scroll mt-8 sm:mt-12 sm:grid sm:gap-5 lg:grid-cols-3">
+            {testimonials.map((t) => (
+              <article key={t.name} className="testi-card">
+                <div
+                  className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(0,245,255,0.06), transparent 60%)",
+                  }}
+                />
+                <Quote size={18} style={{ color: "rgba(0,245,255,0.35)" }} />
+                <p className="sans mt-4 text-[13px] italic leading-7 text-[rgba(255,255,255,0.62)] sm:text-[14px] sm:min-h-[160px]">
+                  "{t.quote}"
+                </p>
+                <div className="mt-5 border-t border-[rgba(255,255,255,0.06)] pt-5">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex h-11 w-11 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.3)]"
+                      style={{ background: "rgba(0,245,255,0.08)" }}
+                    >
+                      <span
+                        className="orb text-sm font-bold"
+                        style={{ color: "var(--cx)" }}
+                      >
+                        {t.initials}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="sans text-sm font-semibold text-white">
+                        {t.name}
+                      </p>
+                      <p
+                        className="mono text-[9px] text-[rgba(255,255,255,0.35)]"
+                        style={{ letterSpacing: "0.12em" }}
+                      >
+                        {t.role} · {t.location}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <span className="chip-cx">{t.outcome}</span>
+                    <span className="chip-v">{t.metric}</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── ADVANTAGES ── */}
+      <section
+        id="vantagens"
+        className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
+      >
+        <div className="max-w-3xl">
+          <div className="sect-label">
+            <span className="chip-v">● SYSTEM FEATURES</span>
+          </div>
+          <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+            THREE TOOLS. ONE{" "}
+            <span
+              style={{
+                color: "var(--cx)",
+                textShadow: "0 0 24px rgba(0,245,255,0.5)",
+              }}
+            >
+              PLATFORM.
+            </span>
+          </h2>
+          <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
+            DJ Visuals AI gives you everything you need to create, animate, and
+            present your brand — without designers, video editors, or expensive
+            agencies.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-px bg-[rgba(0,245,255,0.06)] sm:mt-14 md:grid-cols-2 xl:grid-cols-3">
+          {advantages.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.title} className="adv-card">
+                <span
+                  className="orb absolute right-4 top-3 text-[44px] font-black"
+                  style={{ color: "rgba(0,245,255,0.05)", lineHeight: 1 }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div
+                  className="inline-flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.25)]"
+                  style={{ background: "rgba(0,245,255,0.07)" }}
+                >
+                  <Icon size={18} style={{ color: "var(--cx)" }} />
+                </div>
+                <h3 className="orb mt-4 text-[12px] font-bold tracking-wider text-white uppercase sm:mt-5 sm:text-[13px]">
+                  {item.title}
+                </h3>
+                <p className="sans mt-2 text-sm leading-7 text-[rgba(255,255,255,0.48)] sm:mt-3">
+                  {item.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── HOW IT WORKS ── */}
+      <section
+        id="como-funciona"
+        className="relative z-10"
+        style={{ background: "rgba(191,95,255,0.02)" }}
+      >
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+            <div>
+              <div className="sect-label">
+                <span className="chip-cx">● WORKFLOW PROTOCOL</span>
+              </div>
+              <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+                THREE STEPS TO A{" "}
+                <span
+                  style={{
+                    color: "var(--cg)",
+                    textShadow: "0 0 20px rgba(0,255,159,0.5)",
+                  }}
+                >
+                  COMPLETE
+                </span>
+                <br />
+                PROMO DROP.
+              </h2>
+              <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
+                Generate your flyer, animate it into a video, and polish your DJ
+                photo — three tools in one workflow, built to get you from idea
+                to posted content fast.
+              </p>
+            </div>
+            <div className="hud-box-v p-5 sm:p-7">
+              <p
+                className="mono mb-5 text-[9px] text-[rgba(191,95,255,0.7)]"
+                style={{ letterSpacing: "0.18em" }}
+              >
+                // WORKFLOW: FLYER → ANIMATION → PHOTO
+              </p>
+              <div className="space-y-0">
+                {[
+                  "Generate a premium event flyer with AI in minutes",
+                  "Animate the flyer with VFX and export as MP4",
+                  "Enhance your DJ photo for profiles and ads",
+                  "Post across Instagram, TikTok, and Stories",
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-4 border-b border-[rgba(255,255,255,0.05)] py-4 last:border-0"
+                  >
+                    <span
+                      className="orb text-[20px] font-black shrink-0"
+                      style={{ color: "rgba(191,95,255,0.3)", lineHeight: 1.2 }}
+                    >
+                      0{i + 1}
+                    </span>
+                    <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.62)]">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── PRICING ── */}
+      <section id="pricing" className="relative z-10 scroll-mt-24">
+        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="sect-label justify-center">
+              <span className="chip-cx">● ACCESS TIERS</span>
+            </div>
+            <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+              FULL ACCESS.{" "}
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 24px rgba(0,245,255,0.5)",
+                }}
+              >
+                THREE TIERS.
+              </span>
+            </h2>
+            <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
+              Every plan includes flyer generation, animated MP4 export, and DJ
+              photo enhancement. Pick the volume that fits your promo schedule.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-5 sm:mt-12 lg:grid-cols-3">
+            {pricingPlans.map((plan) => (
+              <div
+                key={plan.plan}
+                className={`hud-box relative overflow-hidden p-6 transition-all sm:hover:-translate-y-1 ${plan.highlighted ? "plan-featured" : ""}`}
+              >
+                {plan.highlighted && (
+                  <div
+                    className="absolute inset-x-0 top-0 h-[1px]"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent, var(--cx), var(--cv), transparent)",
+                    }}
+                  />
+                )}
+                {plan.highlighted && (
+                  <div className="mb-3">
+                    <span className="chip-cx">MOST POPULAR</span>
+                  </div>
+                )}
+
+                <h3 className="orb text-lg font-bold tracking-wider text-white uppercase">
+                  {plan.name}
+                </h3>
+                <p className="sans mt-2 text-sm leading-6 text-[rgba(255,255,255,0.48)]">
+                  {plan.description}
+                </p>
+
+                <div className="mt-5 flex items-end gap-1">
+                  <span
+                    className="orb text-[38px] font-black leading-none text-white"
+                    style={{ letterSpacing: "-0.04em" }}
+                  >
+                    {plan.price}
+                  </span>
+                  <span className="sans mb-1 text-sm text-[rgba(255,255,255,0.3)]">
+                    {plan.period}
+                  </span>
+                </div>
+
+                <div className="mt-4 border border-[rgba(0,245,255,0.15)] bg-[rgba(0,245,255,0.05)] px-4 py-3">
+                  <p
+                    className="sans text-sm font-medium"
+                    style={{ color: "var(--cx)" }}
+                  >
+                    {plan.credits}
+                  </p>
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.35)]">
+                    {plan.costNote}
+                  </p>
+                </div>
+
+                <div className="mt-5">
+                  <PricingButton plan={plan.plan} label={plan.cta} />
+                </div>
+
+                <div className="mt-6 space-y-3">
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex items-start gap-3">
+                      <span
+                        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.35)]"
+                        style={{ fontSize: 9, color: "var(--cx)" }}
+                      >
+                        ✓
+                      </span>
+                      <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.55)]">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="sans mx-auto mt-7 max-w-2xl text-center text-xs leading-6 text-[rgba(255,255,255,0.28)]">
+            After payment, your account is created from the email used at
+            checkout. You will receive a secure link to create your password.
+          </p>
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── FAQ ── */}
+      <section className="relative z-10">
+        <div className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
+          <div className="text-center">
+            <div className="sect-label justify-center">
+              <span className="chip-v">● SYSTEM FAQ</span>
+            </div>
+            <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
+              QUESTIONS BEFORE YOU{" "}
+              <span
+                style={{
+                  color: "var(--cv)",
+                  textShadow: "0 0 20px rgba(191,95,255,0.5)",
+                }}
+              >
+                DROP YOUR FIRST VISUAL
+              </span>
+            </h2>
+          </div>
+          <div className="mt-8 space-y-2 sm:mt-12">
+            {faqs.map((item) => (
+              <details
+                key={item.question}
+                className="group border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)] transition-colors hover:border-[rgba(0,245,255,0.2)]"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 sm:px-6 sm:py-5">
+                  <span className="sans text-sm font-medium text-white sm:text-base">
+                    {item.question}
+                  </span>
+                  <span className="faq-plus flex h-7 w-7 shrink-0 items-center justify-center border border-[rgba(255,255,255,0.1)] text-lg leading-none">
+                    +
+                  </span>
+                </summary>
+                <div className="border-t border-[rgba(0,245,255,0.08)] px-5 pb-5 pt-4 sm:px-6">
+                  <p className="sans text-sm leading-7 text-[rgba(255,255,255,0.52)]">
+                    {item.answer}
+                  </p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="glow-divider" />
+
+      {/* ── FINAL CTA ── */}
+      <section
+        className="relative z-10 overflow-hidden"
+        style={{ background: "rgba(0,245,255,0.02)" }}
+      >
+        <div className="pointer-events-none absolute inset-0">
+          <div
+            className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[400px] sm:w-[400px]"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(0,245,255,0.08), transparent 60%)",
+            }}
+          />
+        </div>
+        <div className="relative mx-auto w-full max-w-4xl px-4 py-14 text-center sm:px-8 sm:py-24">
+          <div className="sect-label justify-center">
+            <span className="chip-cx">● START YOUR FIRST DROP</span>
+          </div>
+          <h2 className="orb text-[28px] font-black leading-tight text-white sm:text-[54px]">
+            YOUR NEXT EVENT
+            <br />
+            DESERVES A{" "}
+            <span
+              style={{
+                color: "var(--cx)",
+                textShadow: "0 0 40px rgba(0,245,255,0.7)",
+              }}
+            >
+              FLYER,
+            </span>
+            <br />
+            <span
+              style={{
+                color: "var(--cv)",
+                textShadow: "0 0 40px rgba(191,95,255,0.7)",
+              }}
+            >
+              A VIDEO,
+            </span>{" "}
+            AND A LOOK.
+          </h2>
+          <p className="sans mx-auto mt-5 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base">
+            Join thousands of DJs generating premium flyers, animated videos,
+            and professional photos — all from one AI platform built for the
+            music scene.
+          </p>
+          <a
+            href="#pricing"
+            className="btn-cx-solid mt-8 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:mt-9 sm:px-12 sm:py-4 sm:text-[12px]"
+          >
+            START CREATING NOW
+            <ArrowRight size={14} />
+          </a>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer
+        className="relative z-10 border-t border-[rgba(0,245,255,0.1)]"
+        style={{ background: "#03040A" }}
+      >
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-8 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
+          <p
+            className="mono text-xs text-[rgba(255,255,255,0.25)]"
+            style={{ letterSpacing: "0.12em" }}
+          >
+            © 2026 DJ VISUALS AI · ALL RIGHTS RESERVED
+          </p>
+          <nav className="flex flex-wrap items-center gap-6">
+            <Link
+              href="/terms"
+              className="mono text-[10px] text-[rgba(255,255,255,0.28)] tracking-widest uppercase transition hover:text-[var(--cx)]"
+            >
+              Terms of Use
+            </Link>
+            <Link
+              href="/privacy"
+              className="mono text-[10px] text-[rgba(255,255,255,0.28)] tracking-widest uppercase transition hover:text-[var(--cx)]"
+            >
+              Privacy Policy
+            </Link>
+          </nav>
+        </div>
+      </footer>
     </main>
   );
 }
 
-function MatchedExamplesPanel({
-  state,
-  eyebrow,
-  title,
-  compact = false,
-}: {
-  state: FunnelState;
-  eyebrow: string;
-  title: string;
-  compact?: boolean;
-}) {
-  const examples = getExamplesForState(state);
-
+function LandingCarouselLoading() {
   return (
-    <section className="hud overflow-hidden p-4 sm:p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.64)]">
-            {eyebrow}
-          </p>
-          <h3 className="orb mt-1 text-sm font-bold uppercase tracking-[0.08em] text-white sm:text-base">
-            {title}
-          </h3>
+    <div className="mx-auto w-full max-w-[1120px]">
+      <div className="relative mx-auto w-full max-w-[420px] sm:max-w-[520px] lg:max-w-[620px]">
+        <div
+          className="aspect-[4/5] max-h-[76vh] overflow-hidden border border-[rgba(0,245,255,0.12)]"
+          style={{ background: "linear-gradient(135deg, #0D0F1A, #03040A)" }}
+        >
+          <div
+            className="h-full w-full animate-pulse"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(0,245,255,0.05), transparent)",
+            }}
+          />
         </div>
-        <p className="sans max-w-sm text-xs leading-5 text-white/42">
-          The examples adapt as you choose your goal, volume, and creative
-          needs.
-        </p>
       </div>
-
-      <div
-        className={`example-scroll mt-4 flex gap-3 overflow-x-auto pb-1 ${
-          compact
-            ? "lg:grid lg:grid-cols-3 lg:overflow-visible"
-            : "lg:grid lg:grid-cols-3 lg:overflow-visible"
-        }`}
-      >
-        {examples.map((example, index) => (
-          <CreativeExampleCard
-            key={`${example.title}-${index}`}
-            example={example}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function CreativeExampleCard({ example }: { example: CreativeExample }) {
-  const [playing, setPlaying] = useState(false);
-  const hasVimeo = example.kind === "vimeo" && Boolean(example.vimeoId);
-  const vimeoSrc = hasVimeo
-    ? `https://player.vimeo.com/video/${example.vimeoId}?autoplay=0&muted=0&loop=0&autopause=1&title=0&byline=0&portrait=0&badge=0&playsinline=1&controls=1`
-    : "";
-
-  return (
-    <article className="min-w-[76%] overflow-hidden border border-white/10 bg-black/24 sm:min-w-[245px] lg:min-w-0">
-      <button
-        type="button"
-        onClick={() => hasVimeo && setPlaying(true)}
-        className="relative block aspect-[4/5] w-full overflow-hidden bg-black text-left"
-        aria-label={
-          hasVimeo ? `Open video example: ${example.title}` : example.title
-        }
-      >
-        <img
-          src={example.image}
-          alt={example.title}
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-        />
-        <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(3,4,10,0.04),rgba(3,4,10,0.46))]" />
-
-        {playing && hasVimeo ? (
-          <iframe
-            src={vimeoSrc}
-            title={example.title}
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            className="absolute inset-0 h-full w-full border-0"
-          />
-        ) : null}
-
-        {hasVimeo && !playing ? (
-          <span className="absolute inset-0 grid place-items-center">
-            <span className="grid h-12 w-12 place-items-center border border-[rgba(0,245,255,0.42)] bg-[rgba(0,245,255,0.12)] text-[var(--cx)] shadow-[0_0_30px_rgba(0,245,255,0.28)]">
-              <Play size={18} fill="currentColor" />
-            </span>
-          </span>
-        ) : null}
-
-        <span className="mono absolute left-3 top-3 border border-[rgba(0,245,255,0.22)] bg-black/58 px-2 py-1 text-[7px] uppercase tracking-[0.16em] text-[var(--cx)] backdrop-blur-sm">
-          {example.tag}
-        </span>
-      </button>
-    </article>
-  );
-}
-
-function StepBlock({
-  eyebrow,
-  title,
-  subtitle,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-  children: ReactNode;
-}) {
-  return (
-    <div>
-      <span className="mono text-[9px] uppercase tracking-[0.18em] text-[var(--cx)]">
-        {eyebrow}
-      </span>
-      <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
-        {title}
-      </h2>
-      <p className="sans mt-3 text-sm leading-6 text-white/52">{subtitle}</p>
-      <div className="mt-6 grid items-start gap-3 sm:grid-cols-2">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: ComponentType<{ size?: number; className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="hud p-4">
-      <Icon size={17} className="text-[var(--cx)]" />
-      <p className="mono mt-3 text-[8px] uppercase tracking-[0.16em] text-white/36">
-        {label}
-      </p>
-      <p className="orb mt-1 text-lg font-black uppercase text-white">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function MiniStat({
-  label,
-  value,
-  accent = false,
-}: {
-  label: string;
-  value: string;
-  accent?: boolean;
-}) {
-  return (
-    <div className="min-w-0 border border-white/10 bg-black/20 p-2.5 sm:p-3">
-      <p className="mono truncate text-[7px] uppercase tracking-[0.12em] text-white/38 sm:text-[8px] sm:tracking-[0.14em]">
-        {label}
-      </p>
-      <p
-        className={`sans mt-1 break-words text-base font-black leading-tight sm:text-lg ${accent ? "text-[var(--cg)]" : "text-white"}`}
-      >
-        {value}
-      </p>
     </div>
   );
 }

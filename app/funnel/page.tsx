@@ -201,6 +201,39 @@ const creativeExamples = {
   ],
 } satisfies Record<string, CreativeExample[]>;
 
+const funnelTestimonials = [
+  {
+    initials: "NW",
+    name: "Noah Walker",
+    role: "Open format DJ",
+    location: "Miami, FL",
+    outcome: "Saves time",
+    metric: "Looks legit",
+    quote:
+      "I was paying a graphic designer $80–100 a flyer and half the time I'd go back and forth three times before it looked right. Now I just do it myself. Took me like 10 minutes the first time and it came out better than what I was getting. The animated version is what really got people's attention on Instagram.",
+  },
+  {
+    initials: "DM",
+    name: "Daniel Morgan",
+    role: "Club DJ",
+    location: "Orlando, FL",
+    outcome: "More bookings",
+    metric: "Better content",
+    quote:
+      "Honestly I was skeptical. I've tried other AI tools and they always look fake or generic. This one actually understands the vibe — dark, bold, club-ready. Posted an animated flyer for a Friday night set and got three DM inquiries that weekend. That never happened with my old graphics.",
+  },
+  {
+    initials: "TC",
+    name: "Tyler Carter",
+    role: "Event DJ",
+    location: "Los Angeles, CA",
+    outcome: "Cut design costs",
+    metric: "Full control",
+    quote:
+      "I do about 6–8 events a month so the design costs were adding up fast. I switched to this and the first month I probably saved $300. But honestly the bigger thing is I can make changes on the fly — if the lineup changes or the venue swaps I just regenerate it. No waiting on anyone.",
+  },
+] as const;
+
 function getExamplesForState(state: FunnelState): CreativeExample[] {
   if (state.need === "flyers") {
     return [
@@ -257,6 +290,18 @@ function getExamplesForState(state: FunnelState): CreativeExample[] {
   ];
 }
 
+
+function getTestimonialForState(state: FunnelState) {
+  if (state.need === "animations") return funnelTestimonials[1];
+  if (state.need === "all" || state.goal === "agency") return funnelTestimonials[2];
+  if (state.pain === "designer" || state.pain === "speed") {
+    return funnelTestimonials[0];
+  }
+  if (state.goal === "events" || state.volume === "high" || state.volume === "scale") {
+    return funnelTestimonials[2];
+  }
+  return funnelTestimonials[0];
+}
 
 async function openPublicCheckout(
   plan: PlanVariant,
@@ -839,9 +884,9 @@ export default function FunnelPage() {
               Build your promo workflow in 60 seconds.
             </h1>
             <p className="sans mt-5 max-w-lg text-base leading-6 text-white/58 sm:text-lg">
-              Answer a few quick questions and get a personalized plan for flyers,
-              animated videos, and professional images — matched to your monthly
-              content volume.
+              Answer a few quick questions and get a personalized plan for
+              flyers, animated videos, and professional images — matched to your
+              monthly content volume.
             </p>
           </div>
         ) : null}
@@ -861,11 +906,12 @@ export default function FunnelPage() {
                     Step 01
                   </span>
                   <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
-                    Who are we building this for?
+                    Let&apos;s build your personalized promo plan.
                   </h2>
                   <p className="sans mt-3 text-sm leading-6 text-white/52">
-                    Your name lets the funnel create a more personal plan and
-                    checkout experience.
+                    Enter your name to start a quick 60-second diagnosis.
+                    We&apos;ll match you with the best plan for your content
+                    volume, goals, and creative workflow.
                   </p>
                   <label className="mt-6 grid gap-2">
                     <span className="mono text-[9px] uppercase tracking-[0.18em] text-white/42">
@@ -999,6 +1045,11 @@ export default function FunnelPage() {
                     title="Examples based on your answers"
                     compact
                   />
+                  {step >= 3 ? (
+                    <div className="mt-4">
+                      <FunnelTestimonialCard testimonial={getTestimonialForState(state)} />
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -1028,6 +1079,8 @@ export default function FunnelPage() {
                       value={`${selectedPlanData.credits}/mo`}
                     />
                   </div>
+
+                  <FunnelTestimonialsGrid />
 
                   <div className="grid items-start gap-3 lg:grid-cols-3">
                     {(Object.keys(plans) as PlanVariant[]).map((planKey) => (
@@ -1064,7 +1117,8 @@ export default function FunnelPage() {
                       )}
                     </button>
                     <p className="sans mt-2 text-center text-xs leading-6 text-white/52">
-                      First checkout button — placed directly below the plan cards.
+                      First checkout button — placed directly below the plan
+                      cards.
                     </p>
                   </div>
 
@@ -1228,6 +1282,89 @@ export default function FunnelPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+function FunnelTestimonialCard({
+  testimonial,
+}: {
+  testimonial: (typeof funnelTestimonials)[number];
+}) {
+  return (
+    <section className="hud overflow-hidden p-4 sm:p-5">
+      <div className="flex items-start gap-3">
+        <div className="grid h-11 w-11 shrink-0 place-items-center border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.08)]">
+          <span className="orb text-sm font-black text-[var(--cx)]">
+            {testimonial.initials}
+          </span>
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mono border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.07)] px-2 py-1 text-[7px] uppercase tracking-[0.14em] text-[var(--cg)]">
+              {testimonial.outcome}
+            </span>
+            <span className="mono border border-[rgba(191,95,255,0.22)] bg-[rgba(191,95,255,0.07)] px-2 py-1 text-[7px] uppercase tracking-[0.14em] text-[var(--cv)]">
+              {testimonial.metric}
+            </span>
+          </div>
+          <p className="sans mt-3 text-sm leading-6 text-white/64">
+            “{testimonial.quote}”
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-white/42">
+            <strong className="text-white/78">{testimonial.name}</strong>
+            <span>·</span>
+            <span>{testimonial.role}</span>
+            <span>·</span>
+            <span>{testimonial.location}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FunnelTestimonialsGrid() {
+  return (
+    <section className="hud overflow-hidden p-4 sm:p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.64)]">
+            Social proof
+          </p>
+          <h3 className="orb mt-1 text-sm font-bold uppercase tracking-[0.08em] text-white sm:text-base">
+            Real feedback from creators using DJ Visuals AI
+          </h3>
+        </div>
+      </div>
+
+      <div className="mt-4 grid items-start gap-3 lg:grid-cols-3">
+        {funnelTestimonials.map((testimonial) => (
+          <article
+            key={testimonial.name}
+            className="border border-white/10 bg-black/24 p-3"
+          >
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center border border-[rgba(0,245,255,0.22)] bg-[rgba(0,245,255,0.08)]">
+                <span className="orb text-xs font-black text-[var(--cx)]">
+                  {testimonial.initials}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="sans truncate text-sm font-bold text-white">
+                  {testimonial.name}
+                </p>
+                <p className="mono mt-0.5 truncate text-[7px] uppercase tracking-[0.12em] text-white/38">
+                  {testimonial.role} · {testimonial.location}
+                </p>
+              </div>
+            </div>
+            <p className="sans mt-3 text-xs leading-6 text-white/56">
+              “{testimonial.quote}”
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
