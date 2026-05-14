@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -199,55 +199,51 @@ const flyerExamples = [
     id: 1,
     label: "Club Night",
     static: "/landing/animation-demo/flyer-static.webp",
-    video: "/landing/animation-demo/flyer-animated.mp4",
+    vimeoId: "1192217227",
   },
   {
     id: 2,
     label: "Festival Set",
     static: "/landing/animation-demo/flyer-static2.webp",
-    video: "/landing/animation-demo/flyer-animated2.mp4",
+    vimeoId: "1192217229",
   },
   {
     id: 3,
     label: "Release Party",
     static: "/landing/animation-demo/flyer-static3.webp",
-    video: "/landing/animation-demo/flyer-animated3.mp4",
+    vimeoId: "1192223138",
   },
   {
     id: 4,
     label: "Residency",
     static: "/landing/animation-demo/flyer-static4.webp",
-    video: "/landing/animation-demo/flyer-animated4.mp4",
+    vimeoId: "1192227878",
   },
 ] as const;
 
 function VideoCard({
-  src,
+  vimeoId,
+  previewImage,
   index,
   playingId,
   setPlayingId,
 }: {
-  src: string;
+  vimeoId: string;
+  previewImage: string;
   index: number;
   playingId: number | null;
   setPlayingId: (id: number | null) => void;
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const playing = playingId === index;
-
-  // Pause whenever another card becomes active
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (playing) {
-      v.play().catch(() => {});
-    } else {
-      v.pause();
-      v.currentTime = 0;
-    }
-  }, [playing]);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const hasVimeoId = Boolean(vimeoId && !vimeoId.startsWith("REPLACE_WITH_"));
+  const vimeoSrc = hasVimeoId
+    ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=0&loop=1&autopause=0&title=0&byline=0&portrait=0&badge=0&playsinline=1`
+    : "";
 
   function handleClick() {
+    if (!hasVimeoId) return;
+    setIframeLoaded(false);
     setPlayingId(playing ? null : index);
   }
 
@@ -284,7 +280,7 @@ function VideoCard({
             className="mono truncate text-[7px] text-[rgba(255,255,255,0.4)]"
             style={{ letterSpacing: "0.1em" }}
           >
-            ANIMATED_{index + 1}.MP4
+            VIMEO_{index + 1}.MP4
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -292,12 +288,12 @@ function VideoCard({
             VFX
           </span>
           <span className="chip-cx" style={{ fontSize: 6, padding: "3px 6px" }}>
-            MP4
+            VIMEO
           </span>
         </div>
       </div>
 
-      {/* Video — 1024×1280 ratio */}
+      {/* Vimeo player — loaded only when the user taps */}
       <div
         className="relative w-full cursor-pointer bg-[#03040A]"
         style={{ aspectRatio: "1024 / 1280" }}
@@ -305,21 +301,49 @@ function VideoCard({
         role="button"
         aria-label={playing ? "Pause video" : "Play video"}
       >
-        <video
-          ref={videoRef}
-          src={src}
-          loop
-          playsInline
+        <img
+          src={previewImage}
+          alt={`Animated flyer preview ${index + 1}`}
           className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
         />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(3,4,10,0.06), rgba(3,4,10,0.24)), radial-gradient(circle at 50% 45%, transparent 0%, rgba(3,4,10,0.28) 100%)",
+          }}
+        />
+
+        {playing && hasVimeoId ? (
+          <iframe
+            src={vimeoSrc}
+            title={`Animated flyer example ${index + 1}`}
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            loading="lazy"
+            onLoad={() => setIframeLoaded(true)}
+            className="absolute inset-0 h-full w-full border-0 transition-opacity duration-500"
+            style={{ opacity: iframeLoaded ? 1 : 0 }}
+          />
+        ) : null}
+
+        {playing && hasVimeoId && !iframeLoaded ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-[rgba(3,4,10,0.26)] backdrop-blur-[1px]">
+            <div
+              className="h-9 w-9 rounded-full border border-[rgba(0,245,255,0.35)] border-t-[rgba(0,245,255,0.95)]"
+              style={{ animation: "spin 0.8s linear infinite" }}
+            />
+          </div>
+        ) : null}
 
         {/* Tap-to-play overlay */}
         {!playing && (
           <div
             className="absolute inset-0 flex flex-col items-center justify-center gap-2"
             style={{
-              background: "rgba(3,4,10,0.65)",
-              backdropFilter: "blur(2px)",
+              background: "rgba(3,4,10,0.30)",
+              backdropFilter: "blur(1px)",
             }}
           >
             <div
@@ -346,10 +370,12 @@ function VideoCard({
                 textShadow: "0 0 10px rgba(0,245,255,0.6)",
               }}
             >
-              TAP TO PLAY
+              {hasVimeoId ? "TAP TO PLAY" : "ADD VIMEO ID"}
             </p>
             <p className="sans px-4 text-center text-[10px] text-[rgba(255,255,255,0.4)]">
-              See the animated version
+              {hasVimeoId
+                ? "Play with sound"
+                : "Replace the Vimeo ID in app/page.tsx"}
             </p>
           </div>
         )}
@@ -407,7 +433,7 @@ function VideoCard({
                 className="mono text-[6px] text-[rgba(255,255,255,0.5)]"
                 style={{ letterSpacing: "0.12em" }}
               >
-                PAUSE
+                VIMEO
               </span>
             </div>
           </div>
@@ -424,7 +450,7 @@ function VideoCard({
               boxShadow: "0 0 8px rgba(191,95,255,0.25)",
             }}
           >
-            ANIMATED · MP4
+            ANIMATED · VIMEO
           </span>
         </div>
       </div>
@@ -578,7 +604,8 @@ function StaticVsAnimatedSection() {
 
               {/* Animated */}
               <VideoCard
-                src={ex.video}
+                vimeoId={ex.vimeoId}
+                previewImage={ex.static}
                 index={i}
                 playingId={playingId}
                 setPlayingId={setPlayingId}
@@ -661,6 +688,16 @@ async function notifyGiftLead(name: string, selectedPlan: PlanVariant) {
   } catch {
     // Notification should never block the user from seeing the plans.
   }
+}
+
+const WELCOME_GIFT_TIMER_MS = 10 * 60 * 1000;
+
+function formatCountdown(milliseconds: number) {
+  const totalSeconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
@@ -787,12 +824,31 @@ function FirstPurchaseGiftPopup({
   const [giftLeadNotified, setGiftLeadNotified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [giftExpiresAt, setGiftExpiresAt] = useState<number | null>(null);
+  const [countdownMs, setCountdownMs] = useState(WELCOME_GIFT_TIMER_MS);
+
+  useEffect(() => {
+    if (!open || step !== "plans" || giftExpiresAt === null) return;
+
+    const expiresAt = giftExpiresAt;
+
+    function updateCountdown() {
+      setCountdownMs(Math.max(0, expiresAt - Date.now()));
+    }
+
+    updateCountdown();
+    const intervalId = window.setInterval(updateCountdown, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [giftExpiresAt, open, step]);
 
   if (!open) return null;
 
   const selectedPlanData = pricingPlans.find(
     (plan) => plan.plan === selectedPlan,
   );
+  const formattedCountdown = formatCountdown(countdownMs);
+  const countdownFinished = countdownMs <= 0;
 
   function handleClaimGift() {
     const cleanName = name.trim();
@@ -809,6 +865,8 @@ function FirstPurchaseGiftPopup({
       void notifyGiftLead(cleanName, selectedPlan);
     }
 
+    setGiftExpiresAt(Date.now() + WELCOME_GIFT_TIMER_MS);
+    setCountdownMs(WELCOME_GIFT_TIMER_MS);
     setStep("plans");
   }
 
@@ -942,11 +1000,41 @@ function FirstPurchaseGiftPopup({
               <h2 className="orb text-[20px] font-black leading-tight text-white sm:text-[26px]">
                 {name.trim()}, choose your plan.
               </h2>
+            </div>
 
-              <p className="sans mt-2 max-w-[460px] text-xs leading-5 text-[rgba(255,255,255,0.52)] sm:text-sm sm:leading-6">
-                Your welcome gift is visually applied below. Select a plan and
-                continue to checkout.
-              </p>
+            <div className="mt-4 overflow-hidden">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.7)]">
+                    {countdownFinished
+                      ? "Gift window ended"
+                      : "Gift reserved for"}
+                  </p>
+                  <p className="sans mt-1 text-xs leading-5 text-white/62 sm:text-sm">
+                    {countdownFinished
+                      ? "Checkout now to see if your first-subscription gift is still available."
+                      : "Your 20% first-subscription gift is reserved while you choose a plan."}
+                  </p>
+                </div>
+
+                <div className="shrink-0 border border-[rgba(0,245,255,0.28)] bg-black/35 px-3 py-2 text-right shadow-[0_0_24px_rgba(0,245,255,0.12)]">
+                  <span className="mono block text-[18px] font-black leading-none text-[var(--cx)] sm:text-[22px]">
+                    {formattedCountdown}
+                  </span>
+                  <span className="mono mt-1 block text-[7px] uppercase tracking-[0.16em] text-white/35">
+                    minutes
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 h-1 overflow-hidden bg-white/[0.06]">
+                <div
+                  className="h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] transition-all duration-500"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, (countdownMs / WELCOME_GIFT_TIMER_MS) * 100))}%`,
+                  }}
+                />
+              </div>
             </div>
 
             <div className="mt-4 grid gap-2">
@@ -1791,6 +1879,8 @@ export default function HomePage() {
         .gift-spark-a { right: 10px; top: 12px; animation-delay: 0.1s; }
         .gift-spark-b { bottom: 10px; left: 12px; animation-delay: 0.38s; background: var(--cv); box-shadow: 0 0 12px var(--cv); }
         .gift-spark-c { left: 6px; top: 26px; animation-delay: 0.68s; background: var(--cx); box-shadow: 0 0 12px var(--cx); }
+
+
         .coupon-applied { position: relative; overflow: hidden; }
         .coupon-applied::after {
           content: '';

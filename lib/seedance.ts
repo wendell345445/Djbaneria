@@ -298,57 +298,64 @@ async function uploadR2FileToAtlasStorage(params: {
   );
 }
 
-export const DEFAULT_SEEDANCE_MOTION_PROMPT = `Create a high-end animated DJ/event flyer video from [Image1], matching the level of a premium neon After Effects promo template: staged reveals, bold typography motion, layered light effects, cinematic depth, and a polished final hold.
+export const DEFAULT_SEEDANCE_MOTION_PROMPT = `Animate this flyer as a premium motion flyer video with a polished After Effects-style look.
 
-ABSOLUTE PRESERVATION RULES:
-- The output must remain the same flyer, only professionally animated.
-- Preserve the original person/artist exactly: face, facial identity, hairstyle, clothing, pose, body shape, expression, lighting direction, and silhouette.
-- Preserve all written text exactly as it appears in the flyer. Do not rewrite, correct, translate, remove, duplicate, invent, or replace any letters, numbers, dates, locations, names, logos, or brand elements.
-- Preserve the original layout, composition, colors, typography style, logo placement, visual hierarchy, and event information.
-- Do not generate a new poster. Do not redesign the flyer. Do not turn the subject into a live-action person.
+Use layered motion design with smooth micro-animations, subtle parallax, depth, glow, particles, light streaks, haze, reflections, and tasteful energy that enhances the flyer while preserving its original identity.
 
-CHARACTER LOCK RULES:
-The artist/person must behave like a locked poster layer, not like a moving human video.
-- Keep the character visually stable for the full clip.
-- No dancing, walking, turning, head movement, arm movement, hand movement, body sway, dramatic leaning, speaking, blinking, facial expression changes, clothing changes, or pose changes.
-- Allow only extremely subtle poster-layer parallax, tiny scale drift, and light/glow passing over the edges of the subject.
-- Character motion intensity must stay below 2%. The animation energy should come from typography, lights, particles, frames, background, reflections, and camera/layer motion.
+IMPORTANT:
+- Preserve the exact flyer identity, composition, face, hairstyle, facial features, text, logo, colors, layout, and overall branding.
+- Do not redesign the flyer.
+- Do not replace or distort the subject.
+- Do not alter the wording or typography.
+- Keep the flyer recognizable as the same artwork.
 
-TARGET STYLE:
-A premium animated flyer in the style of a professional DJ/nightclub promo made in After Effects:
-- bold neon headline reveal
-- secondary title/signature reveal
-- lower event-details panel drawing on screen
-- laser beams, glow sweeps, particles, reflections, haze, and atmospheric light movement
-- layered parallax between background, subject, text, borders, foreground smoke, and light streaks
-- glossy cyan, electric blue, magenta, pink, violet, gold, or colors matching the original flyer
-- clean, controlled, expensive-looking motion, not chaotic AI morphing
+ANIMATION STYLE:
+- Create elegant layered motion like a premium concert or DJ promo video.
+- Animate elements in place using subtle depth separation, floating highlights, glow pulses, moving particles, soft light sweeps, and refined motion accents.
+- Use smooth motion across the whole composition, with premium visual polish and natural continuity.
+- Add tasteful camera energy, but keep it controlled and cinematic.
 
-10-SECOND MOTION STRUCTURE:
-0.0s - 1.0s: Start with the flyer atmosphere alive. Background lights, lasers, haze, particles, and reflections move subtly. The subject is already present and locked, with only soft rim light movement.
-1.0s - 2.4s: Reveal the main headline/title as the dominant visual element. Use a masked neon wipe, glow sweep, quick scale-in, soft slide, or light-flare reveal. The exact original text must remain unchanged and readable.
-2.4s - 3.8s: Reveal the secondary title/name or supporting text with a more energetic accent: brush-like magenta sweep, electric outline, light streak, glow pulse, or small bounce. Do not warp or rewrite the letters.
-3.8s - 5.8s: Build intensity around the flyer. Add moving neon beams, vertical light bars, reflections on the floor, subtle smoke/haze, spark particles, and independent micro-motion on decorative elements.
-5.8s - 7.6s: Reveal the bottom event-information area. Draw the frame or border first, then reveal the event details line-by-line or with a clean type-on/mask effect. Keep all details sharp, stable, and legible.
-7.6s - 10.0s: Final hero hold. The full flyer is visible, text is readable, subject is stable, lights continue pulsing, particles drift, reflections shimmer, and the camera performs a very subtle push-in or floating drift.
+BACKGROUND CONTINUITY:
+- The background must remain continuous, stable, and visually coherent during the entire video.
+- Do not create hard cuts, jump cuts, scene changes, background swaps, or abrupt transitions.
+- Treat the video as one single continuous shot.
+- Keep the same scene, same visual world, same lighting direction, and same atmosphere from beginning to end.
+- Motion in the background should feel fluid and uninterrupted, with soft environmental movement instead of scene replacement.
+- Avoid any sudden visual break, harsh transition, or cut-like interruption.
 
-MOTION DESIGN RULES:
-- Animate the flyer in layers, not as one flat image.
-- The motion should feel designed, timed, and intentional, like a music-event promo template.
-- Use microanimation on borders, icons, shapes, background lights, smoke, glow, particles, and reflections.
-- Use cinematic parallax and depth, but keep the composition aligned with the original flyer.
-- Important text should remain stable long enough to read.
-- Avoid relying only on a basic zoom. Avoid boring static motion.
+OPENING / INTRO:
+- Start with a premium and smooth intro reveal.
+- The video should open gracefully, with a soft cinematic reveal of the flyer using subtle glow, light sweep, depth, and motion buildup.
+- The beginning should feel elegant and engaging, not abrupt.
+- Avoid sudden starts or harsh opening cuts.
+- The first second should establish the scene smoothly and professionally.
 
-NEGATIVE RULES:
-- No face deformation, no body deformation, no hand deformation, no melted text, no fake letters, no new logos, no changed event details, no new background replacing the flyer, no heavy camera spin, no chaotic shake, no extreme zoom, no live-action transformation, no character performance.
-- Do not let visual effects cover or hide important text.
-- Do not make the video look like a generic AI image-to-video clip. It must look like a professional animated flyer.
+TRANSITIONS / MOTION FLOW:
+- All motion should blend smoothly from one moment to the next.
+- Use soft transitions between motion accents, text reveals, glow pulses, and depth changes.
+- Motion should feel continuous and connected, never fragmented.
+- Avoid abrupt re-framing, teleporting elements, or disconnected movement.
 
-FINAL QUALITY TARGET:
-The result should feel like a premium, high-converting animated DJ flyer: bold, polished, energetic, clean, neon, cinematic, and highly marketable for nightlife, club events, concerts, festivals, DJs, parties, and social media ads.
+VISUAL EFFECTS:
+- Use premium DJ/event aesthetics: neon glow, soft reflections, light streaks, atmospheric haze, floating particles, and subtle energy pulses.
+- Effects should enhance the flyer, not overpower it.
+- Keep smoke very light or minimal.
+- No aggressive distortion.
+- No chaotic or messy motion.
 
-Generate a fitting event-promo soundtrack automatically when the provider supports generated audio. The soundtrack should match the neon reveals, headline impact, light pulses, build-up, and final hold while keeping the flyer message clear`;
+SUBJECT PRESERVATION:
+- Preserve the person’s identity exactly.
+- Keep the face, hair, skin tone, expression, and proportions consistent.
+- Do not morph the face or create a different person.
+
+TEXT PRESERVATION:
+- Preserve all text clearly and keep it readable.
+- Text can have subtle reveal or glow animation, but must not be rewritten, replaced, or deformed.
+
+FINAL RESULT:
+- The final animation should feel like a premium animated flyer for DJs and events.
+- It should look refined, energetic, cinematic, and professional.
+- The motion must feel smooth, continuous, and cohesive, with no hard cuts and no broken background continuity.`;
 
 export function buildSeedancePrompt(params: {
   motionInstructions?: string | null;
