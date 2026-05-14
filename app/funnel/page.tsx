@@ -257,6 +257,7 @@ function getExamplesForState(state: FunnelState): CreativeExample[] {
   ];
 }
 
+
 async function openPublicCheckout(
   plan: PlanVariant,
   name: string,
@@ -556,7 +557,7 @@ function StepOption({
           <span className="orb block text-sm font-bold uppercase tracking-[0.08em] text-white sm:text-base">
             {label}
           </span>
-          <span className="sans mt-2 block text-xs leading-5 text-white/48 sm:text-sm">
+          <span className="sans mt-2 block text-xs leading-6 text-white/48 sm:text-sm">
             {description}
           </span>
           {meta ? (
@@ -623,7 +624,7 @@ function PlanCard({
           <h3 className="orb break-words text-base font-black uppercase tracking-[-0.02em] text-white">
             {plan.name}
           </h3>
-          <p className="sans mt-2 text-xs leading-5 text-white/48">
+          <p className="sans mt-2 text-xs leading-6 text-white/48">
             {plan.bestFor}
           </p>
         </div>
@@ -837,10 +838,10 @@ export default function FunnelPage() {
             <h1 className="orb text-[34px] font-black uppercase leading-[0.98] tracking-[-0.05em] text-white sm:text-[54px] lg:text-[68px]">
               Build your promo workflow in 60 seconds.
             </h1>
-            <p className="sans mt-5 max-w-lg text-base leading-8 text-white/58 sm:text-lg">
-              Answer a few quick questions and get a personalized plan for
-              flyers, animated videos, and professional images — matched to your
-              monthly content volume.
+            <p className="sans mt-5 max-w-lg text-base leading-6 text-white/58 sm:text-lg">
+              Answer a few quick questions and get a personalized plan for flyers,
+              animated videos, and professional images — matched to your monthly
+              content volume.
             </p>
           </div>
         ) : null}
@@ -1010,7 +1011,7 @@ export default function FunnelPage() {
                     <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
                       {outcome.headline}
                     </h2>
-                    <p className="sans mt-3 text-sm leading-7 text-white/58">
+                    <p className="sans mt-3 text-sm leading-6 text-white/58">
                       {outcome.subheadline}
                     </p>
                   </div>
@@ -1040,7 +1041,7 @@ export default function FunnelPage() {
                     ))}
                   </div>
 
-                  <div className="relative overflow-hidden border sm:p-4">
+                  <div className="relative overflow-hidden border border-[rgba(0,245,255,0.2)] bg-[rgba(0,245,255,0.055)] p-3 shadow-[0_0_38px_rgba(0,245,255,0.12)] sm:p-4">
                     <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
                     <button
                       type="button"
@@ -1062,6 +1063,9 @@ export default function FunnelPage() {
                         <ArrowRight size={14} className="relative z-10" />
                       )}
                     </button>
+                    <p className="sans mt-2 text-center text-xs leading-6 text-white/52">
+                      First checkout button — placed directly below the plan cards.
+                    </p>
                   </div>
 
                   <div className="grid items-start gap-3 lg:grid-cols-[1.05fr_0.95fr]">
@@ -1123,7 +1127,7 @@ export default function FunnelPage() {
                           accent
                         />
                       </div>
-                      <p className="sans mt-4 rounded-none border-l border-[rgba(0,245,255,0.22)] bg-white/[0.025] px-3 py-2 text-[11px] leading-5 text-white/42 sm:text-xs">
+                      <p className="sans mt-4 rounded-none border-l border-[rgba(0,245,255,0.22)] bg-white/[0.025] px-3 py-2 text-[11px] leading-6 text-white/42 sm:text-xs">
                         Estimate based on a conservative $35 per promotional
                         piece. Actual savings vary by workflow.
                       </p>
@@ -1251,7 +1255,7 @@ function MatchedExamplesPanel({
             {title}
           </h3>
         </div>
-        <p className="sans max-w-sm text-xs leading-5 text-white/42">
+        <p className="sans max-w-sm text-xs leading-6 text-white/42">
           The examples adapt as you choose your goal, volume, and creative
           needs.
         </p>
