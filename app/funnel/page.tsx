@@ -1014,7 +1014,6 @@ export default function FunnelPage() {
                     </p>
                   </div>
 
-
                   <div className="grid items-start gap-3 lg:grid-cols-3">
                     {(Object.keys(plans) as PlanVariant[]).map((planKey) => (
                       <PlanCard
@@ -1343,7 +1342,6 @@ function StepBlock({
     </div>
   );
 }
-
 
 function MiniStat({
   label,
