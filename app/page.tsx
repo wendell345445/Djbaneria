@@ -439,50 +439,19 @@ function VideoCard({
           </div>
         )}
 
-        {/* Bottom label */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-          <span
-            className="mono whitespace-nowrap border border-[rgba(191,95,255,0.4)] px-2 py-0.5 text-[7px] backdrop-blur-sm"
-            style={{
-              background: "rgba(191,95,255,0.15)",
-              color: "var(--cv)",
-              letterSpacing: "0.16em",
-              boxShadow: "0 0 8px rgba(191,95,255,0.25)",
-            }}
-          >
-            ANIMATED · VIMEO
-          </span>
-        </div>
       </div>
 
       {/* Bottom bar */}
       <div className="border-t border-[rgba(191,95,255,0.1)] px-3 py-2">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {[
-            { label: "LIGHT LEAK", color: "var(--cx)" },
-            { label: "PARTICLES", color: "var(--cv)" },
-            { label: "TRANSITION", color: "var(--cg)" },
-          ].map((fx) => (
-            <span
-              key={fx.label}
-              className="mono flex items-center gap-1 text-[6px]"
-              style={{ color: "rgba(255,255,255,0.4)", letterSpacing: "0.1em" }}
-            >
-              <span
-                className="h-1 w-1 rounded-full"
-                style={{
-                  background: fx.color,
-                  boxShadow: `0 0 3px ${fx.color}`,
-                }}
-              />
-              {fx.label}
-            </span>
-          ))}
+        <div className="flex min-h-5 items-center justify-center">
           <span
-            className="mono ml-auto text-[6px] text-[rgba(255,255,255,0.22)]"
-            style={{ letterSpacing: "0.08em" }}
+            className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[var(--cv)]"
+            style={{
+              letterSpacing: "0.16em",
+              textShadow: "0 0 10px rgba(191,95,255,0.45)",
+            }}
           >
-            1024×1280
+            ANIMATED VIDEO
           </span>
         </div>
       </div>
@@ -585,20 +554,20 @@ function StaticVsAnimatedSection() {
                         "linear-gradient(to bottom, transparent 70%, rgba(3,4,10,0.55))",
                     }}
                   />
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                </div>
+
+                <div className="border-t border-[rgba(0,245,255,0.07)] px-3 py-2">
+                  <div className="flex min-h-5 items-center justify-center">
                     <span
-                      className="mono whitespace-nowrap border border-[rgba(255,255,255,0.12)] bg-[rgba(3,4,10,0.75)] px-2 py-0.5 text-[7px] text-[rgba(255,255,255,0.4)] backdrop-blur-sm"
-                      style={{ letterSpacing: "0.14em" }}
+                      className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[rgba(255,255,255,0.48)]"
+                      style={{
+                        letterSpacing: "0.16em",
+                        textShadow: "0 0 8px rgba(255,255,255,0.18)",
+                      }}
                     >
                       NO MOTION
                     </span>
                   </div>
-                </div>
-
-                <div className="border-t border-[rgba(0,245,255,0.07)] px-3 py-2">
-                  <p className="sans text-[10px] text-[rgba(255,255,255,0.28)]">
-                    Static image
-                  </p>
                 </div>
               </div>
 
