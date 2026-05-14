@@ -7,6 +7,7 @@ import {
 } from "@/generated/prisma/enums";
 
 import { isAdminEmail } from "@/lib/admin";
+import { reserveWorkspaceCredits } from "@/lib/credits";
 import {
   buildBillingSummary,
   getCreditCycleUsageDateFilter,
@@ -63,9 +64,12 @@ const motionSchema = z.object({
     "GLITCH_ZOOM",
     "VIRAL_SHAKE",
   ]),
-  durationSeconds: z.coerce.number().int().refine((value) => [10, 15].includes(value), {
-    message: "Escolha uma duração válida.",
-  }),
+  durationSeconds: z.coerce
+    .number()
+    .int()
+    .refine((value) => [10, 15].includes(value), {
+      message: "Escolha uma duração válida.",
+    }),
 });
 
 function sanitizeFileName(value: string) {
@@ -99,86 +103,25 @@ async function reserveMotionCredit(params: {
   requiredUnits: number;
   durationSeconds: number;
 }) {
-  if (params.isAdmin) {
-    return null;
-  }
-
-  const usageDateFilter = getCreditCycleUsageDateFilter({
-    providerSubscriptionId: params.providerSubscriptionId,
-    currentPeriodStart: params.currentPeriodStart,
-    currentPeriodEnd: params.currentPeriodEnd,
-  });
-
-  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
-    plan: params.plan,
-    providerSubscriptionId: params.providerSubscriptionId,
-    currentPeriodStart: params.currentPeriodStart,
-    currentPeriodEnd: params.currentPeriodEnd,
-  });
-
-  const usageEvents = await prisma.usageEvent.findMany({
-    where: {
-      workspaceId: params.workspaceId,
-      createdAt: usageDateFilter,
-      type: { in: [...CREDIT_EVENT_TYPES] },
-    },
-    select: {
-      units: true,
-      createdAt: true,
-      metadata: true,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
-
-  const summary = buildBillingSummary({
+  const reservation = await reserveWorkspaceCredits({
+    workspaceId: params.workspaceId,
     plan: params.plan,
     status: params.status,
-    usageEvents,
-    requiresPaymentConfirmation,
-    creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
-  });
-
-  const summaryAny = summary as any;
-  const usedUnits = usageEvents.reduce((total, event) => total + Number(event.units || 0), 0);
-  const fallbackRemainingCredits = Math.max(
-    0,
-    (PLAN_CREDIT_LIMITS[params.plan] || 0) - Math.max(0, usedUnits),
-  );
-
-  const remainingCredits =
-    typeof summaryAny.remainingCredits === "number"
-      ? summaryAny.remainingCredits
-      : typeof summaryAny.remaining === "number"
-        ? summaryAny.remaining
-        : typeof summaryAny.availableCredits === "number"
-          ? summaryAny.availableCredits
-          : fallbackRemainingCredits;
-
-  if (!summary.canGenerateBanner || remainingCredits < params.requiredUnits) {
-    throw new Error(
-      `Você precisa de ${params.requiredUnits} créditos para gerar um vídeo de ${params.durationSeconds}s. Créditos disponíveis: ${remainingCredits}.`,
-    );
-  }
-
-  const usageEvent = await prisma.usageEvent.create({
-    data: {
-      workspaceId: params.workspaceId,
-      type: UsageEventType.BANNER_MOTION_RENDER,
-      units: params.requiredUnits,
-      metadata: {
-        status: "reserved",
-        flow: "motion-flyer",
-        durationSeconds: params.durationSeconds,
-        creditsReserved: params.requiredUnits,
-        reservedAt: new Date().toISOString(),
-      },
+    providerSubscriptionId: params.providerSubscriptionId,
+    currentPeriodStart: params.currentPeriodStart,
+    currentPeriodEnd: params.currentPeriodEnd,
+    isAdmin: params.isAdmin,
+    requiredUnits: params.requiredUnits,
+    usageEventType: UsageEventType.BANNER_MOTION_RENDER,
+    metadata: {
+      flow: "motion-flyer",
+      durationSeconds: params.durationSeconds,
     },
-    select: { id: true },
+    insufficientCreditsMessage: ({ remainingCredits }) =>
+      `Você precisa de ${params.requiredUnits} créditos para gerar um vídeo de ${params.durationSeconds}s. Créditos disponíveis: ${remainingCredits}.`,
   });
 
-  return usageEvent.id;
+  return reservation.usageEventId;
 }
 
 export async function POST(
@@ -193,7 +136,10 @@ export async function POST(
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
 
-  await cleanupExpiredRemotionAssets({ workspaceId: workspace.id, limit: 20 }).catch(() => null);
+  await cleanupExpiredRemotionAssets({
+    workspaceId: workspace.id,
+    limit: 20,
+  }).catch(() => null);
 
   const { bannerId } = await params;
   const formData = await request.formData();
@@ -214,11 +160,17 @@ export async function POST(
   const audioWasTrimmed = wasTrimmedValue === "true";
 
   if (!(audio instanceof File)) {
-    return NextResponse.json({ error: "Envie uma música MP3, WAV, M4A, AAC ou OGG." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Envie uma música MP3, WAV, M4A, AAC ou OGG." },
+      { status: 400 },
+    );
   }
 
   if (audio.size <= 0 || audio.size > MAX_AUDIO_BYTES) {
-    return NextResponse.json({ error: "O áudio precisa ter até 30 MB." }, { status: 400 });
+    return NextResponse.json(
+      { error: "O áudio precisa ter até 30 MB." },
+      { status: 400 },
+    );
   }
 
   const allowedAudioTypes = new Set([
@@ -233,7 +185,10 @@ export async function POST(
   ]);
 
   if (audio.type && !allowedAudioTypes.has(audio.type)) {
-    return NextResponse.json({ error: "Formato de áudio não suportado." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Formato de áudio não suportado." },
+      { status: 400 },
+    );
   }
 
   const parsed = motionSchema.safeParse({
@@ -243,7 +198,10 @@ export async function POST(
   });
 
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.issues[0]?.message || "Dados inválidos." }, { status: 400 });
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message || "Dados inválidos." },
+      { status: 400 },
+    );
   }
 
   const banner = await prisma.banner.findFirst({
@@ -263,7 +221,10 @@ export async function POST(
   });
 
   if (!banner?.outputImageUrl) {
-    return NextResponse.json({ error: "Banner não encontrado ou ainda sem imagem final." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Banner não encontrado ou ainda sem imagem final." },
+      { status: 404 },
+    );
   }
 
   const motionCreditCost = getMotionCreditCost(parsed.data.durationSeconds);
@@ -310,7 +271,9 @@ export async function POST(
 
     const arrayBuffer = await audio.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const safeOriginalName = sanitizeFileName(audio.name || `audio.${getExtensionFromMime(audio.type)}`);
+    const safeOriginalName = sanitizeFileName(
+      audio.name || `audio.${getExtensionFromMime(audio.type)}`,
+    );
     const extension = safeOriginalName.includes(".")
       ? safeOriginalName.split(".").pop() || getExtensionFromMime(audio.type)
       : getExtensionFromMime(audio.type);
@@ -360,18 +323,26 @@ export async function POST(
       },
     });
 
-    return NextResponse.json({
-      motionId: motion.id,
-      status: motion.status,
-      renderProgress: motion.renderProgress,
-      queuePosition: jobsAhead + 1,
-    }, { status: 202 });
+    return NextResponse.json(
+      {
+        motionId: motion.id,
+        status: motion.status,
+        renderProgress: motion.renderProgress,
+        queuePosition: jobsAhead + 1,
+      },
+      { status: 202 },
+    );
   } catch (error) {
     if (usageEventId) {
-      await prisma.usageEvent.delete({ where: { id: usageEventId } }).catch(() => null);
+      await prisma.usageEvent
+        .delete({ where: { id: usageEventId } })
+        .catch(() => null);
     }
 
-    const message = error instanceof Error ? error.message : "Não foi possível iniciar o vídeo.";
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Não foi possível iniciar o vídeo.";
     const status = message.includes("créditos") ? 403 : 500;
     return NextResponse.json({ error: message }, { status });
   }

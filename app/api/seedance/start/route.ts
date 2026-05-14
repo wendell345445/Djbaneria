@@ -8,6 +8,7 @@ import {
 } from "@/generated/prisma/enums";
 
 import { isAdminEmail } from "@/lib/admin";
+import { reserveWorkspaceCredits } from "@/lib/credits";
 import { cleanupExpiredSeedanceVideos } from "@/lib/seedance/cleanup";
 import {
   buildBillingSummary,
@@ -67,7 +68,6 @@ const motionSchema = z.object({
 function getResolutionCreditCost(resolution: SeedanceResolution) {
   return resolution === "720" ? 12 : 5;
 }
-
 
 async function releaseStaleActiveSeedanceVideos(workspaceId: string) {
   const staleBefore = new Date(
@@ -131,93 +131,29 @@ async function reserveSeedanceCredit(params: {
   resolution: SeedanceResolution;
   motionInstructions: string;
 }) {
-  if (params.isAdmin) {
-    return null;
-  }
-
-  const usageDateFilter = getCreditCycleUsageDateFilter({
-    providerSubscriptionId: params.providerSubscriptionId,
-    currentPeriodStart: params.currentPeriodStart,
-    currentPeriodEnd: params.currentPeriodEnd,
-  });
-
-  const requiresPaymentConfirmation = requiresCreditCyclePaymentConfirmation({
-    plan: params.plan,
-    providerSubscriptionId: params.providerSubscriptionId,
-    currentPeriodStart: params.currentPeriodStart,
-    currentPeriodEnd: params.currentPeriodEnd,
-  });
-
-  const usageEvents = (await prisma.usageEvent.findMany({
-    where: {
-      workspaceId: params.workspaceId,
-      createdAt: usageDateFilter,
-      type: { in: [...CREDIT_EVENT_TYPES] },
-    },
-    select: {
-      units: true,
-      createdAt: true,
-      metadata: true,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  })) as MotionUsageEvent[];
-
-  const summary = buildBillingSummary({
+  const reservation = await reserveWorkspaceCredits({
+    workspaceId: params.workspaceId,
     plan: params.plan,
     status: params.status,
-    usageEvents,
-    requiresPaymentConfirmation,
-    creditCyclePaymentConfirmed: hasCreditCyclePaymentConfirmation(usageEvents),
-  });
-
-  const summaryAny = summary as any;
-  const usedUnits = usageEvents.reduce(
-    (total, event) => total + Number(event.units || 0),
-    0,
-  );
-  const fallbackRemainingCredits = Math.max(
-    0,
-    (PLAN_CREDIT_LIMITS[params.plan] || 0) - Math.max(0, usedUnits),
-  );
-
-  const remainingCredits =
-    typeof summaryAny.remainingCredits === "number"
-      ? summaryAny.remainingCredits
-      : typeof summaryAny.remaining === "number"
-        ? summaryAny.remaining
-        : typeof summaryAny.availableCredits === "number"
-          ? summaryAny.availableCredits
-          : fallbackRemainingCredits;
-
-  if (!summary.canGenerateBanner || remainingCredits < params.requiredUnits) {
-    throw new Error(
-      `Você precisa de ${params.requiredUnits} créditos para gerar vídeo em ${params.resolution}p. Créditos disponíveis: ${remainingCredits}.`,
-    );
-  }
-
-  const usageEvent = await prisma.usageEvent.create({
-    data: {
-      workspaceId: params.workspaceId,
-      type: UsageEventType.BANNER_MOTION_RENDER,
-      units: params.requiredUnits,
-      metadata: {
-        status: "reserved",
-        flow: "standalone-seedance-flyer",
-        engine: "seedance",
-        provider: getSeedanceProvider(),
-        model: getSeedanceModel(),
-        resolution: `${params.resolution}p`,
-        motionInstructions: params.motionInstructions || null,
-        creditsReserved: params.requiredUnits,
-        reservedAt: new Date().toISOString(),
-      },
+    providerSubscriptionId: params.providerSubscriptionId,
+    currentPeriodStart: params.currentPeriodStart,
+    currentPeriodEnd: params.currentPeriodEnd,
+    isAdmin: params.isAdmin,
+    requiredUnits: params.requiredUnits,
+    usageEventType: UsageEventType.BANNER_MOTION_RENDER,
+    metadata: {
+      flow: "standalone-seedance-flyer",
+      engine: "seedance",
+      provider: getSeedanceProvider(),
+      model: getSeedanceModel(),
+      resolution: `${params.resolution}p`,
+      motionInstructions: params.motionInstructions || null,
     },
-    select: { id: true },
+    insufficientCreditsMessage: ({ remainingCredits }) =>
+      `Você precisa de ${params.requiredUnits} créditos para gerar vídeo em ${params.resolution}p. Créditos disponíveis: ${remainingCredits}.`,
   });
 
-  return usageEvent.id;
+  return reservation.usageEventId;
 }
 
 async function readValidImage(file: File) {
@@ -309,7 +245,9 @@ function buildSeedanceStartError(error: unknown) {
       message: rawMessage,
       code: "INSUFFICIENT_CREDITS",
       requiredCredits: Number.isFinite(requiredCredits) ? requiredCredits : 0,
-      remainingCredits: Number.isFinite(remainingCredits) ? remainingCredits : 0,
+      remainingCredits: Number.isFinite(remainingCredits)
+        ? remainingCredits
+        : 0,
       billingUrl: "/dashboard/billing",
     };
   }

@@ -10,6 +10,11 @@ import {
 } from "@/generated/prisma/enums";
 import { isAdminEmail } from "@/lib/admin";
 import {
+  CreditReservationError,
+  refundReservedCredits,
+  reserveWorkspaceCredits,
+} from "@/lib/credits";
+import {
   buildBillingSummary,
   getCreditCycleUsageDateFilter,
   hasCreditCyclePaymentConfirmation,
@@ -68,7 +73,8 @@ const apiCopy = {
     invalidImage: "Upload a valid image.",
     rateLimit: "Too many attempts. Wait a moment and try again.",
     noCredits: "You have used all your credits for this cycle.",
-    inactiveSubscription: "Your subscription is not active for image generation.",
+    inactiveSubscription:
+      "Your subscription is not active for image generation.",
     missingOpenAi: "OPENAI_API_KEY was not configured.",
     invalidData: "Invalid data.",
     invalidFormat: "Invalid image format.",
@@ -79,9 +85,11 @@ const apiCopy = {
   },
   es: {
     invalidImage: "Sube una imagen válida.",
-    rateLimit: "Demasiados intentos seguidos. Espera un momento e inténtalo de nuevo.",
+    rateLimit:
+      "Demasiados intentos seguidos. Espera un momento e inténtalo de nuevo.",
     noCredits: "Has usado todos tus créditos de este ciclo.",
-    inactiveSubscription: "Tu suscripción no está activa para generar imágenes.",
+    inactiveSubscription:
+      "Tu suscripción no está activa para generar imágenes.",
     missingOpenAi: "OPENAI_API_KEY no fue configurada.",
     invalidData: "Datos inválidos.",
     invalidFormat: "Formato de imagen inválido.",
@@ -97,7 +105,11 @@ type ProfessionalPhotoDirection = z.infer<
   typeof professionalImageSchema
 >["photoDirection"];
 
-type ProfessionalImageStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+type ProfessionalImageStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "COMPLETED"
+  | "FAILED";
 
 function isProfessionalPhotoDirection(
   value: string | null | undefined,
@@ -264,7 +276,9 @@ function buildProfessionalImagePrompt(input: {
   workspaceName?: string | null;
   photoDirection?: string | null;
 }) {
-  const photoDirection = normalizeProfessionalPhotoDirection(input.photoDirection);
+  const photoDirection = normalizeProfessionalPhotoDirection(
+    input.photoDirection,
+  );
 
   return [
     "Use a foto enviada como base principal.",
@@ -294,7 +308,10 @@ async function createProfessionalImageFromBuffer(input: {
   prompt: string;
 }) {
   const formData = new FormData();
-  formData.append("model", process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2");
+  formData.append(
+    "model",
+    process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2",
+  );
   formData.append("prompt", input.prompt);
   formData.append("size", "1024x1536");
   formData.append("quality", "medium");
@@ -351,7 +368,8 @@ async function downloadInputImage(job: {
 
   return {
     buffer: Buffer.from(await response.arrayBuffer()),
-    mimeType: job.inputMimeType || response.headers.get("content-type") || "image/png",
+    mimeType:
+      job.inputMimeType || response.headers.get("content-type") || "image/png",
   };
 }
 
@@ -360,12 +378,14 @@ async function processProfessionalImageJob(params: {
   sourceBuffer?: Buffer;
   sourceMimeType?: string;
 }) {
-  const professionalImageJob = (prisma as typeof prisma & {
-    professionalImageJob: {
-      findUnique: (args: unknown) => Promise<any>;
-      update: (args: unknown) => Promise<any>;
-    };
-  }).professionalImageJob;
+  const professionalImageJob = (
+    prisma as typeof prisma & {
+      professionalImageJob: {
+        findUnique: (args: unknown) => Promise<any>;
+        update: (args: unknown) => Promise<any>;
+      };
+    }
+  ).professionalImageJob;
 
   const job = await professionalImageJob.findUnique({
     where: { id: params.jobId },
@@ -398,7 +418,8 @@ async function processProfessionalImageJob(params: {
       data: { progress: 58 },
     });
 
-    const prompt = job.prompt ||
+    const prompt =
+      job.prompt ||
       buildProfessionalImagePrompt({
         workspaceName: job.workspace?.name,
         photoDirection: job.photoDirection,
@@ -419,8 +440,9 @@ async function processProfessionalImageJob(params: {
     const finalPng = await sharp(generatedBuffer).png().toBuffer();
     const meta = await sharp(finalPng).metadata();
     const filenameBase =
-      sanitizeForFileName(`${job.workspace?.name || "workspace"}-professional-photo`) ||
-      `professional-photo-${Date.now()}`;
+      sanitizeForFileName(
+        `${job.workspace?.name || "workspace"}-professional-photo`,
+      ) || `professional-photo-${Date.now()}`;
     const outputKey = `workspaces/${job.workspaceId}/professional-images/${Date.now()}-${filenameBase}.png`;
 
     const uploaded = await uploadBufferToR2({
@@ -502,6 +524,7 @@ export async function POST(request: Request) {
 
   let locale = "en";
   let copy = getApiCopy(locale);
+  let reservedProfessionalImageUsageEventId: string | null = null;
 
   if (!rateLimit.allowed) {
     return NextResponse.json(
@@ -515,7 +538,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsed = professionalImageSchema.safeParse(body);
-    locale = parsed.success ? parsed.data.locale ?? "en" : "en";
+    locale = parsed.success ? (parsed.data.locale ?? "en") : "en";
     copy = getApiCopy(locale);
 
     if (!parsed.success) {
@@ -534,23 +557,7 @@ export async function POST(request: Request) {
     }
 
     const workspace = await requireCurrentWorkspace();
-    const billingSummary = await getProfessionalImageBillingSummary(workspace);
-
-    if (!billingSummary.isAdmin && !billingSummary.canGenerateBanner) {
-      return NextResponse.json(
-        {
-          error:
-            billingSummary.remainingCredits <= 0
-              ? copy.noCredits
-              : copy.inactiveSubscription,
-          code:
-            billingSummary.remainingCredits <= 0
-              ? "NO_CREDITS"
-              : "SUBSCRIPTION_INACTIVE",
-        },
-        { status: 403, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
+    const isAdmin = isAdminEmail(workspace.user?.email);
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
@@ -559,12 +566,34 @@ export async function POST(request: Request) {
       );
     }
 
-    const { buffer, mimeType } = dataUrlToFileParts(parsed.data.imageDataUrl, copy);
+    const { buffer } = dataUrlToFileParts(parsed.data.imageDataUrl, copy);
+    const normalizedInput = await sharp(buffer).png().toBuffer();
+
+    const reservation = await reserveWorkspaceCredits({
+      workspaceId: workspace.id,
+      plan: workspace.subscription?.plan || SubscriptionPlan.FREE,
+      status: workspace.subscription?.status || SubscriptionStatus.TRIALING,
+      providerSubscriptionId: workspace.subscription?.providerSubscriptionId,
+      currentPeriodStart: workspace.subscription?.currentPeriodStart,
+      currentPeriodEnd: workspace.subscription?.currentPeriodEnd,
+      isAdmin,
+      requiredUnits: PROFESSIONAL_IMAGE_COST,
+      usageEventType: UsageEventType.BANNER_GENERATION,
+      metadata: {
+        flow: "professional-image",
+        source: "professional-photo-page",
+        photoDirection: parsed.data.photoDirection,
+      },
+      insufficientCreditsMessage: ({ remainingCredits }) =>
+        remainingCredits <= 0 ? copy.noCredits : copy.inactiveSubscription,
+    });
+
+    reservedProfessionalImageUsageEventId = reservation.usageEventId;
+
     const filenameBase =
       sanitizeForFileName(`${workspace.name}-professional-photo-source`) ||
       `professional-photo-source-${Date.now()}`;
     const inputKey = `workspaces/${workspace.id}/professional-image-inputs/${Date.now()}-${filenameBase}.png`;
-    const normalizedInput = await sharp(buffer).png().toBuffer();
     const inputUpload = await uploadBufferToR2({
       key: inputKey,
       body: normalizedInput,
@@ -577,74 +606,39 @@ export async function POST(request: Request) {
       photoDirection: parsed.data.photoDirection,
     });
 
-    const professionalImageJob = (prisma as typeof prisma & {
-      professionalImageJob: {
-        create: (args: unknown) => Promise<any>;
-      };
-    }).professionalImageJob;
+    const professionalImageJob = (
+      prisma as typeof prisma & {
+        professionalImageJob: {
+          create: (args: unknown) => Promise<any>;
+        };
+      }
+    ).professionalImageJob;
 
-    const baseJobData = {
-      workspaceId: workspace.id,
-      status: "PENDING" satisfies ProfessionalImageStatus,
-      inputImageUrl: inputUpload.url,
-      inputImageStorageKey: inputKey,
-      inputMimeType: "image/png",
-      inputSizeBytes: normalizedInput.byteLength,
-      photoDirection: parsed.data.photoDirection,
-      locale,
-      prompt,
-      modelName: process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2",
-      creditsUsed: billingSummary.isAdmin ? 0 : PROFESSIONAL_IMAGE_COST,
-      progress: 12,
-    };
+    const job = await professionalImageJob.create({
+      data: {
+        workspaceId: workspace.id,
+        status: "PENDING" satisfies ProfessionalImageStatus,
+        inputImageUrl: inputUpload.url,
+        inputImageStorageKey: inputKey,
+        inputMimeType: "image/png",
+        inputSizeBytes: normalizedInput.byteLength,
+        photoDirection: parsed.data.photoDirection,
+        locale,
+        prompt,
+        modelName: process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2",
+        creditsUsed: isAdmin ? 0 : PROFESSIONAL_IMAGE_COST,
+        progress: 12,
+        usageEventId: reservation.usageEventId,
+      },
+      select: {
+        id: true,
+        status: true,
+        progress: true,
+        createdAt: true,
+      },
+    });
 
-    const job = billingSummary.isAdmin
-      ? await professionalImageJob.create({
-          data: {
-            ...baseJobData,
-            usageEventId: null,
-          },
-          select: {
-            id: true,
-            status: true,
-            progress: true,
-            createdAt: true,
-          },
-        })
-      : await prisma.$transaction(async (tx) => {
-          const usageEvent = await tx.usageEvent.create({
-            data: {
-              workspaceId: workspace.id,
-              type: UsageEventType.BANNER_GENERATION,
-              units: PROFESSIONAL_IMAGE_COST,
-              metadata: {
-                flow: "professional-image",
-                source: "professional-photo-page",
-                photoDirection: parsed.data.photoDirection,
-                status: "reserved",
-                reservedAt: new Date().toISOString(),
-              },
-            },
-            select: { id: true },
-          });
-
-          return (tx as typeof tx & {
-            professionalImageJob: {
-              create: (args: unknown) => Promise<any>;
-            };
-          }).professionalImageJob.create({
-            data: {
-              ...baseJobData,
-              usageEventId: usageEvent.id,
-            },
-            select: {
-              id: true,
-              status: true,
-              progress: true,
-              createdAt: true,
-            },
-          });
-        });
+    reservedProfessionalImageUsageEventId = null;
 
     after(() =>
       processProfessionalImageJob({
@@ -660,20 +654,32 @@ export async function POST(request: Request) {
         jobId: job.id,
         status: job.status,
         progress: job.progress,
-        remainingCredits: billingSummary.isAdmin
+        remainingCredits: isAdmin
           ? null
-          : Math.max(billingSummary.remainingCredits - PROFESSIONAL_IMAGE_COST, 0),
+          : reservation.remainingCreditsAfterReserve,
       },
       { headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
     console.error("Erro ao iniciar imagem profissional:", error);
 
+    if (reservedProfessionalImageUsageEventId) {
+      await refundReservedCredits(reservedProfessionalImageUsageEventId);
+    }
+
+    const isCreditError = error instanceof CreditReservationError;
+
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : copy.generic,
+        code: isCreditError ? error.code : undefined,
+        requiredCredits: isCreditError ? error.requiredCredits : undefined,
+        remainingCredits: isCreditError ? error.remainingCredits : undefined,
       },
-      { status: 500, headers: buildRateLimitHeaders(rateLimit) },
+      {
+        status: isCreditError ? 403 : 500,
+        headers: buildRateLimitHeaders(rateLimit),
+      },
     );
   }
 }

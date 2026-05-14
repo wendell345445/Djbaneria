@@ -292,6 +292,8 @@ export function DashboardSidebar({
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+  const [liveCreditInfo, setLiveCreditInfo] = useState(creditInfo);
+  const displayCreditInfo = liveCreditInfo ?? creditInfo;
   const isAnimatedFlyerRoute =
     isNavItemActive(pathname, "/dashboard/flyer-animado") ||
     isNavItemActive(pathname, "/dashboard/remotion");
@@ -301,6 +303,141 @@ export function DashboardSidebar({
     () => getPageLabel(pathname, copy, normalizedLocale),
     [copy, normalizedLocale, pathname],
   );
+
+  useEffect(() => {
+    setLiveCreditInfo(creditInfo);
+  }, [creditInfo]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function refreshCredits() {
+      try {
+        const response = await fetch("/api/billing/summary", {
+          cache: "no-store",
+        });
+        const data = (await response.json().catch(() => ({}))) as {
+          creditInfo?: SidebarCreditInfo;
+        };
+
+        if (!ignore && response.ok && data.creditInfo) {
+          setLiveCreditInfo(data.creditInfo);
+        }
+      } catch {
+        // Keep the last visible value if the refresh fails.
+      }
+    }
+
+    function handleCreditsUpdated(event: Event) {
+      const detail = (event as CustomEvent<{ remainingCredits?: number | null }>).detail;
+
+      if (typeof detail?.remainingCredits === "number") {
+        setLiveCreditInfo((current) => {
+          if (!current || current.isUnlimited) return current;
+
+          return {
+            ...current,
+            value: String(Math.max(0, detail.remainingCredits || 0)),
+          };
+        });
+      }
+
+      void refreshCredits();
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        void refreshCredits();
+      }
+    }
+
+    function handleWindowFocus() {
+      void refreshCredits();
+    }
+
+
+    function getRequestPath(input: RequestInfo | URL) {
+      try {
+        const rawUrl =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input.url;
+
+        return new URL(rawUrl, window.location.origin).pathname;
+      } catch {
+        return "";
+      }
+    }
+
+    function isCreditChangingEndpoint(pathname: string) {
+      return (
+        pathname === "/api/banners/generate" ||
+        pathname === "/api/banners/edit" ||
+        pathname === "/api/ai/professional-image" ||
+        pathname === "/api/seedance/start" ||
+        /^\/api\/banners\/[^/]+\/motion\/start$/.test(pathname) ||
+        /^\/api\/banners\/status\/[^/]+$/.test(pathname) ||
+        /^\/api\/seedance\/status\/[^/]+$/.test(pathname) ||
+        /^\/api\/remotion\/status\/[^/]+$/.test(pathname)
+      );
+    }
+
+    const originalFetch = window.fetch.bind(window);
+    const patchedFetch: typeof window.fetch = async (input, init) => {
+      const response = await originalFetch(input, init);
+      const pathname = getRequestPath(input);
+
+      if (isCreditChangingEndpoint(pathname)) {
+        void response
+          .clone()
+          .json()
+          .then((data: { remainingCredits?: unknown }) => {
+            if (typeof data?.remainingCredits === "number") {
+              handleCreditsUpdated(
+                new CustomEvent("dj-credits-updated", {
+                  detail: { remainingCredits: data.remainingCredits },
+                }),
+              );
+              return;
+            }
+
+            void refreshCredits();
+          })
+          .catch(() => {
+            void refreshCredits();
+          });
+      }
+
+      return response;
+    };
+
+    window.fetch = patchedFetch;
+
+    window.addEventListener("dj-credits-updated", handleCreditsUpdated);
+    window.addEventListener("dj-credits-refresh", handleCreditsUpdated);
+    window.addEventListener("focus", handleWindowFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void refreshCredits();
+      }
+    }, 8000);
+
+    return () => {
+      ignore = true;
+      window.removeEventListener("dj-credits-updated", handleCreditsUpdated);
+      window.removeEventListener("dj-credits-refresh", handleCreditsUpdated);
+      window.removeEventListener("focus", handleWindowFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (window.fetch === patchedFetch) {
+        window.fetch = originalFetch;
+      }
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   useEffect(() => {
     if (isAnimatedFlyerRoute) {
@@ -520,7 +657,7 @@ export function DashboardSidebar({
 
             {!desktopCollapsed ? (
               <div className="mt-4 flex items-center gap-3 px-1">
-                <span className="dashboard-mono text-[9px] font-bold uppercase tracking-[0.24em] text-cyan-200/72">
+                <span className="dashboard-mono text-[9px] font-bold uppercase tracking-[0.24em] text-cyan-200/55">
                   {copy.shell.panel}
                 </span>
                 <span className="h-px flex-1 bg-gradient-to-r from-cyan-300/25 via-violet-300/15 to-transparent" />
@@ -564,7 +701,7 @@ export function DashboardSidebar({
                     label={getNavItemLabel(item.key, copy, normalizedLocale)}
                     pathname={pathname}
                     collapsed={desktopCollapsed}
-                    onClick={() => setAnimatedFlyerOpen(false)}
+                    onClick={() => undefined}
                   />
                 ),
               )}
@@ -575,11 +712,11 @@ export function DashboardSidebar({
                 desktopCollapsed ? "flex flex-col items-center" : ""
               }`}
             >
-              {creditInfo ? (
+              {displayCreditInfo ? (
                 desktopCollapsed ? (
-                  <CollapsedCreditsPill creditInfo={creditInfo} />
+                  <CollapsedCreditsPill creditInfo={displayCreditInfo} />
                 ) : (
-                  <CreditsPanel creditInfo={creditInfo} />
+                  <CreditsPanel creditInfo={displayCreditInfo} />
                 )
               ) : null}
 
@@ -595,11 +732,11 @@ export function DashboardSidebar({
                 title={desktopCollapsed ? copy.shell.logout : undefined}
               >
                 <span className="absolute inset-y-0 left-0 w-px bg-red-300/0 transition group-hover:bg-red-300/55" />
-                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/76 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
+                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/60 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
                   <LogOut className="h-4 w-4" />
                 </span>
                 {!desktopCollapsed ? (
-                  <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/72 transition group-hover:text-red-100">
+                  <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/55 transition group-hover:text-red-100">
                     {copy.shell.logout}
                   </span>
                 ) : null}
@@ -627,7 +764,7 @@ export function DashboardSidebar({
                 </button>
 
                 <div className="min-w-0 flex-1 px-1">
-                  <p className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.22em] text-cyan-200/72">
+                  <p className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.22em] text-cyan-200/55">
                     DJ Visuals AI
                   </p>
                   <p className="dashboard-orb truncate text-[13px] font-bold uppercase tracking-[0.08em] text-white">
@@ -635,27 +772,27 @@ export function DashboardSidebar({
                   </p>
                 </div>
 
-                {creditInfo ? (
+                {displayCreditInfo ? (
                   <button
                     type="button"
                     onClick={() => setMobileOpen(true)}
                     className="group relative inline-flex min-h-11 shrink-0 items-center gap-2 overflow-hidden border border-cyan-300/18 bg-[linear-gradient(135deg,rgba(0,245,255,0.095),rgba(191,95,255,0.055),rgba(255,255,255,0.03))] px-2.5 py-2 text-left shadow-[0_0_24px_rgba(0,245,255,0.10)] transition hover:border-cyan-200/35 hover:bg-cyan-300/[0.09]"
-                    aria-label={`${creditInfo.label}: ${creditInfo.value}`}
+                    aria-label={`${displayCreditInfo.label}: ${displayCreditInfo.value}`}
                   >
                     <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/55 to-transparent" />
                     <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-cyan-300/20 bg-cyan-300/10 text-cyan-100 shadow-[0_0_18px_rgba(0,245,255,0.12)]">
                       <CircleDollarSign className="h-4 w-4" />
                     </span>
                     <span className="min-w-0">
-                      <span className="dashboard-mono block text-[7px] font-bold uppercase tracking-[0.18em] text-cyan-100/72">
+                      <span className="dashboard-mono block text-[7px] font-bold uppercase tracking-[0.18em] text-cyan-100/55">
                         {mobileCreditCopy.shortLabel}
                       </span>
                       <span className="mt-0.5 flex items-baseline gap-1.5">
                         <span className="dashboard-orb max-w-[58px] truncate text-[16px] font-black uppercase leading-none text-white">
-                          {creditInfo.value}
+                          {displayCreditInfo.value}
                         </span>
                         <span className="hidden dashboard-mono text-[7px] font-bold uppercase tracking-[0.12em] text-white/38 min-[380px]:inline">
-                          {creditInfo.isUnlimited
+                          {displayCreditInfo.isUnlimited
                             ? mobileCreditCopy.unlimited
                             : mobileCreditCopy.available}
                         </span>
@@ -719,18 +856,15 @@ export function DashboardSidebar({
                     item={item}
                     label={getNavItemLabel(item.key, copy, normalizedLocale)}
                     pathname={pathname}
-                    onClick={() => {
-                      setAnimatedFlyerOpen(false);
-                      setMobileOpen(false);
-                    }}
+                    onClick={() => setMobileOpen(false)}
                   />
                 ),
               )}
             </nav>
 
             <div className="relative mt-5 space-y-3 border-t border-cyan-300/10 pt-4">
-              {creditInfo ? (
-                <CreditsPanel creditInfo={creditInfo} compact />
+              {displayCreditInfo ? (
+                <CreditsPanel creditInfo={displayCreditInfo} compact />
               ) : null}
 
               <button
@@ -738,10 +872,10 @@ export function DashboardSidebar({
                 onClick={handleLogout}
                 className="group relative flex min-h-[50px] w-full items-center gap-3 overflow-hidden border border-white/10 bg-white/[0.025] px-3.5 text-left transition hover:border-red-300/30 hover:bg-red-400/[0.08]"
               >
-                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/76 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
+                <span className="inline-flex h-9 w-9 items-center justify-center border border-white/10 bg-white/[0.04] text-white/60 transition group-hover:border-red-300/25 group-hover:bg-red-400/10 group-hover:text-red-100">
                   <LogOut className="h-4 w-4" />
                 </span>
-                <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/72 transition group-hover:text-red-100">
+                <span className="dashboard-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white/55 transition group-hover:text-red-100">
                   {copy.shell.logout}
                 </span>
               </button>
@@ -779,7 +913,6 @@ function AnimatedFlyerNavGroup({
   const active = subItems.some((subItem) =>
     isNavItemActive(pathname, subItem.href),
   );
-  const highlighted = active;
   const Icon = item.icon;
 
   return (
@@ -793,15 +926,15 @@ function AnimatedFlyerNavGroup({
           collapsed ? "justify-center px-0" : "justify-between gap-3 px-3"
         } ${
           collapsed
-            ? highlighted
+            ? active
               ? "border border-transparent bg-transparent text-cyan-100"
-              : "border border-transparent bg-transparent text-white/64 hover:text-cyan-50"
-            : highlighted
+              : "border border-transparent bg-transparent text-white/42 hover:text-cyan-100"
+            : active
               ? "dashboard-hud border-cyan-300/25 bg-[linear-gradient(135deg,rgba(0,245,255,0.12),rgba(191,95,255,0.07),rgba(255,255,255,0.025))] text-white shadow-[0_0_34px_rgba(0,245,255,0.11)]"
-              : "border border-transparent bg-transparent text-white/72 hover:border-cyan-300/18 hover:bg-white/[0.04] hover:text-white"
+              : "border border-transparent bg-transparent text-white/52 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
         }`}
       >
-        {highlighted && !collapsed ? (
+        {active && !collapsed ? (
           <>
             <span className="absolute inset-y-2 left-0 w-px bg-cyan-300 shadow-[0_0_16px_rgba(0,245,255,0.72)]" />
             <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_50%,rgba(0,245,255,0.16),transparent_34%)]" />
@@ -809,7 +942,7 @@ function AnimatedFlyerNavGroup({
           </>
         ) : null}
 
-        {highlighted && collapsed ? (
+        {active && collapsed ? (
           <span className="absolute left-1 top-1/2 h-5 w-px -translate-y-1/2 bg-cyan-300 shadow-[0_0_14px_rgba(0,245,255,0.82)]" />
         ) : null}
 
@@ -823,18 +956,18 @@ function AnimatedFlyerNavGroup({
                 : "h-9 w-9 border"
             } ${
               collapsed
-                ? highlighted
+                ? active
                   ? "text-cyan-200"
-                  : "text-white/58 group-hover:text-cyan-50"
-                : highlighted
+                  : "text-white/38 group-hover:text-cyan-100"
+                : active
                   ? "border-cyan-300/25 bg-cyan-300/10 text-cyan-100 shadow-[0_0_22px_rgba(0,245,255,0.13)]"
-                  : "border-white/8 bg-white/[0.035] text-white/64 group-hover:border-cyan-300/24 group-hover:bg-cyan-300/[0.07] group-hover:text-cyan-50"
+                  : "border-white/8 bg-white/[0.035] text-white/45 group-hover:border-cyan-300/18 group-hover:bg-cyan-300/[0.055] group-hover:text-cyan-100"
             }`}
           >
             <Icon className={collapsed ? "h-5 w-5" : "h-4 w-4"} />
           </span>
           {!collapsed ? (
-            <span className="dashboard-mono truncate text-[10.5px] font-black uppercase tracking-[0.13em]">
+            <span className="dashboard-mono truncate text-[10px] font-bold uppercase tracking-[0.13em]">
               {label}
             </span>
           ) : null}
@@ -846,15 +979,15 @@ function AnimatedFlyerNavGroup({
           <span className="relative flex items-center gap-2">
             <span
               className={`inline-flex h-7 w-7 shrink-0 items-center justify-center border transition ${
-                highlighted
+                active
                   ? "border-violet-200/35 bg-violet-300/12 text-violet-100"
-                  : "border-violet-300/16 bg-violet-300/7 text-violet-200/78 group-hover:border-violet-200/34 group-hover:text-violet-50"
+                  : "border-violet-300/16 bg-violet-300/7 text-violet-200/65 group-hover:border-violet-200/28 group-hover:text-violet-100"
               }`}
             >
               <Sparkles className="h-3.5 w-3.5" />
             </span>
             <ChevronDown
-              className={`h-4 w-4 text-cyan-100/76 transition duration-200 ${open ? "rotate-180" : ""}`}
+              className={`h-4 w-4 text-cyan-100/54 transition duration-200 ${open ? "rotate-180" : ""}`}
             />
           </span>
         )}
@@ -889,6 +1022,7 @@ function AnimatedFlyerSubLink({
   onClick: () => void;
 }) {
   const active = isNavItemActive(pathname, item.href);
+  const Icon = item.icon;
 
   return (
     <Link
@@ -899,14 +1033,23 @@ function AnimatedFlyerSubLink({
       className={`group relative flex min-h-[42px] items-center justify-between gap-3 overflow-hidden border px-3 transition ${
         active
           ? "border-cyan-300/20 bg-cyan-300/[0.08] text-cyan-50 shadow-[0_0_24px_rgba(0,245,255,0.08)]"
-          : "border-transparent bg-white/[0.018] text-white/68 hover:border-cyan-300/18 hover:bg-white/[0.04] hover:text-white"
+          : "border-transparent bg-white/[0.018] text-white/46 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
       }`}
     >
       {active ? (
         <span className="absolute inset-y-2 left-0 w-px bg-cyan-300 shadow-[0_0_14px_rgba(0,245,255,0.7)]" />
       ) : null}
-      <span className="relative flex min-w-0 items-center pl-2">
-        <span className="dashboard-mono truncate text-[9.5px] font-black uppercase tracking-[0.14em]">
+      <span className="relative flex min-w-0 items-center gap-2.5">
+        <span
+          className={`inline-flex h-8 w-8 shrink-0 items-center justify-center border transition ${
+            active
+              ? "border-cyan-300/22 bg-cyan-300/10 text-cyan-100"
+              : "border-white/8 bg-white/[0.03] text-white/38 group-hover:border-cyan-300/18 group-hover:text-cyan-100"
+          }`}
+        >
+          <Icon className="h-3.5 w-3.5" />
+        </span>
+        <span className="dashboard-mono truncate text-[9px] font-bold uppercase tracking-[0.14em]">
           {label}
         </span>
       </span>
@@ -916,7 +1059,7 @@ function AnimatedFlyerSubLink({
           className={`relative inline-flex h-6 w-6 shrink-0 items-center justify-center border transition ${
             active
               ? "border-violet-200/30 bg-violet-300/12 text-violet-100"
-              : "border-violet-300/12 bg-violet-300/[0.055] text-violet-200/72 group-hover:border-violet-200/30 group-hover:text-violet-50"
+              : "border-violet-300/12 bg-violet-300/[0.055] text-violet-200/55 group-hover:border-violet-200/24 group-hover:text-violet-100"
           }`}
         >
           <Sparkles className="h-3 w-3" />
@@ -955,10 +1098,10 @@ function SidebarLink({
         collapsed
           ? active
             ? "border border-transparent bg-transparent text-cyan-100"
-            : "border border-transparent bg-transparent text-white/64 hover:text-cyan-50"
+            : "border border-transparent bg-transparent text-white/42 hover:text-cyan-100"
           : active
             ? "dashboard-hud border-cyan-300/25 bg-[linear-gradient(135deg,rgba(0,245,255,0.12),rgba(191,95,255,0.07),rgba(255,255,255,0.025))] text-white shadow-[0_0_34px_rgba(0,245,255,0.11)]"
-            : "border border-transparent bg-transparent text-white/72 hover:border-cyan-300/18 hover:bg-white/[0.04] hover:text-white"
+            : "border border-transparent bg-transparent text-white/52 hover:border-cyan-300/12 hover:bg-white/[0.035] hover:text-white"
       }`}
     >
       {active && !collapsed ? (
@@ -985,16 +1128,16 @@ function SidebarLink({
             collapsed
               ? active
                 ? "text-cyan-200"
-                : "text-white/58 group-hover:text-cyan-50"
+                : "text-white/38 group-hover:text-cyan-100"
               : active
                 ? "border-cyan-300/25 bg-cyan-300/10 text-cyan-100 shadow-[0_0_22px_rgba(0,245,255,0.13)]"
-                : "border-white/8 bg-white/[0.035] text-white/64 group-hover:border-cyan-300/24 group-hover:bg-cyan-300/[0.07] group-hover:text-cyan-50"
+                : "border-white/8 bg-white/[0.035] text-white/45 group-hover:border-cyan-300/18 group-hover:bg-cyan-300/[0.055] group-hover:text-cyan-100"
           }`}
         >
           <Icon className={collapsed ? "h-5 w-5" : "h-4 w-4"} />
         </span>
         {!collapsed ? (
-          <span className="dashboard-mono truncate text-[10.5px] font-black uppercase tracking-[0.13em]">
+          <span className="dashboard-mono truncate text-[10px] font-bold uppercase tracking-[0.13em]">
             {label}
           </span>
         ) : null}
@@ -1007,7 +1150,7 @@ function SidebarLink({
           className={`relative inline-flex h-7 w-7 shrink-0 items-center justify-center border transition ${
             active
               ? "border-violet-200/35 bg-violet-300/12 text-violet-100"
-              : "border-violet-300/16 bg-violet-300/7 text-violet-200/78 group-hover:border-violet-200/34 group-hover:text-violet-50"
+              : "border-violet-300/16 bg-violet-300/7 text-violet-200/65 group-hover:border-violet-200/28 group-hover:text-violet-100"
           }`}
         >
           <Sparkles className="h-3.5 w-3.5" />
@@ -1045,38 +1188,56 @@ function CreditsPanel({
   creditInfo: SidebarCreditInfo;
   compact?: boolean;
 }) {
+  const progressWidth = `${Math.max(0, Math.min(creditInfo.progressPercent, 100))}%`;
+
   return (
     <div
-      className={`relative overflow-hidden border border-cyan-300/12 bg-white/[0.025] shadow-[0_12px_34px_rgba(0,0,0,0.18)] ${
-        compact ? "px-3 py-2" : "px-3 py-2.5"
+      className={`dashboard-hud-v relative overflow-hidden ${
+        compact ? "p-3.5" : "p-4 shadow-[0_20px_70px_rgba(0,0,0,0.32)]"
       }`}
-      aria-label={`${creditInfo.label}: ${creditInfo.value}`}
     >
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/42 to-transparent" />
+      <div className="dashboard-scanline pointer-events-none absolute inset-x-0 top-0 h-px" />
+      <div className="pointer-events-none absolute -right-10 -top-12 h-24 w-24 rounded-full bg-cyan-300/12 blur-2xl" />
+      <div className="pointer-events-none absolute -left-14 bottom-0 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl" />
 
-      <div className="relative flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center border border-cyan-300/18 bg-cyan-300/[0.07] text-cyan-100 shadow-[0_0_18px_rgba(0,245,255,0.09)]">
-            <CircleDollarSign className="h-4 w-4" />
+      <div className="relative">
+        <div className="flex items-start justify-between gap-3">
+          <span className="dashboard-chip-cx">● {creditInfo.label}</span>
+          <span className="dashboard-mono max-w-[68px] truncate border border-violet-300/10 bg-violet-300/[0.035] px-1 py-0.5 text-[6px] font-semibold uppercase tracking-[0.1em] text-violet-100/55 sm:max-w-[76px]">
+            {creditInfo.planLabel}
           </span>
-
-          <div className="min-w-0">
-            <p className="dashboard-mono truncate text-[8px] font-black uppercase tracking-[0.16em] text-cyan-100/62">
-              {creditInfo.label}
-            </p>
-            <p className="dashboard-mono mt-0.5 truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/54">
-              {creditInfo.planLabel}
-            </p>
-          </div>
         </div>
 
-        <div className="shrink-0 text-right">
-          <p className="dashboard-orb text-[18px] font-black uppercase leading-none tracking-[-0.04em] text-white">
-            {creditInfo.isUnlimited ? "∞" : creditInfo.value}
-          </p>
-          <p className="dashboard-mono mt-0.5 max-w-[92px] truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/62">
-            {creditInfo.usage}
-          </p>
+        <div className="mt-4 flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className="dashboard-orb text-[32px] font-black uppercase leading-none tracking-[-0.05em] text-white sm:text-[34px]">
+              {creditInfo.value}
+            </p>
+            <p className="dashboard-mono mt-2 text-[8px] font-bold uppercase tracking-[0.18em] text-cyan-100/55">
+              {creditInfo.usage}
+            </p>
+          </div>
+
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center border border-cyan-300/20 bg-cyan-300/10 text-cyan-100 shadow-[0_0_24px_rgba(0,245,255,0.13)]">
+            <CircleDollarSign className="h-5 w-5" />
+          </span>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.18em] text-white/38">
+              {creditInfo.progressLabel}
+            </span>
+            <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.16em] text-cyan-100/65">
+              {creditInfo.cycleValue}
+            </span>
+          </div>
+          <div className="h-1.5 overflow-hidden bg-white/[0.07]">
+            <div
+              className="dashboard-credit-meter h-full transition-all duration-500"
+              style={{ width: creditInfo.isUnlimited ? "100%" : progressWidth }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -1111,7 +1272,7 @@ function BrandBlock({
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <span className="dashboard-chip-cx">● AI Studio</span>
-          <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.18em] text-white/44">
+          <span className="dashboard-mono text-[8px] font-bold uppercase tracking-[0.18em] text-white/28">
             v2
           </span>
         </div>
@@ -1125,7 +1286,7 @@ function BrandBlock({
             <p className="dashboard-orb truncate text-[15px] font-black uppercase tracking-[0.06em] text-white">
               DJ Visuals AI
             </p>
-            <p className="dashboard-mono mt-1 truncate text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-100/72">
+            <p className="dashboard-mono mt-1 truncate text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-100/55">
               {studioLabel}
             </p>
           </div>

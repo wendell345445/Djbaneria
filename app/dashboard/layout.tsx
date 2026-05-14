@@ -1,9 +1,17 @@
 import type { ReactNode } from "react";
 
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
-import { SubscriptionPlan, SubscriptionStatus, UsageEventType } from "@/generated/prisma/enums";
+import {
+  SubscriptionPlan,
+  SubscriptionStatus,
+  UsageEventType,
+} from "@/generated/prisma/enums";
 import { isAdminEmail } from "@/lib/admin";
-import { DEFAULT_LOCALE, normalizeLocale, type SupportedLocale } from "@/lib/i18n";
+import {
+  DEFAULT_LOCALE,
+  normalizeLocale,
+  type SupportedLocale,
+} from "@/lib/i18n";
 import {
   buildBillingSummary,
   getBillingPeriodRange,
@@ -50,7 +58,8 @@ function getSidebarCreditCopy(locale: SupportedLocale) {
       label: "Créditos disponíveis",
       unlimited: "Ilimitado",
       adminHelper: "Sua conta admin pode criar sem limite de créditos.",
-      helper: "Use seus créditos para gerar flyers, animar vídeos e criar imagens profissionais.",
+      helper:
+        "Use seus créditos para gerar flyers, animar vídeos e criar imagens profissionais.",
       used: "usados neste ciclo",
       adminUsage: "uso admin",
       plan: "Plano",
@@ -60,8 +69,10 @@ function getSidebarCreditCopy(locale: SupportedLocale) {
       costs: {
         flyer: "Flyer",
         image: "Imagem",
-        video480: "Vídeo 480p",
-        video720: "Vídeo 720p",
+        video480: "AI 480p",
+        video720: "AI 720p",
+        remotion10: "Remotion 10s",
+        remotion15: "Remotion 15s",
         credit: "crédito",
         credits: "créditos",
       },
@@ -73,7 +84,8 @@ function getSidebarCreditCopy(locale: SupportedLocale) {
       label: "Créditos disponibles",
       unlimited: "Ilimitado",
       adminHelper: "Tu cuenta admin puede crear sin límite de créditos.",
-      helper: "Usa tus créditos para crear flyers, animar videos e imágenes profesionales.",
+      helper:
+        "Usa tus créditos para crear flyers, animar videos e imágenes profesionales.",
       used: "usados en este ciclo",
       adminUsage: "uso admin",
       plan: "Plan",
@@ -83,8 +95,10 @@ function getSidebarCreditCopy(locale: SupportedLocale) {
       costs: {
         flyer: "Flyer",
         image: "Imagen",
-        video480: "Video 480p",
-        video720: "Video 720p",
+        video480: "AI 480p",
+        video720: "AI 720p",
+        remotion10: "Remotion 10s",
+        remotion15: "Remotion 15s",
         credit: "crédito",
         credits: "créditos",
       },
@@ -95,7 +109,8 @@ function getSidebarCreditCopy(locale: SupportedLocale) {
     label: "Credits available",
     unlimited: "Unlimited",
     adminHelper: "Your admin account can create without credit limits.",
-    helper: "Use credits to create flyers, animated videos and professional images.",
+    helper:
+      "Use credits to create flyers, animated videos and professional images.",
     used: "used this cycle",
     adminUsage: "admin usage",
     plan: "Plan",
@@ -105,20 +120,29 @@ function getSidebarCreditCopy(locale: SupportedLocale) {
     costs: {
       flyer: "Flyer",
       image: "Image",
-      video480: "Video 480p",
-      video720: "Video 720p",
+      video480: "AI 480p",
+      video720: "AI 720p",
+      remotion10: "Remotion 10s",
+      remotion15: "Remotion 15s",
       credit: "credit",
       credits: "credits",
     },
   };
 }
 
-function formatPlanLabel(plan: SubscriptionPlan, isAdmin: boolean, copy: ReturnType<typeof getSidebarCreditCopy>) {
+function formatPlanLabel(
+  plan: SubscriptionPlan,
+  isAdmin: boolean,
+  copy: ReturnType<typeof getSidebarCreditCopy>,
+) {
   if (isAdmin) return `${copy.plan} Admin`;
   return `${copy.plan} ${plan.charAt(0)}${plan.slice(1).toLowerCase()}`;
 }
 
-function formatCreditCost(value: number, copy: ReturnType<typeof getSidebarCreditCopy>) {
+function formatCreditCost(
+  value: number,
+  copy: ReturnType<typeof getSidebarCreditCopy>,
+) {
   return `${value} ${value === 1 ? copy.costs.credit : copy.costs.credits}`;
 }
 
@@ -200,9 +224,10 @@ async function getSidebarCreditInfo(
     costs: [
       { label: copy.costs.flyer, value: formatCreditCost(1, copy) },
       { label: copy.costs.image, value: formatCreditCost(1, copy) },
-      { label: copy.costs.video480, value: formatCreditCost(3, copy) },
-      { label: copy.costs.video720, value: formatCreditCost(5, copy) },
+      { label: copy.costs.video480, value: formatCreditCost(5, copy) },
+      { label: copy.costs.video720, value: formatCreditCost(12, copy) },
+      { label: copy.costs.remotion10, value: formatCreditCost(2, copy) },
+      { label: copy.costs.remotion15, value: formatCreditCost(3, copy) },
     ],
   };
 }
-
