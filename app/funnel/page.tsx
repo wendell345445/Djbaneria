@@ -3,6 +3,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ComponentType,
   type ReactNode,
@@ -217,14 +218,14 @@ function getExamplesForState(state: FunnelState): CreativeExample[] {
   }
 
   if (state.need === "photos") {
-    return [
-      creativeExamples.photos[0],
-      creativeExamples.photos[1],
-      creativeExamples.flyers[0],
-    ];
+    return creativeExamples.photos;
   }
 
-  if (state.need === "all" || state.goal === "agency") {
+  if (state.need === "all") {
+    return creativeExamples.photos;
+  }
+
+  if (state.goal === "agency") {
     return [
       creativeExamples.flyers[0],
       creativeExamples.videos[0],
@@ -662,9 +663,34 @@ export default function FunnelPage() {
   const [leadNotified, setLeadNotified] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState("");
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const funnelTopRef = useRef<HTMLDivElement>(null);
+  const [examplesReady, setExamplesReady] = useState(false);
+
   useEffect(() => {
     setSelectedPlan(recommendedPlan);
   }, [recommendedPlan]);
+
+  useEffect(() => {
+    window.requestAnimationFrame(() => {
+      funnelTopRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [step]);
+
+  useEffect(() => {
+    if (step < 2 || step > 5) {
+      setExamplesReady(false);
+      return;
+    }
+
+    setExamplesReady(false);
+    const timeoutId = window.setTimeout(() => setExamplesReady(true), 120);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [step, state.goal, state.volume, state.need]);
 
   const outcome = getOutcomeCopy(state, selectedPlan);
   const savings = estimateMonthlySavings(state, selectedPlan);
@@ -672,10 +698,20 @@ export default function FunnelPage() {
 
   function goNext() {
     setError("");
-    if (step === 0 && !state.name.trim()) {
-      setError("Enter your name to personalize the plan.");
+
+    if (step === 0) {
+      const cleanName = nameInputRef.current?.value.trim() || "";
+
+      if (!cleanName) {
+        setError("Enter your name to personalize the plan.");
+        return;
+      }
+
+      setState((prev) => ({ ...prev, name: cleanName }));
+      setStep(1);
       return;
     }
+
     if (step === 1 && !state.goal) return setError("Choose your main goal.");
     if (step === 2 && !state.volume)
       return setError("Choose your monthly visual volume.");
@@ -721,22 +757,22 @@ export default function FunnelPage() {
       style={{
         background: "#03040A",
         color: "#E8EAF0",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'Sora', sans-serif",
       }}
     >
       <style
         dangerouslySetInnerHTML={{
           __html: `
-          @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&display=swap');
           :root {
             --cx: #00F5FF;
             --cv: #BF5FFF;
             --ce: #FF2D6B;
             --cg: #00FF9F;
           }
-          .orb { font-family: 'Orbitron', monospace; }
-          .mono { font-family: 'Space Mono', monospace; }
-          .sans { font-family: 'DM Sans', sans-serif; }
+          .orb { font-family: 'Sora', sans-serif; }
+          .mono { font-family: 'Sora', sans-serif; }
+          .sans { font-family: 'Sora', sans-serif; }
           body::before {
             content: '';
             position: fixed;
@@ -797,11 +833,19 @@ export default function FunnelPage() {
           .example-scroll::-webkit-scrollbar {
             display: none;
           }
+          @media (max-width: 767px) {
+            body::before { display: none; }
+            .hud {
+              background: rgba(255,255,255,0.035);
+            }
+            .hud::before, .hud::after { display: none; }
+            .btn-cx-solid::before { display: none; animation: none; }
+          }
           `,
         }}
       />
 
-      <div className="pointer-events-none fixed inset-0 z-0">
+      <div className="pointer-events-none fixed inset-0 z-0 hidden sm:block">
         <div className="absolute -left-48 top-1/4 h-[560px] w-[560px] rounded-full bg-[radial-gradient(circle,rgba(0,245,255,0.08),transparent_62%)] blur-3xl" />
         <div className="absolute -right-48 top-2/3 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(191,95,255,0.08),transparent_62%)] blur-3xl" />
       </div>
@@ -843,10 +887,10 @@ export default function FunnelPage() {
           </div>
         ) : null}
 
-        <div className="hud relative overflow-hidden p-4 shadow-[0_35px_120px_rgba(0,0,0,0.62)] sm:p-6">
+        <div ref={funnelTopRef} className="hud relative overflow-hidden p-4 shadow-none sm:p-6 sm:shadow-[0_35px_120px_rgba(0,0,0,0.62)]">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
-          <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-[rgba(191,95,255,0.12)] blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 -top-24 hidden h-56 w-56 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl sm:block" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 hidden h-56 w-56 rounded-full bg-[rgba(191,95,255,0.12)] blur-3xl sm:block" />
 
           <div className="relative z-10">
             <ProgressBar step={step} />
@@ -870,16 +914,14 @@ export default function FunnelPage() {
                       Your name
                     </span>
                     <input
-                      value={state.name}
-                      onChange={(event) =>
-                        setState((prev) => ({
-                          ...prev,
-                          name: event.target.value,
-                        }))
-                      }
+                      ref={nameInputRef}
+                      defaultValue={state.name}
                       placeholder="Example: Alex"
-                      className="min-h-14 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-base text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.62)] focus:shadow-[0_0_32px_rgba(0,245,255,0.13)]"
-                      autoFocus
+                      className="min-h-14 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-base text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.62)] sm:focus:shadow-[0_0_32px_rgba(0,245,255,0.13)]"
+                      autoComplete="given-name"
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") goNext();
+                      }}
                     />
                   </label>
                 </div>
@@ -989,7 +1031,7 @@ export default function FunnelPage() {
                 </StepBlock>
               ) : null}
 
-              {step >= 2 && step <= 5 ? (
+              {step >= 2 && step <= 5 && examplesReady ? (
                 <div className="mt-6">
                   <MatchedExamplesPanel
                     state={state}
@@ -1048,10 +1090,6 @@ export default function FunnelPage() {
                         <ArrowRight size={14} className="relative z-10" />
                       )}
                     </button>
-                    <p className="sans mt-2 text-center text-xs leading-6 text-white/52">
-                      First checkout button — placed directly below the plan
-                      cards.
-                    </p>
                   </div>
 
                   <div className="grid items-start gap-3 lg:grid-cols-[1.05fr_0.95fr]">
@@ -1287,6 +1325,7 @@ function CreativeExampleCard({ example }: { example: CreativeExample }) {
           alt={example.title}
           className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
+          decoding="async"
         />
         <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(3,4,10,0.04),rgba(3,4,10,0.46))]" />
 
