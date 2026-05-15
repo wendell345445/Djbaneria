@@ -32,6 +32,7 @@ export async function cleanupExpiredSeedanceVideos(params?: {
       id: true,
       status: true,
       usageEventId: true,
+      workspaceId: true,
       inputImageStorageKey: true,
       inputAudioStorageKey: true,
       outputVideoStorageKey: true,
@@ -74,6 +75,7 @@ export async function cleanupExpiredSeedanceVideos(params?: {
         const refundResult = await prisma.usageEvent.deleteMany({
           where: {
             id: video.usageEventId,
+            workspaceId: video.workspaceId,
           },
         });
 

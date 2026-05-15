@@ -17,6 +17,7 @@ import {
   requiresCreditCyclePaymentConfirmation,
 } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import { buildRateLimitHeaders, consumeRateLimit } from "@/lib/rate-limit";
 import { validateMutationOrigin } from "@/lib/request-security";
 import {
   buildSeedancePrompt,
@@ -36,6 +37,7 @@ export const maxDuration = 60;
 const MAX_IMAGE_BYTES = 18 * 1024 * 1024;
 const VIDEO_EXPIRES_IN_HOURS = 24;
 const STALE_ACTIVE_VIDEO_MINUTES = 20;
+const START_REQUEST_LOCK_WINDOW_MS = 30_000;
 
 const PLAN_CREDIT_LIMITS: Record<SubscriptionPlan, number> = {
   [SubscriptionPlan.FREE]: 2,
@@ -111,6 +113,7 @@ async function releaseStaleActiveSeedanceVideos(workspaceId: string) {
       .deleteMany({
         where: {
           id: { in: usageEventIds },
+          workspaceId,
         },
       })
       .catch(() => null);
@@ -301,7 +304,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "Já existe uma geração Seedance em andamento. Aguarde o vídeo atual terminar antes de iniciar outro.",
+          "Já existe uma geração de vídeo em andamento. Aguarde o vídeo atual terminar antes de iniciar outro.",
         videoId: activeSeedanceVideo.id,
         status: activeSeedanceVideo.status,
         renderProgress: activeSeedanceVideo.progress,
@@ -315,8 +318,30 @@ export async function POST(request: Request) {
     );
   }
 
+  const startRequestLock = await consumeRateLimit(
+    `seedance-start:${workspace.id}`,
+    {
+      limit: 1,
+      windowMs: START_REQUEST_LOCK_WINDOW_MS,
+    },
+  );
+
+  if (!startRequestLock.allowed) {
+    return NextResponse.json(
+      {
+        error:
+          "Sua geração já está sendo iniciada. Aguarde alguns segundos antes de tentar novamente.",
+      },
+      {
+        status: 429,
+        headers: buildRateLimitHeaders(startRequestLock),
+      },
+    );
+  }
+
   let usageEventId: string | null = null;
   let uploadedImageKey: string | null = null;
+  let seedanceVideoId: string | null = null;
 
   try {
     const formData = await request.formData();
@@ -373,36 +398,16 @@ export async function POST(request: Request) {
     const prompt = buildSeedancePrompt({
       motionInstructions: parsed.data.motionInstructions,
     });
+    const durationSeconds = getSeedanceDurationSeconds();
 
-    const prediction = await createSeedancePrediction({
-      imageUrl: uploadedImage.url,
-      prompt,
-      resolution: parsed.data.resolution,
-    });
-
-    const motionStatus = mapReplicateStatusToMotionStatus(prediction.status);
-
-    if (motionStatus === "FAILED") {
-      throw new Error(
-        prediction.error
-          ? String(prediction.error)
-          : "O Seedance não conseguiu iniciar este vídeo.",
-      );
-    }
-
-    const initialStatus = motionStatus === "PENDING" ? "PENDING" : "RENDERING";
-    const initialProgress =
-      motionStatus === "COMPLETED"
-        ? 92
-        : initialStatus === "RENDERING"
-          ? 18
-          : 5;
-
+    // Create the video row before calling AtlasCloud. This row is the persistent
+    // lock for the generation and prevents a fast double-click from reserving
+    // credits twice while the first provider request is still starting.
     const motion = await (prisma as any).seedanceVideo.create({
       data: {
         workspaceId: workspace.id,
         usageEventId,
-        status: initialStatus,
+        status: "PENDING",
         inputImageUrl: uploadedImage.url,
         inputImageStorageKey: uploadedImage.key,
         inputAudioUrl: null,
@@ -412,19 +417,17 @@ export async function POST(request: Request) {
         audioSizeBytes: null,
         outputVideoUrl: null,
         outputVideoStorageKey: null,
-        providerName: prediction.provider || getSeedanceProvider(),
-        providerModel:
-          prediction.model ||
-          getSeedanceModel(prediction.provider || getSeedanceProvider()),
-        providerJobId: prediction.id,
+        providerName: getSeedanceProvider(),
+        providerModel: getSeedanceModel(),
+        providerJobId: null,
         providerOutputUrl: null,
         width: image.width,
         height: image.height,
         resolution: parsed.data.resolution,
         motionInstructions: parsed.data.motionInstructions || null,
-        durationSeconds: getSeedanceDurationSeconds(),
-        progress: initialProgress,
-        errorMessage: prediction.error ? String(prediction.error) : null,
+        durationSeconds,
+        progress: 4,
+        errorMessage: null,
         prompt,
         creditsUsed: credits,
         expiresAt,
@@ -437,32 +440,102 @@ export async function POST(request: Request) {
         expiresAt: true,
       },
     });
+    seedanceVideoId = motion.id;
+
+    const prediction = await createSeedancePrediction({
+      imageUrl: uploadedImage.url,
+      prompt,
+      resolution: parsed.data.resolution,
+      durationSeconds,
+    });
+
+    const motionStatus = mapReplicateStatusToMotionStatus(prediction.status);
+
+    if (motionStatus === "FAILED") {
+      throw new Error(
+        prediction.error
+          ? String(prediction.error)
+          : "O provedor não conseguiu iniciar este vídeo.",
+      );
+    }
+
+    const initialStatus = motionStatus === "PENDING" ? "PENDING" : "RENDERING";
+    const initialProgress =
+      motionStatus === "COMPLETED"
+        ? 92
+        : initialStatus === "RENDERING"
+          ? 18
+          : 5;
+
+    const updatedMotion = await (prisma as any).seedanceVideo.update({
+      where: { id: motion.id },
+      data: {
+        status: initialStatus,
+        providerName: prediction.provider || getSeedanceProvider(),
+        providerModel:
+          prediction.model ||
+          getSeedanceModel(prediction.provider || getSeedanceProvider()),
+        providerJobId: prediction.id,
+        progress: initialProgress,
+        errorMessage: prediction.error ? String(prediction.error) : null,
+      },
+      select: {
+        id: true,
+        status: true,
+        progress: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    });
 
     return NextResponse.json(
       {
-        videoId: motion.id,
-        status: motion.status,
-        renderProgress: motion.progress,
+        videoId: updatedMotion.id,
+        status: updatedMotion.status,
+        renderProgress: updatedMotion.progress,
         queuePosition: null,
         credits,
         provider: prediction.provider || getSeedanceProvider(),
         providerJobId: prediction.id,
-        durationSeconds: getSeedanceDurationSeconds(),
+        durationSeconds,
         width: image.width,
         height: image.height,
-        expiresAt: motion.expiresAt,
+        expiresAt: updatedMotion.expiresAt,
       },
       { status: 202 },
     );
   } catch (error) {
+    const rawErrorMessage =
+      error instanceof Error
+        ? error.message
+        : "Não foi possível iniciar a geração do vídeo.";
+
+    if (seedanceVideoId) {
+      await (prisma as any).seedanceVideo
+        .update({
+          where: { id: seedanceVideoId },
+          data: {
+            status: "FAILED",
+            progress: 100,
+            errorMessage: rawErrorMessage.slice(0, 1800),
+          },
+        })
+        .catch(() => null);
+    }
+
     if (usageEventId) {
       await prisma.usageEvent
-        .delete({ where: { id: usageEventId } })
+        .deleteMany({
+          where: {
+            id: usageEventId,
+            workspaceId: workspace.id,
+          },
+        })
         .catch(() => null);
     }
 
     await Promise.all([
-      uploadedImageKey
+      uploadedImageKey && !seedanceVideoId
         ? deleteObjectFromR2(uploadedImageKey).catch(() => null)
         : null,
     ]);

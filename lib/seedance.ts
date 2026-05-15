@@ -1,5 +1,5 @@
 export type SeedanceResolution = "480" | "720";
-export type SeedanceProvider = "atlascloud";
+export type SeedanceProvider = "atlascloud" | "atlascloud-kling";
 
 export type SeedancePrediction = {
   id: string;
@@ -13,7 +13,7 @@ export type SeedancePrediction = {
   };
   provider?: SeedanceProvider;
   model?: string;
-  fallbackFrom?: null;
+  fallbackFrom?: SeedanceProvider | null;
   created_at?: string;
   started_at?: string;
   completed_at?: string;
@@ -25,9 +25,14 @@ const ATLASCLOUD_API_BASE_URL =
 
 const DEFAULT_ATLASCLOUD_SEEDANCE_MODEL =
   "bytedance/seedance-2.0-fast/image-to-video";
+const DEFAULT_ATLASCLOUD_KLING_MODEL =
+  "kwaivgi/kling-video-o3-pro/image-to-video";
 const DEFAULT_SEEDANCE_DURATION_SECONDS = 10;
+const DEFAULT_ATLASCLOUD_KLING_DURATION_SECONDS = 10;
 const SEEDANCE_20_MAX_DURATION_SECONDS = 15;
 const ATLASCLOUD_DEFAULT_FPS = 24;
+const ATLAS_KLING_PROMPT_MAX_CHARS = 2450;
+
 
 function normalizeAtlasCloudToken(value?: string | null) {
   if (!value) return "";
@@ -52,12 +57,25 @@ export function getSeedanceProvider(): SeedanceProvider {
   return "atlascloud";
 }
 
-export function getSeedanceModel(_provider: SeedanceProvider = "atlascloud") {
+export function getSeedanceModel(provider: SeedanceProvider = "atlascloud") {
+  if (provider === "atlascloud-kling") {
+    return (
+      process.env.ATLASCLOUD_KLING_MODEL ||
+      process.env.KLING_MODEL ||
+      DEFAULT_ATLASCLOUD_KLING_MODEL
+    );
+  }
+
   return (
     process.env.ATLASCLOUD_SEEDANCE_MODEL ||
     process.env.SEEDANCE_MODEL ||
     DEFAULT_ATLASCLOUD_SEEDANCE_MODEL
   );
+}
+
+export function isAtlasKlingFallbackConfigured() {
+  const enabled = boolFromEnv(process.env.SEEDANCE_KLING_FALLBACK, true);
+  return enabled && Boolean(getAtlasCloudToken());
 }
 
 export function supportsSeedanceAudioReference(
@@ -95,6 +113,17 @@ export function getSeedanceDurationSeconds(
     4,
     Math.min(SEEDANCE_20_MAX_DURATION_SECONDS, Math.round(parsed)),
   );
+}
+
+function getAtlasKlingDurationSeconds() {
+  const parsed = readNumberEnv(
+    ["ATLASCLOUD_KLING_DURATION_SECONDS", "KLING_DURATION_SECONDS"],
+    DEFAULT_ATLASCLOUD_KLING_DURATION_SECONDS,
+  );
+
+  if (!Number.isFinite(parsed)) return DEFAULT_ATLASCLOUD_KLING_DURATION_SECONDS;
+
+  return Math.max(3, Math.min(15, Math.round(parsed)));
 }
 
 function boolFromEnv(value: string | undefined, fallback: boolean) {
@@ -144,6 +173,54 @@ function makeAtlasCompatiblePrompt(prompt: string) {
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+
+function compactPromptText(value: string) {
+  return value
+    .replace(/[\t ]+/g, " ")
+    .replace(/\s*\n\s*/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function limitAtlasKlingPrompt(prompt: string) {
+  const compatiblePrompt = compactPromptText(makeAtlasCompatiblePrompt(prompt));
+
+  if (compatiblePrompt.length <= ATLAS_KLING_PROMPT_MAX_CHARS) {
+    return compatiblePrompt;
+  }
+
+  const compactBase = compactPromptText(`
+Create a premium animated DJ/event flyer video from the uploaded image, inspired by a high-end After Effects promo reveal.
+Preserve the original flyer exactly: same person/artist, face, hairstyle, clothing, pose, expression, body proportions, logo, colors, typography, written text, layout, composition, and event information. Do not redesign the flyer, rewrite text, replace elements, invent new details, distort the face/body/hands/logo/typography, or create new artwork.
+Keep the person stable and anchored in the same original position. Do not make the person walk, dance, turn, jump, change pose, change expression, move arms/hands, or perform new actions. Only allow subtle light interaction and gentle depth around the subject. The face must remain sharp, stable, recognizable, and consistent.
+Camera movement: use a smooth cinematic dolly-in. The camera should slowly approach the flyer from a slightly wider view to a closer premium hero view. Make it feel like a real camera moving forward, not a basic digital zoom. Use controlled forward push-in, subtle depth drift, soft parallax, and gentle perspective energy. No shaking, fast zooming, sudden reframing, rotation, or aggressive perspective changes.
+Animate the flyer like a premium layered motion poster. Use smooth parallax, glow sweeps, light streaks, particles, laser beams, haze, reflections, subtle neon pulses, and polished atmosphere. Background, lights, decorative elements, text accents, and effects can move, but the subject should stay mostly fixed.
+Use adaptive colors based on the uploaded flyer. Analyze the flyer palette and use dominant colors for lighting and accent colors for glow, particles, lasers, borders, reflections, haze, rim lights, and highlight sweeps. Do not force random neon blue, purple, or gold if they clash.
+Reveal the main headline with a clean glow sweep, masked light wipe, subtle slide, or light flare. Animate secondary text with small energetic accents and reveal lower event details with soft border glow or line-by-line motion. Keep all text sharp, readable, correctly positioned, and unchanged.
+Treat the video as one continuous shot. No hard cuts, scene changes, background swaps, abrupt transitions, aggressive zoom, fast rotation, face changes, body deformation, text distortion, or chaotic motion.
+Final result: cinematic, glossy, modern, high-energy, for DJs, nightlife, concerts, festivals, Reels, TikTok, Stories, and paid ads.
+`);
+
+  const optionalMarker = "Optional user complement. Apply only if it is safe and does not conflict with the preservation rules above:";
+  const optionalIndex = compatiblePrompt.indexOf(optionalMarker);
+  const optionalComplement =
+    optionalIndex >= 0
+      ? compatiblePrompt.slice(optionalIndex + optionalMarker.length).trim()
+      : "";
+
+  const prefix = compactBase + (optionalComplement ? " User motion complement: " : "");
+  const remaining = ATLAS_KLING_PROMPT_MAX_CHARS - prefix.length;
+
+  if (remaining > 80 && optionalComplement) {
+    return (prefix + optionalComplement.slice(0, remaining)).slice(
+      0,
+      ATLAS_KLING_PROMPT_MAX_CHARS,
+    );
+  }
+
+  return compactBase.slice(0, ATLAS_KLING_PROMPT_MAX_CHARS);
 }
 
 function requireAtlasCloudToken() {
@@ -298,64 +375,44 @@ async function uploadR2FileToAtlasStorage(params: {
   );
 }
 
-export const DEFAULT_SEEDANCE_MOTION_PROMPT = `Animate this flyer as a premium motion flyer video with a polished After Effects-style look.
+export const DEFAULT_SEEDANCE_MOTION_PROMPT = `Create a premium animated DJ/event flyer video from [Image1], inspired by a high-end neon After Effects promo reveal.
 
-Use layered motion design with smooth micro-animations, subtle parallax, depth, glow, particles, light streaks, haze, reflections, and tasteful energy that enhances the flyer while preserving its original identity.
+Core preservation rules:
+- Keep the original flyer identity intact.
+- Preserve the same person/artist, face, hairstyle, clothing, pose, expression, logo, colors, typography, written text, layout, composition, and visual hierarchy.
+- Do not redesign the flyer, do not rewrite any text, do not replace elements, and do not invent new event information.
+- Do not distort the face, body, hands, logo, typography, or important flyer details.
 
-IMPORTANT:
-- Preserve the exact flyer identity, composition, face, hairstyle, facial features, text, logo, colors, layout, and overall branding.
-- Do not redesign the flyer.
-- Do not replace or distort the subject.
-- Do not alter the wording or typography.
-- Keep the flyer recognizable as the same artwork.
+Animation style direction:
+The result should not look like a static image with only a basic zoom. Make it feel like the flyer was professionally animated in layers, similar to a modern DJ/event promo made in After Effects.
 
-ANIMATION STYLE:
-- Create elegant layered motion like a premium concert or DJ promo video.
-- Animate elements in place using subtle depth separation, floating highlights, glow pulses, moving particles, soft light sweeps, and refined motion accents.
-- Use smooth motion across the whole composition, with premium visual polish and natural continuity.
-- Add tasteful camera energy, but keep it controlled and cinematic.
+Use a staged neon flyer reveal when possible:
+1. Start with the background, artist/subject, stage lights, neon beams, smoke/haze, and reflective floor already alive with subtle motion.
+2. Bring the main headline/title forward with a strong but clean reveal: slight slide, scale, glow sweep, light flare, or masked neon wipe. Keep the exact same text readable and unchanged.
+3. Animate the secondary title/name/text group with a quick energetic accent: brush-style sweep, glow pulse, small bounce, or light streak, without warping the letters.
+4. Reveal the lower event-information area with a neon frame draw, soft border glow, line-by-line appearance, or subtle type-on feel. Keep all details stable and legible.
+5. End with the complete flyer fully visible, with a polished final hold, breathing neon glow, floating particles, and subtle camera drift.
 
-BACKGROUND CONTINUITY:
-- The background must remain continuous, stable, and visually coherent during the entire video.
-- Do not create hard cuts, jump cuts, scene changes, background swaps, or abrupt transitions.
-- Treat the video as one single continuous shot.
-- Keep the same scene, same visual world, same lighting direction, and same atmosphere from beginning to end.
-- Motion in the background should feel fluid and uninterrupted, with soft environmental movement instead of scene replacement.
-- Avoid any sudden visual break, harsh transition, or cut-like interruption.
+Add independent micro-motion across the design:
+- subtle floating movement on decorative elements
+- soft pulsing neon glows around titles, borders, lights, and highlights
+- animated light streaks, sparkles, particles, laser beams, reflections, and atmospheric haze
+- gentle parallax between background, subject, text groups, and foreground elements
+- small rhythmic flashes and glow intensity changes that match a DJ/nightclub promo feel
+- cinematic push-in or very light camera drift, but never rely only on zoom
 
-OPENING / INTRO:
-- Start with a premium and smooth intro reveal.
-- The video should open gracefully, with a soft cinematic reveal of the flyer using subtle glow, light sweep, depth, and motion buildup.
-- The beginning should feel elegant and engaging, not abrupt.
-- Avoid sudden starts or harsh opening cuts.
-- The first second should establish the scene smoothly and professionally.
+Motion quality rules:
+- Keep the animation premium, smooth, energetic, and controlled.
+- Make the flyer feel alive and dynamic, not fixed or frozen.
+- Important text must remain sharp, stable, readable, and unchanged.
+- The person/subject must remain recognizable and visually stable.
+- Avoid chaotic shaking, excessive morphing, aggressive zoom, face changes, body deformation, text melting, typography glitches, or composition changes.
+- Avoid generating a completely new artwork. The final video must look like the same flyer enhanced with professional layered motion design.
 
-TRANSITIONS / MOTION FLOW:
-- All motion should blend smoothly from one moment to the next.
-- Use soft transitions between motion accents, text reveals, glow pulses, and depth changes.
-- Motion should feel continuous and connected, never fragmented.
-- Avoid abrupt re-framing, teleporting elements, or disconnected movement.
+Visual target:
+A bold neon club/festival promo look with cyan, blue, purple, magenta, pink, gold, or matching flyer colors when appropriate. The animation should feel modern, cinematic, glossy, high-energy, and highly marketable for DJs, nightlife, concerts, parties, and music events.
 
-VISUAL EFFECTS:
-- Use premium DJ/event aesthetics: neon glow, soft reflections, light streaks, atmospheric haze, floating particles, and subtle energy pulses.
-- Effects should enhance the flyer, not overpower it.
-- Keep smoke very light or minimal.
-- No aggressive distortion.
-- No chaotic or messy motion.
-
-SUBJECT PRESERVATION:
-- Preserve the person’s identity exactly.
-- Keep the face, hair, skin tone, expression, and proportions consistent.
-- Do not morph the face or create a different person.
-
-TEXT PRESERVATION:
-- Preserve all text clearly and keep it readable.
-- Text can have subtle reveal or glow animation, but must not be rewritten, replaced, or deformed.
-
-FINAL RESULT:
-- The final animation should feel like a premium animated flyer for DJs and events.
-- It should look refined, energetic, cinematic, and professional.
-- The motion must feel smooth, continuous, and cohesive, with no hard cuts and no broken background continuity.`;
+Generate a fitting event-promo soundtrack automatically when the provider supports generated audio. The soundtrack should match the rhythm of the neon reveals, light pulses, and final hold while keeping the visual message clear.`;
 
 export function buildSeedancePrompt(params: {
   motionInstructions?: string | null;
@@ -490,6 +547,57 @@ async function buildAtlasPredictionInput(params: {
   };
 }
 
+async function buildAtlasKlingPredictionInput(params: {
+  imageUrl: string;
+  prompt: string;
+  resolution: SeedanceResolution;
+  durationSeconds?: number | null;
+}) {
+  const uploadedImageUrl = await uploadR2FileToAtlasStorage({
+    sourceUrl: params.imageUrl,
+    fileName: getImageFileNameFromUrl(params.imageUrl),
+    contentTypeHint: "image/png",
+  });
+
+  const prompt = limitAtlasKlingPrompt(params.prompt);
+  const duration = getAtlasKlingDurationSeconds();
+  const fps = readNumberEnv(
+    ["ATLASCLOUD_KLING_FPS", "KLING_FPS"],
+    ATLASCLOUD_DEFAULT_FPS,
+  );
+  const sound = boolFromEnv(process.env.ATLASCLOUD_KLING_SOUND, true);
+  const cfgScale = readNumberEnv(
+    ["ATLASCLOUD_KLING_CFG_SCALE", "KLING_CFG_SCALE"],
+    0.5,
+  );
+  const negativePrompt =
+    process.env.ATLASCLOUD_KLING_NEGATIVE_PROMPT ||
+    process.env.KLING_NEGATIVE_PROMPT ||
+    "sudden camera shake, aggressive zoom, distorted face, changed identity, warped typography, unreadable text, redesigned flyer, extra text, deformed body, flicker, blur, low quality";
+
+  return {
+    prompt,
+    content: prompt,
+    image: uploadedImageUrl,
+    image_url: uploadedImageUrl,
+    img_url: uploadedImageUrl,
+    image_urls: [uploadedImageUrl],
+    img_urls: [uploadedImageUrl],
+    images: [uploadedImageUrl],
+    duration,
+    duration_seconds: duration,
+    durationString: String(duration),
+    fps,
+    fpsString: String(fps),
+    resolution: `${params.resolution}p`,
+    sound,
+    generate_audio: sound,
+    audio: sound,
+    cfg_scale: cfgScale,
+    negative_prompt: negativePrompt,
+  };
+}
+
 function getSafeDebugInput(input: Record<string, unknown>) {
   return {
     ...input,
@@ -555,6 +663,72 @@ async function callAtlasGenerateVideo(params: {
   return readAtlasJson(response, "AtlasCloud generateVideo");
 }
 
+async function createAtlasKlingPrediction(params: {
+  imageUrl: string;
+  prompt: string;
+  resolution: SeedanceResolution;
+  durationSeconds?: number | null;
+  fallbackFrom?: SeedanceProvider | null;
+}) {
+  const model = getSeedanceModel("atlascloud-kling");
+  const input = await buildAtlasKlingPredictionInput(params);
+
+  if (process.env.SEEDANCE_DEBUG === "true") {
+    console.log("[Kling/AtlasCloud image-to-video input]", {
+      model,
+      fallbackFrom: params.fallbackFrom || null,
+      sound: Boolean(input.sound),
+      durationSeconds: input.duration,
+      payloadStyle: "dual-flat-and-input",
+      input: getSafeDebugInput(input),
+    });
+  }
+
+  const submitResult = await callAtlasGenerateVideo({ model, input });
+  const data = ensureJsonObject(submitResult, "AtlasCloud Kling");
+  const requestId = getAtlasRequestId(data);
+
+  if (!requestId) {
+    throw new Error(
+      `A AtlasCloud não retornou ID para acompanhar o fallback Kling. Resposta: ${JSON.stringify(data).slice(0, 500)}`,
+    );
+  }
+
+  return {
+    id: requestId,
+    status: getAtlasStatus(data),
+    output: null,
+    error: null,
+    logs: getAtlasLogs(data),
+    provider: "atlascloud-kling" as const,
+    model,
+    fallbackFrom: params.fallbackFrom || "atlascloud",
+    raw: data,
+  } satisfies SeedancePrediction;
+}
+
+export async function createKlingFallbackPrediction(params: {
+  imageUrl: string;
+  prompt: string;
+  resolution: SeedanceResolution;
+  durationSeconds?: number | null;
+  fallbackFrom?: SeedanceProvider | null;
+}) {
+  if (!isAtlasKlingFallbackConfigured()) {
+    throw new Error(
+      "Fallback Kling desativado ou ATLASCLOUD_API_KEY ausente. Configure SEEDANCE_KLING_FALLBACK=true e ATLASCLOUD_API_KEY.",
+    );
+  }
+
+  try {
+    return await createAtlasKlingPrediction(params);
+  } catch (error) {
+    throw new Error(
+      `AtlasCloud Kling fallback error: ${normalizeErrorMessage(error)}`,
+    );
+  }
+}
+
 export async function createSeedancePrediction(params: {
   imageUrl: string;
   prompt: string;
@@ -597,13 +771,39 @@ export async function createSeedancePrediction(params: {
       raw: data,
     } satisfies SeedancePrediction;
   } catch (error) {
-    const errorMessage = normalizeErrorMessage(error);
+    const seedanceError = normalizeErrorMessage(error);
     const debugPayload =
       process.env.SEEDANCE_DEBUG === "true"
         ? ` | input=${JSON.stringify(getSafeDebugInput(input))}`
         : "";
 
-    throw new Error(`AtlasCloud error: ${errorMessage}${debugPayload}`);
+    if (isAtlasKlingFallbackConfigured()) {
+      try {
+        const fallbackPrediction = await createAtlasKlingPrediction({
+          ...params,
+          fallbackFrom: "atlascloud",
+        });
+
+        if (process.env.SEEDANCE_DEBUG === "true") {
+          console.log(
+            "[Seedance fallback] AtlasCloud Seedance failed; started AtlasCloud Kling",
+            {
+              seedanceError,
+              fallbackJobId: fallbackPrediction.id,
+              fallbackModel: fallbackPrediction.model,
+            },
+          );
+        }
+
+        return fallbackPrediction;
+      } catch (fallbackError) {
+        throw new Error(
+          `AtlasCloud Seedance error: ${seedanceError}${debugPayload} | AtlasCloud Kling fallback error: ${normalizeErrorMessage(fallbackError)}`,
+        );
+      }
+    }
+
+    throw new Error(`AtlasCloud error: ${seedanceError}${debugPayload}`);
   }
 }
 
@@ -662,12 +862,22 @@ async function getAtlasPrediction(requestId: string) {
 
 export async function getSeedancePrediction(
   predictionId: string,
-  _options?: {
+  options?: {
     providerName?: string | null;
     model?: string | null;
   },
 ) {
-  return getAtlasPrediction(predictionId);
+  const prediction = await getAtlasPrediction(predictionId);
+  const providerName =
+    options?.providerName === "atlascloud-kling"
+      ? "atlascloud-kling"
+      : "atlascloud";
+
+  return {
+    ...prediction,
+    provider: providerName,
+    model: options?.model || prediction.model || getSeedanceModel(providerName),
+  } satisfies SeedancePrediction;
 }
 
 function findUrlDeep(value: unknown): string | null {
