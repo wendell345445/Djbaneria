@@ -333,7 +333,7 @@ async function notifyFunnelLead(
       body: JSON.stringify({
         name: state.name,
         selectedPlan: recommendedPlan,
-        source: "interactive_sales_funnel",
+        source: "interactive_sales_funnel_plan_screen",
       }),
     });
   } catch {
@@ -728,6 +728,17 @@ export default function FunnelPage() {
     return () => window.clearTimeout(timeoutId);
   }, [step, state.goal, state.volume, state.need]);
 
+  useEffect(() => {
+    if (step !== 8 || leadNotified) return;
+    if (!state.name.trim()) return;
+    if (!state.goal || !state.volume || !state.need || !state.pain || !state.urgency) {
+      return;
+    }
+
+    setLeadNotified(true);
+    void notifyFunnelLead(state, recommendedPlan);
+  }, [step, leadNotified, state, recommendedPlan]);
+
   const outcome = getOutcomeCopy(state, selectedPlan);
   const savings = estimateMonthlySavings(state, selectedPlan);
   const selectedPlanData = plans[selectedPlan];
@@ -757,11 +768,6 @@ export default function FunnelPage() {
       return setError("Choose the bottleneck you want to solve.");
     if (step === 5 && !state.urgency)
       return setError("Choose when you want to start.");
-
-    if (step === 5 && !leadNotified) {
-      setLeadNotified(true);
-      void notifyFunnelLead(state, recommendedPlan);
-    }
 
     setStep((current) => Math.min(8, current + 1) as FunnelStep);
   }
