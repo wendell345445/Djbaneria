@@ -19,6 +19,7 @@ import {
   Clock3,
   Layers3,
   Play,
+  Quote,
   ShieldCheck,
   Sparkles,
   Zap,
@@ -26,7 +27,7 @@ import {
 import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
-type FunnelStep = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+type FunnelStep = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 type Goal = "bookings" | "events" | "content" | "agency";
 type Volume = "low" | "medium" | "high" | "scale";
 type Need = "flyers" | "animations" | "photos" | "all";
@@ -106,6 +107,37 @@ const plans: Record<PlanVariant, PlanInfo> = {
     ],
   },
 };
+
+type Testimonial = {
+  initials: string;
+  name: string;
+  role: string;
+  quote: string;
+};
+
+const testimonials: Testimonial[] = [
+  {
+    initials: "NW",
+    name: "Noah Walker",
+    role: "Open format DJ · Miami, FL",
+    quote:
+      "I use this type of artwork a lot, but the agency I had hired was getting very expensive. With this tool, everything became much easier. I can create flyers my way, make changes, test different versions, and the price does not even compare.",
+  },
+  {
+    initials: "DM",
+    name: "Daniel Morgan",
+    role: "Club DJ · Orlando, FL",
+    quote:
+      "DJ Visuals AI completely changed my Instagram. After I started using these visuals on my profile, my engagement improved a lot and I received many more event inquiries. It worked for me, and I highly recommend it.",
+  },
+  {
+    initials: "TC",
+    name: "Tyler Carter",
+    role: "Event DJ · Los Angeles, CA",
+    quote:
+      "Before, my monthly flyer costs were around $200 — about $50 per flyer. Now, with DJ Visuals AI, I can create flyers with even higher quality at a fraction of the cost. I highly recommend it.",
+  },
+];
 
 type CreativeExample = {
   kind: "image" | "vimeo";
@@ -574,7 +606,7 @@ function StepOption({
 }
 
 function ProgressBar({ step }: { step: FunnelStep }) {
-  const progress = Math.min(100, Math.max(8, ((step + 1) / 7) * 100));
+  const progress = Math.min(100, Math.max(8, ((step + 1) / 9) * 100));
   return (
     <div className="grid gap-2">
       <div className="flex items-center justify-between">
@@ -731,7 +763,7 @@ export default function FunnelPage() {
       void notifyFunnelLead(state, recommendedPlan);
     }
 
-    setStep((current) => Math.min(6, current + 1) as FunnelStep);
+    setStep((current) => Math.min(8, current + 1) as FunnelStep);
   }
 
   function goBack() {
@@ -1036,6 +1068,10 @@ export default function FunnelPage() {
                 </StepBlock>
               ) : null}
 
+              {step === 6 ? <ProjectShowcaseStep name={state.name} /> : null}
+
+              {step === 7 ? <TestimonialsStep name={state.name} /> : null}
+
               {step >= 2 && step <= 5 ? (
                 <div className="mt-5 flex justify-end border-t border-white/10 pt-4">
                   <button
@@ -1044,7 +1080,7 @@ export default function FunnelPage() {
                     className="btn-cx-solid inline-flex min-h-12 w-full items-center justify-center gap-2 px-5 text-[10px] sm:w-auto"
                   >
                     <span className="relative z-10">
-                      {step === 5 ? "Show my plan" : "Continue"}
+                      "Continue"
                     </span>
                     <ChevronRight size={14} className="relative z-10" />
                   </button>
@@ -1062,7 +1098,7 @@ export default function FunnelPage() {
                 </div>
               ) : null}
 
-              {step === 6 ? (
+              {step === 8 ? (
                 <div className="grid gap-5">
                   <div>
                     <span className="mono text-[9px] uppercase tracking-[0.18em] text-[var(--cg)]">
@@ -1227,13 +1263,13 @@ export default function FunnelPage() {
               ) : null}
             </div>
 
-            {error && step !== 6 ? (
+            {error && step !== 8 ? (
               <p className="sans mt-4 text-sm leading-6 text-rose-300">
                 {error}
               </p>
             ) : null}
 
-            {step !== 6 ? (
+            {step !== 8 ? (
               <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/10 pt-5">
                 <button
                   type="button"
@@ -1251,7 +1287,7 @@ export default function FunnelPage() {
                   className="btn-cx-solid inline-flex min-h-11 items-center justify-center gap-2 px-5 text-[10px]"
                 >
                   <span className="relative z-10">
-                    {step === 5 ? "Show my plan" : "Continue"}
+                    {step === 7 ? "Show my plan" : "Continue"}
                   </span>
                   <ChevronRight size={14} className="relative z-10" />
                 </button>
@@ -1272,6 +1308,166 @@ export default function FunnelPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+function ProjectShowcaseStep({ name }: { name: string }) {
+  const firstName = name.trim().split(/\s+/)[0] || "você";
+  const projects = [
+    ...creativeExamples.videos.map((project) => ({
+      ...project,
+      group: "Animated video",
+    })),
+    ...creativeExamples.flyers.map((project) => ({
+      ...project,
+      group: "AI flyer",
+    })),
+    ...creativeExamples.photos.slice(0, 2).map((project) => ({
+      ...project,
+      group: "Professional image",
+    })),
+  ];
+
+  return (
+    <div>
+      <span className="mono text-[9px] uppercase tracking-[0.18em] text-[var(--cg)]">
+        Step 07
+      </span>
+      <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
+        Esses são alguns dos projetos que você vai conseguir criar ainda hoje.
+      </h2>
+      <p className="sans mt-3 text-sm leading-6 text-white/52">
+        {firstName}, você pode criar vídeos animados, flyers promocionais e
+        imagens profissionais para usar em Reels, TikTok, Stories, anúncios e
+        divulgação de eventos.
+      </p>
+
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
+        {projects.map((project, index) => (
+          <ProjectShowcaseCard
+            key={`${project.group}-${project.title}-${index}`}
+            project={project}
+          />
+        ))}
+      </div>
+
+      <div className="mt-5 border border-[rgba(0,245,255,0.16)] bg-[rgba(0,245,255,0.055)] p-4">
+        <p className="sans text-sm leading-6 text-white/58">
+          Na próxima etapa, veja como outros DJs estão usando esse fluxo para criar
+          mais rápido, economizar com design e deixar a divulgação mais profissional.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProjectShowcaseCard({
+  project,
+}: {
+  project: CreativeExample & { group: string };
+}) {
+  return (
+    <article className="relative overflow-hidden border border-white/10 bg-black/24">
+      <div className="relative aspect-[4/5] overflow-hidden bg-black sm:aspect-[4/5]">
+        {project.kind === "vimeo" && project.vimeoId ? (
+          <iframe
+            src={`https://player.vimeo.com/video/${project.vimeoId}?autoplay=0&muted=0&loop=0&autopause=1&title=0&byline=0&portrait=0&badge=0&playsinline=1&controls=1`}
+            title={project.title}
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="absolute inset-0 h-full w-full border-0"
+            loading="lazy"
+          />
+        ) : (
+          <img
+            src={project.image}
+            alt={project.title}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(3,4,10,0.02),rgba(3,4,10,0.64))]" />
+        <span className="mono absolute left-2 top-2 border border-[rgba(0,245,255,0.22)] bg-black/62 px-1.5 py-1 text-[6px] uppercase tracking-[0.12em] text-[var(--cx)] backdrop-blur-sm sm:left-3 sm:top-3 sm:px-2 sm:text-[7px] sm:tracking-[0.16em]">
+          {project.group}
+        </span>
+        {project.kind === "vimeo" ? (
+          <span className="absolute bottom-2 right-2 grid h-8 w-8 place-items-center border border-[rgba(0,245,255,0.36)] bg-[rgba(0,245,255,0.12)] text-[var(--cx)] shadow-[0_0_22px_rgba(0,245,255,0.18)] sm:bottom-3 sm:right-3 sm:h-9 sm:w-9">
+            <Play size={14} fill="currentColor" />
+          </span>
+        ) : null}
+      </div>
+      <div className="p-2.5 sm:p-3">
+        <h3 className="orb text-[10px] font-black uppercase leading-4 tracking-[0.04em] text-white sm:text-xs sm:tracking-[0.06em]">
+          {project.title}
+        </h3>
+        <p className="sans mt-1.5 line-clamp-2 text-[10px] leading-4 text-white/46 sm:mt-2 sm:text-[11px] sm:leading-5">
+          {project.description}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+function TestimonialsStep({ name }: { name: string }) {
+  const firstName = name.trim().split(/\s+/)[0] || "you";
+
+  return (
+    <div>
+      <span className="mono text-[9px] uppercase tracking-[0.18em] text-[var(--cg)]">
+        Step 08
+      </span>
+      <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
+        See how this can improve your promo workflow.
+      </h2>
+      <p className="sans mt-3 text-sm leading-6 text-white/52">
+        {firstName}, before choosing your plan, compare your current workflow
+        with DJs who are already cutting design costs, creating faster, and
+        making their social profiles look more professional.
+      </p>
+
+      <div className="mt-6 grid gap-3 lg:grid-cols-3">
+        {testimonials.map((testimonial) => (
+          <TestimonialCard key={testimonial.initials} testimonial={testimonial} />
+        ))}
+      </div>
+
+      <div className="mt-5 border border-[rgba(0,245,255,0.16)] bg-[rgba(0,245,255,0.055)] p-4">
+        <p className="sans text-sm leading-6 text-white/58">
+          Next, your answers will be matched with the plan that gives you enough
+          credits for the flyers, animated videos, and professional images you
+          want to create each month.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+  return (
+    <article className="relative overflow-hidden border border-white/10 bg-black/24 p-4">
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent opacity-70" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center border border-[rgba(0,245,255,0.28)] bg-[rgba(0,245,255,0.08)] text-xs font-black uppercase tracking-[0.08em] text-[var(--cx)]">
+            {testimonial.initials}
+          </span>
+          <div className="min-w-0">
+            <h3 className="orb truncate text-sm font-black uppercase tracking-[0.06em] text-white">
+              {testimonial.name}
+            </h3>
+            <p className="sans mt-1 text-[11px] leading-5 text-white/42">
+              {testimonial.role}
+            </p>
+          </div>
+        </div>
+        <Quote size={16} className="shrink-0 text-[var(--cx)] opacity-70" />
+      </div>
+
+      <p className="sans mt-4 text-sm leading-6 text-white/62">
+        “{testimonial.quote}”
+      </p>
+    </article>
   );
 }
 
