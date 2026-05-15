@@ -880,9 +880,7 @@ export default function FunnelPage() {
       >
         {step === 0 ? (
           <div className="max-w-xl">
-            <h1 className="orb text-[34px] font-black uppercase leading-[0.98] tracking-[-0.05em] text-white sm:text-[54px] lg:text-[68px]">
-              Build your promo workflow in 60 seconds.
-            </h1>
+            <h1 className="orb text-[34px] font-black uppercase leading-[0.98] tracking-[-0.05em] text-white sm:text-[54px] lg:text-[68px]"></h1>
             <p className="sans mt-5 max-w-lg text-base leading-6 text-white/58 sm:text-lg">
               Answer a few quick questions and get a personalized plan for
               flyers, animated videos, and professional images — matched to your
@@ -891,7 +889,10 @@ export default function FunnelPage() {
           </div>
         ) : null}
 
-        <div ref={funnelTopRef} className="hud relative overflow-hidden p-4 shadow-none sm:p-6 sm:shadow-[0_35px_120px_rgba(0,0,0,0.62)]">
+        <div
+          ref={funnelTopRef}
+          className="hud relative overflow-hidden p-4 shadow-none sm:p-6 sm:shadow-[0_35px_120px_rgba(0,0,0,0.62)]"
+        >
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
           <div className="pointer-events-none absolute -right-24 -top-24 hidden h-56 w-56 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl sm:block" />
           <div className="pointer-events-none absolute -bottom-24 -left-24 hidden h-56 w-56 rounded-full bg-[rgba(191,95,255,0.12)] blur-3xl sm:block" />
@@ -998,7 +999,7 @@ export default function FunnelPage() {
                 <StepBlock
                   eyebrow="Step 05"
                   title="What is slowing you down most?"
-                  subtitle="This lets the funnel frame the offer around the objection the visitor actually feels."
+                  subtitle=""
                 >
                   {options.pain.map((option) => (
                     <StepOption
@@ -1018,7 +1019,7 @@ export default function FunnelPage() {
                 <StepBlock
                   eyebrow="Step 06"
                   title="How soon do you want to create?"
-                  subtitle="Urgency changes the CTA and the strength of the checkout recommendation."
+                  subtitle=""
                 >
                   {options.urgency.map((option) => (
                     <StepOption
