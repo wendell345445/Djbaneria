@@ -28,9 +28,9 @@ const LandingBannerCarousel = dynamic(
 const advantages = [
   {
     icon: Zap,
-    title: "Animated flyers in minutes",
+    title: "Animate any flyer — yours or AI-made",
     description:
-      "Turn any static flyer into a VFX-enhanced MP4 video — with transitions, light effects, and motion — ready to post on Reels, TikTok, and Stories.",
+      "Upload your own finished flyer or use one generated inside DJ Visuals AI, then turn it into a VFX-enhanced MP4 video with transitions, light effects, and motion.",
   },
   {
     icon: Sparkles,
@@ -73,7 +73,7 @@ const faqs = [
   {
     question: "What exactly is an animated flyer?",
     answer:
-      "You generate a static flyer on our platform, then use the animation engine to add VFX — light leaks, particle effects, transitions, and motion — and export it as an MP4 video you can post directly on Reels, TikTok, or Stories.",
+      "An animated flyer is a static event flyer transformed into a motion MP4 with VFX, light leaks, particles, transitions, and movement. You can animate a flyer created inside DJ Visuals AI or upload your own finished flyer from another designer or tool.",
   },
   {
     question: "What formats do I get?",
@@ -81,9 +81,9 @@ const faqs = [
       "Static flyers are delivered as high-resolution images. Animated flyers are exported as MP4 video files ready for social media. Enhanced DJ photos are delivered as high-resolution images.",
   },
   {
-    question: "Can I use my own photo in a flyer?",
+    question: "Can I upload my own flyer to animate?",
     answer:
-      "Yes. You can upload your own image as a reference when generating a flyer or animation, so the final result reflects your identity and brand.",
+      "Yes. You are not limited to flyers generated on the platform. You can upload your own finished flyer artwork and use DJ Visuals AI to animate it into a social-ready MP4 video.",
   },
   {
     question: "How does the DJ photo enhancement work?",
@@ -113,7 +113,7 @@ const pricingPlans = [
     features: [
       "20 AI generations per month",
       "Static flyer creation",
-      "Animated flyer export (MP4)",
+      "Animate flyers generated here or uploaded by you",
       "AI DJ photo enhancement",
       "Feed and story formats",
     ],
@@ -132,7 +132,7 @@ const pricingPlans = [
     highlighted: true,
     features: [
       "40 AI generations per month",
-      "Premium flyers + animated MP4 export",
+      "Premium flyers + upload-your-own flyer animation",
       "High-quality image & video generation",
       "Professional DJ photo enhancement",
       "Built for paid ads and social media",
@@ -152,7 +152,7 @@ const pricingPlans = [
     highlighted: false,
     features: [
       "80 AI generations per month",
-      "Full access: flyers, animations, photos",
+      "Full access: AI flyers, own-flyer animation, and photos",
       "High-quality image & video output",
       "Ideal for teams and high-volume promo",
       "Priority creative output",
@@ -488,9 +488,9 @@ function StaticVsAnimatedSection() {
           </span>
         </h2>
         <p className="sans mt-3 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
-          Generate your flyer, then hit animate. The AI adds light leaks,
-          particle effects, and transitions — and exports a ready-to-post MP4 in
-          seconds.
+          Generate a flyer with AI or upload your own finished artwork. Then hit
+          animate and turn it into a ready-to-post MP4 with light leaks, particles,
+          motion, and transitions.
         </p>
       </div>
 
@@ -590,14 +590,14 @@ function StaticVsAnimatedSection() {
           href="#pricing"
           className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:px-10"
         >
-          ANIMATE MY FLYER
+          ANIMATE MY OWN FLYER
           <ArrowRight size={13} />
         </a>
         <p
           className="mono text-center text-[9px] text-[rgba(255,255,255,0.3)]"
           style={{ letterSpacing: "0.14em" }}
         >
-          INCLUDED IN ALL PLANS · NO VIDEO EDITING NEEDED
+          UPLOAD YOUR OWN FLYER OR USE AN AI-MADE ONE · NO VIDEO EDITING NEEDED
         </p>
       </div>
     </section>
