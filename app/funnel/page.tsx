@@ -1312,7 +1312,7 @@ export default function FunnelPage() {
 }
 
 function ProjectShowcaseStep({ name }: { name: string }) {
-  const firstName = name.trim().split(/\s+/)[0] || "você";
+  const firstName = name.trim().split(/\s+/)[0] || "you";
   const projects = [
     ...creativeExamples.videos.map((project) => ({
       ...project,
@@ -1334,12 +1334,12 @@ function ProjectShowcaseStep({ name }: { name: string }) {
         Step 07
       </span>
       <h2 className="orb mt-3 text-2xl font-black uppercase tracking-[-0.03em] text-white sm:text-3xl">
-        Esses são alguns dos projetos que você vai conseguir criar ainda hoje.
+        These are some of the projects you can create today.
       </h2>
       <p className="sans mt-3 text-sm leading-6 text-white/52">
-        {firstName}, você pode criar vídeos animados, flyers promocionais e
-        imagens profissionais para usar em Reels, TikTok, Stories, anúncios e
-        divulgação de eventos.
+        {firstName}, you can create animated videos, promotional flyers, and
+        professional images for Reels, TikTok, Stories, ads, and event
+        promotion.
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
@@ -1353,8 +1353,8 @@ function ProjectShowcaseStep({ name }: { name: string }) {
 
       <div className="mt-5 border border-[rgba(0,245,255,0.16)] bg-[rgba(0,245,255,0.055)] p-4">
         <p className="sans text-sm leading-6 text-white/58">
-          Na próxima etapa, veja como outros DJs estão usando esse fluxo para criar
-          mais rápido, economizar com design e deixar a divulgação mais profissional.
+          Next, see how other DJs are using this workflow to create faster,
+          reduce design costs, and make their promotion look more professional.
         </p>
       </div>
     </div>
