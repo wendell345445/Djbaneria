@@ -2018,37 +2018,39 @@ export default function HomePage() {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
             <div className="sect-label">
-              <span className="chip-cx">● AI CREATIVE STUDIO FOR DJS</span>
+              <span className="chip-cx">● BUILT FOR DJ PROMO CONTENT</span>
             </div>
 
-            <h1 className="hero-h1 orb text-[33px] font-black leading-[1.04] tracking-[-0.02em] text-white sm:text-[58px] lg:text-[72px]">
-              FLYERS.
+            <h1 className="hero-h1 orb text-[32px] font-black leading-[1.02] tracking-[-0.03em] text-white sm:text-[56px] lg:text-[70px]">
+              CREATE DJ FLYERS,
               <br />
               <span
                 style={{
                   color: "var(--cx)",
-                  textShadow: "0 0 40px rgba(0,245,255,0.6)",
+                  textShadow: "0 0 40px rgba(0,245,255,0.62)",
                 }}
               >
-                ANIMATED
-              </span>{" "}
+                ANIMATED PROMOS
+              </span>
+              <br />
+              &amp; PRO PHOTOS
+              <br />
               <span
                 style={{
                   color: "var(--cv)",
-                  textShadow: "0 0 40px rgba(191,95,255,0.6)",
+                  textShadow: "0 0 40px rgba(191,95,255,0.62)",
                 }}
               >
-                VIDEOS.
+                IN MINUTES
               </span>
-              <br />
-              PROFESSIONAL PHOTOS
               <span className="cursor" />
             </h1>
 
-            <p className="sans mt-5 text-[14px] leading-5 text-[rgba(255,255,255,0.55)] sm:text-[15px]">
-              Generate premium event flyers, turn them into animated MP4 videos
-              with VFX, and upgrade your DJ photos — all from one AI-powered
-              platform built for the music scene.
+            <p className="sans mt-5 max-w-2xl text-[14px] leading-6 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
+              Create premium event flyers, animate any flyer into a VFX MP4,
+              and upgrade DJ photos into sharper, booking-ready visuals — so you
+              can launch Reels, Stories, ads, and promo content in minutes
+              without a designer.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
@@ -2063,20 +2065,24 @@ export default function HomePage() {
                 href="#exemplos"
                 className="btn-cx inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8"
               >
-                SEE EXAMPLES
+                SEE WHAT I CAN CREATE
               </a>
             </div>
 
-            {/* Stats row */}
+            <p className="mono mt-4 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.34)]">
+              Flyers · animated videos · professional DJ photos · ready for Reels, TikTok, Stories and ads
+            </p>
+
+            {/* Conversion benefits row */}
             <div className="mt-10 grid grid-cols-3 gap-0 border border-[rgba(0,245,255,0.12)]">
               {[
-                ["2,800+", "ACTIVE DJs"],
-                ["50K+", "VISUALS MADE"],
-                ["4.9★", "RATING"],
+                ["01", "NO DESIGNER NEEDED"],
+                ["02", "UPLOAD YOUR OWN FLYER"],
+                ["03", "EXPORT SOCIAL-READY ASSETS"],
               ].map(([val, label]) => (
                 <div
                   key={label}
-                  className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-3 py-3 text-center sm:px-6 sm:py-4"
+                  className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-2 py-3 text-center sm:px-6 sm:py-4"
                 >
                   <p
                     className="orb text-base font-bold sm:text-xl"
@@ -2088,8 +2094,8 @@ export default function HomePage() {
                     {val}
                   </p>
                   <p
-                    className="mono mt-1 text-[7px] text-[rgba(255,255,255,0.35)] sm:text-[9px]"
-                    style={{ letterSpacing: "0.12em" }}
+                    className="mono mt-1 text-[6.5px] leading-4 text-[rgba(255,255,255,0.42)] sm:text-[9px]"
+                    style={{ letterSpacing: "0.11em" }}
                   >
                     {label}
                   </p>
@@ -2163,132 +2169,8 @@ export default function HomePage() {
       <StaticVsAnimatedSection />
 
       <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-          {/* Left: HUD animation preview card */}
-          <div className="order-2 lg:order-1">
-            <div className="hud-box rounded-none p-4 sm:p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p
-                    className="mono text-[9px] text-[rgba(0,245,255,0.7)]"
-                    style={{ letterSpacing: "0.18em" }}
-                  >
-                    // ANIMATION_ENGINE
-                  </p>
-                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">
-                    Static flyer → animated MP4 with VFX
-                  </p>
-                </div>
-                <span className="chip-cx shrink-0">MP4 EXPORT</span>
-              </div>
-              {/* Mock animation timeline */}
-              <div className="relative overflow-hidden border border-[rgba(0,245,255,0.1)] bg-[#03040A] p-5">
-                <div className="mb-4 flex items-center gap-3">
-                  <div
-                    className="flex h-8 w-8 items-center justify-center border border-[rgba(0,245,255,0.3)]"
-                    style={{ background: "rgba(0,245,255,0.08)" }}
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="var(--cx)"
-                      aria-hidden
-                    >
-                      <polygon points="5 3 19 12 5 21 5 3" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <div className="h-1.5 w-full overflow-hidden bg-[rgba(255,255,255,0.06)]">
-                      <div
-                        className="h-full w-2/3"
-                        style={{
-                          background:
-                            "linear-gradient(90deg, var(--cx), var(--cv))",
-                          boxShadow: "0 0 8px var(--cx)",
-                          animation: "stripeDrift 2s linear infinite",
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <span
-                    className="mono text-[9px]"
-                    style={{ color: "var(--cx)" }}
-                  >
-                    0:04 / 0:06
-                  </span>
-                </div>
-                {/* VFX layers */}
-                <div className="space-y-2">
-                  {[
-                    { label: "LIGHT LEAK", active: true, color: "var(--cx)" },
-                    { label: "PARTICLES", active: true, color: "var(--cv)" },
-                    { label: "TRANSITION", active: true, color: "var(--cg)" },
-                    {
-                      label: "GLOW FX",
-                      active: false,
-                      color: "rgba(255,255,255,0.2)",
-                    },
-                  ].map((layer) => (
-                    <div
-                      key={layer.label}
-                      className="flex items-center gap-3 border border-[rgba(255,255,255,0.05)] px-3 py-2"
-                    >
-                      <span
-                        className="h-2 w-2 rounded-full shrink-0"
-                        style={{
-                          background: layer.active
-                            ? layer.color
-                            : "rgba(255,255,255,0.15)",
-                          boxShadow: layer.active
-                            ? `0 0 6px ${layer.color}`
-                            : "none",
-                          animation: layer.active
-                            ? "cornerPulse 2s ease-in-out infinite"
-                            : "none",
-                        }}
-                      />
-                      <span
-                        className="mono text-[9px] flex-1"
-                        style={{
-                          color: layer.active
-                            ? "rgba(255,255,255,0.7)"
-                            : "rgba(255,255,255,0.25)",
-                          letterSpacing: "0.14em",
-                        }}
-                      >
-                        {layer.label}
-                      </span>
-                      <span
-                        className="mono text-[9px]"
-                        style={{
-                          color: layer.active
-                            ? layer.color
-                            : "rgba(255,255,255,0.2)",
-                        }}
-                      >
-                        {layer.active ? "ON" : "OFF"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 border-t border-[rgba(0,245,255,0.08)] pt-3">
-                  <p
-                    className="mono text-[9px] text-[rgba(255,255,255,0.3)]"
-                    style={{ letterSpacing: "0.14em" }}
-                  >
-                    OUTPUT:{" "}
-                    <span style={{ color: "var(--cg)" }}>
-                      MP4 · 1080×1920 · 30fps
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: copy */}
-          <div className="order-1 lg:order-2">
+        <div className="mx-auto max-w-3xl">
+          <div>
             <div className="sect-label">
               <span className="chip-cx">● ANIMATED FLYERS</span>
             </div>
