@@ -438,7 +438,6 @@ function VideoCard({
             </div>
           </div>
         )}
-
       </div>
 
       {/* Bottom bar */}
@@ -489,8 +488,8 @@ function StaticVsAnimatedSection() {
         </h2>
         <p className="sans mt-3 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
           Generate a flyer with AI or upload your own finished artwork. Then hit
-          animate and turn it into a ready-to-post MP4 with light leaks, particles,
-          motion, and transitions.
+          animate and turn it into a ready-to-post MP4 with light leaks,
+          particles, motion, and transitions.
         </p>
       </div>
 
@@ -2022,7 +2021,7 @@ export default function HomePage() {
             </div>
 
             <h1 className="hero-h1 orb text-[32px] font-black leading-[1.02] tracking-[-0.03em] text-white sm:text-[56px] lg:text-[70px]">
-              CREATE DJ FLYERS,
+              FLYERS,
               <br />
               <span
                 style={{
@@ -2047,10 +2046,10 @@ export default function HomePage() {
             </h1>
 
             <p className="sans mt-5 max-w-2xl text-[14px] leading-6 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
-              Create premium event flyers, animate any flyer into a VFX MP4,
-              and upgrade DJ photos into sharper, booking-ready visuals — so you
-              can launch Reels, Stories, ads, and promo content in minutes
-              without a designer.
+              Create premium event flyers, animate any flyer into a VFX MP4, and
+              upgrade DJ photos into sharper, booking-ready visuals — so you can
+              launch Reels, Stories, ads, and promo content in minutes without a
+              designer.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
@@ -2070,7 +2069,8 @@ export default function HomePage() {
             </div>
 
             <p className="mono mt-4 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.34)]">
-              Flyers · animated videos · professional DJ photos · ready for Reels, TikTok, Stories and ads
+              Flyers · animated videos · professional DJ photos · ready for
+              Reels, TikTok, Stories and ads
             </p>
 
             {/* Conversion benefits row */}
