@@ -229,7 +229,49 @@ const flyerExamples = [
 
 
 function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
-  const vimeoSrc = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1&autopause=0&title=0&byline=0&portrait=0&badge=0&playsinline=1`;
+  const [previewStarted, setPreviewStarted] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+
+  useEffect(() => {
+    const preconnectTargets = [
+      "https://player.vimeo.com",
+      "https://i.vimeocdn.com",
+      "https://f.vimeocdn.com",
+    ];
+
+    const links = preconnectTargets.map((href) => {
+      const existingLink = document.head.querySelector<HTMLLinkElement>(
+        `link[rel="preconnect"][href="${href}"]`,
+      );
+
+      if (existingLink) return null;
+
+      const link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = href;
+      link.crossOrigin = "anonymous";
+      document.head.appendChild(link);
+
+      return link;
+    });
+
+    return () => {
+      links.forEach((link) => link?.remove());
+    };
+  }, []);
+
+  const vimeoSrc = soundEnabled
+    ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=0&loop=1&autopause=0&controls=1&title=0&byline=0&portrait=0&badge=0&playsinline=1`
+    : `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1&autopause=0&title=0&byline=0&portrait=0&badge=0&playsinline=1`;
+
+
+  function handleEnableSound() {
+    if (soundEnabled) return;
+    setPreviewStarted(true);
+    setIframeLoaded(false);
+    setSoundEnabled(true);
+  }
 
   return (
     <div
@@ -250,9 +292,11 @@ function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
           <span
             className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{
-              background: "var(--cg)",
-              boxShadow: "0 0 5px var(--cg)",
-              animation: "cornerPulse 1.5s ease-in-out infinite",
+              background: iframeLoaded ? "var(--cg)" : "rgba(255,255,255,0.28)",
+              boxShadow: iframeLoaded ? "0 0 5px var(--cg)" : "none",
+              animation: iframeLoaded
+                ? "cornerPulse 1.5s ease-in-out infinite"
+                : "none",
             }}
           />
           <span
@@ -267,23 +311,56 @@ function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
             VFX
           </span>
           <span className="chip-cx" style={{ fontSize: 6, padding: "3px 6px" }}>
-            AUTO
+            {soundEnabled ? "SOUND" : "AUTO"}
           </span>
         </div>
       </div>
 
       <div
-        className="relative w-full overflow-hidden bg-transparent"
+        className="relative w-full overflow-hidden bg-[#03040A]"
         style={{ aspectRatio: "1024 / 1280" }}
       >
-        <iframe
-          src={vimeoSrc}
-          title="Animated flyer hero video"
-          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-          referrerPolicy="strict-origin-when-cross-origin"
-          loading="eager"
-          className="absolute inset-0 h-full w-full border-0"
-        />
+
+        {previewStarted && !iframeLoaded ? (
+          <div className="absolute inset-0 z-10 grid place-items-center bg-[radial-gradient(circle_at_center,rgba(0,245,255,0.08),rgba(3,4,10,0.98)_58%)]">
+            <div className="grid gap-3 text-center">
+              <div
+                className="mx-auto h-8 w-8 rounded-full border border-[rgba(0,245,255,0.28)] border-t-[rgba(0,245,255,0.95)]"
+                style={{ animation: "spin 0.8s linear infinite" }}
+              />
+              <span
+                className="mono text-[8px] uppercase text-[rgba(255,255,255,0.48)]"
+                style={{ letterSpacing: "0.16em" }}
+              >
+                Loading motion preview
+              </span>
+            </div>
+          </div>
+        ) : null}
+
+        {previewStarted ? (
+          <iframe
+            key={soundEnabled ? "hero-video-sound" : "hero-video-muted"}
+            src={vimeoSrc}
+            title="Animated flyer hero video"
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            loading="eager"
+            onLoad={() => setIframeLoaded(true)}
+            className="absolute inset-0 h-full w-full border-0 transition-opacity duration-500"
+            style={{ opacity: iframeLoaded ? 1 : 0 }}
+          />
+        ) : null}
+
+        {previewStarted && iframeLoaded && !soundEnabled ? (
+          <button
+            type="button"
+            onClick={handleEnableSound}
+            className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 border border-[rgba(0,245,255,0.34)] bg-[#03040A]/78 px-3 py-2 text-[7px] font-bold uppercase tracking-[0.16em] text-[var(--cx)] shadow-[0_0_24px_rgba(0,245,255,0.18)] backdrop-blur-md transition hover:border-[rgba(0,245,255,0.72)] hover:bg-[rgba(0,245,255,0.1)] hover:text-white"
+          >
+            Tap for sound
+          </button>
+        ) : null}
       </div>
 
       <div className="border-t border-[rgba(191,95,255,0.1)] px-3 py-2">
