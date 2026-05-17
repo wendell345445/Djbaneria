@@ -1187,7 +1187,7 @@ function HeroCostComparisonSection() {
           </span>{" "}
           ARE YOU LOSING?
         </h2>
-        <p className="sans mx-auto mt-4 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.64)] sm:text-[15px]">
+        <p className="sans mx-auto mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.64)] sm:text-[15px]">
           Compare the old workflow with DJ Visuals AI — flyers, animated promos,
           and pro photos from one AI-powered creative dashboard.
         </p>
@@ -1279,7 +1279,7 @@ function HeroCostComparisonSection() {
         </div>
       </div>
 
-      <p className="sans mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-white/64 sm:text-base">
+      <p className="sans mx-auto mt-8 max-w-3xl text-center text-sm leading-7 text-white/64 sm:text-base">
         While you wait on revisions, another DJ can already publish flyers,
         animated promos, and booking-ready visuals for Reels, TikTok, Stories,
         and ads.
@@ -2103,7 +2103,7 @@ export default function HomePage() {
               style={{
                 fontSize: "10px",
                 letterSpacing: "0.15em",
-                fontFamily: "Sora, sans-serif",
+                fontFamily: "Space Mono, monospace",
                 textTransform: "uppercase",
               }}
             >
@@ -2136,7 +2136,7 @@ export default function HomePage() {
             href="/login"
             onClick={() => setMenuOpen(false)}
             style={{
-              fontFamily: "Sora, sans-serif",
+              fontFamily: "Orbitron, monospace",
               fontSize: 13,
               fontWeight: 700,
               letterSpacing: "0.18em",
@@ -2175,7 +2175,7 @@ export default function HomePage() {
 
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
-            <h1 className="hero-h1 orb text-[26px] font-black leading-[0.94] tracking-[-0.055em] text-white sm:text-[56px] lg:text-[70px]">
+            <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.055em] text-white sm:text-[56px] lg:text-[70px]">
               CREATE ANIMATED
               <br />
               <span
@@ -2186,8 +2186,6 @@ export default function HomePage() {
               >
                 VIDEOS & FLYERS
               </span>
-              <br />
-              AND FLYERS
               <br />
               <span
                 style={{
@@ -2200,7 +2198,7 @@ export default function HomePage() {
               <span className="cursor" />
             </h1>
 
-            <p className="sans mt-5 max-w-2xl text-[13px] leading-5 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
+            <p className="sans mt-5 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
               Ai does it all for you IN LESS THAN 60 SECONDS. No Canva, no
               designer, no Photoshop
             </p>
@@ -2351,7 +2349,7 @@ export default function HomePage() {
                 NOW IN MOTION.
               </span>
             </h2>
-            <p className="sans mt-4 text-[14px] leading-6 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
+            <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
               Generate your event flyer, then bring it to life with the
               animation engine. Add VFX effects — light leaks, particle bursts,
               glows, and transitions — and export a ready-to-post MP4 video for
