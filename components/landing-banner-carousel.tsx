@@ -94,7 +94,9 @@ function PremiumMarqueeRow({
     <div className="relative overflow-hidden">
       <div
         className={`flex w-max transform-gpu will-change-transform ${
-          direction === "left" ? "premium-marquee-left" : "premium-marquee-right"
+          direction === "left"
+            ? "premium-marquee-left"
+            : "premium-marquee-right"
         }`}
       >
         <MarqueeSet examples={examples} />
@@ -119,7 +121,7 @@ function MarqueeSet({
       {examples.map((example) => (
         <article
           key={`${ariaHidden ? "copy" : "main"}-${example.id}`}
-          className="group relative w-[188px] shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#0b1020] shadow-[0_24px_70px_rgba(0,0,0,0.28)] ring-1 ring-white/[0.03] transition duration-500 hover:-translate-y-1 hover:border-cyan-200/20 hover:shadow-[0_30px_90px_rgba(34,211,238,0.12)] sm:w-[238px] sm:rounded-[30px] md:w-[275px] lg:w-[305px]"
+          className="group relative w-[188px] shrink-0 overflow-hidden rounded-[1px]  bg-[#0b1020] shadow-[0_24px_70px_rgba(0,0,0,0.28)] ring-1 ring-white/[0.03] transition duration-500 hover:-translate-y-1 hover:border-cyan-200/20 hover:shadow-[0_30px_90px_rgba(34,211,238,0.12)] sm:w-[238px] sm:rounded-[30px] md:w-[275px] lg:w-[305px]"
         >
           <div className="relative aspect-[4/5] overflow-hidden">
             <img
@@ -134,7 +136,6 @@ function MarqueeSet({
             <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.18),transparent_38%)]" />
             </div>
-
           </div>
         </article>
       ))}
