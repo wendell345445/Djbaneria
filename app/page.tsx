@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, type MouseEvent } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import {
@@ -20,6 +20,9 @@ import {
   MousePointerClick,
   Timer,
   XCircle,
+  Music2,
+  Pause,
+  Play,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
 
@@ -199,6 +202,47 @@ const testimonials = [
   },
 ] as const;
 
+const bonusMusicTracks = [
+  {
+    id: "house-01",
+    title:
+      "David Guetta & Chris Willis x Vinne - Love is Gone (CRISTOV MASH-UP)",
+    vibe: "",
+    src: "/bonus-music/faixa-1.mp3",
+  },
+  {
+    id: "house-02",
+    title: " Michael Jackson - Waiting For You (Levant & Mave Remix)",
+    vibe: "",
+    src: "/bonus-music/faixa-2.mp3",
+  },
+  {
+    id: "house-03",
+    title:
+      " Swedish House Mafia ft. The Weeknd - Moth To A Flame (Gum Gum Remix)",
+    vibe: "",
+    src: "/bonus-music/faixa-3.mp3",
+  },
+  {
+    id: "house-04",
+    title: " Red Hot Chili Peppers - Otherside (Syzz Remix)",
+    vibe: "",
+    src: "/bonus-music/faixa-4.mp3",
+  },
+  {
+    id: "house-05",
+    title: "NoizBasses - 4AM (Extended Mix)",
+    vibe: "",
+    src: "/bonus-music/faixa-5.mp3",
+  },
+  {
+    id: "house-06",
+    title: " Hardwell & Azteck feat. Alex Hepburn - Anybody Out There",
+    vibe: "",
+    src: "/bonus-music/faixa-6.mp3",
+  },
+] as const;
+
 // ── STATIC vs ANIMATED SECTION ───────────────────────────────────
 const flyerExamples = [
   {
@@ -226,6 +270,56 @@ const flyerExamples = [
     vimeoId: "1192227878",
   },
 ] as const;
+
+const WHATSAPP_PHONE =
+  process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "5538984175013";
+
+const WHATSAPP_MESSAGE = "Hi! I need help with DJ Visuals AI.";
+
+function WhatsAppIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      aria-hidden="true"
+      className={className}
+      fill="currentColor"
+    >
+      <path d="M16.04 3.2c-7.04 0-12.76 5.72-12.76 12.76 0 2.25.6 4.45 1.73 6.39L3.2 28.8l6.61-1.73a12.7 12.7 0 0 0 6.23 1.59h.01c7.03 0 12.75-5.72 12.75-12.76S23.08 3.2 16.04 3.2Zm0 23.3h-.01a10.54 10.54 0 0 1-5.36-1.47l-.38-.22-3.92 1.03 1.05-3.82-.25-.39a10.58 10.58 0 0 1-1.62-5.66c0-5.8 4.72-10.52 10.53-10.52 2.81 0 5.45 1.1 7.44 3.08a10.45 10.45 0 0 1 3.08 7.44c0 5.8-4.72 10.52-10.52 10.52Zm5.77-7.88c-.32-.16-1.87-.92-2.16-1.02-.29-.11-.5-.16-.71.16-.21.31-.82 1.02-1 1.23-.18.21-.37.24-.69.08-.32-.16-1.34-.49-2.55-1.57-.94-.84-1.58-1.88-1.76-2.2-.18-.31-.02-.48.14-.64.14-.14.32-.37.48-.55.16-.18.21-.32.32-.53.11-.21.05-.39-.03-.55-.08-.16-.71-1.71-.97-2.34-.26-.61-.52-.53-.71-.54h-.61c-.21 0-.55.08-.84.39-.29.32-1.1 1.08-1.1 2.63s1.13 3.05 1.29 3.26c.16.21 2.23 3.4 5.4 4.77.75.32 1.34.52 1.8.66.76.24 1.45.21 1.99.13.61-.09 1.87-.76 2.13-1.5.26-.74.26-1.37.18-1.5-.08-.13-.29-.21-.61-.37Z" />
+    </svg>
+  );
+}
+
+function WhatsAppFloatingButton() {
+  const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(
+    WHATSAPP_MESSAGE,
+  )}`;
+
+  return (
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Chat on WhatsApp"
+      className="fixed right-3 z-[90] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_0_26px_rgba(37,211,102,0.42),0_14px_36px_rgba(0,0,0,0.42)] ring-1 ring-white/15 transition hover:-translate-y-0.5 hover:bg-[#20C45A] hover:shadow-[0_0_34px_rgba(37,211,102,0.56),0_18px_44px_rgba(0,0,0,0.5)] sm:right-5 sm:h-auto sm:w-auto sm:gap-3 sm:rounded-full sm:px-4 sm:py-3"
+      style={{
+        bottom: "calc(16px + env(safe-area-inset-bottom))",
+      }}
+    >
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/14 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)] sm:h-9 sm:w-9">
+        <WhatsAppIcon className="h-6 w-6 sm:h-5 sm:w-5" />
+      </span>
+
+      <span className="hidden text-left sm:block">
+        <span className="sans block text-[10px] font-semibold leading-none text-white/80">
+          Need help?
+        </span>
+        <span className="mono mt-1 block text-[9px] font-black uppercase tracking-[0.14em] text-white">
+          Chat on WhatsApp
+        </span>
+      </span>
+    </a>
+  );
+}
 
 function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
   const [previewStarted, setPreviewStarted] = useState(true);
@@ -1266,6 +1360,341 @@ function HeroCostComparisonSection() {
   );
 }
 
+function BonusMusicPlayer() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [activeTrackId, setActiveTrackId] = useState<
+    (typeof bonusMusicTracks)[number]["id"]
+  >(bonusMusicTracks[0].id);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [loadError, setLoadError] = useState(false);
+
+  const activeTrack =
+    bonusMusicTracks.find((track) => track.id === activeTrackId) ||
+    bonusMusicTracks[0];
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    setProgress(0);
+    setDuration(0);
+    setLoadError(false);
+    audio.load();
+
+    if (!isPlaying) return;
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => setIsPlaying(false));
+    }
+  }, [activeTrackId, isPlaying]);
+
+  async function togglePlayback() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    setLoadError(false);
+
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch {
+      setIsPlaying(false);
+    }
+  }
+
+  function selectTrack(trackId: (typeof bonusMusicTracks)[number]["id"]) {
+    if (trackId === activeTrackId) {
+      void togglePlayback();
+      return;
+    }
+
+    setActiveTrackId(trackId);
+    setIsPlaying(true);
+  }
+
+  function handleTimeUpdate() {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+
+    setProgress((audio.currentTime / audio.duration) * 100);
+  }
+
+  function handleLoadedMetadata() {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+
+    setDuration(audio.duration);
+  }
+
+  function handleSeek(event: MouseEvent<HTMLButtonElement>) {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const ratio = Math.min(
+      1,
+      Math.max(0, (event.clientX - bounds.left) / bounds.width),
+    );
+
+    audio.currentTime = ratio * audio.duration;
+    setProgress(ratio * 100);
+  }
+
+  function formatTime(seconds: number) {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+  }
+
+  return (
+    <div className="mt-5 border border-[rgba(0,245,255,0.14)] bg-black/25 p-3 sm:mt-6 sm:p-5">
+      <div className="flex items-center gap-3 sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(0,245,255,0.72)] sm:text-[8px] sm:tracking-[0.18em]">
+            Listen before you unlock
+          </p>
+          <h3 className="orb mt-1 text-[13px] font-bold uppercase tracking-[0.06em] text-white sm:text-base sm:tracking-[0.08em]">
+            Preview the bonus pack
+          </h3>
+          <p className="sans mt-1.5 text-[11px] leading-5 text-[rgba(255,255,255,0.64)] sm:mt-2 sm:text-sm">
+            Play 6 sample house remixes from the exclusive subscriber pack.
+          </p>
+        </div>
+
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.26)] bg-[rgba(0,245,255,0.09)] text-[var(--cx)] shadow-[0_0_24px_rgba(0,245,255,0.16)] sm:h-11 sm:w-11">
+          <Music2 size={17} />
+        </div>
+      </div>
+
+      <div className="mt-4 border border-[rgba(191,95,255,0.18)] bg-[rgba(191,95,255,0.055)] p-3 sm:mt-5 sm:p-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={togglePlayback}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--cx)] text-[#03040A] shadow-[0_0_34px_rgba(0,245,255,0.32)] transition hover:scale-105 sm:h-12 sm:w-12"
+            aria-label={
+              isPlaying
+                ? "Pause bonus music preview"
+                : "Play bonus music preview"
+            }
+          >
+            {isPlaying ? (
+              <Pause size={17} fill="currentColor" />
+            ) : (
+              <Play size={17} fill="currentColor" />
+            )}
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <p className="orb line-clamp-2 text-[12px] font-bold uppercase leading-4 tracking-[0.06em] text-white sm:text-sm sm:leading-5 sm:tracking-[0.08em]">
+              {activeTrack.title}
+            </p>
+            <p className="sans mt-1 truncate text-[11px] text-[rgba(255,255,255,0.62)] sm:text-xs">
+              {activeTrack.vibe}
+            </p>
+          </div>
+
+          <span className="mono hidden text-[8px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.52)] sm:block">
+            {formatTime(duration)}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSeek}
+          className="mt-4 h-2.5 w-full overflow-hidden bg-white/[0.08] text-left sm:h-2"
+          aria-label="Seek bonus music preview"
+        >
+          <span
+            className="block h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] shadow-[0_0_18px_rgba(0,245,255,0.34)] transition-[width] duration-150"
+            style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+          />
+        </button>
+
+        <div className="mt-2 flex items-center justify-between">
+          <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/38">
+            Preview
+          </span>
+          <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/46 sm:hidden">
+            {formatTime(duration)}
+          </span>
+        </div>
+
+        {loadError ? (
+          <p className="sans mt-3 text-xs leading-5 text-rose-300">
+            Preview unavailable right now. Please try again later.
+          </p>
+        ) : null}
+
+        <audio
+          ref={audioRef}
+          src={activeTrack.src}
+          preload="none"
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={() => setIsPlaying(false)}
+          onError={() => {
+            setIsPlaying(false);
+            setLoadError(true);
+          }}
+        />
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:mt-4 sm:grid-cols-2 lg:grid-cols-3">
+        {bonusMusicTracks.map((track, index) => {
+          const selected = track.id === activeTrack.id;
+
+          return (
+            <button
+              key={track.id}
+              type="button"
+              onClick={() => selectTrack(track.id)}
+              className={`group flex min-h-[66px] items-center gap-3 border px-3 py-2.5 text-left transition sm:block sm:min-h-0 sm:p-3 ${
+                selected
+                  ? "border-[rgba(0,245,255,0.56)] bg-[rgba(0,245,255,0.09)] shadow-[0_0_22px_rgba(0,245,255,0.12)]"
+                  : "border-white/10 bg-white/[0.025] hover:border-[rgba(0,245,255,0.28)] hover:bg-[rgba(0,245,255,0.045)]"
+              }`}
+            >
+              <div className="flex shrink-0 items-center gap-2 sm:justify-between">
+                <span className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.46)]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span
+                  className={`grid h-7 w-7 place-items-center rounded-full border text-[9px] sm:h-5 sm:w-5 ${
+                    selected
+                      ? "border-[rgba(0,245,255,0.45)] text-[var(--cx)]"
+                      : "border-white/10 text-white/38 group-hover:text-[var(--cx)]"
+                  }`}
+                >
+                  {selected && isPlaying ? "Ⅱ" : "▶"}
+                </span>
+              </div>
+
+              <div className="min-w-0 flex-1 sm:mt-2">
+                <p className="sans line-clamp-2 text-xs font-bold leading-4 text-white/82 sm:truncate">
+                  {track.title}
+                </p>
+                <p className="sans mt-0.5 line-clamp-1 text-[10px] leading-4 text-[rgba(255,255,255,0.56)] sm:mt-1 sm:line-clamp-2">
+                  {track.vibe}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ExclusiveMusicBonusSection() {
+  const bonusItems = [
+    "100 house remix tracks included as a subscriber bonus",
+    "Built to add more energy to your DJ workflow and promo planning",
+    "Unlocked after checkout with any active paid subscription",
+  ];
+
+  return (
+    <section
+      id="bonus"
+      className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-20 lg:px-10 lg:py-24"
+    >
+      <div className="relative overflow-hidden border border-[rgba(0,245,255,0.18)] bg-[linear-gradient(135deg,rgba(0,245,255,0.07),rgba(191,95,255,0.055),rgba(255,255,255,0.018))] p-4 shadow-[0_0_70px_rgba(0,245,255,0.09)] sm:p-8 lg:p-10">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-[rgba(191,95,255,0.13)] blur-3xl" />
+
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-8">
+          <div className="text-center lg:text-left">
+            <div className="sect-label justify-center lg:justify-start">
+              <span className="chip-cx">● EXCLUSIVE BONUS</span>
+            </div>
+            <h2 className="orb text-[24px] font-black uppercase leading-[1.02] tracking-[-0.045em] text-white sm:text-[42px]">
+              Unlock the
+              <br />
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 28px rgba(0,245,255,0.58)",
+                }}
+              >
+                100 House Remix
+              </span>
+              <br />
+              Music Pack.
+            </h2>
+            <p className="sans mx-auto mt-3 max-w-2xl text-[13px] leading-5 text-[rgba(255,255,255,0.70)] sm:mt-4 sm:text-[16px] sm:leading-7 lg:mx-0">
+              Subscribe and unlock an exclusive bonus pack with 100 house remix
+              tracks — made to give DJs more creative fuel for sets, promo
+              ideas, content planning, and high-energy social drops.
+            </p>
+
+            <a
+              href="#pricing"
+              className="btn-cx-solid mt-5 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[10px] sm:mt-7 sm:w-auto sm:min-h-[48px] sm:px-8 sm:text-[11px]"
+            >
+              UNLOCK THE BONUS
+              <ArrowRight size={12} />
+            </a>
+          </div>
+
+          <div className="hud-box-v relative overflow-hidden p-3 sm:p-6">
+            <div className="mb-3 inline-flex border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.08)] px-2.5 py-1 text-[7px] font-bold uppercase tracking-[0.16em] text-[var(--cg)] sm:absolute sm:right-4 sm:top-4 sm:mb-0">
+              Included
+            </div>
+
+            <div className="flex items-center gap-3 border-b border-[rgba(0,245,255,0.14)] pb-4 sm:gap-4 sm:pb-5 sm:pr-20">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.1)] text-[var(--cx)] shadow-[0_0_32px_rgba(0,245,255,0.18)] sm:h-14 sm:w-14">
+                <Music2 size={25} />
+              </div>
+              <div className="min-w-0">
+                <p className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(0,245,255,0.72)] sm:text-[8px] sm:tracking-[0.18em]">
+                  BONUS PACK
+                </p>
+                <p className="sans mt-1 text-[30px] font-black leading-none text-white sm:text-[44px]">
+                  100
+                </p>
+                <p className="orb mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white/82 sm:text-[12px] sm:tracking-[0.14em]">
+                  House Remix Tracks
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-2.5 sm:mt-5 sm:gap-3">
+              {bonusItems.map((item) => (
+                <div
+                  key={item}
+                  className="flex items-start gap-3 border border-[rgba(0,245,255,0.12)] bg-black/20 px-3 py-2.5 sm:px-4 sm:py-3"
+                >
+                  <CheckCircle2
+                    size={15}
+                    className="mt-1 shrink-0 text-[var(--cg)]"
+                  />
+                  <span className="sans text-[12px] leading-5 text-[rgba(255,255,255,0.70)] sm:text-sm sm:leading-6">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <BonusMusicPlayer />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [giftPopupOpen, setGiftPopupOpen] = useState(false);
@@ -1314,6 +1743,7 @@ export default function HomePage() {
       }}
     >
       <FirstPurchaseGiftPopup open={giftPopupOpen} onClose={closeGiftPopup} />
+      <WhatsAppFloatingButton />
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -2738,6 +3168,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <div className="glow-divider" />
+
+      <ExclusiveMusicBonusSection />
 
       <div className="glow-divider" />
 

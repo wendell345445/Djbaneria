@@ -13,6 +13,7 @@ import {
   CreditCard,
   Film,
   Globe2,
+  Gift,
   Grid2X2,
   ImagePlus,
   Images,
@@ -35,6 +36,7 @@ type NavItemKey =
   | "newBanner"
   | "myBanners"
   | "professionalImage"
+  | "bonus"
   | "animatedFlyer"
   | "animatedFlyerAi"
   | "remotion"
@@ -73,6 +75,7 @@ const navItems: NavItem[] = [
     icon: Wand2,
     badgeType: "ai",
   },
+  { key: "bonus", href: "/dashboard/bonus", icon: Gift },
   { key: "billing", href: "/dashboard/billing", icon: CreditCard },
   { key: "language", href: "/dashboard/settings/language", icon: Globe2 },
   { key: "settings", href: "/dashboard/settings", icon: Settings },
@@ -125,6 +128,12 @@ function getProfessionalImageLabel(locale: SupportedLocale) {
   return "Professional image";
 }
 
+function getBonusLabel(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Bônus exclusivo";
+  if (locale === "es") return "Bono exclusivo";
+  return "Exclusive bonus";
+}
+
 function getAnimatedFlyerLabel(locale: SupportedLocale) {
   if (locale === "pt-BR") return "Flyer animado";
   if (locale === "es") return "Flyer animado";
@@ -175,6 +184,8 @@ function getNavItemLabel(
       return getMyFlyersLabel(locale);
     case "professionalImage":
       return getProfessionalImageLabel(locale);
+    case "bonus":
+      return getBonusLabel(locale);
     case "animatedFlyer":
       return getAnimatedFlyerLabel(locale);
     case "animatedFlyerAi":
