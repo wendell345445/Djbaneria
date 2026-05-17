@@ -227,7 +227,6 @@ const flyerExamples = [
   },
 ] as const;
 
-
 function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
   const [previewStarted, setPreviewStarted] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -264,7 +263,6 @@ function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
   const vimeoSrc = soundEnabled
     ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=0&loop=1&autopause=0&controls=1&title=0&byline=0&portrait=0&badge=0&playsinline=1`
     : `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1&autopause=0&title=0&byline=0&portrait=0&badge=0&playsinline=1`;
-
 
   function handleEnableSound() {
     if (soundEnabled) return;
@@ -320,7 +318,6 @@ function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
         className="relative w-full overflow-hidden bg-[#03040A]"
         style={{ aspectRatio: "1024 / 1280" }}
       >
-
         {previewStarted && !iframeLoaded ? (
           <div className="absolute inset-0 z-10 grid place-items-center bg-[radial-gradient(circle_at_center,rgba(0,245,255,0.08),rgba(3,4,10,0.98)_58%)]">
             <div className="grid gap-3 text-center">
@@ -380,31 +377,11 @@ function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
   );
 }
 
-function VideoCard({
-  vimeoId,
-  previewImage,
-  index,
-  playingId,
-  setPlayingId,
-}: {
-  vimeoId: string;
-  previewImage?: string | null;
-  index: number;
-  playingId: number | null;
-  setPlayingId: (id: number | null) => void;
-}) {
-  const playing = playingId === index;
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+function VideoCard({ vimeoId, index }: { vimeoId: string; index: number }) {
   const hasVimeoId = Boolean(vimeoId && !vimeoId.startsWith("REPLACE_WITH_"));
   const vimeoSrc = hasVimeoId
-    ? `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=0&loop=1&autopause=0&title=0&byline=0&portrait=0&badge=0&playsinline=1`
+    ? `https://player.vimeo.com/video/${vimeoId}?autoplay=0&muted=0&loop=0&autopause=1&title=0&byline=0&portrait=0&badge=0&playsinline=1&controls=1`
     : "";
-
-  function handleClick() {
-    if (!hasVimeoId) return;
-    setIframeLoaded(false);
-    setPlayingId(playing ? null : index);
-  }
 
   return (
     <div
@@ -427,12 +404,8 @@ function VideoCard({
           <span
             className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{
-              background: playing ? "var(--cg)" : "rgba(255,255,255,0.25)",
-              boxShadow: playing ? "0 0 5px var(--cg)" : "none",
-              transition: "all 0.3s",
-              animation: playing
-                ? "cornerPulse 1.5s ease-in-out infinite"
-                : "none",
+              background: hasVimeoId ? "var(--cg)" : "rgba(255,255,255,0.25)",
+              boxShadow: hasVimeoId ? "0 0 5px var(--cg)" : "none",
             }}
           />
           <span
@@ -447,158 +420,33 @@ function VideoCard({
             VFX
           </span>
           <span className="chip-cx" style={{ fontSize: 6, padding: "3px 6px" }}>
-            VIMEO
+            PREVIEW
           </span>
         </div>
       </div>
 
-      {/* Vimeo player — loaded only when the user taps */}
+      {/* Native Vimeo preview/player */}
       <div
-        className="relative w-full cursor-pointer bg-[#03040A]"
+        className="relative w-full overflow-hidden bg-[#03040A]"
         style={{ aspectRatio: "1024 / 1280" }}
-        onClick={handleClick}
-        role="button"
-        aria-label={playing ? "Pause video" : "Play video"}
       >
-        {previewImage ? (
-          <img
-            src={previewImage}
-            alt={`Animated flyer preview ${index + 1}`}
-            className="absolute inset-0 h-full w-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(0,245,255,0.08),transparent_42%),radial-gradient(circle_at_50%_72%,rgba(191,95,255,0.08),transparent_45%),#03040A]" />
-        )}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(3,4,10,0.06), rgba(3,4,10,0.24)), radial-gradient(circle at 50% 45%, transparent 0%, rgba(3,4,10,0.28) 100%)",
-          }}
-        />
-
-        {playing && hasVimeoId ? (
+        {hasVimeoId ? (
           <iframe
             src={vimeoSrc}
             title={`Animated flyer example ${index + 1}`}
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            allow="fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             loading="lazy"
-            onLoad={() => setIframeLoaded(true)}
-            className="absolute inset-0 h-full w-full border-0 transition-opacity duration-500"
-            style={{ opacity: iframeLoaded ? 1 : 0 }}
+            className="absolute inset-0 h-full w-full border-0"
           />
-        ) : null}
-
-        {playing && hasVimeoId && !iframeLoaded ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-[rgba(3,4,10,0.26)] backdrop-blur-[1px]">
-            <div
-              className="h-9 w-9 rounded-full border border-[rgba(0,245,255,0.35)] border-t-[rgba(0,245,255,0.95)]"
-              style={{ animation: "spin 0.8s linear infinite" }}
-            />
-          </div>
-        ) : null}
-
-        {/* Tap-to-play overlay */}
-        {!playing && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2"
-            style={{
-              background: "rgba(3,4,10,0.30)",
-              backdropFilter: "blur(1px)",
-            }}
-          >
-            <div
-              className="flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.5)]"
-              style={{
-                background: "rgba(0,245,255,0.1)",
-                boxShadow: "0 0 20px rgba(0,245,255,0.35)",
-              }}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="var(--cx)"
-                aria-hidden
-              >
-                <polygon points="5 3 19 12 5 21 5 3" />
-              </svg>
-            </div>
+        ) : (
+          <div className="absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_50%_38%,rgba(0,245,255,0.08),transparent_42%),radial-gradient(circle_at_50%_72%,rgba(191,95,255,0.08),transparent_45%),#03040A]">
             <p
-              className="mono text-[9px] text-white"
-              style={{
-                letterSpacing: "0.18em",
-                textShadow: "0 0 10px rgba(0,245,255,0.6)",
-              }}
+              className="mono px-4 text-center text-[9px] uppercase text-[rgba(255,255,255,0.52)]"
+              style={{ letterSpacing: "0.16em" }}
             >
-              {hasVimeoId ? "TAP TO PLAY" : "ADD VIMEO ID"}
+              ADD VIMEO ID
             </p>
-            <p className="sans px-4 text-center text-[10px] text-[rgba(255,255,255,0.52)]">
-              {hasVimeoId
-                ? "Play with sound"
-                : "Replace the Vimeo ID in app/page.tsx"}
-            </p>
-          </div>
-        )}
-
-        {/* Playing overlays */}
-        {playing && (
-          <div className="pointer-events-none absolute inset-0">
-            <span
-              className="absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
-              style={{
-                background: "var(--cx)",
-                boxShadow: "0 0 6px var(--cx)",
-                animation: "cornerPulse 2s ease-in-out infinite",
-              }}
-            />
-            <span
-              className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
-              style={{
-                background: "var(--cv)",
-                boxShadow: "0 0 6px var(--cv)",
-                animation: "cornerPulse 2s ease-in-out infinite 0.5s",
-              }}
-            />
-            <span
-              className="absolute bottom-1.5 left-1.5 h-1.5 w-1.5 rounded-full"
-              style={{
-                background: "var(--cv)",
-                boxShadow: "0 0 6px var(--cv)",
-                animation: "cornerPulse 2s ease-in-out infinite 1s",
-              }}
-            />
-            <span
-              className="absolute bottom-1.5 right-1.5 h-1.5 w-1.5 rounded-full"
-              style={{
-                background: "var(--cx)",
-                boxShadow: "0 0 6px var(--cx)",
-                animation: "cornerPulse 2s ease-in-out infinite 1.5s",
-              }}
-            />
-            <div
-              className="absolute inset-x-0 h-[1px] opacity-20"
-              style={{
-                top: "35%",
-                background:
-                  "linear-gradient(90deg, transparent, var(--cx), transparent)",
-                animation: "scanBeam 3s ease-in-out infinite",
-              }}
-            />
-            <div className="absolute right-2 top-2 flex items-center gap-1 border border-[rgba(191,95,255,0.3)] bg-[rgba(3,4,10,0.7)] px-2 py-1 backdrop-blur-sm">
-              <span className="flex gap-[2px]">
-                <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
-                <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
-              </span>
-              <span
-                className="mono text-[6px] text-[rgba(255,255,255,0.62)]"
-                style={{ letterSpacing: "0.12em" }}
-              >
-                VIMEO
-              </span>
-            </div>
           </div>
         )}
       </div>
@@ -613,7 +461,7 @@ function VideoCard({
               textShadow: "0 0 10px rgba(191,95,255,0.45)",
             }}
           >
-            ANIMATED VIDEO
+            VIMEO PREVIEW
           </span>
         </div>
       </div>
@@ -622,7 +470,45 @@ function VideoCard({
 }
 
 function StaticVsAnimatedSection() {
-  const [playingId, setPlayingId] = useState<number | null>(null);
+  const motionVideoExamples = [
+    {
+      id: 1,
+      label: "Hero Motion Promo",
+      static: "/landing/animation-demo/flyer-static.webp",
+      vimeoId: "1192995365",
+    },
+    {
+      id: 2,
+      label: "Club Night",
+      static: "/landing/animation-demo/flyer-static.webp",
+      vimeoId: "1192217227",
+    },
+    {
+      id: 3,
+      label: "Festival Set",
+      static: "/landing/animation-demo/flyer-static2.webp",
+      vimeoId: "1192217229",
+    },
+    {
+      id: 4,
+      label: "Release Party",
+      static: "/landing/animation-demo/flyer-static3.webp",
+      vimeoId: "1192223138",
+    },
+    {
+      id: 5,
+      label: "Residency",
+      static: "/landing/animation-demo/flyer-static4.webp",
+      vimeoId: "1193018729",
+    },
+    {
+      id: 6,
+      label: "Animated Promo",
+      static: "/landing/animation-demo/flyer-static2.webp",
+      vimeoId: "1193018728",
+    },
+  ] as const;
+
   return (
     <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
       {/* Header */}
@@ -651,92 +537,27 @@ function StaticVsAnimatedSection() {
         </h2>
       </div>
 
-      {/* 4 pairs stacked */}
-      <div className="space-y-8 sm:space-y-12">
-        {flyerExamples.map((ex, i) => (
-          <div key={ex.id}>
-            {/* Pair label */}
+      {/* 6 animated video examples */}
+      <div className="grid grid-cols-2 gap-2 sm:gap-5 lg:grid-cols-3">
+        {motionVideoExamples.map((example, index) => (
+          <div key={`${example.vimeoId}-${example.id}`}>
             <div className="mb-3 flex items-center gap-3">
               <span
                 className="mono text-[9px] text-[rgba(0,245,255,0.5)]"
                 style={{ letterSpacing: "0.2em" }}
               >
-                {String(i + 1).padStart(2, "0")} //
+                {String(index + 1).padStart(2, "0")} //
               </span>
               <span
-                className="mono text-[9px] text-[rgba(255,255,255,0.46)]"
+                className="mono truncate text-[9px] text-[rgba(255,255,255,0.46)]"
                 style={{ letterSpacing: "0.18em" }}
               >
-                {ex.label.toUpperCase()}
+                {example.label.toUpperCase()}
               </span>
-              <div className="flex-1 h-px bg-[rgba(255,255,255,0.05)]" />
+              <div className="hidden h-px flex-1 bg-[rgba(255,255,255,0.05)] sm:block" />
             </div>
 
-            {/* Side-by-side — always 2 cols, even on mobile */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-5 items-start">
-              {/* Static */}
-              <div className="hud-box relative overflow-hidden rounded-none p-0">
-                <div className="flex items-center justify-between gap-2 border-b border-[rgba(0,245,255,0.1)] px-3 py-2">
-                  <div className="flex min-w-0 items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[rgba(255,255,255,0.2)]" />
-                    <span
-                      className="mono truncate text-[7px] text-[rgba(255,255,255,0.50)]"
-                      style={{ letterSpacing: "0.1em" }}
-                    >
-                      STATIC_{i + 1}.PNG
-                    </span>
-                  </div>
-                  <span
-                    className="chip-cx shrink-0"
-                    style={{ fontSize: 6, padding: "3px 6px" }}
-                  >
-                    IMG
-                  </span>
-                </div>
-
-                {/* 1024×1280 ratio */}
-                <div
-                  className="relative w-full bg-[#03040A]"
-                  style={{ aspectRatio: "1024 / 1280" }}
-                >
-                  <img
-                    src={ex.static}
-                    alt={`${ex.label} static flyer`}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      background:
-                        "linear-gradient(to bottom, transparent 70%, rgba(3,4,10,0.55))",
-                    }}
-                  />
-                </div>
-
-                <div className="border-t border-[rgba(0,245,255,0.07)] px-3 py-2">
-                  <div className="flex min-h-5 items-center justify-center">
-                    <span
-                      className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[rgba(255,255,255,0.60)]"
-                      style={{
-                        letterSpacing: "0.16em",
-                        textShadow: "0 0 8px rgba(255,255,255,0.18)",
-                      }}
-                    >
-                      NO MOTION
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Animated */}
-              <VideoCard
-                vimeoId={ex.vimeoId}
-                previewImage={ex.static}
-                index={i}
-                playingId={playingId}
-                setPlayingId={setPlayingId}
-              />
-            </div>
+            <VideoCard vimeoId={example.vimeoId} index={index} />
           </div>
         ))}
       </div>
