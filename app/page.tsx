@@ -227,6 +227,82 @@ const flyerExamples = [
   },
 ] as const;
 
+
+function HeroVimeoCard({ vimeoId }: { vimeoId: string }) {
+  const vimeoSrc = `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1&autopause=0&title=0&byline=0&portrait=0&badge=0&playsinline=1`;
+
+  return (
+    <div
+      className="hud-box-v relative overflow-hidden rounded-none p-0"
+      style={{ borderColor: "rgba(191,95,255,0.28)" }}
+    >
+      <div
+        className="absolute inset-x-0 top-0 h-[1px]"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, var(--cv), var(--cx), transparent)",
+          opacity: 0.7,
+        }}
+      />
+
+      <div className="flex items-center justify-between gap-2 border-b border-[rgba(191,95,255,0.14)] px-3 py-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
+            style={{
+              background: "var(--cg)",
+              boxShadow: "0 0 5px var(--cg)",
+              animation: "cornerPulse 1.5s ease-in-out infinite",
+            }}
+          />
+          <span
+            className="mono truncate text-[7px] text-[rgba(255,255,255,0.52)]"
+            style={{ letterSpacing: "0.1em" }}
+          >
+            VIMEO_1.MP4
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <span className="chip-v" style={{ fontSize: 6, padding: "3px 6px" }}>
+            VFX
+          </span>
+          <span className="chip-cx" style={{ fontSize: 6, padding: "3px 6px" }}>
+            AUTO
+          </span>
+        </div>
+      </div>
+
+      <div
+        className="relative w-full overflow-hidden bg-transparent"
+        style={{ aspectRatio: "1024 / 1280" }}
+      >
+        <iframe
+          src={vimeoSrc}
+          title="Animated flyer hero video"
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          loading="eager"
+          className="absolute inset-0 h-full w-full border-0"
+        />
+      </div>
+
+      <div className="border-t border-[rgba(191,95,255,0.1)] px-3 py-2">
+        <div className="flex min-h-5 items-center justify-center">
+          <span
+            className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[var(--cv)]"
+            style={{
+              letterSpacing: "0.16em",
+              textShadow: "0 0 10px rgba(191,95,255,0.45)",
+            }}
+          >
+            ANIMATED VIDEO
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VideoCard({
   vimeoId,
   previewImage,
@@ -235,7 +311,7 @@ function VideoCard({
   setPlayingId,
 }: {
   vimeoId: string;
-  previewImage: string;
+  previewImage?: string | null;
   index: number;
   playingId: number | null;
   setPlayingId: (id: number | null) => void;
@@ -307,12 +383,16 @@ function VideoCard({
         role="button"
         aria-label={playing ? "Pause video" : "Play video"}
       >
-        <img
-          src={previewImage}
-          alt={`Animated flyer preview ${index + 1}`}
-          className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
-        />
+        {previewImage ? (
+          <img
+            src={previewImage}
+            alt={`Animated flyer preview ${index + 1}`}
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(0,245,255,0.08),transparent_42%),radial-gradient(circle_at_50%_72%,rgba(191,95,255,0.08),transparent_45%),#03040A]" />
+        )}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -2204,13 +2284,7 @@ export default function HomePage() {
             </p>
 
             <div className="mx-auto mt-5 w-full max-w-[260px] sm:max-w-[320px] lg:max-w-[340px]">
-              <VideoCard
-                vimeoId={flyerExamples[0].vimeoId}
-                previewImage={flyerExamples[0].static}
-                index={0}
-                playingId={heroPlayingId}
-                setPlayingId={setHeroPlayingId}
-              />
+              <HeroVimeoCard vimeoId="1192995365" />
             </div>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
