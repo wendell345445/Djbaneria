@@ -283,7 +283,7 @@ function VideoCard({
             }}
           />
           <span
-            className="mono truncate text-[7px] text-[rgba(255,255,255,0.4)]"
+            className="mono truncate text-[7px] text-[rgba(255,255,255,0.52)]"
             style={{ letterSpacing: "0.1em" }}
           >
             VIMEO_{index + 1}.MP4
@@ -378,7 +378,7 @@ function VideoCard({
             >
               {hasVimeoId ? "TAP TO PLAY" : "ADD VIMEO ID"}
             </p>
-            <p className="sans px-4 text-center text-[10px] text-[rgba(255,255,255,0.4)]">
+            <p className="sans px-4 text-center text-[10px] text-[rgba(255,255,255,0.52)]">
               {hasVimeoId
                 ? "Play with sound"
                 : "Replace the Vimeo ID in app/page.tsx"}
@@ -436,7 +436,7 @@ function VideoCard({
                 <span className="block h-2.5 w-[2px] bg-[rgba(255,255,255,0.6)]" />
               </span>
               <span
-                className="mono text-[6px] text-[rgba(255,255,255,0.5)]"
+                className="mono text-[6px] text-[rgba(255,255,255,0.62)]"
                 style={{ letterSpacing: "0.12em" }}
               >
                 VIMEO
@@ -507,7 +507,7 @@ function StaticVsAnimatedSection() {
                 {String(i + 1).padStart(2, "0")} //
               </span>
               <span
-                className="mono text-[9px] text-[rgba(255,255,255,0.35)]"
+                className="mono text-[9px] text-[rgba(255,255,255,0.46)]"
                 style={{ letterSpacing: "0.18em" }}
               >
                 {ex.label.toUpperCase()}
@@ -523,7 +523,7 @@ function StaticVsAnimatedSection() {
                   <div className="flex min-w-0 items-center gap-1.5">
                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[rgba(255,255,255,0.2)]" />
                     <span
-                      className="mono truncate text-[7px] text-[rgba(255,255,255,0.38)]"
+                      className="mono truncate text-[7px] text-[rgba(255,255,255,0.50)]"
                       style={{ letterSpacing: "0.1em" }}
                     >
                       STATIC_{i + 1}.PNG
@@ -559,7 +559,7 @@ function StaticVsAnimatedSection() {
                 <div className="border-t border-[rgba(0,245,255,0.07)] px-3 py-2">
                   <div className="flex min-h-5 items-center justify-center">
                     <span
-                      className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[rgba(255,255,255,0.48)]"
+                      className="mono whitespace-nowrap text-[7px] font-bold uppercase text-[rgba(255,255,255,0.60)]"
                       style={{
                         letterSpacing: "0.16em",
                         textShadow: "0 0 8px rgba(255,255,255,0.18)",
@@ -913,7 +913,7 @@ function FirstPurchaseGiftPopup({
             </p>
 
             <label className="mt-5 grid gap-2 text-left">
-              <span className="mono text-[9px] uppercase tracking-[0.18em] text-[rgba(255,255,255,0.42)]">
+              <span className="mono text-[9px] uppercase tracking-[0.18em] text-[rgba(255,255,255,0.56)]">
                 Your name
               </span>
               <input
@@ -943,7 +943,7 @@ function FirstPurchaseGiftPopup({
             <button
               type="button"
               onClick={onClose}
-              className="sans mt-4 text-xs text-white/35 transition hover:text-white/70"
+              className="sans mt-4 text-xs text-white/46 transition hover:text-white/70"
             >
               Maybe later
             </button>
@@ -990,7 +990,7 @@ function FirstPurchaseGiftPopup({
                   <span className="mono block text-[18px] font-black leading-none text-[var(--cx)] sm:text-[22px]">
                     {formattedCountdown}
                   </span>
-                  <span className="mono mt-1 block text-[7px] uppercase tracking-[0.16em] text-white/35">
+                  <span className="mono mt-1 block text-[7px] uppercase tracking-[0.16em] text-white/46">
                     minutes
                   </span>
                 </div>
@@ -1038,13 +1038,13 @@ function FirstPurchaseGiftPopup({
                           ) : null}
                         </div>
 
-                        <p className="sans mt-1 text-[11px] leading-4 text-[rgba(255,255,255,0.42)]">
+                        <p className="sans mt-1 text-[11px] leading-4 text-[rgba(255,255,255,0.56)]">
                           {plan.credits}
                         </p>
                       </div>
 
                       <div className="shrink-0 text-right">
-                        <span className="sans block text-[11px] text-[rgba(255,255,255,0.38)] line-through">
+                        <span className="sans block text-[11px] text-[rgba(255,255,255,0.50)] line-through">
                           {plan.price}
                         </span>
                         <span className="sans block text-[17px] font-bold leading-tight text-[var(--cx)]">
@@ -1054,7 +1054,7 @@ function FirstPurchaseGiftPopup({
                     </div>
 
                     <div className="mt-2 flex items-center justify-between gap-2">
-                      <span className="mono text-[7px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.34)]">
+                      <span className="mono text-[7px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.46)]">
                         20% gift applied
                       </span>
 
@@ -1073,15 +1073,15 @@ function FirstPurchaseGiftPopup({
               <p className="sans text-xs leading-5 text-white/72 sm:text-sm">
                 Selected:{" "}
                 <strong className="text-white">{selectedPlanData?.name}</strong>{" "}
-                <span className="text-white/38">·</span>{" "}
-                <span className="line-through text-white/35">
+                <span className="text-white/50">·</span>{" "}
+                <span className="line-through text-white/46">
                   {selectedPlanData?.price}
                 </span>{" "}
                 <strong className="text-[var(--cx)]">
                   {selectedPlanData?.checkoutPrice}
                 </strong>
               </p>
-              <p className="mono mt-1 text-[7px] uppercase tracking-[0.12em] text-[rgba(255,255,255,0.34)]">
+              <p className="mono mt-1 text-[7px] uppercase tracking-[0.12em] text-[rgba(255,255,255,0.46)]">
                 WELCOME20 · Applied successfully
               </p>
             </div>
@@ -1111,7 +1111,7 @@ function FirstPurchaseGiftPopup({
                   setStep("intro");
                   setError("");
                 }}
-                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/42 transition hover:border-[rgba(0,245,255,0.22)] hover:text-white/75"
+                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/55 transition hover:border-[rgba(0,245,255,0.22)] hover:text-white/75"
               >
                 Back
               </button>
@@ -1119,7 +1119,7 @@ function FirstPurchaseGiftPopup({
               <button
                 type="button"
                 onClick={onClose}
-                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/42 transition hover:border-[rgba(191,95,255,0.28)] hover:text-white/75"
+                className="sans min-h-10 border border-[rgba(255,255,255,0.08)] bg-white/[0.03] px-3 text-xs text-white/55 transition hover:border-[rgba(191,95,255,0.28)] hover:text-white/75"
               >
                 Close
               </button>
@@ -1187,7 +1187,7 @@ function HeroCostComparisonSection() {
           </span>{" "}
           ARE YOU LOSING?
         </h2>
-        <p className="sans mx-auto mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.52)] sm:text-[15px]">
+        <p className="sans mx-auto mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.64)] sm:text-[15px]">
           Compare the old workflow with DJ Visuals AI — flyers, animated promos,
           and pro photos from one AI-powered creative dashboard.
         </p>
@@ -1203,7 +1203,7 @@ function HeroCostComparisonSection() {
               <p className="orb text-sm font-bold uppercase tracking-[0.1em] text-white">
                 The old way
               </p>
-              <p className="sans mt-1 text-xs text-white/38">
+              <p className="sans mt-1 text-xs text-white/50">
                 Manual design, revisions, and waiting.
               </p>
             </div>
@@ -1222,7 +1222,7 @@ function HeroCostComparisonSection() {
                     <p className="sans text-[19px] font-black leading-none text-[var(--ce)] sm:text-[22px]">
                       {item.value}
                     </p>
-                    <p className="sans mt-1 text-xs leading-5 text-white/46 sm:text-sm">
+                    <p className="sans mt-1 text-xs leading-5 text-white/58 sm:text-sm">
                       {item.label}
                     </p>
                   </div>
@@ -1249,7 +1249,7 @@ function HeroCostComparisonSection() {
               <p className="orb text-sm font-bold uppercase tracking-[0.1em] text-white">
                 With DJ Visuals AI
               </p>
-              <p className="sans mt-1 text-xs text-white/42">
+              <p className="sans mt-1 text-xs text-white/55">
                 Create, animate, and export faster.
               </p>
             </div>
@@ -1268,7 +1268,7 @@ function HeroCostComparisonSection() {
                     <p className="sans text-[19px] font-black leading-none text-[var(--cx)] sm:text-[22px]">
                       {item.value}
                     </p>
-                    <p className="sans mt-1 text-xs leading-5 text-white/52 sm:text-sm">
+                    <p className="sans mt-1 text-xs leading-5 text-white/64 sm:text-sm">
                       {item.label}
                     </p>
                   </div>
@@ -1279,7 +1279,7 @@ function HeroCostComparisonSection() {
         </div>
       </div>
 
-      <p className="sans mx-auto mt-8 max-w-3xl text-center text-sm leading-7 text-white/52 sm:text-base">
+      <p className="sans mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-white/64 sm:text-base">
         While you wait on revisions, another DJ can already publish flyers,
         animated promos, and booking-ready visuals for Reels, TikTok, Stories,
         and ads.
@@ -1332,14 +1332,14 @@ export default function HomePage() {
       style={{
         background: "#03040A",
         color: "#E8EAF0",
-        fontFamily: "'Sora', sans-serif",
+        fontFamily: "'DM Sans', sans-serif",
       }}
     >
       <FirstPurchaseGiftPopup open={giftPopupOpen} onClose={closeGiftPopup} />
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
           --cx: #00F5FF;
@@ -1356,9 +1356,9 @@ export default function HomePage() {
           --surface2: rgba(255,255,255,0.055);
         }
 
-        .orb { font-family: 'Sora', sans-serif; }
-        .mono { font-family: 'Sora', sans-serif; }
-        .sans { font-family: 'Sora', sans-serif; }
+        .orb { font-family: 'Orbitron', monospace; }
+        .mono { font-family: 'Space Mono', monospace; }
+        .sans { font-family: 'DM Sans', sans-serif; }
 
         /* ── GRID NOISE OVERLAY ── */
         body::before {
@@ -1499,7 +1499,7 @@ export default function HomePage() {
           background: transparent;
           border: 1px solid var(--cx);
           color: var(--cx);
-          font-family: 'Sora', sans-serif;
+          font-family: 'Orbitron', monospace;
           font-size: 11px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -1527,7 +1527,7 @@ export default function HomePage() {
           background: var(--cx);
           border: none;
           color: #03040A;
-          font-family: 'Sora', sans-serif;
+          font-family: 'Orbitron', monospace;
           font-size: 11px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -1545,7 +1545,7 @@ export default function HomePage() {
           background: transparent;
           border: 1px solid var(--cv);
           color: var(--cv);
-          font-family: 'Sora', sans-serif;
+          font-family: 'Orbitron', monospace;
           font-size: 11px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -1566,7 +1566,7 @@ export default function HomePage() {
           border: 1px solid var(--border-x);
           background: var(--cx10);
           color: var(--cx);
-          font-family: 'Sora', sans-serif;
+          font-family: 'Space Mono', monospace;
           font-size: 9px;
           font-weight: 700;
           letter-spacing: 0.2em;
@@ -1579,7 +1579,7 @@ export default function HomePage() {
           border: 1px solid var(--border-v);
           background: var(--cv10);
           color: var(--cv);
-          font-family: 'Sora', sans-serif;
+          font-family: 'Space Mono', monospace;
           font-size: 9px;
           font-weight: 700;
           letter-spacing: 0.2em;
@@ -1616,7 +1616,7 @@ export default function HomePage() {
 
         /* ── NAV LINK ── */
         .nav-link {
-          font-family: 'Sora', sans-serif;
+          font-family: 'Space Mono', monospace;
           font-size: 10px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
@@ -1728,7 +1728,7 @@ export default function HomePage() {
         }
         .mobile-menu.open { display: flex; }
         .mobile-menu a {
-          font-family: 'Sora', sans-serif;
+          font-family: 'Orbitron', monospace;
           font-size: 13px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -1804,7 +1804,7 @@ export default function HomePage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'Sora', sans-serif;
+          font-family: 'Orbitron', monospace;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.22em;
@@ -2099,7 +2099,7 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="nav-link hidden sm:block px-4 py-2 border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.5)] hover:border-[var(--border-x)] hover:text-[var(--cx)] transition-all"
+              className="nav-link hidden sm:block px-4 py-2 border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.62)] hover:border-[var(--border-x)] hover:text-[var(--cx)] transition-all"
               style={{
                 fontSize: "10px",
                 letterSpacing: "0.15em",
@@ -2175,8 +2175,8 @@ export default function HomePage() {
 
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
-            <h1 className="hero-h1 orb text-[29px] font-black leading-[1.02] tracking-[-0.03em] text-white sm:text-[56px] lg:text-[70px]">
-              CREATE
+            <h1 className="hero-h1 orb text-[26px] font-black leading-[0.94] tracking-[-0.055em] text-white sm:text-[56px] lg:text-[70px]">
+              CREATE ANIMATED
               <br />
               <span
                 style={{
@@ -2184,7 +2184,7 @@ export default function HomePage() {
                   textShadow: "0 0 40px rgba(0,245,255,0.62)",
                 }}
               >
-                ANIMATED VIDEOS
+                VIDEOS & FLYERS
               </span>
               <br />
               AND FLYERS
@@ -2195,12 +2195,12 @@ export default function HomePage() {
                   textShadow: "0 0 40px rgba(191,95,255,0.62)",
                 }}
               >
-                IN LESS THAN A MINUTE
+                IN UNDER 60 SECONDS
               </span>
               <span className="cursor" />
             </h1>
 
-            <p className="sans mt-5 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
+            <p className="sans mt-5 max-w-2xl text-[13px] leading-5 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
               Ai does it all for you IN LESS THAN 60 SECONDS. No Canva, no
               designer, no Photoshop
             </p>
@@ -2231,7 +2231,7 @@ export default function HomePage() {
               </a>
             </div>
 
-            <p className="mono mt-4 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.34)]">
+            <p className="mono mt-4 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.46)]">
               Flyers · animated videos · professional DJ photos · ready for
               Reels, TikTok, Stories and ads
             </p>
@@ -2257,7 +2257,7 @@ export default function HomePage() {
                     {val}
                   </p>
                   <p
-                    className="mono mt-1 text-[6.5px] leading-4 text-[rgba(255,255,255,0.42)] sm:text-[9px]"
+                    className="mono mt-1 text-[6.5px] leading-4 text-[rgba(255,255,255,0.56)] sm:text-[9px]"
                     style={{ letterSpacing: "0.11em" }}
                   >
                     {label}
@@ -2351,7 +2351,7 @@ export default function HomePage() {
                 NOW IN MOTION.
               </span>
             </h2>
-            <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+            <p className="sans mt-4 text-[14px] leading-6 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
               Generate your event flyer, then bring it to life with the
               animation engine. Add VFX effects — light leaks, particle bursts,
               glows, and transitions — and export a ready-to-post MP4 video for
@@ -2412,7 +2412,7 @@ export default function HomePage() {
                 ON EVERY PLATFORM.
               </span>
             </h2>
-            <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+            <p className="sans mt-4 text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
               Upload a casual or low-quality DJ photo and get back a sharper,
               more professional-looking image — ready for your profile, press
               kit, social ads, and anywhere your brand needs to make an
@@ -2460,7 +2460,7 @@ export default function HomePage() {
                   >
                     // BEFORE_AFTER_MODULE
                   </p>
-                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.4)]">
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.52)]">
                     See how a rough photo transforms.
                   </p>
                 </div>
@@ -2549,7 +2549,7 @@ export default function HomePage() {
               created with Dj Visuals Ai
             </span>
           </h2>
-          <p className="sans mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-[15px]">
+          <p className="sans mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
             With our platform, you can create designs like these almost
             instantly
           </p>
@@ -2625,7 +2625,7 @@ export default function HomePage() {
                         {t.name}
                       </p>
                       <p
-                        className="mono text-[9px] text-[rgba(255,255,255,0.35)]"
+                        className="mono text-[9px] text-[rgba(255,255,255,0.46)]"
                         style={{ letterSpacing: "0.12em" }}
                       >
                         {t.role} · {t.location}
@@ -2665,7 +2665,7 @@ export default function HomePage() {
               PLATFORM.
             </span>
           </h2>
-          <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
+          <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base sm:mt-4">
             DJ Visuals AI gives you everything you need to create, animate, and
             present your brand — without designers, video editors, or expensive
             agencies.
@@ -2692,7 +2692,7 @@ export default function HomePage() {
                 <h3 className="orb mt-4 text-[12px] font-bold tracking-wider text-white uppercase sm:mt-5 sm:text-[13px]">
                   {item.title}
                 </h3>
-                <p className="sans mt-2 text-sm leading-7 text-[rgba(255,255,255,0.48)] sm:mt-3">
+                <p className="sans mt-2 text-sm leading-7 text-[rgba(255,255,255,0.60)] sm:mt-3">
                   {item.description}
                 </p>
               </div>
@@ -2728,7 +2728,7 @@ export default function HomePage() {
                 <br />
                 PROMO DROP.
               </h2>
-              <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
+              <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base sm:mt-4">
                 Generate your flyer, animate it into a video, and polish your DJ
                 photo — three tools in one workflow, built to get you from idea
                 to posted content fast.
@@ -2789,7 +2789,7 @@ export default function HomePage() {
                 THREE TIERS.
               </span>
             </h2>
-            <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base sm:mt-4">
+            <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base sm:mt-4">
               Every plan includes flyer generation, animated MP4 export, and DJ
               photo enhancement. Pick the volume that fits your promo schedule.
             </p>
@@ -2819,7 +2819,7 @@ export default function HomePage() {
                 <h3 className="orb text-lg font-bold tracking-wider text-white uppercase">
                   {plan.name}
                 </h3>
-                <p className="sans mt-2 text-sm leading-6 text-[rgba(255,255,255,0.48)]">
+                <p className="sans mt-2 text-sm leading-6 text-[rgba(255,255,255,0.60)]">
                   {plan.description}
                 </p>
 
@@ -2842,7 +2842,7 @@ export default function HomePage() {
                   >
                     {plan.credits}
                   </p>
-                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.35)]">
+                  <p className="sans mt-1 text-xs text-[rgba(255,255,255,0.46)]">
                     {plan.costNote}
                   </p>
                 </div>
@@ -2913,7 +2913,7 @@ export default function HomePage() {
                   </span>
                 </summary>
                 <div className="border-t border-[rgba(0,245,255,0.08)] px-5 pb-5 pt-4 sm:px-6">
-                  <p className="sans text-sm leading-7 text-[rgba(255,255,255,0.52)]">
+                  <p className="sans text-sm leading-7 text-[rgba(255,255,255,0.64)]">
                     {item.answer}
                   </p>
                 </div>
@@ -2966,7 +2966,7 @@ export default function HomePage() {
             </span>{" "}
             AND A LOOK.
           </h2>
-          <p className="sans mx-auto mt-5 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.5)] sm:text-base">
+          <p className="sans mx-auto mt-5 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base">
             Join thousands of DJs generating premium flyers, animated videos,
             and professional photos — all from one AI platform built for the
             music scene.
