@@ -1187,7 +1187,7 @@ function HeroCostComparisonSection() {
           </span>{" "}
           ARE YOU LOSING?
         </h2>
-        <p className="sans mx-auto mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.64)] sm:text-[15px]">
+        <p className="sans mx-auto mt-4 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.64)] sm:text-[15px]">
           Compare the old workflow with DJ Visuals AI — flyers, animated promos,
           and pro photos from one AI-powered creative dashboard.
         </p>
