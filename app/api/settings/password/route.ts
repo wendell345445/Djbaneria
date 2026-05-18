@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { getCurrentUser, hashPassword, verifyPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { validateMutationOrigin } from "@/lib/request-security";
 
 const schema = z
   .object({
@@ -18,6 +19,9 @@ const schema = z
   });
 
 export async function PATCH(request: Request) {
+  const originError = validateMutationOrigin(request);
+  if (originError) return originError;
+
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);

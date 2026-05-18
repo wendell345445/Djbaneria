@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { validateMutationOrigin } from "@/lib/request-security";
 import { getCurrentWorkspace } from "@/lib/workspace";
 
 const schema = z.object({
@@ -10,6 +11,9 @@ const schema = z.object({
 });
 
 export async function PATCH(request: Request) {
+  const originError = validateMutationOrigin(request);
+  if (originError) return originError;
+
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);

@@ -5,6 +5,11 @@ import { setSessionCookie, signSessionToken } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth";
 import { normalizeEmail } from "@/lib/email-verification";
+import {
+  buildRateLimitHeaders,
+  consumeRateLimit,
+  getClientIp,
+} from "@/lib/rate-limit";
 
 const schema = z.object({
   email: z.string().trim().email("Enter a valid email address."),
@@ -12,8 +17,45 @@ const schema = z.object({
   rememberSession: z.boolean().optional().default(true),
 });
 
+const LOGIN_IP_RATE_LIMIT = {
+  limit: 30,
+  windowMs: 10 * 60 * 1000,
+};
+
+const LOGIN_EMAIL_RATE_LIMIT = {
+  limit: 8,
+  windowMs: 10 * 60 * 1000,
+};
+
+function rateLimitResponse(result: {
+  remaining: number;
+  resetAt: number;
+  retryAfterSeconds: number;
+}) {
+  return NextResponse.json(
+    {
+      error:
+        "Too many login attempts. Please wait a few minutes and try again.",
+    },
+    {
+      status: 429,
+      headers: buildRateLimitHeaders(result),
+    },
+  );
+}
+
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+    const ipRateLimit = await consumeRateLimit(
+      `auth:login:ip:${clientIp}`,
+      LOGIN_IP_RATE_LIMIT,
+    );
+
+    if (!ipRateLimit.allowed) {
+      return rateLimitResponse(ipRateLimit);
+    }
+
     const body = await request.json();
     const parsed = schema.safeParse(body);
 
@@ -27,6 +69,15 @@ export async function POST(request: Request) {
 
     const { password, rememberSession } = parsed.data;
     const email = normalizeEmail(parsed.data.email);
+
+    const emailRateLimit = await consumeRateLimit(
+      `auth:login:email:${email}`,
+      LOGIN_EMAIL_RATE_LIMIT,
+    );
+
+    if (!emailRateLimit.allowed) {
+      return rateLimitResponse(emailRateLimit);
+    }
 
     const user = await prisma.user.findUnique({
       where: { email },

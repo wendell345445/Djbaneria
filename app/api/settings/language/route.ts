@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
 import { normalizeLocale, SUPPORTED_LOCALES } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
+import { validateMutationOrigin } from "@/lib/request-security";
 
 const schema = z.object({
   locale: z.enum(SUPPORTED_LOCALES),
@@ -11,6 +12,9 @@ const schema = z.object({
 });
 
 export async function PATCH(request: Request) {
+  const originError = validateMutationOrigin(request);
+  if (originError) return originError;
+
   try {
     const currentUser = await getCurrentUser();
 
