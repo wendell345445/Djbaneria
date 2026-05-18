@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { trackMetaInitiateCheckout } from "@/lib/meta-pixel";
+import { getMetaBrowserTrackingPayload } from "@/lib/meta-browser";
+import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PaidPlan = "PRO" | "PROFESSIONAL" | "STUDIO";
 type BillingCheckoutMode = "checkout" | "change" | "portal" | "disabled";
@@ -37,9 +38,10 @@ export function BillingCheckoutButton({
     setError("");
 
     try {
-      if ((mode === "checkout" || mode === "change") && plan) {
-        trackMetaInitiateCheckout(plan);
-      }
+      const metaEventId =
+        (mode === "checkout" || mode === "change") && plan
+          ? createMetaEventId("InitiateCheckout")
+          : null;
 
       const endpoint =
         mode === "portal"
@@ -50,7 +52,12 @@ export function BillingCheckoutButton({
 
       const body =
         mode === "checkout" || mode === "change"
-          ? JSON.stringify({ plan })
+          ? JSON.stringify({
+              plan,
+              metaEventId: metaEventId || undefined,
+              source: `dashboard_billing_${mode}`,
+              ...getMetaBrowserTrackingPayload(),
+            })
           : undefined;
 
       const response = await fetch(endpoint, {
@@ -61,6 +68,7 @@ export function BillingCheckoutButton({
 
       const data = (await response.json().catch(() => ({}))) as {
         error?: string;
+        metaEventId?: string;
         url?: string;
       };
 
@@ -70,6 +78,10 @@ export function BillingCheckoutButton({
 
       if (!data.url) {
         throw new Error("Stripe did not return a valid URL.");
+      }
+
+      if ((mode === "checkout" || mode === "change") && plan) {
+        trackMetaInitiateCheckout(plan, data.metaEventId || metaEventId);
       }
 
       window.location.assign(data.url);

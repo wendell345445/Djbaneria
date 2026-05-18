@@ -677,6 +677,7 @@ function StaticVsAnimatedSection() {
 }
 
 // ── PRICING BUTTONS ──────────────────────────────────────────────
+import { getMetaBrowserTrackingPayload } from "@/lib/meta-browser";
 import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
@@ -699,6 +700,7 @@ async function openPublicCheckout(
       metaEventId,
       customerName: options.customerName,
       source: options.source,
+      ...getMetaBrowserTrackingPayload(),
     }),
   });
 

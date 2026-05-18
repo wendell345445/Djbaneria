@@ -24,9 +24,19 @@ import { sendOwnerCheckoutStartedEmail } from "@/lib/owner-notifications";
 
 export const runtime = "nodejs";
 
+const metaBrowserTrackingSchema = z.object({
+  fbp: z.string().trim().max(250).optional(),
+  fbc: z.string().trim().max(250).optional(),
+  fbclid: z.string().trim().max(500).optional(),
+  eventSourceUrl: z.string().trim().max(900).optional(),
+});
+
 const schema = z.object({
   plan: z.enum(["PRO", "PROFESSIONAL", "STUDIO"]),
   metaEventId: z.string().trim().min(8).max(128).optional(),
+  customerName: z.string().trim().max(120).optional(),
+  source: z.string().trim().max(120).optional(),
+  ...metaBrowserTrackingSchema.shape,
 });
 
 function normalizeStripeMetadataValue(value?: string | null) {
@@ -56,8 +66,11 @@ function getPlanValue(plan: StripePaidPlan) {
   return values[plan];
 }
 
-function getMetaCheckoutMetadata(request: Request) {
-  const metaContext = getMetaRequestContext(request);
+function getMetaCheckoutMetadata(
+  request: Request,
+  browserFallback: z.infer<typeof metaBrowserTrackingSchema> = {},
+) {
+  const metaContext = getMetaRequestContext(request, browserFallback);
 
   return removeEmptyStripeMetadata({
     metaEventSourceUrl: normalizeStripeMetadataValue(
@@ -184,7 +197,11 @@ export async function POST(request: Request) {
     }
 
     const appUrl = getAppUrl();
-    const metaCheckoutMetadata = getMetaCheckoutMetadata(request);
+    const metaCheckoutMetadata = getMetaCheckoutMetadata(request, parsed.data);
+    const checkoutRequestMetadata = removeEmptyStripeMetadata({
+      checkoutSource: normalizeStripeMetadataValue(parsed.data.source),
+      customerName: normalizeStripeMetadataValue(parsed.data.customerName),
+    });
 
     const initiateCheckoutEventId =
       parsed.data.metaEventId?.trim() ||
@@ -205,6 +222,7 @@ export async function POST(request: Request) {
         checkoutFlow: "public_paid_signup",
         plan,
         initiateCheckoutEventId,
+        ...checkoutRequestMetadata,
         ...metaCheckoutMetadata,
       },
       subscription_data: {
@@ -212,6 +230,7 @@ export async function POST(request: Request) {
           checkoutFlow: "public_paid_signup",
           plan,
           initiateCheckoutEventId,
+          ...checkoutRequestMetadata,
           ...metaCheckoutMetadata,
         },
       },
@@ -221,7 +240,7 @@ export async function POST(request: Request) {
       throw new Error("Stripe did not return a valid checkout URL.");
     }
 
-    const metaContext = getMetaRequestContext(request);
+    const metaContext = getMetaRequestContext(request, parsed.data);
 
     after(async () => {
       await sendOwnerCheckoutStartedEmail({

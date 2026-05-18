@@ -24,6 +24,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
+import { getMetaBrowserTrackingPayload } from "@/lib/meta-browser";
 import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
@@ -306,6 +307,7 @@ async function openPublicCheckout(
       metaEventId,
       customerName: name || undefined,
       source,
+      ...getMetaBrowserTrackingPayload(),
     }),
   });
 

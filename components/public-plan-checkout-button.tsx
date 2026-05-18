@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { getMetaBrowserTrackingPayload } from "@/lib/meta-browser";
 import {
   createMetaEventId,
   trackMetaInitiateCheckout,
@@ -40,7 +41,12 @@ export function PublicPlanCheckoutButton({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ plan, metaEventId }),
+        body: JSON.stringify({
+          plan,
+          metaEventId,
+          source: "public_plan_button",
+          ...getMetaBrowserTrackingPayload(),
+        }),
       });
 
       const data = (await response.json().catch(() => ({}))) as {

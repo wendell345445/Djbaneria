@@ -133,37 +133,128 @@ export async function sendMetaConversionEvent(
   }
 }
 
-export function getMetaRequestContext(request: Request) {
+export type MetaBrowserTrackingInput = {
+  fbp?: unknown;
+  fbc?: unknown;
+  fbclid?: unknown;
+  eventSourceUrl?: unknown;
+};
+
+export function getMetaRequestContext(
+  request: Request,
+  browserFallback: MetaBrowserTrackingInput = {},
+) {
   const cookies = parseCookieHeader(request.headers.get("cookie"));
+  const fbclid =
+    sanitizeFbclid(cookies.dj_fbclid) ||
+    sanitizeFbclid(browserFallback.fbclid);
+  const fbc =
+    sanitizeMetaBrowserId(cookies._fbc) ||
+    sanitizeMetaBrowserId(browserFallback.fbc) ||
+    (fbclid ? buildFbcFromFbclid(fbclid) : null);
 
   return {
     eventSourceUrl:
-      request.headers.get("referer") || process.env.NEXT_PUBLIC_APP_URL || null,
+      sanitizeMetaEventSourceUrl(browserFallback.eventSourceUrl, request) ||
+      sanitizeMetaEventSourceUrl(request.headers.get("referer"), request) ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      null,
     clientIpAddress:
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       request.headers.get("x-real-ip") ||
       null,
     clientUserAgent: request.headers.get("user-agent"),
-    fbp: cookies._fbp || null,
-    fbc: cookies._fbc || null,
-    fbclid: cookies.dj_fbclid || null,
-    utmSource: cookies.dj_utm_source || null,
-    utmMedium: cookies.dj_utm_medium || null,
-    utmCampaign: cookies.dj_utm_campaign || null,
-    utmContent: cookies.dj_utm_content || null,
-    utmTerm: cookies.dj_utm_term || null,
-    lastUtmSource: cookies.dj_last_utm_source || null,
-    lastUtmMedium: cookies.dj_last_utm_medium || null,
-    lastUtmCampaign: cookies.dj_last_utm_campaign || null,
-    lastUtmContent: cookies.dj_last_utm_content || null,
-    lastUtmTerm: cookies.dj_last_utm_term || null,
-    landingPage: cookies.dj_landing_page || null,
-    referrer: cookies.dj_referrer || null,
+    fbp:
+      sanitizeMetaBrowserId(cookies._fbp) ||
+      sanitizeMetaBrowserId(browserFallback.fbp),
+    fbc,
+    fbclid,
+    utmSource: safeCookieValue(cookies.dj_utm_source),
+    utmMedium: safeCookieValue(cookies.dj_utm_medium),
+    utmCampaign: safeCookieValue(cookies.dj_utm_campaign),
+    utmContent: safeCookieValue(cookies.dj_utm_content),
+    utmTerm: safeCookieValue(cookies.dj_utm_term),
+    lastUtmSource: safeCookieValue(cookies.dj_last_utm_source),
+    lastUtmMedium: safeCookieValue(cookies.dj_last_utm_medium),
+    lastUtmCampaign: safeCookieValue(cookies.dj_last_utm_campaign),
+    lastUtmContent: safeCookieValue(cookies.dj_last_utm_content),
+    lastUtmTerm: safeCookieValue(cookies.dj_last_utm_term),
+    landingPage: sanitizeMetaEventSourceUrl(cookies.dj_landing_page, request),
+    referrer: sanitizeMetaEventSourceUrl(cookies.dj_referrer, request, {
+      allowExternal: true,
+    }),
   };
 }
 
 export function createServerMetaEventId(eventName: string) {
   return `${eventName.toLowerCase()}_${crypto.randomUUID()}`;
+}
+
+function sanitizeMetaBrowserId(value: unknown) {
+  if (typeof value !== "string") return null;
+
+  const clean = value.trim();
+  if (!clean || clean.length > 250) return null;
+  if (!/^[A-Za-z0-9._:-]+$/.test(clean)) return null;
+
+  return clean;
+}
+
+function sanitizeFbclid(value: unknown) {
+  if (typeof value !== "string") return null;
+
+  const clean = value.trim();
+  if (!clean || clean.length > 500) return null;
+  if (!/^[A-Za-z0-9._-]+$/.test(clean)) return null;
+
+  return clean;
+}
+
+function buildFbcFromFbclid(fbclid: string) {
+  return `fb.1.${Math.floor(Date.now() / 1000)}.${fbclid}`;
+}
+
+function sanitizeMetaEventSourceUrl(
+  value: unknown,
+  request: Request,
+  options: { allowExternal?: boolean } = {},
+) {
+  if (typeof value !== "string") return null;
+
+  const clean = value.trim();
+  if (!clean || clean.length > 900) return null;
+
+  try {
+    const parsedUrl = new URL(clean);
+
+    if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+      return null;
+    }
+
+    if (options.allowExternal) return parsedUrl.toString();
+
+    const requestOrigin = new URL(request.url).origin;
+    const appOrigin = process.env.NEXT_PUBLIC_APP_URL
+      ? new URL(process.env.NEXT_PUBLIC_APP_URL).origin
+      : requestOrigin;
+
+    if (parsedUrl.origin !== requestOrigin && parsedUrl.origin !== appOrigin) {
+      return null;
+    }
+
+    return parsedUrl.toString();
+  } catch {
+    return null;
+  }
+}
+
+function safeCookieValue(value: unknown) {
+  if (typeof value !== "string") return null;
+
+  const clean = value.trim();
+  if (!clean || clean.length > 480) return null;
+
+  return clean;
 }
 
 function sha256(value: string) {
@@ -181,7 +272,11 @@ function parseCookieHeader(cookieHeader: string | null) {
       .split(";")
       .map((cookie) => {
         const [key, ...valueParts] = cookie.trim().split("=");
-        return [key, decodeURIComponent(valueParts.join("="))];
+        try {
+          return [key, decodeURIComponent(valueParts.join("="))];
+        } catch {
+          return [key, valueParts.join("=")];
+        }
       })
       .filter(([key]) => Boolean(key)),
   ) as Record<string, string>;
