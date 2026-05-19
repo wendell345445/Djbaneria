@@ -7,6 +7,7 @@ import {
   BadgeCheck,
   Gauge,
   ImageIcon,
+  BadgePercent,
   Layers3,
   ShieldCheck,
   Sparkles,
@@ -1171,7 +1172,7 @@ function FirstPurchaseGiftPopup({
             <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.08)] shadow-[0_0_36px_rgba(0,245,255,0.26)] gift-pop">
               <div className="absolute h-20 w-20 rounded-full border border-[rgba(0,245,255,0.38)] gift-ring" />
               <div className="absolute h-28 w-28 rounded-full border border-[rgba(191,95,255,0.18)] gift-ring gift-ring-delay" />
-              <Sparkles
+              <BadgePercent
                 size={34}
                 className="relative z-10 text-[var(--cx)] drop-shadow-[0_0_16px_rgba(0,245,255,0.9)]"
               />
