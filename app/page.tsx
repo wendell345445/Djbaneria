@@ -567,37 +567,37 @@ function StaticVsAnimatedSection() {
   const motionVideoExamples = [
     {
       id: 1,
-      label: "Hero Motion Promo",
+      label: "",
       static: "/landing/animation-demo/flyer-static.webp",
       vimeoId: "1192995365",
     },
     {
       id: 2,
-      label: "Club Night",
+      label: "",
       static: "/landing/animation-demo/flyer-static.webp",
       vimeoId: "1192217227",
     },
     {
       id: 3,
-      label: "Festival Set",
+      label: "",
       static: "/landing/animation-demo/flyer-static2.webp",
       vimeoId: "1192217229",
     },
     {
       id: 4,
-      label: "Release Party",
+      label: "",
       static: "/landing/animation-demo/flyer-static3.webp",
       vimeoId: "1192223138",
     },
     {
       id: 5,
-      label: "Residency",
+      label: "",
       static: "/landing/animation-demo/flyer-static4.webp",
       vimeoId: "1193018729",
     },
     {
       id: 6,
-      label: "Animated Promo",
+      label: "",
       static: "/landing/animation-demo/flyer-static2.webp",
       vimeoId: "1193018728",
     },
