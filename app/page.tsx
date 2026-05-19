@@ -207,39 +207,60 @@ const bonusMusicTracks = [
     id: "house-01",
     title:
       "David Guetta & Chris Willis x Vinne - Love is Gone (CRISTOV MASH-UP)",
-    vibe: "",
+    vibe: "Peak-time club groove",
     src: "/bonus-music/faixa-1.mp3",
   },
   {
     id: "house-02",
     title: " Michael Jackson - Waiting For You (Levant & Mave Remix)",
-    vibe: "",
+    vibe: "Deep house warm-up",
     src: "/bonus-music/faixa-2.mp3",
   },
   {
     id: "house-03",
     title:
       " Swedish House Mafia ft. The Weeknd - Moth To A Flame (Gum Gum Remix)",
-    vibe: "",
+    vibe: "Festival energy edit",
     src: "/bonus-music/faixa-3.mp3",
   },
   {
     id: "house-04",
     title: " Red Hot Chili Peppers - Otherside (Syzz Remix)",
-    vibe: "",
+    vibe: "Latin house bounce",
     src: "/bonus-music/faixa-4.mp3",
   },
   {
     id: "house-05",
     title: "NoizBasses - 4AM (Extended Mix)",
-    vibe: "",
+    vibe: "Afro house pulse",
     src: "/bonus-music/faixa-5.mp3",
   },
   {
     id: "house-06",
     title: " Hardwell & Azteck feat. Alex Hepburn - Anybody Out There",
-    vibe: "",
+    vibe: "Nightclub closing vibe",
     src: "/bonus-music/faixa-6.mp3",
+  },
+] as const;
+
+const popupBonusMusicTracks = [
+  {
+    id: "flashback-popup-01",
+    title: "Its A Heartache (Pop-House RMX).mp3",
+    vibe: "Selected-user bonus preview",
+    src: "/bonus-music/Its A Heartache (Pop-House RMX).mp3",
+  },
+  {
+    id: "flashback-popup-02",
+    title: "Run To Me (FLASH 80s BOOTLEG)",
+    vibe: "Exclusive limited remix",
+    src: "/bonus-music/Run To Me (FLASH 80s BOOTLEG).mp3",
+  },
+  {
+    id: "flashback-popup-03",
+    title: "Voyage (VIP INTRO RMX)",
+    vibe: "Private subscriber sample",
+    src: "/bonus-music/Voyage (VIP INTRO RMX).mp3",
   },
 ] as const;
 
@@ -567,37 +588,37 @@ function StaticVsAnimatedSection() {
   const motionVideoExamples = [
     {
       id: 1,
-      label: "",
+      label: "Hero Motion Promo",
       static: "/landing/animation-demo/flyer-static.webp",
       vimeoId: "1192995365",
     },
     {
       id: 2,
-      label: "",
+      label: "Club Night",
       static: "/landing/animation-demo/flyer-static.webp",
       vimeoId: "1192217227",
     },
     {
       id: 3,
-      label: "",
+      label: "Festival Set",
       static: "/landing/animation-demo/flyer-static2.webp",
       vimeoId: "1192217229",
     },
     {
       id: 4,
-      label: "",
+      label: "Release Party",
       static: "/landing/animation-demo/flyer-static3.webp",
       vimeoId: "1192223138",
     },
     {
       id: 5,
-      label: "",
+      label: "Residency",
       static: "/landing/animation-demo/flyer-static4.webp",
       vimeoId: "1193018729",
     },
     {
       id: 6,
-      label: "",
+      label: "Animated Promo",
       static: "/landing/animation-demo/flyer-static2.webp",
       vimeoId: "1193018728",
     },
@@ -677,7 +698,6 @@ function StaticVsAnimatedSection() {
 }
 
 // ── PRICING BUTTONS ──────────────────────────────────────────────
-import { getMetaBrowserTrackingPayload } from "@/lib/meta-browser";
 import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
@@ -700,7 +720,6 @@ async function openPublicCheckout(
       metaEventId,
       customerName: options.customerName,
       source: options.source,
-      ...getMetaBrowserTrackingPayload(),
     }),
   });
 
@@ -741,6 +760,195 @@ function formatCountdown(milliseconds: number) {
   const seconds = totalSeconds % 60;
 
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function PopupBonusMusicPreview() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const previewTracks = popupBonusMusicTracks;
+  const [activeTrackId, setActiveTrackId] = useState<
+    (typeof popupBonusMusicTracks)[number]["id"]
+  >(previewTracks[0].id);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const activeTrack =
+    previewTracks.find((track) => track.id === activeTrackId) ||
+    previewTracks[0];
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    setProgress(0);
+    audio.load();
+
+    if (!isPlaying) return;
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => setIsPlaying(false));
+    }
+  }, [activeTrackId, isPlaying]);
+
+  async function togglePlayback() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch {
+      setIsPlaying(false);
+    }
+  }
+
+  function selectTrack(trackId: (typeof popupBonusMusicTracks)[number]["id"]) {
+    if (trackId === activeTrackId) {
+      void togglePlayback();
+      return;
+    }
+
+    setActiveTrackId(trackId);
+    setIsPlaying(true);
+  }
+
+  function handleTimeUpdate() {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+
+    setProgress((audio.currentTime / audio.duration) * 100);
+  }
+
+  function handleSeek(event: MouseEvent<HTMLButtonElement>) {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const ratio = Math.min(
+      1,
+      Math.max(0, (event.clientX - bounds.left) / bounds.width),
+    );
+
+    audio.currentTime = ratio * audio.duration;
+    setProgress(ratio * 100);
+  }
+
+  return (
+    <div className="w-full max-w-full overflow-hidden border border-[rgba(191,95,255,0.18)] bg-[rgba(191,95,255,0.052)] p-2.5 sm:p-3">
+      <div className="mb-2 flex items-center justify-between gap-2 sm:mb-3 sm:gap-3">
+        <div className="min-w-0">
+          <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cv)] sm:tracking-[0.16em]">
+            Listen to 3 samples
+          </p>
+          <p className="sans mt-0.5 text-[10px] leading-4 text-white/54 sm:mt-1 sm:text-[11px]">
+            Preview exclusive remixes before checkout.
+          </p>
+        </div>
+
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[rgba(191,95,255,0.25)] bg-[rgba(191,95,255,0.09)] text-[var(--cv)] shadow-[0_0_20px_rgba(191,95,255,0.16)] sm:h-9 sm:w-9">
+          <Music2 size={15} />
+        </span>
+      </div>
+
+      <div className="w-full max-w-full overflow-hidden border border-[rgba(0,245,255,0.14)] bg-black/25 p-2 sm:p-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <button
+            type="button"
+            onClick={togglePlayback}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--cx)] text-[#03040A] shadow-[0_0_26px_rgba(0,245,255,0.28)] transition hover:scale-105 sm:h-10 sm:w-10"
+            aria-label={
+              isPlaying
+                ? "Pause flashback remix preview"
+                : "Play flashback remix preview"
+            }
+          >
+            {isPlaying ? (
+              <Pause size={14} fill="currentColor" />
+            ) : (
+              <Play size={14} fill="currentColor" />
+            )}
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <p className="sans truncate text-[10px] font-bold text-white/86 sm:text-[11px]">
+              {activeTrack.title}
+            </p>
+            <p className="sans mt-0.5 truncate text-[9px] text-white/48 sm:text-[10px]">
+              {activeTrack.vibe}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSeek}
+          className="mt-2.5 h-1.5 w-full overflow-hidden bg-white/[0.08] text-left sm:mt-3"
+          aria-label="Seek flashback remix preview"
+        >
+          <span
+            className="block h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] shadow-[0_0_16px_rgba(0,245,255,0.25)] transition-[width] duration-150"
+            style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+          />
+        </button>
+
+        <audio
+          ref={audioRef}
+          src={activeTrack.src}
+          preload="none"
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={() => setIsPlaying(false)}
+          onError={() => setIsPlaying(false)}
+        />
+      </div>
+
+      <div className="mt-2 grid min-w-0 grid-cols-3 gap-1 sm:gap-1.5 sm:grid-cols-1">
+        {previewTracks.map((track, index) => {
+          const selected = track.id === activeTrack.id;
+
+          return (
+            <button
+              key={track.id}
+              type="button"
+              onClick={() => selectTrack(track.id)}
+              className={`flex min-h-[50px] min-w-0 flex-col items-center justify-center gap-1 overflow-hidden border px-1 py-1.5 text-center transition sm:min-h-0 sm:flex-row sm:justify-start sm:gap-2 sm:px-2.5 sm:py-2 sm:text-left ${
+                selected
+                  ? "border-[rgba(0,245,255,0.45)] bg-[rgba(0,245,255,0.08)]"
+                  : "border-white/10 bg-white/[0.025] hover:border-[rgba(0,245,255,0.25)]"
+              }`}
+            >
+              <span
+                className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border text-[8px] sm:h-6 sm:w-6 ${
+                  selected
+                    ? "border-[rgba(0,245,255,0.45)] text-[var(--cx)]"
+                    : "border-white/10 text-white/42"
+                }`}
+              >
+                {selected && isPlaying ? "Ⅱ" : "▶"}
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <p className="sans text-[8px] font-bold uppercase tracking-[0.08em] text-white/70 sm:hidden">
+                  Sample {index + 1}
+                </p>
+                <p className="sans hidden truncate text-[10px] font-bold text-white/78 sm:block">
+                  {String(index + 1).padStart(2, "0")} · {track.title}
+                </p>
+                <p className="sans mt-0.5 hidden truncate text-[9px] text-white/42 sm:block">
+                  {track.vibe}
+                </p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
@@ -864,6 +1072,7 @@ function FirstPurchaseGiftPopup({
   const [name, setName] = useState("");
   const [step, setStep] = useState<"intro" | "plans">("intro");
   const [selectedPlan, setSelectedPlan] = useState<PlanVariant>("PROFESSIONAL");
+  const [bonusSelected, setBonusSelected] = useState(false);
   const [giftLeadNotified, setGiftLeadNotified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -932,16 +1141,16 @@ function FirstPurchaseGiftPopup({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/72 px-3 py-6 backdrop-blur-xl sm:p-6"
+      className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-black/72 px-2 py-3 backdrop-blur-xl sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="first-purchase-gift-title"
     >
       <div
-        className={`hud-box relative w-full overflow-hidden rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] ${
+        className={`hud-box relative w-full max-w-[calc(100vw-16px)] overflow-x-hidden overflow-y-auto rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] sm:max-w-[560px] ${
           step === "intro"
-            ? "max-h-[calc(100dvh-48px)] max-w-[420px] overflow-y-auto"
-            : "max-h-[calc(100dvh-24px)] max-w-[560px] overflow-y-auto sm:max-h-[calc(100dvh-64px)]"
+            ? "max-h-[calc(100dvh-24px)] sm:max-w-[420px] sm:max-h-[calc(100dvh-48px)]"
+            : "max-h-[calc(100dvh-16px)] sm:max-h-[calc(100dvh-64px)]"
         }`}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
@@ -1023,7 +1232,7 @@ function FirstPurchaseGiftPopup({
             </button>
           </div>
         ) : (
-          <div className="relative z-10 p-4 sm:p-5">
+          <div className="relative z-10 min-w-0 p-3 pb-[calc(14px+env(safe-area-inset-bottom))] sm:p-5">
             <div className="pr-10">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span
@@ -1045,7 +1254,7 @@ function FirstPurchaseGiftPopup({
               </h2>
             </div>
 
-            <div className="mt-4 overflow-hidden">
+            <div className="mt-3 min-w-0 overflow-hidden sm:mt-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.7)]">
@@ -1080,7 +1289,7 @@ function FirstPurchaseGiftPopup({
               </div>
             </div>
 
-            <div className="mt-4 grid gap-2">
+            <div className="mt-3 grid min-w-0 gap-2 sm:mt-4">
               {pricingPlans.map((plan) => {
                 const selected = selectedPlan === plan.plan;
 
@@ -1089,7 +1298,7 @@ function FirstPurchaseGiftPopup({
                     key={plan.plan}
                     type="button"
                     onClick={() => setSelectedPlan(plan.plan)}
-                    className={`relative overflow-hidden border p-3 text-left transition ${
+                    className={`relative w-full max-w-full overflow-hidden border p-2.5 text-left transition sm:p-3 ${
                       selected
                         ? "border-[rgba(0,245,255,0.86)] bg-[rgba(0,245,255,0.13)] shadow-[0_0_24px_rgba(0,245,255,0.18)]"
                         : "border-[rgba(255,255,255,0.09)] bg-white/[0.035] hover:border-[rgba(0,245,255,0.28)]"
@@ -1143,21 +1352,88 @@ function FirstPurchaseGiftPopup({
               })}
             </div>
 
-            <div className="coupon-applied mt-3 border border-[rgba(191,95,255,0.22)] bg-[rgba(191,95,255,0.075)] px-3 py-2.5">
-              <p className="sans text-xs leading-5 text-white/72 sm:text-sm">
-                Selected:{" "}
-                <strong className="text-white">{selectedPlanData?.name}</strong>{" "}
-                <span className="text-white/50">·</span>{" "}
-                <span className="line-through text-white/46">
-                  {selectedPlanData?.price}
-                </span>{" "}
-                <strong className="text-[var(--cx)]">
-                  {selectedPlanData?.checkoutPrice}
-                </strong>
-              </p>
-              <p className="mono mt-1 text-[7px] uppercase tracking-[0.12em] text-[rgba(255,255,255,0.46)]">
-                WELCOME20 · Applied successfully
-              </p>
+            <div className="mt-2 grid min-w-0 gap-2 sm:mt-3 sm:gap-3">
+              <div className="w-full max-w-full  px-2.5 py-2 sm:px-3 sm:py-2.5">
+                <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cx)] sm:tracking-[0.16em]">
+                  Selected-user bonus
+                </p>
+                <p className="sans mt-1 text-[10px] leading-4 text-white/62 sm:text-xs sm:leading-5">
+                  This exclusive remix bonus is only available to selected users
+                  for a short time. Access may close soon.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setBonusSelected((current) => !current)}
+                aria-pressed={bonusSelected}
+                className={`relative w-full max-w-full overflow-hidden border p-2.5 text-left transition sm:p-3 ${
+                  bonusSelected
+                    ? "border-[rgba(0,255,159,0.58)] bg-[rgba(0,255,159,0.09)] shadow-[0_0_24px_rgba(0,255,159,0.12)]"
+                    : "border-[rgba(255,255,255,0.10)] bg-white/[0.035] hover:border-[rgba(0,255,159,0.28)]"
+                }`}
+              >
+                {bonusSelected ? (
+                  <span className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cg)] to-transparent" />
+                ) : null}
+
+                <div className="flex items-start gap-2.5 sm:gap-3">
+                  <span
+                    className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center border text-[10px] font-black sm:h-5 sm:w-5 sm:text-[11px] ${
+                      bonusSelected
+                        ? "border-[rgba(0,255,159,0.65)] bg-[rgba(0,255,159,0.16)] text-[var(--cg)]"
+                        : "border-white/18 text-white/34"
+                    }`}
+                  >
+                    {bonusSelected ? "✓" : ""}
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="mono border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.08)] px-2 py-1 text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cg)]">
+                        Free bonus
+                      </span>
+                      <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/42">
+                        Optional add-on
+                      </span>
+                    </div>
+
+                    <p className="orb mt-2 text-[12px] font-black uppercase leading-tight text-white sm:text-[15px]">
+                      100 Flashback Remix Music
+                    </p>
+
+                    <p className="sans mt-1 text-[10px] leading-4 text-white/58 sm:text-xs sm:leading-5">
+                      Add this bonus today at no extra cost.
+                    </p>
+
+                    <div className="mt-2 grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="mono rounded-full border border-white/10 bg-white/[0.035] px-2 py-1 text-[7px] uppercase tracking-[0.14em] text-white/42">
+                          Normally{" "}
+                          <span className="line-through decoration-[rgba(255,255,255,0.55)]">
+                            $29
+                          </span>
+                        </span>
+
+                        <span className="mono rounded-full  px-2 py-1 text-[12px] font-black uppercase tracking-[0.14em] text-[#009632] ">
+                          Save $29
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 sm:justify-end">
+                        <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/42">
+                          Today only
+                        </span>
+                        <span className="sans rounded-full border border-[rgba(0,255,159,0.34)] bg-[rgba(0,255,159,0.12)] px-2.5 py-1 text-sm font-black text-[var(--cg)] shadow-[0_0_22px_rgba(0,255,159,0.16)]">
+                          $0 today
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              <PopupBonusMusicPreview />
             </div>
 
             {error ? (
@@ -1460,31 +1736,31 @@ function BonusMusicPlayer() {
   }
 
   return (
-    <div className="mt-5 border border-[rgba(0,245,255,0.14)] bg-black/25 p-3 sm:mt-6 sm:p-5">
-      <div className="flex items-center gap-3 sm:items-start sm:justify-between">
+    <div className="mt-6 border border-[rgba(0,245,255,0.14)] bg-black/25 p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(0,245,255,0.72)] sm:text-[8px] sm:tracking-[0.18em]">
+          <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.72)]">
             Listen before you unlock
           </p>
-          <h3 className="orb mt-1 text-[13px] font-bold uppercase tracking-[0.06em] text-white sm:text-base sm:tracking-[0.08em]">
+          <h3 className="orb mt-1 text-sm font-bold uppercase tracking-[0.08em] text-white sm:text-base">
             Preview the bonus pack
           </h3>
-          <p className="sans mt-1.5 text-[11px] leading-5 text-[rgba(255,255,255,0.64)] sm:mt-2 sm:text-sm">
+          <p className="sans mt-2 text-xs leading-5 text-[rgba(255,255,255,0.62)] sm:text-sm">
             Play 6 sample house remixes from the exclusive subscriber pack.
           </p>
         </div>
 
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.26)] bg-[rgba(0,245,255,0.09)] text-[var(--cx)] shadow-[0_0_24px_rgba(0,245,255,0.16)] sm:h-11 sm:w-11">
-          <Music2 size={17} />
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.26)] bg-[rgba(0,245,255,0.09)] text-[var(--cx)] shadow-[0_0_24px_rgba(0,245,255,0.16)]">
+          <Music2 size={19} />
         </div>
       </div>
 
-      <div className="mt-4 border border-[rgba(191,95,255,0.18)] bg-[rgba(191,95,255,0.055)] p-3 sm:mt-5 sm:p-4">
+      <div className="mt-5 border border-[rgba(191,95,255,0.18)] bg-[rgba(191,95,255,0.055)] p-3 sm:p-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={togglePlayback}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--cx)] text-[#03040A] shadow-[0_0_34px_rgba(0,245,255,0.32)] transition hover:scale-105 sm:h-12 sm:w-12"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--cx)] text-[#03040A] shadow-[0_0_34px_rgba(0,245,255,0.32)] transition hover:scale-105"
             aria-label={
               isPlaying
                 ? "Pause bonus music preview"
@@ -1492,22 +1768,22 @@ function BonusMusicPlayer() {
             }
           >
             {isPlaying ? (
-              <Pause size={17} fill="currentColor" />
+              <Pause size={18} fill="currentColor" />
             ) : (
-              <Play size={17} fill="currentColor" />
+              <Play size={18} fill="currentColor" />
             )}
           </button>
 
           <div className="min-w-0 flex-1">
-            <p className="orb line-clamp-2 text-[12px] font-bold uppercase leading-4 tracking-[0.06em] text-white sm:text-sm sm:leading-5 sm:tracking-[0.08em]">
+            <p className="orb truncate text-sm font-bold uppercase tracking-[0.08em] text-white">
               {activeTrack.title}
             </p>
-            <p className="sans mt-1 truncate text-[11px] text-[rgba(255,255,255,0.62)] sm:text-xs">
+            <p className="sans mt-1 truncate text-xs text-[rgba(255,255,255,0.58)]">
               {activeTrack.vibe}
             </p>
           </div>
 
-          <span className="mono hidden text-[8px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.52)] sm:block">
+          <span className="mono hidden text-[8px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.48)] sm:block">
             {formatTime(duration)}
           </span>
         </div>
@@ -1515,7 +1791,7 @@ function BonusMusicPlayer() {
         <button
           type="button"
           onClick={handleSeek}
-          className="mt-4 h-2.5 w-full overflow-hidden bg-white/[0.08] text-left sm:h-2"
+          className="mt-4 h-2 w-full overflow-hidden bg-white/[0.08] text-left"
           aria-label="Seek bonus music preview"
         >
           <span
@@ -1523,15 +1799,6 @@ function BonusMusicPlayer() {
             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
           />
         </button>
-
-        <div className="mt-2 flex items-center justify-between">
-          <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/38">
-            Preview
-          </span>
-          <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/46 sm:hidden">
-            {formatTime(duration)}
-          </span>
-        </div>
 
         {loadError ? (
           <p className="sans mt-3 text-xs leading-5 text-rose-300">
@@ -1553,7 +1820,7 @@ function BonusMusicPlayer() {
         />
       </div>
 
-      <div className="mt-3 grid grid-cols-1 gap-2 sm:mt-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {bonusMusicTracks.map((track, index) => {
           const selected = track.id === activeTrack.id;
 
@@ -1562,18 +1829,18 @@ function BonusMusicPlayer() {
               key={track.id}
               type="button"
               onClick={() => selectTrack(track.id)}
-              className={`group flex min-h-[66px] items-center gap-3 border px-3 py-2.5 text-left transition sm:block sm:min-h-0 sm:p-3 ${
+              className={`group border p-3 text-left transition ${
                 selected
                   ? "border-[rgba(0,245,255,0.56)] bg-[rgba(0,245,255,0.09)] shadow-[0_0_22px_rgba(0,245,255,0.12)]"
                   : "border-white/10 bg-white/[0.025] hover:border-[rgba(0,245,255,0.28)] hover:bg-[rgba(0,245,255,0.045)]"
               }`}
             >
-              <div className="flex shrink-0 items-center gap-2 sm:justify-between">
-                <span className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.46)]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.42)]">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <span
-                  className={`grid h-7 w-7 place-items-center rounded-full border text-[9px] sm:h-5 sm:w-5 ${
+                  className={`grid h-5 w-5 place-items-center rounded-full border text-[9px] ${
                     selected
                       ? "border-[rgba(0,245,255,0.45)] text-[var(--cx)]"
                       : "border-white/10 text-white/38 group-hover:text-[var(--cx)]"
@@ -1582,15 +1849,12 @@ function BonusMusicPlayer() {
                   {selected && isPlaying ? "Ⅱ" : "▶"}
                 </span>
               </div>
-
-              <div className="min-w-0 flex-1 sm:mt-2">
-                <p className="sans line-clamp-2 text-xs font-bold leading-4 text-white/82 sm:truncate">
-                  {track.title}
-                </p>
-                <p className="sans mt-0.5 line-clamp-1 text-[10px] leading-4 text-[rgba(255,255,255,0.56)] sm:mt-1 sm:line-clamp-2">
-                  {track.vibe}
-                </p>
-              </div>
+              <p className="sans mt-2 truncate text-xs font-bold text-white/80">
+                {track.title}
+              </p>
+              <p className="sans mt-1 line-clamp-2 text-[10px] leading-4 text-[rgba(255,255,255,0.52)]">
+                {track.vibe}
+              </p>
             </button>
           );
         })}
@@ -1609,20 +1873,20 @@ function ExclusiveMusicBonusSection() {
   return (
     <section
       id="bonus"
-      className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 sm:py-20 lg:px-10 lg:py-24"
+      className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
     >
-      <div className="relative overflow-hidden border border-[rgba(0,245,255,0.18)] bg-[linear-gradient(135deg,rgba(0,245,255,0.07),rgba(191,95,255,0.055),rgba(255,255,255,0.018))] p-4 shadow-[0_0_70px_rgba(0,245,255,0.09)] sm:p-8 lg:p-10">
+      <div className="relative overflow-hidden border border-[rgba(0,245,255,0.18)] bg-[linear-gradient(135deg,rgba(0,245,255,0.07),rgba(191,95,255,0.055),rgba(255,255,255,0.018))] p-5 shadow-[0_0_70px_rgba(0,245,255,0.09)] sm:p-8 lg:p-10">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[rgba(0,245,255,0.12)] blur-3xl" />
         <div className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-[rgba(191,95,255,0.13)] blur-3xl" />
 
-        <div className="relative z-10 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-8">
-          <div className="text-center lg:text-left">
-            <div className="sect-label justify-center lg:justify-start">
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+          <div>
+            <div className="sect-label">
               <span className="chip-cx">● EXCLUSIVE BONUS</span>
             </div>
-            <h2 className="orb text-[24px] font-black uppercase leading-[1.02] tracking-[-0.045em] text-white sm:text-[42px]">
-              Unlock the
+            <h2 className="orb text-[24px] font-black uppercase leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
+              Get the
               <br />
               <span
                 style={{
@@ -1635,7 +1899,7 @@ function ExclusiveMusicBonusSection() {
               <br />
               Music Pack.
             </h2>
-            <p className="sans mx-auto mt-3 max-w-2xl text-[13px] leading-5 text-[rgba(255,255,255,0.70)] sm:mt-4 sm:text-[16px] sm:leading-7 lg:mx-0">
+            <p className="sans mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.68)] sm:text-[16px]">
               Subscribe and unlock an exclusive bonus pack with 100 house remix
               tracks — made to give DJs more creative fuel for sets, promo
               ideas, content planning, and high-energy social drops.
@@ -1643,46 +1907,46 @@ function ExclusiveMusicBonusSection() {
 
             <a
               href="#pricing"
-              className="btn-cx-solid mt-5 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[10px] sm:mt-7 sm:w-auto sm:min-h-[48px] sm:px-8 sm:text-[11px]"
+              className="btn-cx-solid mt-7 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8"
             >
               UNLOCK THE BONUS
               <ArrowRight size={12} />
             </a>
           </div>
 
-          <div className="hud-box-v relative overflow-hidden p-3 sm:p-6">
-            <div className="mb-3 inline-flex border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.08)] px-2.5 py-1 text-[7px] font-bold uppercase tracking-[0.16em] text-[var(--cg)] sm:absolute sm:right-4 sm:top-4 sm:mb-0">
+          <div className="hud-box-v relative overflow-hidden p-4 sm:p-6">
+            <div className="absolute right-4 top-4 border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.08)] px-2.5 py-1 text-[7px] font-bold uppercase tracking-[0.16em] text-[var(--cg)]">
               Included
             </div>
 
-            <div className="flex items-center gap-3 border-b border-[rgba(0,245,255,0.14)] pb-4 sm:gap-4 sm:pb-5 sm:pr-20">
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.1)] text-[var(--cx)] shadow-[0_0_32px_rgba(0,245,255,0.18)] sm:h-14 sm:w-14">
-                <Music2 size={25} />
+            <div className="flex items-center gap-4 border-b border-[rgba(0,245,255,0.14)] pb-5 pr-20">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.1)] text-[var(--cx)] shadow-[0_0_32px_rgba(0,245,255,0.18)]">
+                <Sparkles size={25} />
               </div>
-              <div className="min-w-0">
-                <p className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(0,245,255,0.72)] sm:text-[8px] sm:tracking-[0.18em]">
+              <div>
+                <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.72)]">
                   BONUS PACK
                 </p>
-                <p className="sans mt-1 text-[30px] font-black leading-none text-white sm:text-[44px]">
+                <p className="sans mt-1 text-[32px] font-black leading-none text-white sm:text-[44px]">
                   100
                 </p>
-                <p className="orb mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white/82 sm:text-[12px] sm:tracking-[0.14em]">
+                <p className="orb mt-1 text-[12px] font-bold uppercase tracking-[0.14em] text-white/78">
                   House Remix Tracks
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 grid gap-2.5 sm:mt-5 sm:gap-3">
+            <div className="mt-5 grid gap-3">
               {bonusItems.map((item) => (
                 <div
                   key={item}
-                  className="flex items-start gap-3 border border-[rgba(0,245,255,0.12)] bg-black/20 px-3 py-2.5 sm:px-4 sm:py-3"
+                  className="flex items-start gap-3 border border-[rgba(0,245,255,0.12)] bg-black/20 px-4 py-3"
                 >
                   <CheckCircle2
-                    size={15}
+                    size={16}
                     className="mt-1 shrink-0 text-[var(--cg)]"
                   />
-                  <span className="sans text-[12px] leading-5 text-[rgba(255,255,255,0.70)] sm:text-sm sm:leading-6">
+                  <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.68)]">
                     {item}
                   </span>
                 </div>
@@ -2639,6 +2903,34 @@ export default function HomePage() {
             </p>
 
             {/* Conversion benefits row */}
+            <div className="mt-10 grid grid-cols-3 gap-0 border border-[rgba(0,245,255,0.12)]">
+              {[
+                ["01", "NO DESIGNER NEEDED"],
+                ["02", "UPLOAD YOUR OWN FLYER"],
+                ["03", "EXPORT SOCIAL-READY ASSETS"],
+              ].map(([val, label]) => (
+                <div
+                  key={label}
+                  className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-2 py-3 text-center sm:px-6 sm:py-4"
+                >
+                  <p
+                    className="orb text-base font-bold sm:text-xl"
+                    style={{
+                      color: "var(--cx)",
+                      textShadow: "0 0 14px rgba(0,245,255,0.5)",
+                    }}
+                  >
+                    {val}
+                  </p>
+                  <p
+                    className="mono mt-1 text-[6.5px] leading-4 text-[rgba(255,255,255,0.56)] sm:text-[9px]"
+                    style={{ letterSpacing: "0.11em" }}
+                  >
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Right: HUD panel — desktop only */}
