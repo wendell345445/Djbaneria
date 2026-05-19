@@ -847,7 +847,7 @@ function PopupBonusMusicPreview() {
           <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cv)] sm:tracking-[0.16em]">
             Listen to 3 samples
           </p>
-          <p className="sans mt-0.5 text-[10px] leading-4 text-white/54 sm:mt-1 sm:text-[11px]">
+          <p className="sans mt-0.5 text-[13px] leading-4 text-white/54 sm:mt-1 sm:text-[11px]">
             Preview exclusive remixes before checkout.
           </p>
         </div>
@@ -1263,7 +1263,7 @@ function FirstPurchaseGiftPopup({
                       ? "Gift window ended"
                       : "Gift reserved for"}
                   </p>
-                  <p className="sans mt-1 text-xs leading-5 text-white/62 sm:text-sm">
+                  <p className="sans mt-1 text-xs leading-5 text-white/62 text-[13px]">
                     {countdownFinished
                       ? "Checkout now to see if your first-subscription gift is still available."
                       : "Your 20% first-subscription gift is reserved while you choose a plan."}
@@ -1358,7 +1358,7 @@ function FirstPurchaseGiftPopup({
                 <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cx)] sm:tracking-[0.16em]">
                   Selected-user bonus
                 </p>
-                <p className="sans mt-1 text-[10px] leading-4 text-white/62 sm:text-xs sm:leading-5">
+                <p className="sans mt-1 text-[13px] leading-4 text-white/62 sm:text-xs sm:leading-5">
                   This exclusive remix bonus is only available to selected users
                   for a short time. Access may close soon.
                 </p>
@@ -1403,7 +1403,7 @@ function FirstPurchaseGiftPopup({
                       100 Flashback Remix Music
                     </p>
 
-                    <p className="sans mt-1 text-[10px] leading-4 text-white/58 sm:text-xs sm:leading-5">
+                    <p className="sans mt-1 text-[12px] leading-4 text-white/58 sm:text-xs sm:leading-5">
                       Add this bonus today at no extra cost.
                     </p>
 
