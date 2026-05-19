@@ -2904,34 +2904,6 @@ export default function HomePage() {
             </p>
 
             {/* Conversion benefits row */}
-            <div className="mt-10 grid grid-cols-3 gap-0 border border-[rgba(0,245,255,0.12)]">
-              {[
-                ["01", "NO DESIGNER NEEDED"],
-                ["02", "UPLOAD YOUR OWN FLYER"],
-                ["03", "EXPORT SOCIAL-READY ASSETS"],
-              ].map(([val, label]) => (
-                <div
-                  key={label}
-                  className="border-r border-[rgba(0,245,255,0.12)] last:border-0 px-2 py-3 text-center sm:px-6 sm:py-4"
-                >
-                  <p
-                    className="orb text-base font-bold sm:text-xl"
-                    style={{
-                      color: "var(--cx)",
-                      textShadow: "0 0 14px rgba(0,245,255,0.5)",
-                    }}
-                  >
-                    {val}
-                  </p>
-                  <p
-                    className="mono mt-1 text-[6.5px] leading-4 text-[rgba(255,255,255,0.56)] sm:text-[9px]"
-                    style={{ letterSpacing: "0.11em" }}
-                  >
-                    {label}
-                  </p>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Right: HUD panel — desktop only */}
