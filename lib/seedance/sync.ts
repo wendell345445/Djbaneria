@@ -194,7 +194,7 @@ async function startAtlasKlingFallbackForVideo(
       ? "720"
       : "480") as SeedanceResolution,
     durationSeconds: video.durationSeconds || getSeedanceDurationSeconds(),
-    fallbackFrom: "atlascloud",
+    fallbackFrom: video.providerName === "fal" ? "fal" : "atlascloud",
   });
 
   const mappedStatus = mapReplicateStatusToMotionStatus(prediction.status);

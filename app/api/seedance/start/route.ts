@@ -220,7 +220,7 @@ function buildSeedanceStartError(error: unknown) {
     return {
       status: 429,
       message:
-        "A geração foi limitada temporariamente pela AtlasCloud. Aguarde alguns segundos e tente novamente. Se isso acontecer com frequência, adicione mais crédito na AtlasCloud para aumentar o limite.",
+        "A geração foi limitada temporariamente pelo provedor de vídeo. Aguarde alguns segundos e tente novamente.",
     };
   }
 
@@ -257,7 +257,9 @@ function buildSeedanceStartError(error: unknown) {
 
   if (
     rawMessage.includes("ATLASCLOUD_API_KEY") ||
-    rawMessage.includes("ATLAS_API_KEY")
+    rawMessage.includes("ATLAS_API_KEY") ||
+    rawMessage.includes("FAL_KEY") ||
+    rawMessage.includes("FAL_API_KEY")
   ) {
     return { status: 503, message: rawMessage };
   }

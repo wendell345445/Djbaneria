@@ -1,5 +1,7 @@
+import { fal } from "@fal-ai/client";
+
 export type SeedanceResolution = "480" | "720";
-export type SeedanceProvider = "atlascloud" | "atlascloud-kling";
+export type SeedanceProvider = "fal" | "atlascloud" | "atlascloud-kling";
 
 export type SeedancePrediction = {
   id: string;
@@ -25,6 +27,8 @@ const ATLASCLOUD_API_BASE_URL =
 
 const DEFAULT_ATLASCLOUD_SEEDANCE_MODEL =
   "bytedance/seedance-2.0-fast/image-to-video";
+const DEFAULT_FAL_SEEDANCE_MODEL =
+  "bytedance/seedance-2.0/fast/image-to-video";
 const DEFAULT_ATLASCLOUD_KLING_MODEL =
   "kwaivgi/kling-video-o3-pro/image-to-video";
 const DEFAULT_SEEDANCE_DURATION_SECONDS = 10;
@@ -53,16 +57,55 @@ function getAtlasCloudToken() {
   );
 }
 
-export function getSeedanceProvider(): SeedanceProvider {
-  return "atlascloud";
+function getFalToken() {
+  return normalizeAtlasCloudToken(process.env.FAL_KEY || process.env.FAL_API_KEY || "");
 }
 
-export function getSeedanceModel(provider: SeedanceProvider = "atlascloud") {
+function requireFalToken() {
+  const token = getFalToken();
+
+  if (!token) {
+    throw new Error(
+      "Configure FAL_KEY para usar Seedance pela fal.ai.",
+    );
+  }
+
+  return token;
+}
+
+function configureFalClient() {
+  const token = requireFalToken();
+  fal.config({ credentials: token });
+  return token;
+}
+
+export function getSeedanceProvider(): SeedanceProvider {
+  const provider = (
+    process.env.SEEDANCE_PROVIDER ||
+    process.env.VIDEO_PROVIDER ||
+    "fal"
+  )
+    .trim()
+    .toLowerCase();
+
+  if (provider === "atlascloud") return "atlascloud";
+  return "fal";
+}
+
+export function getSeedanceModel(provider: SeedanceProvider = getSeedanceProvider()) {
   if (provider === "atlascloud-kling") {
     return (
       process.env.ATLASCLOUD_KLING_MODEL ||
       process.env.KLING_MODEL ||
       DEFAULT_ATLASCLOUD_KLING_MODEL
+    );
+  }
+
+  if (provider === "fal") {
+    return (
+      process.env.FAL_SEEDANCE_MODEL ||
+      process.env.SEEDANCE_MODEL ||
+      DEFAULT_FAL_SEEDANCE_MODEL
     );
   }
 
@@ -79,7 +122,7 @@ export function isAtlasKlingFallbackConfigured() {
 }
 
 export function supportsSeedanceAudioReference(
-  _provider: SeedanceProvider = "atlascloud",
+  _provider: SeedanceProvider = getSeedanceProvider(),
 ) {
   return false;
 }
@@ -375,6 +418,23 @@ async function uploadR2FileToAtlasStorage(params: {
   );
 }
 
+
+async function uploadR2FileToFalStorage(params: {
+  sourceUrl: string;
+  fileName: string;
+  contentTypeHint?: string | null;
+}) {
+  configureFalClient();
+
+  const file = await fetchPublicFileAsFile({
+    url: params.sourceUrl,
+    defaultFileName: params.fileName,
+    contentTypeHint: params.contentTypeHint,
+  });
+
+  return fal.storage.upload(file);
+}
+
 export const DEFAULT_SEEDANCE_MOTION_PROMPT = `Create a premium animated DJ/event flyer video from [Image1], inspired by a high-end neon After Effects promo reveal.
 
 Core preservation rules:
@@ -544,6 +604,32 @@ async function buildAtlasPredictionInput(params: {
     resolution: `${params.resolution}p`,
     generate_audio: generateAudio,
     audio: generateAudio,
+  };
+}
+
+
+async function buildFalPredictionInput(params: {
+  imageUrl: string;
+  prompt: string;
+  resolution: SeedanceResolution;
+  durationSeconds?: number | null;
+}) {
+  const uploadedImageUrl = await uploadR2FileToFalStorage({
+    sourceUrl: params.imageUrl,
+    fileName: getImageFileNameFromUrl(params.imageUrl),
+    contentTypeHint: "image/png",
+  });
+
+  const duration = getSeedanceDurationSeconds(params.durationSeconds);
+  const generateAudio = boolFromEnv(process.env.FAL_SEEDANCE_GENERATE_AUDIO, true);
+
+  return {
+    prompt: makeAtlasCompatiblePrompt(params.prompt),
+    image_url: uploadedImageUrl,
+    resolution: `${params.resolution}p`,
+    duration: String(duration),
+    aspect_ratio: "auto",
+    generate_audio: generateAudio,
   };
 }
 
@@ -729,7 +815,7 @@ export async function createKlingFallbackPrediction(params: {
   }
 }
 
-export async function createSeedancePrediction(params: {
+async function createAtlasSeedancePrediction(params: {
   imageUrl: string;
   prompt: string;
   resolution: SeedanceResolution;
@@ -748,46 +834,167 @@ export async function createSeedancePrediction(params: {
     });
   }
 
-  try {
-    const submitResult = await callAtlasGenerateVideo({ model, input });
-    const data = ensureJsonObject(submitResult, "AtlasCloud");
-    const requestId = getAtlasRequestId(data);
+  const submitResult = await callAtlasGenerateVideo({ model, input });
+  const data = ensureJsonObject(submitResult, "AtlasCloud");
+  const requestId = getAtlasRequestId(data);
 
-    if (!requestId) {
-      throw new Error(
-        `A AtlasCloud não retornou ID para acompanhar a geração. Resposta: ${JSON.stringify(data).slice(0, 500)}`,
-      );
+  if (!requestId) {
+    throw new Error(
+      `A AtlasCloud não retornou ID para acompanhar a geração. Resposta: ${JSON.stringify(data).slice(0, 500)}`,
+    );
+  }
+
+  return {
+    id: requestId,
+    status: getAtlasStatus(data),
+    output: null,
+    error: null,
+    logs: getAtlasLogs(data),
+    provider: "atlascloud" as const,
+    model,
+    fallbackFrom: null,
+    raw: data,
+  } satisfies SeedancePrediction;
+}
+
+function getFalStatusLogs(value: unknown) {
+  if (!value || typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+  const logs = record.logs;
+
+  if (typeof logs === "string") return logs;
+
+  if (Array.isArray(logs)) {
+    return logs
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object" && "message" in item) {
+          const message = (item as { message?: unknown }).message;
+          return typeof message === "string" ? message : null;
+        }
+        return null;
+      })
+      .filter(Boolean)
+      .join("\n");
+  }
+
+  return null;
+}
+
+function normalizeFalStatus(status: unknown) {
+  if (typeof status !== "string") return "PENDING";
+
+  switch (status.toUpperCase()) {
+    case "COMPLETED":
+    case "SUCCEEDED":
+    case "SUCCESS":
+      return "COMPLETED";
+    case "IN_PROGRESS":
+    case "RUNNING":
+    case "PROCESSING":
+      return "RENDERING";
+    case "IN_QUEUE":
+    case "QUEUED":
+    case "PENDING":
+      return "PENDING";
+    case "FAILED":
+    case "ERROR":
+    case "CANCELED":
+    case "CANCELLED":
+      return "FAILED";
+    default:
+      return status;
+  }
+}
+
+function getFalRequestId(value: unknown) {
+  if (!value || typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+  const requestId = record.request_id || record.requestId;
+
+  return typeof requestId === "string" && requestId.trim()
+    ? requestId
+    : null;
+}
+
+async function createFalSeedancePrediction(params: {
+  imageUrl: string;
+  prompt: string;
+  resolution: SeedanceResolution;
+  durationSeconds?: number | null;
+}) {
+  configureFalClient();
+
+  const model = getSeedanceModel("fal");
+  const input = await buildFalPredictionInput(params);
+
+  if (process.env.SEEDANCE_DEBUG === "true") {
+    console.log("[Seedance/fal.ai image-to-video input]", {
+      model,
+      generateAudio: Boolean(input.generate_audio),
+      durationSeconds: getSeedanceDurationSeconds(params.durationSeconds),
+      payloadStyle: "fal-queue",
+      input: getSafeDebugInput(input),
+    });
+  }
+
+  const submitResult = await fal.queue.submit(model, {
+    input,
+  });
+
+  const requestId = getFalRequestId(submitResult);
+
+  if (!requestId) {
+    throw new Error(
+      `A fal.ai não retornou ID para acompanhar a geração. Resposta: ${JSON.stringify(submitResult).slice(0, 500)}`,
+    );
+  }
+
+  return {
+    id: requestId,
+    status: "PENDING",
+    output: null,
+    error: null,
+    logs: null,
+    provider: "fal" as const,
+    model,
+    fallbackFrom: null,
+    raw: submitResult,
+  } satisfies SeedancePrediction;
+}
+
+export async function createSeedancePrediction(params: {
+  imageUrl: string;
+  prompt: string;
+  resolution: SeedanceResolution;
+  durationSeconds?: number | null;
+}) {
+  const provider = getSeedanceProvider();
+
+  try {
+    if (provider === "atlascloud") {
+      return await createAtlasSeedancePrediction(params);
     }
 
-    return {
-      id: requestId,
-      status: getAtlasStatus(data),
-      output: null,
-      error: null,
-      logs: getAtlasLogs(data),
-      provider: "atlascloud" as const,
-      model,
-      fallbackFrom: null,
-      raw: data,
-    } satisfies SeedancePrediction;
+    return await createFalSeedancePrediction(params);
   } catch (error) {
     const seedanceError = normalizeErrorMessage(error);
-    const debugPayload =
-      process.env.SEEDANCE_DEBUG === "true"
-        ? ` | input=${JSON.stringify(getSafeDebugInput(input))}`
-        : "";
+    const providerLabel = provider === "fal" ? "fal.ai Seedance" : "AtlasCloud Seedance";
 
     if (isAtlasKlingFallbackConfigured()) {
       try {
         const fallbackPrediction = await createAtlasKlingPrediction({
           ...params,
-          fallbackFrom: "atlascloud",
+          fallbackFrom: provider,
         });
 
         if (process.env.SEEDANCE_DEBUG === "true") {
           console.log(
-            "[Seedance fallback] AtlasCloud Seedance failed; started AtlasCloud Kling",
+            "[Seedance fallback] Primary Seedance failed; started AtlasCloud Kling",
             {
+              provider,
               seedanceError,
               fallbackJobId: fallbackPrediction.id,
               fallbackModel: fallbackPrediction.model,
@@ -798,12 +1005,12 @@ export async function createSeedancePrediction(params: {
         return fallbackPrediction;
       } catch (fallbackError) {
         throw new Error(
-          `AtlasCloud Seedance error: ${seedanceError}${debugPayload} | AtlasCloud Kling fallback error: ${normalizeErrorMessage(fallbackError)}`,
+          `${providerLabel} error: ${seedanceError} | AtlasCloud Kling fallback error: ${normalizeErrorMessage(fallbackError)}`,
         );
       }
     }
 
-    throw new Error(`AtlasCloud error: ${seedanceError}${debugPayload}`);
+    throw new Error(`${providerLabel} error: ${seedanceError}`);
   }
 }
 
@@ -860,6 +1067,47 @@ async function getAtlasPrediction(requestId: string) {
   } satisfies SeedancePrediction;
 }
 
+
+async function getFalPrediction(requestId: string, model?: string | null) {
+  configureFalClient();
+
+  const activeModel = model || getSeedanceModel("fal");
+  const statusResult = await fal.queue.status(activeModel, {
+    requestId,
+    logs: true,
+  });
+
+  const rawStatus = (statusResult as { status?: unknown }).status;
+  const normalizedStatus = normalizeFalStatus(rawStatus);
+
+  let resultData: unknown = null;
+  let rawResult: unknown = statusResult;
+
+  if (normalizedStatus === "COMPLETED") {
+    const result = await fal.queue.result(activeModel, { requestId });
+    resultData = (result as { data?: unknown }).data ?? result;
+    rawResult = result;
+  }
+
+  return {
+    id: requestId,
+    status: normalizedStatus,
+    output: resultData,
+    error:
+      normalizedStatus === "FAILED"
+        ? ((statusResult as { error?: unknown }).error ||
+            (statusResult as { message?: unknown }).message ||
+            null)
+        : null,
+    logs: getFalStatusLogs(statusResult),
+    provider: "fal" as const,
+    model: activeModel,
+    fallbackFrom: null,
+    raw: rawResult,
+  } satisfies SeedancePrediction;
+}
+
+
 export async function getSeedancePrediction(
   predictionId: string,
   options?: {
@@ -867,11 +1115,17 @@ export async function getSeedancePrediction(
     model?: string | null;
   },
 ) {
-  const prediction = await getAtlasPrediction(predictionId);
   const providerName =
     options?.providerName === "atlascloud-kling"
       ? "atlascloud-kling"
-      : "atlascloud";
+      : options?.providerName === "fal"
+        ? "fal"
+        : "atlascloud";
+
+  const prediction =
+    providerName === "fal"
+      ? await getFalPrediction(predictionId, options?.model)
+      : await getAtlasPrediction(predictionId);
 
   return {
     ...prediction,
