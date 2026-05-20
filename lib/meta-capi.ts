@@ -50,6 +50,10 @@ export async function sendMetaConversionEvent(
   }
 
   const eventId = input.eventId?.trim() || null;
+  const eventTimeMs = Date.now();
+  const eventTimeSeconds = Math.floor(eventTimeMs / 1000);
+  const sanitizedFbp = sanitizeMetaBrowserId(input.fbp);
+  const sanitizedFbc = sanitizeFbc(input.fbc, eventTimeMs);
 
   if (input.eventName === "CompleteRegistration" && !eventId) {
     console.warn(
@@ -78,7 +82,7 @@ export async function sendMetaConversionEvent(
     data: [
       {
         event_name: input.eventName,
-        event_time: Math.floor(Date.now() / 1000),
+        event_time: eventTimeSeconds,
         event_id: eventId || createServerMetaEventId(input.eventName),
         action_source: "website",
         event_source_url:
@@ -88,8 +92,8 @@ export async function sendMetaConversionEvent(
           external_id: input.externalId ? [sha256(input.externalId)] : undefined,
           client_ip_address: input.clientIpAddress || undefined,
           client_user_agent: input.clientUserAgent || undefined,
-          fbp: input.fbp || undefined,
-          fbc: input.fbc || undefined,
+          fbp: sanitizedFbp || undefined,
+          fbc: sanitizedFbc || undefined,
         }),
         custom_data: removeEmptyObjectValues(customData),
       },
@@ -149,8 +153,8 @@ export function getMetaRequestContext(
     sanitizeFbclid(cookies.dj_fbclid) ||
     sanitizeFbclid(browserFallback.fbclid);
   const fbc =
-    sanitizeMetaBrowserId(cookies._fbc) ||
-    sanitizeMetaBrowserId(browserFallback.fbc) ||
+    sanitizeFbc(cookies._fbc) ||
+    sanitizeFbc(browserFallback.fbc) ||
     (fbclid ? buildFbcFromFbclid(fbclid) : null);
 
   return {
@@ -205,13 +209,47 @@ function sanitizeFbclid(value: unknown) {
 
   const clean = value.trim();
   if (!clean || clean.length > 500) return null;
+  if (["fbclid", "undefined", "null"].includes(clean.toLowerCase())) {
+    return null;
+  }
   if (!/^[A-Za-z0-9._-]+$/.test(clean)) return null;
 
   return clean;
 }
 
+function sanitizeFbc(value: unknown, referenceTimeMs = Date.now()) {
+  if (typeof value !== "string") return null;
+
+  const clean = value.trim();
+  if (!clean || clean.length > 300) return null;
+
+  const parts = clean.split(".");
+  if (parts.length < 4) return null;
+  if (parts[0] !== "fb" || parts[1] !== "1") return null;
+
+  const rawCreationTime = Number(parts[2]);
+  if (!Number.isFinite(rawCreationTime) || rawCreationTime <= 0) return null;
+
+  const clickId = parts.slice(3).join(".");
+  const fbclid = sanitizeFbclid(clickId);
+  if (!fbclid) return null;
+
+  const creationTimeMs =
+    rawCreationTime < 10_000_000_000
+      ? Math.round(rawCreationTime * 1000)
+      : Math.round(rawCreationTime);
+
+  const fiveMinutesMs = 5 * 60 * 1000;
+  const oneHundredTwentyDaysMs = 120 * 24 * 60 * 60 * 1000;
+
+  if (creationTimeMs > referenceTimeMs + fiveMinutesMs) return null;
+  if (creationTimeMs < referenceTimeMs - oneHundredTwentyDaysMs) return null;
+
+  return `fb.1.${creationTimeMs}.${fbclid}`;
+}
+
 function buildFbcFromFbclid(fbclid: string) {
-  return `fb.1.${Math.floor(Date.now() / 1000)}.${fbclid}`;
+  return `fb.1.${Date.now()}.${fbclid}`;
 }
 
 function sanitizeMetaEventSourceUrl(
