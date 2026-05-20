@@ -2850,7 +2850,7 @@ export default function HomePage() {
 
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
-            <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.055em] text-white sm:text-[56px] lg:text-[70px] uppercase">
+            <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.020em] text-white sm:text-[56px] lg:text-[70px] uppercase">
               Design Studio-Quality
               <br />
               <span
