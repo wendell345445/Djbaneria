@@ -2850,8 +2850,8 @@ export default function HomePage() {
 
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
-            <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.055em] text-white sm:text-[56px] lg:text-[70px]">
-              CREATE ANIMATED
+            <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.055em] text-white sm:text-[56px] lg:text-[70px] uppercase">
+              Design Studio-Quality
               <br />
               <span
                 style={{
@@ -2868,14 +2868,14 @@ export default function HomePage() {
                   textShadow: "0 0 40px rgba(191,95,255,0.62)",
                 }}
               >
-                IN UNDER 60 SECONDS
+                in Under a Minute
               </span>
               <span className="cursor" />
             </h1>
 
             <p className="sans mt-5 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
-              Ai does it all for you IN LESS THAN 60 SECONDS. No Canva, no
-              designer, no Photoshop
+              Instant professional designs in under 60 seconds. Ditch Canva,
+              Photoshop, and expensive designers. AI handles it all
             </p>
 
             <div className="mx-auto mt-5 w-full max-w-[260px] sm:max-w-[320px] lg:max-w-[340px]">
@@ -2885,9 +2885,9 @@ export default function HomePage() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
               <a
                 href="#pricing"
-                className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8"
+                className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8 uppercase"
               >
-                START CREATING NOW
+                Get Instant Access
                 <ArrowRight size={13} />
               </a>
               <a
@@ -2899,8 +2899,7 @@ export default function HomePage() {
             </div>
 
             <p className="mono mt-4 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.46)]">
-              Flyers · animated videos · professional DJ photos · ready for
-              Reels, TikTok, Stories and ads
+              Join thousands of creators. Cancel anytime
             </p>
 
             {/* Conversion benefits row */}
