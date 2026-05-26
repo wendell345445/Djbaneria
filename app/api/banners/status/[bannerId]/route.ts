@@ -22,8 +22,85 @@ const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
   UsageEventType.BANNER_EDIT,
   UsageEventType.BANNER_VARIATION,
-            UsageEventType.BANNER_MOTION_RENDER,
+  UsageEventType.BANNER_MOTION_RENDER,
 ] as const;
+
+const IMAGE_CREDIT_EVENT_TYPES = [
+  UsageEventType.BANNER_GENERATION,
+  UsageEventType.BANNER_EDIT,
+  UsageEventType.BANNER_VARIATION,
+] as const;
+
+function getMetadataRecord(metadata: unknown): Record<string, unknown> | null {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+    return null;
+  }
+
+  return metadata as Record<string, unknown>;
+}
+
+async function refundReservedImageCreditForBanner(params: {
+  workspaceId: string;
+  bannerId: string;
+  reason: string;
+}) {
+  try {
+    const usageEvents = await prisma.usageEvent.findMany({
+      where: {
+        workspaceId: params.workspaceId,
+        type: { in: [...IMAGE_CREDIT_EVENT_TYPES] },
+        units: { gt: 0 },
+      },
+      select: {
+        id: true,
+        units: true,
+        metadata: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 120,
+    });
+
+    const reservedEvent = usageEvents.find((event) => {
+      const metadata = getMetadataRecord(event.metadata);
+      if (!metadata) return false;
+
+      const status = String(metadata.status || "");
+
+      return (
+        metadata.bannerId === params.bannerId &&
+        (status === "reserved" || status === "processing")
+      );
+    });
+
+    if (!reservedEvent) {
+      return false;
+    }
+
+    const metadata = getMetadataRecord(reservedEvent.metadata) || {};
+
+    await prisma.usageEvent.update({
+      where: { id: reservedEvent.id },
+      data: {
+        units: 0,
+        metadata: {
+          ...metadata,
+          status: "refunded",
+          originalUnits: reservedEvent.units,
+          refundedAt: new Date().toISOString(),
+          refundReason: params.reason,
+        },
+      },
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao estornar crédito de banner travado:", error);
+    return false;
+  }
+}
 
 function getPendingProgress(createdAt: Date) {
   const elapsedSeconds = Math.max(
@@ -151,6 +228,14 @@ export async function GET(
       },
     });
 
+    const creditRefunded = !failedBanner.outputImageUrl
+      ? await refundReservedImageCreditForBanner({
+          workspaceId: workspace.id,
+          bannerId: failedBanner.id,
+          reason: "stale_pending_banner",
+        })
+      : false;
+
     const credits = await getRemainingCredits(workspace);
 
     return NextResponse.json({
@@ -163,7 +248,10 @@ export async function GET(
       activeStep: 0,
       remainingCredits: credits.remainingCredits,
       isAdminUnlimited: credits.isAdminUnlimited,
-      message: "A geração demorou mais que o esperado. Tente gerar novamente.",
+      creditRefunded,
+      message: creditRefunded
+        ? "A geração demorou mais que o esperado. O crédito reservado foi devolvido automaticamente. Tente gerar novamente."
+        : "A geração demorou mais que o esperado. Tente gerar novamente.",
     });
   }
 
@@ -185,6 +273,18 @@ export async function GET(
   }
 
   if (banner.status === BannerStatus.FAILED) {
+    const creditRefunded = !banner.outputImageUrl
+      ? await refundReservedImageCreditForBanner({
+          workspaceId: workspace.id,
+          bannerId: banner.id,
+          reason: "failed_banner_without_output_image",
+        })
+      : false;
+
+    const refreshedCredits = creditRefunded
+      ? await getRemainingCredits(workspace)
+      : credits;
+
     return NextResponse.json({
       success: true,
       bannerId: banner.id,
@@ -193,9 +293,12 @@ export async function GET(
       bannerUrl: `/dashboard/banners/${banner.id}`,
       progress: 0,
       activeStep: 0,
-      remainingCredits: credits.remainingCredits,
-      isAdminUnlimited: credits.isAdminUnlimited,
-      message: "Não foi possível concluir a geração do banner.",
+      remainingCredits: refreshedCredits.remainingCredits,
+      isAdminUnlimited: refreshedCredits.isAdminUnlimited,
+      creditRefunded,
+      message: creditRefunded
+        ? "Não foi possível concluir a geração do banner. O crédito reservado foi devolvido automaticamente."
+        : "Não foi possível concluir a geração do banner.",
     });
   }
 

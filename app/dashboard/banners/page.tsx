@@ -22,6 +22,8 @@ const bannersPageCopy = {
       "Crie seu primeiro flyer com IA e comece a montar um histórico visual premium para suas divulgações.",
     firstBanner: "Criar meu primeiro flyer",
     noPreview: "Sem preview",
+    pendingPreview: "Flyer ainda em processamento",
+    failedPreview: "Geração falhou. O crédito será devolvido automaticamente.",
     fallbackTitle: "Flyer sem título",
     fallbackDjName: "Nome do DJ não informado",
     fallbackAlt: "Flyer gerado",
@@ -44,6 +46,8 @@ const bannersPageCopy = {
       "Create your first AI flyer and start building a premium visual history for your promotions.",
     firstBanner: "Create my first flyer",
     noPreview: "No preview",
+    pendingPreview: "Flyer still processing",
+    failedPreview: "Generation failed. The credit will be returned automatically.",
     fallbackTitle: "Untitled flyer",
     fallbackDjName: "No DJ name provided",
     fallbackAlt: "Generated flyer",
@@ -66,6 +70,8 @@ const bannersPageCopy = {
       "Crea tu primer flyer con IA y empieza a construir un historial visual premium para tus promociones.",
     firstBanner: "Crear mi primer flyer",
     noPreview: "Sin vista previa",
+    pendingPreview: "Flyer aún en procesamiento",
+    failedPreview: "La generación falló. El crédito se devolverá automáticamente.",
     fallbackTitle: "Flyer sin título",
     fallbackDjName: "Nombre del DJ no informado",
     fallbackAlt: "Flyer generado",
@@ -96,6 +102,7 @@ export default async function BannersPage() {
       title: true,
       djName: true,
       format: true,
+      status: true,
       outputImageUrl: true,
       createdAt: true,
     },
@@ -245,6 +252,7 @@ function BannerLibraryCard({
     title: string | null;
     djName: string | null;
     format: string;
+    status: string;
     outputImageUrl: string | null;
     createdAt: Date;
   };
@@ -267,8 +275,8 @@ function BannerLibraryCard({
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
           />
         ) : (
-          <div className="grid h-full place-items-center text-sm text-white/45">
-            {copy.noPreview}
+          <div className="grid h-full place-items-center px-4 text-center text-sm leading-6 text-white/45">
+            {getPreviewFallbackText(banner.status, copy)}
           </div>
         )}
 
@@ -299,6 +307,21 @@ function BannerLibraryCard({
       </div>
     </Link>
   );
+}
+
+function getPreviewFallbackText(
+  status: string,
+  copy: (typeof bannersPageCopy)[AppLocale],
+) {
+  if (status === "PENDING") {
+    return copy.pendingPreview;
+  }
+
+  if (status === "FAILED") {
+    return copy.failedPreview;
+  }
+
+  return copy.noPreview;
 }
 
 function formatBannerFormat(value: string) {

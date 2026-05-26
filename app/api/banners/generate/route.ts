@@ -42,7 +42,7 @@ const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
   UsageEventType.BANNER_EDIT,
   UsageEventType.BANNER_VARIATION,
-            UsageEventType.BANNER_MOTION_RENDER,
+  UsageEventType.BANNER_MOTION_RENDER,
 ] as const;
 
 const referenceImageField = z
@@ -322,21 +322,25 @@ async function processGenerationJob(params: {
     });
 
     if (usageEventId) {
-      await prisma.usageEvent.update({
-        where: { id: usageEventId },
-        data: {
-          metadata: {
-            status: "confirmed",
-            confirmedAt: new Date().toISOString(),
-            model: generated.modelName,
-            stylePreset: payload.stylePreset,
-            format: payload.format,
-            quality,
-            bannerId,
-            isAdminBypass: isAdmin,
+      await prisma.usageEvent
+        .update({
+          where: { id: usageEventId },
+          data: {
+            metadata: {
+              status: "confirmed",
+              confirmedAt: new Date().toISOString(),
+              model: generated.modelName,
+              stylePreset: payload.stylePreset,
+              format: payload.format,
+              quality,
+              bannerId,
+              isAdminBypass: isAdmin,
+            },
           },
-        },
-      });
+        })
+        .catch((error) => {
+          console.error("Erro ao confirmar crédito da geração:", error);
+        });
     }
 
     revalidatePath("/dashboard");
