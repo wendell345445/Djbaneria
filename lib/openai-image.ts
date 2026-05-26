@@ -18,6 +18,9 @@ export type EditBannerInput = {
 
 const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL?.trim() || "gpt-image-2";
 
+const MAX_SOURCE_IMAGE_BUFFER_BYTES = 12 * 1024 * 1024;
+const MAX_SOURCE_IMAGE_PIXELS = 24_000_000;
+
 function getOpenAiQuality(quality?: BannerImageQuality) {
   return quality || "high";
 }
@@ -197,22 +200,60 @@ async function prepareImage(imageBuffer: Buffer, size: string) {
     .toBuffer();
 }
 
+async function assertImageBufferIsSafeForProcessing(imageBuffer: Buffer) {
+  if (imageBuffer.byteLength > MAX_SOURCE_IMAGE_BUFFER_BYTES) {
+    throw new Error(
+      "A imagem base está muito pesada para processar. Envie uma imagem menor e tente novamente.",
+    );
+  }
+
+  const metadata = await sharp(imageBuffer, { limitInputPixels: MAX_SOURCE_IMAGE_PIXELS })
+    .metadata()
+    .catch(() => null);
+
+  const width = metadata?.width || 0;
+  const height = metadata?.height || 0;
+  const pixels = width * height;
+
+  if (!metadata || pixels <= 0) {
+    throw new Error("A imagem base é inválida ou não pôde ser lida.");
+  }
+
+  if (pixels > MAX_SOURCE_IMAGE_PIXELS) {
+    throw new Error(
+      "A imagem base possui resolução muito alta. Envie uma imagem menor e tente novamente.",
+    );
+  }
+}
+
 async function loadImageBufferFromInput(source: string) {
+  let imageBuffer: Buffer;
+
   if (source.startsWith("data:image/")) {
     const base64 = source.split(",")[1];
     if (!base64) {
       throw new Error("Imagem base inválida para edição.");
     }
 
-    return Buffer.from(base64, "base64");
+    imageBuffer = Buffer.from(base64, "base64");
+  } else {
+    const sourceImageResponse = await fetch(source);
+    if (!sourceImageResponse.ok) {
+      throw new Error("Não foi possível baixar a imagem base para edição.");
+    }
+
+    const contentLength = Number(sourceImageResponse.headers.get("content-length") || 0);
+    if (contentLength > MAX_SOURCE_IMAGE_BUFFER_BYTES) {
+      throw new Error(
+        "A imagem base está muito pesada para processar. Envie uma imagem menor e tente novamente.",
+      );
+    }
+
+    imageBuffer = Buffer.from(await sourceImageResponse.arrayBuffer());
   }
 
-  const sourceImageResponse = await fetch(source);
-  if (!sourceImageResponse.ok) {
-    throw new Error("Não foi possível baixar a imagem base para edição.");
-  }
-
-  return Buffer.from(await sourceImageResponse.arrayBuffer());
+  await assertImageBufferIsSafeForProcessing(imageBuffer);
+  return imageBuffer;
 }
 
 async function callImageEditApi(input: EditBannerInput) {

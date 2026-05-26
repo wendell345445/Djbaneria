@@ -23,6 +23,7 @@ import {
   type BannerImageQuality,
 } from "@/lib/plans";
 import { isBannerStyleAllowedForPlan } from "@/lib/banner-style-access";
+import { getReferenceDataUrlValidationError } from "@/lib/banner-image-guard";
 import { prisma } from "@/lib/prisma";
 import {
   buildRateLimitHeaders,
@@ -42,7 +43,7 @@ const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
   UsageEventType.BANNER_EDIT,
   UsageEventType.BANNER_VARIATION,
-  UsageEventType.BANNER_MOTION_RENDER,
+            UsageEventType.BANNER_MOTION_RENDER,
 ] as const;
 
 const referenceImageField = z
@@ -500,6 +501,17 @@ export async function POST(request: Request) {
 
     if (!isAllowedSourceUrl(effectiveSourceImageUrl, sourceBanner.outputImageUrl)) {
       throw new Error("A imagem base informada não é permitida.");
+    }
+
+    const sourceImageValidationError = getReferenceDataUrlValidationError(
+      effectiveSourceImageUrl,
+    );
+
+    if (sourceImageValidationError) {
+      return NextResponse.json(
+        { error: sourceImageValidationError },
+        { status: 413, headers: buildRateLimitHeaders(rateLimit) },
+      );
     }
 
     const reservation = await reserveEditCredit({

@@ -18,7 +18,10 @@ import {
   type BannerImageQuality,
 } from "@/lib/plans";
 import { isBannerStyleProOnly } from "@/lib/banner-style-access";
-import { fileToOptimizedDataUrl } from "@/lib/client-image-optimizer";
+import {
+  fileToOptimizedDataUrl,
+  getReferenceImageFileValidationError,
+} from "@/lib/client-image-optimizer";
 import {
   getSafeApiErrorMessage,
   readSafeApiResponse,
@@ -2243,6 +2246,16 @@ export function NewBannerForm({
       return;
     }
 
+    const validationError = getReferenceImageFileValidationError(file);
+
+    if (validationError) {
+      event.currentTarget.value = "";
+      setProfessionalImageSourceFile(null);
+      setProfessionalImageSourcePreview("");
+      setProfessionalImageError(validationError);
+      return;
+    }
+
     try {
       const dataUrl = await readFileAsDataUrl(file, copy.errors.fileRead);
       setProfessionalImageSourcePreview(dataUrl);
@@ -2933,16 +2946,28 @@ export function NewBannerForm({
                     className={`${getInputClassForTour("photo")} file:mr-4 file:rounded-xl file:border-0 file:bg-white/10 file:px-3 file:py-2 file:text-base file:font-medium sm:file:text-sm file:text-white hover:file:bg-white/15`}
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
-                      setReferenceFile(file);
-                      if (file) {
+
+                      if (!file) {
+                        setReferenceFile(null);
+                        return;
+                      }
+
+                      const validationError =
+                        getReferenceImageFileValidationError(file);
+
+                      if (validationError) {
+                        e.currentTarget.value = "";
+                        setReferenceFile(null);
                         setConnectedProfessionalImageUrl(null);
+                        setError(validationError);
+                        setTourError(validationError);
+                        return;
                       }
-                      if (
-                        (file || connectedProfessionalImageUrl) &&
-                        activeTourTarget === "photo"
-                      ) {
-                        setTourError("");
-                      }
+
+                      setError("");
+                      setTourError("");
+                      setReferenceFile(file);
+                      setConnectedProfessionalImageUrl(null);
                     }}
                   />
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-white/60">

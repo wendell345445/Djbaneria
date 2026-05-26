@@ -1,3 +1,8 @@
+import {
+  getReferenceImageFileValidationError,
+  MAX_REFERENCE_IMAGE_DATA_URL_LENGTH,
+} from "@/lib/banner-image-guard";
+
 type OptimizeImageOptions = {
   maxWidth?: number;
   maxHeight?: number;
@@ -14,22 +19,30 @@ const DEFAULT_OPTIONS: Required<OptimizeImageOptions> = {
   maxDataUrlBytes: 2_500_000,
 };
 
+export { getReferenceImageFileValidationError };
+
 export async function fileToOptimizedDataUrl(
   file: File,
   options: OptimizeImageOptions = {},
 ) {
+  const fileValidationError = getReferenceImageFileValidationError(file);
+  if (fileValidationError) {
+    throw new Error(fileValidationError);
+  }
+
   const config = {
     ...DEFAULT_OPTIONS,
     ...options,
   };
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Please upload a valid image file.");
-  }
+  const maxDataUrlBytes = Math.min(
+    config.maxDataUrlBytes,
+    MAX_REFERENCE_IMAGE_DATA_URL_LENGTH,
+  );
 
   const originalDataUrl = await readFileAsDataUrl(file);
 
-  if (originalDataUrl.length <= config.maxDataUrlBytes) {
+  if (originalDataUrl.length <= maxDataUrlBytes) {
     return originalDataUrl;
   }
 
@@ -58,14 +71,14 @@ export async function fileToOptimizedDataUrl(
   let quality = config.quality;
   let optimizedDataUrl = canvas.toDataURL(config.outputType, quality);
 
-  while (optimizedDataUrl.length > config.maxDataUrlBytes && quality > 0.52) {
-    quality = Math.max(0.52, quality - 0.08);
+  while (optimizedDataUrl.length > maxDataUrlBytes && quality > 0.5) {
+    quality = Math.max(0.5, quality - 0.08);
     optimizedDataUrl = canvas.toDataURL(config.outputType, quality);
   }
 
-  if (optimizedDataUrl.length > config.maxDataUrlBytes) {
+  if (optimizedDataUrl.length > maxDataUrlBytes) {
     throw new Error(
-      "The image is still too large. Please upload a smaller image and try again.",
+      "The image is still too large after optimization. Please upload a smaller JPG, PNG or WebP image.",
     );
   }
 

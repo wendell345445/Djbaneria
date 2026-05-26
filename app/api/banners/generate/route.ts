@@ -23,6 +23,7 @@ import {
   type BannerImageQuality,
 } from "@/lib/plans";
 import { isBannerStyleAllowedForPlan } from "@/lib/banner-style-access";
+import { getReferenceDataUrlValidationError } from "@/lib/banner-image-guard";
 import { prisma } from "@/lib/prisma";
 import {
   buildRateLimitHeaders,
@@ -42,7 +43,7 @@ const CREDIT_EVENT_TYPES = [
   UsageEventType.BANNER_GENERATION,
   UsageEventType.BANNER_EDIT,
   UsageEventType.BANNER_VARIATION,
-  UsageEventType.BANNER_MOTION_RENDER,
+            UsageEventType.BANNER_MOTION_RENDER,
 ] as const;
 
 const referenceImageField = z
@@ -438,6 +439,17 @@ export async function POST(request: Request) {
               : "Essa qualidade não está disponível no seu plano atual.",
         },
         { status: 403, headers: buildRateLimitHeaders(rateLimit) },
+      );
+    }
+
+    const referenceImageValidationError = getReferenceDataUrlValidationError(
+      payload.referenceImageUrl,
+    );
+
+    if (referenceImageValidationError) {
+      return NextResponse.json(
+        { error: referenceImageValidationError },
+        { status: 413, headers: buildRateLimitHeaders(rateLimit) },
       );
     }
 
