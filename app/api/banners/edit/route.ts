@@ -23,7 +23,7 @@ import {
   type BannerImageQuality,
 } from "@/lib/plans";
 import { isBannerStyleAllowedForPlan } from "@/lib/banner-style-access";
-import { getReferenceDataUrlValidationError } from "@/lib/banner-image-guard";
+import { logBannerGeneration } from "@/lib/banner-generation-log";
 import { prisma } from "@/lib/prisma";
 import {
   buildRateLimitHeaders,
@@ -261,13 +261,59 @@ async function reserveEditCredit(params: {
   throw new Error("Não foi possível reservar crédito no momento.");
 }
 
-async function refundReservedCredit(usageEventId: string | null) {
+function getMetadataRecord(metadata: unknown): Record<string, unknown> {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+    return {};
+  }
+
+  return metadata as Record<string, unknown>;
+}
+
+async function refundReservedCredit(
+  usageEventId: string | null,
+  reason = "edit_failed",
+) {
   if (!usageEventId) return;
 
   try {
-    await prisma.usageEvent.delete({ where: { id: usageEventId } });
+    const usageEvent = await prisma.usageEvent.findUnique({
+      where: { id: usageEventId },
+      select: { units: true, metadata: true },
+    });
+
+    if (!usageEvent) return;
+
+    await prisma.usageEvent.update({
+      where: { id: usageEventId },
+      data: {
+        units: 0,
+        metadata: {
+          ...getMetadataRecord(usageEvent.metadata),
+          status: "refunded",
+          originalUnits: usageEvent.units,
+          refundedAt: new Date().toISOString(),
+          refundReason: reason,
+        },
+      },
+    });
   } catch (error) {
     console.error("Erro ao estornar crédito reservado na edição:", error);
+  }
+}
+
+function safeErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown error";
+}
+
+function safeErrorName(error: unknown) {
+  return error instanceof Error ? error.name : "UnknownError";
+}
+
+function safeRevalidate(path: string) {
+  try {
+    revalidatePath(path);
+  } catch (error) {
+    console.error("Erro ao revalidar path:", { path, error });
   }
 }
 
@@ -300,11 +346,50 @@ async function processEditJob(params: {
   const startedAt = Date.now();
 
   try {
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "JOB_STARTED",
+      message: "Background edit job started.",
+      metadata: {
+        sourceBannerId,
+        format: payload.format,
+        stylePreset: payload.stylePreset,
+        quality,
+        size,
+        sourceImageLength: sourceImageUrl.length,
+      },
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "OPENAI_REQUEST_STARTED",
+      message: "Sending banner edit request to OpenAI.",
+      metadata: {
+        model: getPendingModelName(),
+        quality,
+        size,
+        sourceBannerId,
+      },
+    });
+
     const generated = await editBannerImage({
       prompt,
       size,
       quality,
       sourceImageUrl,
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "OPENAI_REQUEST_SUCCESS",
+      message: "OpenAI returned an edited banner image.",
+      metadata: {
+        model: generated.modelName,
+        hasImageBase64: Boolean(generated.imageBase64),
+      },
     });
 
     if (!generated.imageBase64) {
@@ -319,10 +404,42 @@ async function processEditJob(params: {
       sanitizeForFileName(`${payload.djName}-${payload.mainText}-edit`) ||
       `banner-edit-${Date.now()}`;
     const key = `workspaces/${workspaceId}/generated-banners/${Date.now()}-${filenameBase}.png`;
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "R2_UPLOAD_STARTED",
+      message: "Uploading edited banner to R2.",
+      metadata: {
+        storageKey: key,
+        sizeBytes: finalPng.byteLength,
+        width: meta.width || null,
+        height: meta.height || null,
+      },
+    });
+
     const uploaded = await uploadBannerBuffer({
       key,
       body: finalPng,
       contentType: "image/png",
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "R2_UPLOAD_SUCCESS",
+      message: "Edited banner uploaded to R2.",
+      metadata: {
+        storageKey: key,
+        outputImageUrl: uploaded.url,
+      },
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "DB_UPDATE_STARTED",
+      message: "Updating edited banner as COMPLETED.",
     });
 
     await prisma.banner.update({
@@ -338,19 +455,43 @@ async function processEditJob(params: {
       },
     });
 
-    await prisma.asset.create({
-      data: {
-        workspaceId,
-        url: uploaded.url,
-        originalName: `${filenameBase}.png`,
-        storageProvider: "cloudflare-r2",
-        storageKey: key,
-        mimeType: "image/png",
-        sizeBytes: finalPng.byteLength,
-        width: meta.width || null,
-        height: meta.height || null,
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "DB_UPDATE_SUCCESS",
+      message: "Edited banner updated as COMPLETED.",
+      metadata: {
+        outputImageUrl: uploaded.url,
       },
     });
+
+    await prisma.asset
+      .create({
+        data: {
+          workspaceId,
+          url: uploaded.url,
+          originalName: `${filenameBase}.png`,
+          storageProvider: "cloudflare-r2",
+          storageKey: key,
+          mimeType: "image/png",
+          sizeBytes: finalPng.byteLength,
+          width: meta.width || null,
+          height: meta.height || null,
+        },
+      })
+      .catch(async (error) => {
+        console.error("Erro ao registrar asset da edição:", error);
+        await logBannerGeneration({
+          bannerId,
+          workspaceId,
+          level: "warn",
+          step: "ASSET_CREATE_FAILED",
+          message: safeErrorMessage(error),
+          metadata: {
+            storageKey: key,
+          },
+        });
+      });
 
     if (usageEventId) {
       await prisma.usageEvent
@@ -370,33 +511,82 @@ async function processEditJob(params: {
             },
           },
         })
-        .catch((error) => {
+        .catch(async (error) => {
           console.error("Erro ao confirmar crédito da edição:", error);
+          await logBannerGeneration({
+            bannerId,
+            workspaceId,
+            level: "warn",
+            step: "CREDIT_CONFIRM_FAILED",
+            message: safeErrorMessage(error),
+            metadata: {
+              usageEventId,
+              sourceBannerId,
+            },
+          });
         });
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
-    revalidatePath("/dashboard/banners/new");
-    revalidatePath("/dashboard/banners");
-    revalidatePath(`/dashboard/banners/${bannerId}`);
-  } catch (error) {
-    console.error("Erro ao processar edição do banner:", error);
-
-    await prisma.banner.update({
-      where: { id: bannerId },
-      data: {
-        status: BannerStatus.FAILED,
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "JOB_COMPLETED",
+      message: "Banner edit job completed successfully.",
+      metadata: {
+        sourceBannerId,
         generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
       },
     });
 
-    await refundReservedCredit(usageEventId);
+    safeRevalidate("/dashboard");
+    safeRevalidate("/dashboard/billing");
+    safeRevalidate("/dashboard/banners/new");
+    safeRevalidate("/dashboard/banners");
+    safeRevalidate(`/dashboard/banners/${bannerId}`);
+  } catch (error) {
+    console.error("Erro ao processar edição do banner:", error);
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
-    revalidatePath("/dashboard/banners/new");
-    revalidatePath("/dashboard/banners");
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      level: "error",
+      step: "JOB_FAILED",
+      message: safeErrorMessage(error),
+      metadata: {
+        sourceBannerId,
+        errorName: safeErrorName(error),
+        generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+      },
+    });
+
+    await prisma.banner
+      .update({
+        where: { id: bannerId },
+        data: {
+          status: BannerStatus.FAILED,
+          generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+        },
+      })
+      .catch(async (updateError) => {
+        console.error("Erro ao marcar edição como FAILED:", updateError);
+        await logBannerGeneration({
+          bannerId,
+          workspaceId,
+          level: "error",
+          step: "DB_FAILED_UPDATE_FAILED",
+          message: safeErrorMessage(updateError),
+          metadata: {
+            sourceBannerId,
+          },
+        });
+      });
+
+    await refundReservedCredit(usageEventId, "edit_job_failed");
+
+    safeRevalidate("/dashboard");
+    safeRevalidate("/dashboard/billing");
+    safeRevalidate("/dashboard/banners/new");
+    safeRevalidate("/dashboard/banners");
   }
 }
 
@@ -503,17 +693,6 @@ export async function POST(request: Request) {
       throw new Error("A imagem base informada não é permitida.");
     }
 
-    const sourceImageValidationError = getReferenceDataUrlValidationError(
-      effectiveSourceImageUrl,
-    );
-
-    if (sourceImageValidationError) {
-      return NextResponse.json(
-        { error: sourceImageValidationError },
-        { status: 413, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
     const reservation = await reserveEditCredit({
       workspaceId: workspace.id,
       plan: subscriptionPlan,
@@ -562,6 +741,22 @@ export async function POST(request: Request) {
       select: { id: true },
     });
 
+    await logBannerGeneration({
+      bannerId: pendingBanner.id,
+      workspaceId: workspace.id,
+      userId: workspace.user?.id,
+      step: "BANNER_CREATED",
+      message: "Edited banner record created as PENDING.",
+      metadata: {
+        sourceBannerId: payload.bannerId,
+        format: payload.format,
+        stylePreset: payload.stylePreset,
+        quality: requestedQuality,
+        sourceImageLength: effectiveSourceImageUrl.length,
+        modelName: getPendingModelName(),
+      },
+    });
+
     if (reservedUsageEventId) {
       await prisma.usageEvent.update({
         where: { id: reservedUsageEventId },
@@ -576,6 +771,19 @@ export async function POST(request: Request) {
             quality: requestedQuality,
             isAdminBypass: isAdmin,
           },
+        },
+      });
+
+      await logBannerGeneration({
+        bannerId: pendingBanner.id,
+        workspaceId: workspace.id,
+        userId: workspace.user?.id,
+        step: "CREDIT_PROCESSING",
+        message: "Reserved edit credit linked to banner and marked as processing.",
+        metadata: {
+          usageEventId: reservedUsageEventId,
+          sourceBannerId: payload.bannerId,
+          quality: requestedQuality,
         },
       });
     }
@@ -608,7 +816,7 @@ export async function POST(request: Request) {
       { status: 202, headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
-    await refundReservedCredit(reservedUsageEventId);
+    await refundReservedCredit(reservedUsageEventId, "edit_start_failed");
 
     const creditExhausted =
       error instanceof Error && error.message.includes("créditos");

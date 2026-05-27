@@ -10,6 +10,7 @@ import {
 } from "@/generated/prisma/enums";
 
 import { isAdminEmail } from "@/lib/admin";
+import { recoverStalePendingBanners } from "@/lib/banner-generation-recovery";
 import { normalizeLocale, type AppLocale } from "@/lib/i18n";
 import {
   buildBillingSummary,
@@ -507,6 +508,14 @@ const DASHBOARD_COPY: Record<AppLocale, DashboardCopy> = {
 
 export default async function DashboardPage() {
   const workspace = await requireCurrentWorkspace();
+
+  await recoverStalePendingBanners({
+    workspaceId: workspace.id,
+    userId: workspace.user?.id,
+    limit: 25,
+    reason: "dashboard_page_stale_pending_recovery",
+  });
+
   const locale = normalizeLocale(workspace.user?.preferredLocale);
   const copy = DASHBOARD_COPY[locale];
   const now = new Date();

@@ -23,7 +23,7 @@ import {
   type BannerImageQuality,
 } from "@/lib/plans";
 import { isBannerStyleAllowedForPlan } from "@/lib/banner-style-access";
-import { getReferenceDataUrlValidationError } from "@/lib/banner-image-guard";
+import { logBannerGeneration } from "@/lib/banner-generation-log";
 import { prisma } from "@/lib/prisma";
 import {
   buildRateLimitHeaders,
@@ -235,13 +235,59 @@ async function reserveGenerationCredit(params: {
   throw new Error("Não foi possível reservar crédito no momento.");
 }
 
-async function refundReservedCredit(usageEventId: string | null) {
+function getMetadataRecord(metadata: unknown): Record<string, unknown> {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+    return {};
+  }
+
+  return metadata as Record<string, unknown>;
+}
+
+async function refundReservedCredit(
+  usageEventId: string | null,
+  reason = "generation_failed",
+) {
   if (!usageEventId) return;
 
   try {
-    await prisma.usageEvent.delete({ where: { id: usageEventId } });
+    const usageEvent = await prisma.usageEvent.findUnique({
+      where: { id: usageEventId },
+      select: { units: true, metadata: true },
+    });
+
+    if (!usageEvent) return;
+
+    await prisma.usageEvent.update({
+      where: { id: usageEventId },
+      data: {
+        units: 0,
+        metadata: {
+          ...getMetadataRecord(usageEvent.metadata),
+          status: "refunded",
+          originalUnits: usageEvent.units,
+          refundedAt: new Date().toISOString(),
+          refundReason: reason,
+        },
+      },
+    });
   } catch (error) {
     console.error("Erro ao estornar crédito reservado na geração:", error);
+  }
+}
+
+function safeErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown error";
+}
+
+function safeErrorName(error: unknown) {
+  return error instanceof Error ? error.name : "UnknownError";
+}
+
+function safeRevalidate(path: string) {
+  try {
+    revalidatePath(path);
+  } catch (error) {
+    console.error("Erro ao revalidar path:", { path, error });
   }
 }
 
@@ -270,11 +316,50 @@ async function processGenerationJob(params: {
   const startedAt = Date.now();
 
   try {
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "JOB_STARTED",
+      message: "Background generation job started.",
+      metadata: {
+        format: payload.format,
+        stylePreset: payload.stylePreset,
+        quality,
+        size,
+        hasReferenceImage: Boolean(payload.referenceImageUrl),
+        referenceImageLength: payload.referenceImageUrl?.length || 0,
+      },
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "OPENAI_REQUEST_STARTED",
+      message: "Sending banner generation request to OpenAI.",
+      metadata: {
+        model: getPendingModelName(),
+        quality,
+        size,
+        hasReferenceImage: Boolean(payload.referenceImageUrl),
+      },
+    });
+
     const generated = await generateBannerImage({
       prompt,
       size,
       quality,
       referenceImageUrl: payload.referenceImageUrl,
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "OPENAI_REQUEST_SUCCESS",
+      message: "OpenAI returned a banner image.",
+      metadata: {
+        model: generated.modelName,
+        hasImageBase64: Boolean(generated.imageBase64),
+      },
     });
 
     if (!generated.imageBase64) {
@@ -289,10 +374,42 @@ async function processGenerationJob(params: {
       sanitizeForFileName(`${payload.djName}-${payload.mainText}`) ||
       `banner-${Date.now()}`;
     const key = `workspaces/${workspaceId}/generated-banners/${Date.now()}-${filenameBase}.png`;
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "R2_UPLOAD_STARTED",
+      message: "Uploading generated banner to R2.",
+      metadata: {
+        storageKey: key,
+        sizeBytes: finalPng.byteLength,
+        width: meta.width || null,
+        height: meta.height || null,
+      },
+    });
+
     const uploaded = await uploadBannerBuffer({
       key,
       body: finalPng,
       contentType: "image/png",
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "R2_UPLOAD_SUCCESS",
+      message: "Generated banner uploaded to R2.",
+      metadata: {
+        storageKey: key,
+        outputImageUrl: uploaded.url,
+      },
+    });
+
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "DB_UPDATE_STARTED",
+      message: "Updating banner as COMPLETED.",
     });
 
     await prisma.banner.update({
@@ -308,19 +425,43 @@ async function processGenerationJob(params: {
       },
     });
 
-    await prisma.asset.create({
-      data: {
-        workspaceId,
-        url: uploaded.url,
-        originalName: `${filenameBase}.png`,
-        storageProvider: "cloudflare-r2",
-        storageKey: key,
-        mimeType: "image/png",
-        sizeBytes: finalPng.byteLength,
-        width: meta.width || null,
-        height: meta.height || null,
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "DB_UPDATE_SUCCESS",
+      message: "Banner updated as COMPLETED.",
+      metadata: {
+        outputImageUrl: uploaded.url,
       },
     });
+
+    await prisma.asset
+      .create({
+        data: {
+          workspaceId,
+          url: uploaded.url,
+          originalName: `${filenameBase}.png`,
+          storageProvider: "cloudflare-r2",
+          storageKey: key,
+          mimeType: "image/png",
+          sizeBytes: finalPng.byteLength,
+          width: meta.width || null,
+          height: meta.height || null,
+        },
+      })
+      .catch(async (error) => {
+        console.error("Erro ao registrar asset do banner:", error);
+        await logBannerGeneration({
+          bannerId,
+          workspaceId,
+          level: "warn",
+          step: "ASSET_CREATE_FAILED",
+          message: safeErrorMessage(error),
+          metadata: {
+            storageKey: key,
+          },
+        });
+      });
 
     if (usageEventId) {
       await prisma.usageEvent
@@ -339,33 +480,76 @@ async function processGenerationJob(params: {
             },
           },
         })
-        .catch((error) => {
+        .catch(async (error) => {
           console.error("Erro ao confirmar crédito da geração:", error);
+          await logBannerGeneration({
+            bannerId,
+            workspaceId,
+            level: "warn",
+            step: "CREDIT_CONFIRM_FAILED",
+            message: safeErrorMessage(error),
+            metadata: {
+              usageEventId,
+            },
+          });
         });
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
-    revalidatePath("/dashboard/banners/new");
-    revalidatePath("/dashboard/banners");
-    revalidatePath(`/dashboard/banners/${bannerId}`);
-  } catch (error) {
-    console.error("Erro ao processar geração do banner:", error);
-
-    await prisma.banner.update({
-      where: { id: bannerId },
-      data: {
-        status: BannerStatus.FAILED,
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      step: "JOB_COMPLETED",
+      message: "Banner generation job completed successfully.",
+      metadata: {
         generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
       },
     });
 
-    await refundReservedCredit(usageEventId);
+    safeRevalidate("/dashboard");
+    safeRevalidate("/dashboard/billing");
+    safeRevalidate("/dashboard/banners/new");
+    safeRevalidate("/dashboard/banners");
+    safeRevalidate(`/dashboard/banners/${bannerId}`);
+  } catch (error) {
+    console.error("Erro ao processar geração do banner:", error);
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/billing");
-    revalidatePath("/dashboard/banners/new");
-    revalidatePath("/dashboard/banners");
+    await logBannerGeneration({
+      bannerId,
+      workspaceId,
+      level: "error",
+      step: "JOB_FAILED",
+      message: safeErrorMessage(error),
+      metadata: {
+        errorName: safeErrorName(error),
+        generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+      },
+    });
+
+    await prisma.banner
+      .update({
+        where: { id: bannerId },
+        data: {
+          status: BannerStatus.FAILED,
+          generationSeconds: Math.max(1, Math.round((Date.now() - startedAt) / 1000)),
+        },
+      })
+      .catch(async (updateError) => {
+        console.error("Erro ao marcar banner como FAILED:", updateError);
+        await logBannerGeneration({
+          bannerId,
+          workspaceId,
+          level: "error",
+          step: "DB_FAILED_UPDATE_FAILED",
+          message: safeErrorMessage(updateError),
+        });
+      });
+
+    await refundReservedCredit(usageEventId, "generation_job_failed");
+
+    safeRevalidate("/dashboard");
+    safeRevalidate("/dashboard/billing");
+    safeRevalidate("/dashboard/banners/new");
+    safeRevalidate("/dashboard/banners");
   }
 }
 
@@ -442,17 +626,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const referenceImageValidationError = getReferenceDataUrlValidationError(
-      payload.referenceImageUrl,
-    );
-
-    if (referenceImageValidationError) {
-      return NextResponse.json(
-        { error: referenceImageValidationError },
-        { status: 413, headers: buildRateLimitHeaders(rateLimit) },
-      );
-    }
-
     const reservation = await reserveGenerationCredit({
       workspaceId: workspace.id,
       plan: subscriptionPlan,
@@ -500,6 +673,22 @@ export async function POST(request: Request) {
       select: { id: true },
     });
 
+    await logBannerGeneration({
+      bannerId: pendingBanner.id,
+      workspaceId: workspace.id,
+      userId: workspace.user?.id,
+      step: "BANNER_CREATED",
+      message: "Banner record created as PENDING.",
+      metadata: {
+        format: payload.format,
+        stylePreset: payload.stylePreset,
+        quality: requestedQuality,
+        hasReferenceImage: Boolean(payload.referenceImageUrl),
+        referenceImageLength: payload.referenceImageUrl?.length || 0,
+        modelName: getPendingModelName(),
+      },
+    });
+
     if (reservedUsageEventId) {
       await prisma.usageEvent.update({
         where: { id: reservedUsageEventId },
@@ -513,6 +702,18 @@ export async function POST(request: Request) {
             quality: requestedQuality,
             isAdminBypass: isAdmin,
           },
+        },
+      });
+
+      await logBannerGeneration({
+        bannerId: pendingBanner.id,
+        workspaceId: workspace.id,
+        userId: workspace.user?.id,
+        step: "CREDIT_PROCESSING",
+        message: "Reserved credit linked to banner and marked as processing.",
+        metadata: {
+          usageEventId: reservedUsageEventId,
+          quality: requestedQuality,
         },
       });
     }
@@ -543,7 +744,7 @@ export async function POST(request: Request) {
       { status: 202, headers: buildRateLimitHeaders(rateLimit) },
     );
   } catch (error) {
-    await refundReservedCredit(reservedUsageEventId);
+    await refundReservedCredit(reservedUsageEventId, "generation_start_failed");
 
     console.error("Erro ao iniciar geração do banner:", error);
 

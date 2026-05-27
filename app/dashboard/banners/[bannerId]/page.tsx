@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BannerMotionPanel } from "@/components/banner-motion-panel";
+import { BannerStatus } from "@/generated/prisma/enums";
+import { recoverStalePendingBanners } from "@/lib/banner-generation-recovery";
 import { prisma } from "@/lib/prisma";
 import { normalizeLocale, type SupportedLocale } from "@/lib/i18n";
 import { requireCurrentWorkspace } from "@/lib/workspace";
@@ -16,6 +18,8 @@ const bannerDetailsCopy: Record<
     back: string;
     download: string;
     noPreview: string;
+    processingPreview: string;
+    failedPreview: string;
     detailsTitle: string;
     mainText: string;
     djName: string;
@@ -33,6 +37,8 @@ const bannerDetailsCopy: Record<
     back: "Voltar",
     download: "Baixar banner",
     noPreview: "Sem preview disponível",
+    processingPreview: "Flyer ainda está sendo processado.",
+    failedPreview: "A geração falhou e o crédito reservado foi devolvido. Gere novamente.",
     detailsTitle: "Detalhes da arte",
     mainText: "Texto principal",
     djName: "Nome do DJ",
@@ -49,6 +55,8 @@ const bannerDetailsCopy: Record<
     back: "Back",
     download: "Download banner",
     noPreview: "No preview available",
+    processingPreview: "Flyer is still processing.",
+    failedPreview: "Generation failed and the reserved credit was returned. Generate again.",
     detailsTitle: "Artwork details",
     mainText: "Main text",
     djName: "DJ name",
@@ -65,6 +73,8 @@ const bannerDetailsCopy: Record<
     back: "Volver",
     download: "Descargar banner",
     noPreview: "Vista previa no disponible",
+    processingPreview: "El flyer aún se está procesando.",
+    failedPreview: "La generación falló y el crédito reservado fue devuelto. Genera de nuevo.",
     detailsTitle: "Detalles del arte",
     mainText: "Texto principal",
     djName: "Nombre del DJ",
@@ -89,6 +99,14 @@ export default async function BannerDetailsPage({
 }) {
   const { bannerId } = await params;
   const workspace = await requireCurrentWorkspace();
+
+  await recoverStalePendingBanners({
+    workspaceId: workspace.id,
+    bannerId,
+    userId: workspace.user?.id,
+    reason: "banner_details_stale_pending_recovery",
+  });
+
   const locale = normalizeLocale(workspace.user?.preferredLocale);
   const copy = bannerDetailsCopy[locale];
 
@@ -102,6 +120,7 @@ export default async function BannerDetailsPage({
       title: true,
       djName: true,
       format: true,
+      status: true,
       outputImageUrl: true,
       createdAt: true,
     },
@@ -158,9 +177,11 @@ export default async function BannerDetailsPage({
           <Link href="/dashboard/banners" style={secondaryButtonStyle}>
             {copy.back}
           </Link>
-          <a href={`/api/banners/download/${banner.id}`} style={primaryButtonStyle}>
-            {copy.download}
-          </a>
+          {banner.outputImageUrl ? (
+            <a href={`/api/banners/download/${banner.id}`} style={primaryButtonStyle}>
+              {copy.download}
+            </a>
+          ) : null}
         </div>
       </div>
 
@@ -177,8 +198,12 @@ export default async function BannerDetailsPage({
               }}
             />
           ) : (
-            <div className="grid aspect-[4/5] place-items-center rounded-[20px] border border-white/10 bg-white/[0.03] text-sm text-white/45">
-              {copy.noPreview}
+            <div className="grid aspect-[4/5] place-items-center rounded-[20px] border border-white/10 bg-white/[0.03] px-5 text-center text-sm text-white/45">
+              {banner.status === BannerStatus.PENDING
+                ? copy.processingPreview
+                : banner.status === BannerStatus.FAILED
+                  ? copy.failedPreview
+                  : copy.noPreview}
             </div>
           )}
         </section>
