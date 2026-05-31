@@ -1,14 +1,12 @@
 import type { NextConfig } from "next";
 
-type RemotePattern = NonNullable<
-  NextConfig["images"]
->["remotePatterns"] extends Array<infer Pattern> | undefined
+type RemotePattern = NonNullable<NextConfig["images"]>["remotePatterns"] extends
+  | Array<infer Pattern>
+  | undefined
   ? Pattern
   : never;
 
-function normalizeRemoteImagePattern(
-  value?: string | null,
-): RemotePattern | null {
+function normalizeRemoteImagePattern(value?: string | null): RemotePattern | null {
   if (!value) return null;
 
   const trimmed = value.trim();
@@ -58,6 +56,23 @@ function buildRemoteImagePatterns() {
   );
 }
 
+const cspReportOnly = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self' https://checkout.stripe.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://connect.facebook.net https://www.google-analytics.com https://js.stripe.com https://www.paypal.com https://www.paypalobjects.com",
+  "connect-src 'self' https: wss:",
+  "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://player.vimeo.com https://open.spotify.com https://w.soundcloud.com https://www.youtube.com https://www.paypal.com",
+  "media-src 'self' blob: https:",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+].join("; ");
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
@@ -87,6 +102,10 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Content-Security-Policy-Report-Only",
+            value: cspReportOnly,
           },
         ],
       },
