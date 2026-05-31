@@ -111,6 +111,43 @@ const socialFields = [
 const musicLabelPattern =
   /music|mix|listen|spotify|soundcloud|youtube|set|live|track|playlist/i;
 
+function safeExternalHref(
+  value: string | null | undefined,
+  options: { allowMailto?: boolean } = {},
+) {
+  if (!value) return null;
+
+  const cleanValue = value.trim();
+
+  if (!cleanValue) return null;
+
+  try {
+    const url = new URL(cleanValue);
+
+    if (url.protocol === "https:") {
+      return cleanValue;
+    }
+
+    if (options.allowMailto && url.protocol === "mailto:") {
+      return cleanValue;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function buildMailtoHref(email: string | null | undefined, subject: string) {
+  const cleanEmail = email?.trim();
+
+  if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    return null;
+  }
+
+  return `mailto:${cleanEmail}?subject=${encodeURIComponent(subject)}`;
+}
+
 async function getPublishedSite(slugValue: string) {
   const parsed = djSiteSlugSchema.safeParse(slugValue);
 
@@ -347,44 +384,48 @@ function eventYear(value: Date | string | null | undefined) {
 
 function getSocialLinks(site: PublishedDjSite): CompactLink[] {
   return socialFields.flatMap(([key, label]) => {
-    const value = site[key];
-    if (typeof value !== "string" || value.trim().length === 0) {
+    const url = safeExternalHref(site[key]);
+
+    if (!url) {
       return [];
     }
-    return [{ label, url: value }];
+
+    return [{ label, url }];
   });
 }
 
 function getBookingUrl(site: PublishedDjSite) {
-  if (site.bookingEmail) {
-    const subject = encodeURIComponent(`Booking request for ${site.artistName}`);
-    return `mailto:${site.bookingEmail}?subject=${subject}`;
-  }
+  const emailHref = buildMailtoHref(
+    site.bookingEmail,
+    `Booking request for ${site.artistName}`,
+  );
 
-  if (site.whatsappUrl) return site.whatsappUrl;
-  if (site.instagramUrl) return site.instagramUrl;
+  if (emailHref) return emailHref;
 
-  return null;
+  return (
+    safeExternalHref(site.whatsappUrl) ||
+    safeExternalHref(site.instagramUrl) ||
+    null
+  );
 }
 
 function getMessageUrl(site: PublishedDjSite) {
-  if (site.whatsappUrl) return site.whatsappUrl;
-  if (site.instagramUrl) return site.instagramUrl;
-
-  if (site.bookingEmail) {
-    const subject = encodeURIComponent(`Message for ${site.artistName}`);
-    return `mailto:${site.bookingEmail}?subject=${subject}`;
-  }
-
-  return null;
+  return (
+    safeExternalHref(site.whatsappUrl) ||
+    safeExternalHref(site.instagramUrl) ||
+    buildMailtoHref(site.bookingEmail, `Message for ${site.artistName}`) ||
+    null
+  );
 }
 
 function getListenUrl(site: PublishedDjSite, links: PublicLink[]) {
   return (
-    site.soundcloudUrl ||
-    site.spotifyUrl ||
-    site.youtubeUrl ||
-    links.find((link) => musicLabelPattern.test(link.label))?.url ||
+    safeExternalHref(site.soundcloudUrl) ||
+    safeExternalHref(site.spotifyUrl) ||
+    safeExternalHref(site.youtubeUrl) ||
+    safeExternalHref(links.find((link) => musicLabelPattern.test(link.label))?.url, {
+      allowMailto: true,
+    }) ||
     null
   );
 }
@@ -401,7 +442,7 @@ function getMusicLinks(
       .filter((link) => musicLabelPattern.test(link.label))
       .map((link) => ({
         label: link.label,
-        url: link.url,
+        url: safeExternalHref(link.url, { allowMailto: true }) || "",
         duration: link.duration,
         subtitle: link.subtitle,
       })),
@@ -448,7 +489,7 @@ function getExternalMusicSourceUrls(
       const parsedUrl = new URL(url);
       const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, "");
 
-      if (!allowedHosts.has(hostname)) {
+      if (parsedUrl.protocol !== "https:" || !allowedHosts.has(hostname)) {
         return false;
       }
 
@@ -577,9 +618,13 @@ function getFeaturedLinks(
   site: PublishedDjSite,
   links: PublicLink[],
 ): CompactLink[] {
-  const combined: CompactLink[] = [...getSocialLinks(site), ...links].filter(
-    (link) => typeof link.url === "string" && link.url.trim().length > 0,
-  );
+  const combined: CompactLink[] = [
+    ...getSocialLinks(site),
+    ...links.map((link) => ({
+      ...link,
+      url: safeExternalHref(link.url, { allowMailto: true }) || "",
+    })),
+  ].filter((link) => typeof link.url === "string" && link.url.trim().length > 0);
 
   const seen = new Set<string>();
   return combined
@@ -930,7 +975,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
         ? [{ label: "Latest Mix", url: listenUrl }]
         : [];
   const coverForCards =
-    externalMusicImages[0]?.url || site.coverImageUrl || null;
+    externalMusicImages[0]?.url || safeExternalHref(site.coverImageUrl) || null;
   const tickerItems = genres.length > 0 ? genres : getBookingTags();
   const ticker = [...tickerItems, ...tickerItems, ...tickerItems];
 

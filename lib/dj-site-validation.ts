@@ -19,25 +19,60 @@ const optionalText = (max = 500) =>
     .nullable()
     .transform((value) => value || "");
 
-const optionalUrl = z
+function isSafeHttpsUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function isSafeMailtoUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "mailto:";
+  } catch {
+    return false;
+  }
+}
+
+const optionalHttpsUrl = z
   .string()
   .trim()
-  .max(500)
+  .max(700)
   .optional()
   .nullable()
   .transform((value) => value || "")
-  .refine(
-    (value) =>
-      !value ||
-      value.startsWith("https://") ||
-      value.startsWith("http://") ||
-      value.startsWith("mailto:"),
-    "Use a valid URL.",
-  );
+  .refine((value) => !value || isSafeHttpsUrl(value), {
+    message: "Use a valid HTTPS URL.",
+  });
+
+const optionalExternalLinkUrl = z
+  .string()
+  .trim()
+  .max(700)
+  .optional()
+  .nullable()
+  .transform((value) => value || "")
+  .refine((value) => !value || isSafeHttpsUrl(value) || isSafeMailtoUrl(value), {
+    message: "Use a valid HTTPS or mailto URL.",
+  });
+
+const optionalEmail = z
+  .string()
+  .trim()
+  .max(160)
+  .optional()
+  .nullable()
+  .transform((value) => value || "")
+  .refine((value) => !value || z.string().email().safeParse(value).success, {
+    message: "Use a valid email address.",
+  });
 
 const djSiteLinkSchema = z.object({
   label: z.string().trim().max(80).default(""),
-  url: optionalUrl.default(""),
+  url: optionalExternalLinkUrl.default(""),
   position: z.number().int().min(0).max(200).optional(),
   isActive: z.boolean().default(true),
 });
@@ -52,8 +87,8 @@ const djSiteEventSchema = z.object({
     .optional()
     .nullable()
     .transform((value) => value || null),
-  ticketUrl: optionalUrl.default(""),
-  flyerUrl: optionalUrl.default(""),
+  ticketUrl: optionalExternalLinkUrl.default(""),
+  flyerUrl: optionalHttpsUrl.default(""),
   position: z.number().int().min(0).max(200).optional(),
   isActive: z.boolean().default(true),
 });
@@ -64,15 +99,15 @@ export const djSiteUpdateSchema = z.object({
   headline: optionalText(120).default(""),
   bio: optionalText(800).default(""),
   location: optionalText(80).default(""),
-  profileImageUrl: optionalUrl.default(""),
-  coverImageUrl: optionalUrl.default(""),
-  instagramUrl: optionalUrl.default(""),
-  tiktokUrl: optionalUrl.default(""),
-  soundcloudUrl: optionalUrl.default(""),
-  spotifyUrl: optionalUrl.default(""),
-  youtubeUrl: optionalUrl.default(""),
-  whatsappUrl: optionalUrl.default(""),
-  bookingEmail: optionalText(160).default(""),
+  profileImageUrl: optionalHttpsUrl.default(""),
+  coverImageUrl: optionalHttpsUrl.default(""),
+  instagramUrl: optionalHttpsUrl.default(""),
+  tiktokUrl: optionalHttpsUrl.default(""),
+  soundcloudUrl: optionalHttpsUrl.default(""),
+  spotifyUrl: optionalHttpsUrl.default(""),
+  youtubeUrl: optionalHttpsUrl.default(""),
+  whatsappUrl: optionalHttpsUrl.default(""),
+  bookingEmail: optionalEmail.default(""),
   theme: z.enum(DJ_SITE_THEMES).default("NEON_DARK"),
   accentColor: z
     .string()

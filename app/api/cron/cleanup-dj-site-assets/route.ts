@@ -13,12 +13,14 @@ function isAuthorized(request: Request) {
 
   if (!secret) return false;
 
-  const url = new URL(request.url);
   const header = request.headers.get("authorization") || "";
-  const bearer = header.startsWith("Bearer ") ? header.slice(7) : null;
-  const querySecret = url.searchParams.get("secret");
+  const [scheme, token] = header.split(" ");
 
-  return bearer === secret || querySecret === secret;
+  if (scheme !== "Bearer" || !token) {
+    return false;
+  }
+
+  return token === secret;
 }
 
 async function runCleanup(request: Request) {
