@@ -345,9 +345,7 @@ function getPublicColorPalette(site: PublishedDjSite) {
 }
 
 function getPublicUrl(slug: string) {
-  const rootDomain = (
-    process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN || "djvisuals.site"
-  )
+  const rootDomain = (process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN || "djvisuals.site")
     .replace(/^https?:\/\//i, "")
     .replace(/^\*\./, "")
     .replace(/\/$/, "")
@@ -425,12 +423,9 @@ function getListenUrl(site: PublishedDjSite, links: PublicLink[]) {
     safeExternalHref(site.soundcloudUrl) ||
     safeExternalHref(site.spotifyUrl) ||
     safeExternalHref(site.youtubeUrl) ||
-    safeExternalHref(
-      links.find((link) => musicLabelPattern.test(link.label))?.url,
-      {
-        allowMailto: true,
-      },
-    ) ||
+    safeExternalHref(links.find((link) => musicLabelPattern.test(link.label))?.url, {
+      allowMailto: true,
+    }) ||
     null
   );
 }
@@ -629,9 +624,7 @@ function getFeaturedLinks(
       ...link,
       url: safeExternalHref(link.url, { allowMailto: true }) || "",
     })),
-  ].filter(
-    (link) => typeof link.url === "string" && link.url.trim().length > 0,
-  );
+  ].filter((link) => typeof link.url === "string" && link.url.trim().length > 0);
 
   const seen = new Set<string>();
   return combined
@@ -963,11 +956,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
   const colorPalette = getPublicColorPalette(site);
   const links = Array.isArray(site.links) ? site.links : [];
   const events =
-    site.showAgenda === false
-      ? []
-      : Array.isArray(site.events)
-        ? site.events
-        : [];
+    site.showAgenda === false ? [] : Array.isArray(site.events) ? site.events : [];
   const bookingUrl = getBookingUrl(site);
   const messageUrl = getMessageUrl(site);
   const listenUrl = getListenUrl(site, links);
@@ -1019,12 +1008,17 @@ export default async function PublicDjSitePage({ params }: PageProps) {
             .dj-mono { font-family: 'Space Mono', monospace; }
 
             .dj-gig {
-              margin-inline: -20px;
-              padding-inline: 20px;
+              margin-inline: 0;
+              padding-inline: 0;
               -webkit-tap-highlight-color: transparent;
             }
 
             @media (hover: hover) and (pointer: fine) {
+              .dj-gig {
+                margin-inline: -20px;
+                padding-inline: 20px;
+              }
+
               .dj-gig:hover {
                 background: var(--ink);
               }
@@ -1044,6 +1038,13 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               .dj-gig:active svg,
               .dj-gig:focus svg {
                 color: var(--ink) !important;
+              }
+            }
+
+            @media (max-width: 420px) {
+              .dj-gig {
+                grid-template-columns: 58px minmax(0, 1fr) 22px;
+                column-gap: 0.875rem;
               }
             }
 
@@ -1073,7 +1074,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pt-6 text-[var(--solid-text)] mix-blend-difference">
           <span className="w-[64px]" aria-hidden="true" />
 
-          <div className="flex min-w-0 items-center justify-center">
+          <div className="flex items-center gap-3">
             <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-black/35 p-2.5 backdrop-blur-sm">
               {site.profileImageUrl ? (
                 <img
@@ -1087,16 +1088,16 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                 </span>
               )}
             </div>
-          </div>
 
-          <a
-            href={shareUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="dj-mono inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em]"
-          >
-            Share <ArrowUpRight size={13} />
-          </a>
+            <a
+              href={shareUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="dj-mono inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.14em]"
+            >
+              Share <ArrowUpRight size={13} />
+            </a>
+          </div>
         </header>
 
         {/* ── HERO ──────────────────────────────────────────── */}
@@ -1117,7 +1118,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               {site.headline || "Professional DJ"}
               {site.location ? `  /  ${site.location}` : ""}
             </p>
-            <h1 className="dj-display text-[clamp(38px,11vw,58px)] uppercase leading-[0.84] tracking-[-0.02em] text-white">
+            <h1 className="dj-display text-[clamp(38px,11vw,58px)] uppercase leading-[0.92] tracking-[-0.01em] text-white">
               {site.artistName}
             </h1>
           </div>
@@ -1264,7 +1265,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                 actionLabel={listenUrl ? "All" : undefined}
                 actionUrl={listenUrl}
               />
-              <div className="hide-scrollbar -mx-5 flex snap-x gap-4 overflow-x-auto pb-1 pl-7 pr-5 sm:px-5">
+              <div className="hide-scrollbar -mx-5 flex snap-x scroll-pl-8 gap-4 overflow-x-auto pb-1 pl-8 pr-5 sm:px-5 sm:pl-5">
                 {primaryMusicLinks.map((link, index) => {
                   const externalImage =
                     externalMusicImages[
@@ -1304,7 +1305,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
           {testimonials.length > 0 ? (
             <section className="dj-scroll">
               <SectionHead title="Press" />
-              <div className="hide-scrollbar -mx-5 flex snap-x items-stretch gap-4 overflow-x-auto pb-1 pl-7 pr-5 sm:px-5">
+              <div className="hide-scrollbar -mx-5 flex snap-x scroll-pl-8 items-stretch gap-4 overflow-x-auto pb-1 pl-8 pr-5 sm:px-5 sm:pl-5">
                 {testimonials.map((item, index) => (
                   <TestimonialCard key={item.id || index} item={item} />
                 ))}
