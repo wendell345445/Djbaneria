@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowUpRight,
   MapPin,
-  MessageCircle,
   Play,
   Quote,
   Share2,
@@ -21,7 +20,6 @@ import {
 } from "react-icons/si";
 
 import { djSiteSlugSchema } from "@/lib/dj-site-validation";
-import { buildDjSitePublicUrl } from "@/lib/dj-site-public-url";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -187,7 +185,8 @@ function getAccentColor(site: PublishedDjSite) {
 }
 
 function getPublicUrl(slug: string) {
-  return buildDjSitePublicUrl(slug);
+  const base = process.env.NEXT_PUBLIC_APP_URL || "https://djproia.com";
+  return `${base.replace(/\/$/, "")}/s/${slug}`;
 }
 
 function eventMonth(value: Date | string | null | undefined) {
@@ -810,8 +809,34 @@ export default async function PublicDjSitePage({ params }: PageProps) {
             .dj-display { font-family: 'Anton', 'Archivo', sans-serif; font-weight: 400; }
             .dj-mono { font-family: 'Space Mono', monospace; }
 
-            .dj-gig:hover { background: var(--ink); }
-            .dj-gig { margin-inline: -20px; padding-inline: 20px; }
+            .dj-gig {
+              margin-inline: -20px;
+              padding-inline: 20px;
+              -webkit-tap-highlight-color: transparent;
+            }
+
+            @media (hover: hover) and (pointer: fine) {
+              .dj-gig:hover {
+                background: var(--ink);
+              }
+            }
+
+            @media (hover: none), (pointer: coarse) {
+              .dj-gig:hover,
+              .dj-gig:active,
+              .dj-gig:focus {
+                background: transparent !important;
+              }
+
+              .dj-gig:hover span,
+              .dj-gig:active span,
+              .dj-gig:focus span,
+              .dj-gig:hover svg,
+              .dj-gig:active svg,
+              .dj-gig:focus svg {
+                color: var(--ink) !important;
+              }
+            }
 
             .dj-ticker-track { animation: djTicker 32s linear infinite; }
             @keyframes djTicker { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-33.333%,0,0); } }
@@ -837,7 +862,16 @@ export default async function PublicDjSitePage({ params }: PageProps) {
       <div className="relative mx-auto min-h-screen w-full max-w-none overflow-hidden pb-24 min-[480px]:max-w-[460px] md:my-6 md:max-w-[460px] md:border md:border-[var(--ink)] lg:max-w-[480px]">
         {/* ── TOP BAR ───────────────────────────────────────── */}
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pt-6 text-[var(--paper)] mix-blend-difference">
-          <span className="w-[64px]" aria-hidden="true" />
+          <a
+            href="/"
+            aria-label="Back"
+            className="inline-flex items-center gap-2"
+          >
+            <ArrowLeft size={18} />
+            <span className="dj-mono text-[11px] font-bold uppercase tracking-[0.14em]">
+              Index
+            </span>
+          </a>
 
           <div className="flex min-w-0 items-center justify-center">
             <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-black/35 p-1 backdrop-blur-sm">
@@ -883,7 +917,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               {site.headline || "Professional DJ"}
               {site.location ? `  /  ${site.location}` : ""}
             </p>
-            <h1 className="dj-display text-[clamp(34px,10vw,52px)] uppercase leading-[0.84] tracking-[-0.02em] text-[var(--paper)]">
+            <h1 className="dj-display text-[clamp(54px,17vw,86px)] uppercase leading-[0.84] tracking-[-0.02em] text-[var(--paper)]">
               {site.artistName}
             </h1>
           </div>
@@ -909,7 +943,35 @@ export default async function PublicDjSitePage({ params }: PageProps) {
         {/* ── INTRO + STATS ─────────────────────────────────── */}
         <section className="dj-reveal px-5 pt-8">
           <div className="dj-mono flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--ink-soft)]">
-            <span className="text-[#000]">✓</span> Verified Artist
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+              className="shrink-0"
+            >
+              <linearGradient
+                id="verified-artist-badge-gradient"
+                x1="24"
+                x2="24"
+                y1="41.994"
+                y2="6.007"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stopColor="#0064e1" />
+                <stop offset=".994" stopColor="#26b7ff" />
+              </linearGradient>
+              <path
+                fill="url(#verified-artist-badge-gradient)"
+                d="M41.92 29.06c-.15.52-.48.94-.95 1.21l-3.22 1.8v3.68c0 1.1-.9 2-2 2h-3.69l-1.79 3.22c-.27.47-.69.8-1.21.95-.51.14-1.05.08-1.52-.18L24 39.76l-3.54 1.98c-.31.17-.64.25-.98.25-.18 0-.36-.02-.54-.07-.52-.15-.94-.48-1.21-.95l-1.79-3.22h-3.69c-1.1 0-2-.9-2-2v-3.68l-3.22-1.8c-.47-.27-.8-.69-.95-1.21-.14-.51-.08-1.05.18-1.52L8.24 24l-1.98-3.54c-.54-.97-.19-2.19.77-2.73l3.22-1.8v-3.68c0-1.1.9-2 2-2h3.69l1.79-3.22c.27-.47.69-.8 1.21-.95.51-.14 1.05-.08 1.52.18L24 8.24l3.54-1.98c.47-.26 1.01-.32 1.52-.18.52.15.94.48 1.21.95l1.79 3.22h3.69c1.1 0 2 .9 2 2v3.68l3.22 1.8c.96.54 1.31 1.76.77 2.73L39.76 24l1.98 3.54c.26.47.32 1.01.18 1.52z"
+              />
+              <path
+                fill="#ffffff"
+                d="M22 30a.997.997 0 0 1-.707-.293l-5-5a1 1 0 1 1 1.414-1.414L22 27.586l9.293-9.293a1 1 0 1 1 1.414 1.414l-10 10A.997.997 0 0 1 22 30z"
+              />
+            </svg>
+            Verified Artist
           </div>
 
           {site.bio ? (
@@ -962,7 +1024,21 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                   rel="noreferrer"
                   className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--ink)] hover:text-[var(--paper)]"
                 >
-                  <MessageCircle size={15} />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 548.244 548.244"
+                    aria-hidden="true"
+                    className="shrink-0"
+                  >
+                    <path
+                      fill="currentColor"
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M392.19 156.054 211.268 281.667 22.032 218.58C8.823 214.168-.076 201.775 0 187.852c.077-13.923 9.078-26.24 22.338-30.498L506.15 1.549c11.5-3.697 24.123-.663 32.666 7.88 8.542 8.543 11.577 21.165 7.879 32.666L390.89 525.906c-4.258 13.26-16.575 22.261-30.498 22.338-13.923.076-26.316-8.823-30.728-22.032l-63.393-190.153z"
+                    />
+                  </svg>
                   Message
                 </a>
               ) : null}
