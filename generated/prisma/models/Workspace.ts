@@ -204,6 +204,7 @@ export type WorkspaceWhereInput = {
   motionRenders?: Prisma.BannerMotionListRelationFilter
   seedanceVideos?: Prisma.SeedanceVideoListRelationFilter
   professionalImageJobs?: Prisma.ProfessionalImageJobListRelationFilter
+  djSite?: Prisma.XOR<Prisma.DjSiteNullableScalarRelationFilter, Prisma.DjSiteWhereInput> | null
   assets?: Prisma.AssetListRelationFilter
   usageEvents?: Prisma.UsageEventListRelationFilter
 }
@@ -222,6 +223,7 @@ export type WorkspaceOrderByWithRelationInput = {
   motionRenders?: Prisma.BannerMotionOrderByRelationAggregateInput
   seedanceVideos?: Prisma.SeedanceVideoOrderByRelationAggregateInput
   professionalImageJobs?: Prisma.ProfessionalImageJobOrderByRelationAggregateInput
+  djSite?: Prisma.DjSiteOrderByWithRelationInput
   assets?: Prisma.AssetOrderByRelationAggregateInput
   usageEvents?: Prisma.UsageEventOrderByRelationAggregateInput
 }
@@ -243,6 +245,7 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   motionRenders?: Prisma.BannerMotionListRelationFilter
   seedanceVideos?: Prisma.SeedanceVideoListRelationFilter
   professionalImageJobs?: Prisma.ProfessionalImageJobListRelationFilter
+  djSite?: Prisma.XOR<Prisma.DjSiteNullableScalarRelationFilter, Prisma.DjSiteWhereInput> | null
   assets?: Prisma.AssetListRelationFilter
   usageEvents?: Prisma.UsageEventListRelationFilter
 }, "id" | "slug">
@@ -286,6 +289,7 @@ export type WorkspaceCreateInput = {
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -303,6 +307,7 @@ export type WorkspaceUncheckedCreateInput = {
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -320,6 +325,7 @@ export type WorkspaceUpdateInput = {
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -337,6 +343,7 @@ export type WorkspaceUncheckedUpdateInput = {
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -527,6 +534,20 @@ export type WorkspaceUpdateOneRequiredWithoutProfessionalImageJobsNestedInput = 
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutProfessionalImageJobsInput, Prisma.WorkspaceUpdateWithoutProfessionalImageJobsInput>, Prisma.WorkspaceUncheckedUpdateWithoutProfessionalImageJobsInput>
 }
 
+export type WorkspaceCreateNestedOneWithoutDjSiteInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutDjSiteInput, Prisma.WorkspaceUncheckedCreateWithoutDjSiteInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutDjSiteInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutDjSiteNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutDjSiteInput, Prisma.WorkspaceUncheckedCreateWithoutDjSiteInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutDjSiteInput
+  upsert?: Prisma.WorkspaceUpsertWithoutDjSiteInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutDjSiteInput, Prisma.WorkspaceUpdateWithoutDjSiteInput>, Prisma.WorkspaceUncheckedUpdateWithoutDjSiteInput>
+}
+
 export type WorkspaceCreateNestedOneWithoutAssetsInput = {
   create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutAssetsInput, Prisma.WorkspaceUncheckedCreateWithoutAssetsInput>
   connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutAssetsInput
@@ -567,6 +588,7 @@ export type WorkspaceCreateWithoutUserInput = {
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -583,6 +605,7 @@ export type WorkspaceUncheckedCreateWithoutUserInput = {
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -638,6 +661,7 @@ export type WorkspaceCreateWithoutSubscriptionInput = {
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -654,6 +678,7 @@ export type WorkspaceUncheckedCreateWithoutSubscriptionInput = {
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -686,6 +711,7 @@ export type WorkspaceUpdateWithoutSubscriptionInput = {
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -702,6 +728,7 @@ export type WorkspaceUncheckedUpdateWithoutSubscriptionInput = {
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -718,6 +745,7 @@ export type WorkspaceCreateWithoutBannersInput = {
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -734,6 +762,7 @@ export type WorkspaceUncheckedCreateWithoutBannersInput = {
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -766,6 +795,7 @@ export type WorkspaceUpdateWithoutBannersInput = {
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -782,6 +812,7 @@ export type WorkspaceUncheckedUpdateWithoutBannersInput = {
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -798,6 +829,7 @@ export type WorkspaceCreateWithoutMotionRendersInput = {
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -814,6 +846,7 @@ export type WorkspaceUncheckedCreateWithoutMotionRendersInput = {
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -846,6 +879,7 @@ export type WorkspaceUpdateWithoutMotionRendersInput = {
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -862,6 +896,7 @@ export type WorkspaceUncheckedUpdateWithoutMotionRendersInput = {
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -878,6 +913,7 @@ export type WorkspaceCreateWithoutSeedanceVideosInput = {
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -894,6 +930,7 @@ export type WorkspaceUncheckedCreateWithoutSeedanceVideosInput = {
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -926,6 +963,7 @@ export type WorkspaceUpdateWithoutSeedanceVideosInput = {
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -942,6 +980,7 @@ export type WorkspaceUncheckedUpdateWithoutSeedanceVideosInput = {
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -958,6 +997,7 @@ export type WorkspaceCreateWithoutProfessionalImageJobsInput = {
   banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
@@ -974,6 +1014,7 @@ export type WorkspaceUncheckedCreateWithoutProfessionalImageJobsInput = {
   banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -1006,6 +1047,7 @@ export type WorkspaceUpdateWithoutProfessionalImageJobsInput = {
   banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1022,6 +1064,91 @@ export type WorkspaceUncheckedUpdateWithoutProfessionalImageJobsInput = {
   banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
+  usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutDjSiteInput = {
+  id?: string
+  name: string
+  slug?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutWorkspacesInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutWorkspaceInput
+  banners?: Prisma.BannerCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
+  seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
+  professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
+  usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutDjSiteInput = {
+  id?: string
+  name: string
+  slug?: string | null
+  userId: string
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutWorkspaceInput
+  banners?: Prisma.BannerUncheckedCreateNestedManyWithoutWorkspaceInput
+  motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
+  seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
+  professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
+  usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutDjSiteInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutDjSiteInput, Prisma.WorkspaceUncheckedCreateWithoutDjSiteInput>
+}
+
+export type WorkspaceUpsertWithoutDjSiteInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutDjSiteInput, Prisma.WorkspaceUncheckedUpdateWithoutDjSiteInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutDjSiteInput, Prisma.WorkspaceUncheckedCreateWithoutDjSiteInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutDjSiteInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutDjSiteInput, Prisma.WorkspaceUncheckedUpdateWithoutDjSiteInput>
+}
+
+export type WorkspaceUpdateWithoutDjSiteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutWorkspacesNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutWorkspaceNestedInput
+  banners?: Prisma.BannerUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
+  seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
+  professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
+  usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutDjSiteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  banners?: Prisma.BannerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
+  seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
+  professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1039,6 +1166,7 @@ export type WorkspaceCreateWithoutAssetsInput = {
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1055,6 +1183,7 @@ export type WorkspaceUncheckedCreateWithoutAssetsInput = {
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   usageEvents?: Prisma.UsageEventUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1087,6 +1216,7 @@ export type WorkspaceUpdateWithoutAssetsInput = {
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1103,6 +1233,7 @@ export type WorkspaceUncheckedUpdateWithoutAssetsInput = {
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1119,6 +1250,7 @@ export type WorkspaceCreateWithoutUsageEventsInput = {
   motionRenders?: Prisma.BannerMotionCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1135,6 +1267,7 @@ export type WorkspaceUncheckedCreateWithoutUsageEventsInput = {
   motionRenders?: Prisma.BannerMotionUncheckedCreateNestedManyWithoutWorkspaceInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedCreateNestedManyWithoutWorkspaceInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedCreateNestedManyWithoutWorkspaceInput
+  djSite?: Prisma.DjSiteUncheckedCreateNestedOneWithoutWorkspaceInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
@@ -1167,6 +1300,7 @@ export type WorkspaceUpdateWithoutUsageEventsInput = {
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1183,6 +1317,7 @@ export type WorkspaceUncheckedUpdateWithoutUsageEventsInput = {
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
@@ -1207,6 +1342,7 @@ export type WorkspaceUpdateWithoutUserInput = {
   motionRenders?: Prisma.BannerMotionUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1223,6 +1359,7 @@ export type WorkspaceUncheckedUpdateWithoutUserInput = {
   motionRenders?: Prisma.BannerMotionUncheckedUpdateManyWithoutWorkspaceNestedInput
   seedanceVideos?: Prisma.SeedanceVideoUncheckedUpdateManyWithoutWorkspaceNestedInput
   professionalImageJobs?: Prisma.ProfessionalImageJobUncheckedUpdateManyWithoutWorkspaceNestedInput
+  djSite?: Prisma.DjSiteUncheckedUpdateOneWithoutWorkspaceNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutWorkspaceNestedInput
   usageEvents?: Prisma.UsageEventUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1326,6 +1463,7 @@ export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   motionRenders?: boolean | Prisma.Workspace$motionRendersArgs<ExtArgs>
   seedanceVideos?: boolean | Prisma.Workspace$seedanceVideosArgs<ExtArgs>
   professionalImageJobs?: boolean | Prisma.Workspace$professionalImageJobsArgs<ExtArgs>
+  djSite?: boolean | Prisma.Workspace$djSiteArgs<ExtArgs>
   assets?: boolean | Prisma.Workspace$assetsArgs<ExtArgs>
   usageEvents?: boolean | Prisma.Workspace$usageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1371,6 +1509,7 @@ export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   motionRenders?: boolean | Prisma.Workspace$motionRendersArgs<ExtArgs>
   seedanceVideos?: boolean | Prisma.Workspace$seedanceVideosArgs<ExtArgs>
   professionalImageJobs?: boolean | Prisma.Workspace$professionalImageJobsArgs<ExtArgs>
+  djSite?: boolean | Prisma.Workspace$djSiteArgs<ExtArgs>
   assets?: boolean | Prisma.Workspace$assetsArgs<ExtArgs>
   usageEvents?: boolean | Prisma.Workspace$usageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1391,6 +1530,7 @@ export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     motionRenders: Prisma.$BannerMotionPayload<ExtArgs>[]
     seedanceVideos: Prisma.$SeedanceVideoPayload<ExtArgs>[]
     professionalImageJobs: Prisma.$ProfessionalImageJobPayload<ExtArgs>[]
+    djSite: Prisma.$DjSitePayload<ExtArgs> | null
     assets: Prisma.$AssetPayload<ExtArgs>[]
     usageEvents: Prisma.$UsageEventPayload<ExtArgs>[]
   }
@@ -1802,6 +1942,7 @@ export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtim
   motionRenders<T extends Prisma.Workspace$motionRendersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$motionRendersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BannerMotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   seedanceVideos<T extends Prisma.Workspace$seedanceVideosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$seedanceVideosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SeedanceVideoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   professionalImageJobs<T extends Prisma.Workspace$professionalImageJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$professionalImageJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProfessionalImageJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  djSite<T extends Prisma.Workspace$djSiteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$djSiteArgs<ExtArgs>>): Prisma.Prisma__DjSiteClient<runtime.Types.Result.GetResult<Prisma.$DjSitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   assets<T extends Prisma.Workspace$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   usageEvents<T extends Prisma.Workspace$usageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$usageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2353,6 +2494,25 @@ export type Workspace$professionalImageJobsArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.ProfessionalImageJobScalarFieldEnum | Prisma.ProfessionalImageJobScalarFieldEnum[]
+}
+
+/**
+ * Workspace.djSite
+ */
+export type Workspace$djSiteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DjSite
+   */
+  select?: Prisma.DjSiteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DjSite
+   */
+  omit?: Prisma.DjSiteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DjSiteInclude<ExtArgs> | null
+  where?: Prisma.DjSiteWhereInput
 }
 
 /**

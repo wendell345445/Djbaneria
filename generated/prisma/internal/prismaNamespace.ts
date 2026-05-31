@@ -391,6 +391,9 @@ export const ModelName = {
   BannerMotion: 'BannerMotion',
   SeedanceVideo: 'SeedanceVideo',
   ProfessionalImageJob: 'ProfessionalImageJob',
+  DjSite: 'DjSite',
+  DjSiteLink: 'DjSiteLink',
+  DjSiteEvent: 'DjSiteEvent',
   Asset: 'Asset',
   UsageEvent: 'UsageEvent',
   RateLimitBucket: 'RateLimitBucket'
@@ -409,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "subscription" | "banner" | "bannerMotion" | "seedanceVideo" | "professionalImageJob" | "asset" | "usageEvent" | "rateLimitBucket"
+    modelProps: "user" | "workspace" | "subscription" | "banner" | "bannerMotion" | "seedanceVideo" | "professionalImageJob" | "djSite" | "djSiteLink" | "djSiteEvent" | "asset" | "usageEvent" | "rateLimitBucket"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -931,6 +934,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DjSite: {
+      payload: Prisma.$DjSitePayload<ExtArgs>
+      fields: Prisma.DjSiteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DjSiteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DjSiteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>
+        }
+        findFirst: {
+          args: Prisma.DjSiteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DjSiteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>
+        }
+        findMany: {
+          args: Prisma.DjSiteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>[]
+        }
+        create: {
+          args: Prisma.DjSiteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>
+        }
+        createMany: {
+          args: Prisma.DjSiteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DjSiteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>[]
+        }
+        delete: {
+          args: Prisma.DjSiteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>
+        }
+        update: {
+          args: Prisma.DjSiteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>
+        }
+        deleteMany: {
+          args: Prisma.DjSiteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DjSiteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DjSiteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>[]
+        }
+        upsert: {
+          args: Prisma.DjSiteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSitePayload>
+        }
+        aggregate: {
+          args: Prisma.DjSiteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDjSite>
+        }
+        groupBy: {
+          args: Prisma.DjSiteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DjSiteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DjSiteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DjSiteCountAggregateOutputType> | number
+        }
+      }
+    }
+    DjSiteLink: {
+      payload: Prisma.$DjSiteLinkPayload<ExtArgs>
+      fields: Prisma.DjSiteLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DjSiteLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DjSiteLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.DjSiteLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DjSiteLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>
+        }
+        findMany: {
+          args: Prisma.DjSiteLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>[]
+        }
+        create: {
+          args: Prisma.DjSiteLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>
+        }
+        createMany: {
+          args: Prisma.DjSiteLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DjSiteLinkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>[]
+        }
+        delete: {
+          args: Prisma.DjSiteLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>
+        }
+        update: {
+          args: Prisma.DjSiteLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.DjSiteLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DjSiteLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DjSiteLinkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>[]
+        }
+        upsert: {
+          args: Prisma.DjSiteLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.DjSiteLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDjSiteLink>
+        }
+        groupBy: {
+          args: Prisma.DjSiteLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DjSiteLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DjSiteLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DjSiteLinkCountAggregateOutputType> | number
+        }
+      }
+    }
+    DjSiteEvent: {
+      payload: Prisma.$DjSiteEventPayload<ExtArgs>
+      fields: Prisma.DjSiteEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DjSiteEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DjSiteEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>
+        }
+        findFirst: {
+          args: Prisma.DjSiteEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DjSiteEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>
+        }
+        findMany: {
+          args: Prisma.DjSiteEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>[]
+        }
+        create: {
+          args: Prisma.DjSiteEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>
+        }
+        createMany: {
+          args: Prisma.DjSiteEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DjSiteEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>[]
+        }
+        delete: {
+          args: Prisma.DjSiteEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>
+        }
+        update: {
+          args: Prisma.DjSiteEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.DjSiteEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DjSiteEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DjSiteEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.DjSiteEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DjSiteEventPayload>
+        }
+        aggregate: {
+          args: Prisma.DjSiteEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDjSiteEvent>
+        }
+        groupBy: {
+          args: Prisma.DjSiteEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DjSiteEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DjSiteEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DjSiteEventCountAggregateOutputType> | number
+        }
+      }
+    }
     Asset: {
       payload: Prisma.$AssetPayload<ExtArgs>
       fields: Prisma.AssetFieldRefs
@@ -1365,6 +1590,66 @@ export const ProfessionalImageJobScalarFieldEnum = {
 export type ProfessionalImageJobScalarFieldEnum = (typeof ProfessionalImageJobScalarFieldEnum)[keyof typeof ProfessionalImageJobScalarFieldEnum]
 
 
+export const DjSiteScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  slug: 'slug',
+  artistName: 'artistName',
+  headline: 'headline',
+  bio: 'bio',
+  location: 'location',
+  profileImageUrl: 'profileImageUrl',
+  coverImageUrl: 'coverImageUrl',
+  instagramUrl: 'instagramUrl',
+  tiktokUrl: 'tiktokUrl',
+  soundcloudUrl: 'soundcloudUrl',
+  spotifyUrl: 'spotifyUrl',
+  youtubeUrl: 'youtubeUrl',
+  whatsappUrl: 'whatsappUrl',
+  bookingEmail: 'bookingEmail',
+  theme: 'theme',
+  accentColor: 'accentColor',
+  isPublished: 'isPublished',
+  viewCount: 'viewCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DjSiteScalarFieldEnum = (typeof DjSiteScalarFieldEnum)[keyof typeof DjSiteScalarFieldEnum]
+
+
+export const DjSiteLinkScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  label: 'label',
+  url: 'url',
+  position: 'position',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DjSiteLinkScalarFieldEnum = (typeof DjSiteLinkScalarFieldEnum)[keyof typeof DjSiteLinkScalarFieldEnum]
+
+
+export const DjSiteEventScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  title: 'title',
+  venue: 'venue',
+  city: 'city',
+  eventDate: 'eventDate',
+  ticketUrl: 'ticketUrl',
+  flyerUrl: 'flyerUrl',
+  position: 'position',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DjSiteEventScalarFieldEnum = (typeof DjSiteEventScalarFieldEnum)[keyof typeof DjSiteEventScalarFieldEnum]
+
+
 export const AssetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -1642,6 +1927,20 @@ export type ListEnumProfessionalImageJobStatusFieldRefInput<$PrismaModel> = Fiel
 
 
 /**
+ * Reference to a field of type 'DjSiteTheme'
+ */
+export type EnumDjSiteThemeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DjSiteTheme'>
+    
+
+
+/**
+ * Reference to a field of type 'DjSiteTheme[]'
+ */
+export type ListEnumDjSiteThemeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DjSiteTheme[]'>
+    
+
+
+/**
  * Reference to a field of type 'UsageEventType'
  */
 export type EnumUsageEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsageEventType'>
@@ -1799,6 +2098,9 @@ export type GlobalOmitConfig = {
   bannerMotion?: Prisma.BannerMotionOmit
   seedanceVideo?: Prisma.SeedanceVideoOmit
   professionalImageJob?: Prisma.ProfessionalImageJobOmit
+  djSite?: Prisma.DjSiteOmit
+  djSiteLink?: Prisma.DjSiteLinkOmit
+  djSiteEvent?: Prisma.DjSiteEventOmit
   asset?: Prisma.AssetOmit
   usageEvent?: Prisma.UsageEventOmit
   rateLimitBucket?: Prisma.RateLimitBucketOmit

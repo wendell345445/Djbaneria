@@ -14,6 +14,7 @@ import {
   Film,
   Globe2,
   Gift,
+  Link2,
   Grid2X2,
   ImagePlus,
   Images,
@@ -41,6 +42,7 @@ type NavItemKey =
   | "animatedFlyerAi"
   | "remotion"
   | "myVideos"
+  | "djSite"
   | "billing"
   | "language"
   | "settings";
@@ -69,6 +71,7 @@ const navItems: NavItem[] = [
     badgeType: "ai",
   },
   { key: "myVideos", href: "/dashboard/meus-videos", icon: Film },
+  { key: "djSite", href: "/dashboard/dj-site", icon: Link2 },
   {
     key: "professionalImage",
     href: "/dashboard/imagem-profissional",
@@ -146,6 +149,13 @@ function getAnimatedFlyerAiLabel(locale: SupportedLocale) {
   return "Generate with AI";
 }
 
+
+function getDjSiteLabel(locale: SupportedLocale) {
+  if (locale === "pt-BR") return "Site DJ";
+  if (locale === "es") return "Sitio DJ";
+  return "DJ site";
+}
+
 function getMyVideosLabel(locale: SupportedLocale) {
   if (locale === "pt-BR") return "Meus vídeos";
   if (locale === "es") return "Mis videos";
@@ -192,6 +202,8 @@ function getNavItemLabel(
       return getAnimatedFlyerAiLabel(locale);
     case "myVideos":
       return getMyVideosLabel(locale);
+    case "djSite":
+      return getDjSiteLabel(locale);
     case "remotion":
       return getRemotionLabel(locale);
     case "billing":

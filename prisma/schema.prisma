@@ -70,6 +70,12 @@ enum ProfessionalImageJobStatus {
   FAILED
 }
 
+enum DjSiteTheme {
+  NEON_DARK
+  LUXURY_BLACK
+  CLEAN_WHITE
+}
+
 enum MotionPreset {
   NEON_PULSE
   CLUB_FLASH
@@ -135,6 +141,7 @@ model Workspace {
   motionRenders BannerMotion[]
   seedanceVideos SeedanceVideo[]
   professionalImageJobs ProfessionalImageJob[]
+  djSite       DjSite?
   assets        Asset[]
   usageEvents   UsageEvent[]
 }
@@ -281,6 +288,84 @@ model ProfessionalImageJob {
   @@index([workspaceId, createdAt])
   @@index([status, createdAt])
 }
+
+
+model DjSite {
+  id          String      @id @default(cuid())
+  workspaceId String     @unique
+
+  slug        String      @unique
+  artistName  String
+  headline    String?
+  bio         String?
+  location    String?
+
+  profileImageUrl String?
+  coverImageUrl   String?
+
+  instagramUrl  String?
+  tiktokUrl     String?
+  soundcloudUrl String?
+  spotifyUrl    String?
+  youtubeUrl    String?
+  whatsappUrl   String?
+  bookingEmail  String?
+
+  theme       DjSiteTheme @default(NEON_DARK)
+  accentColor String?     @default("#8B5CF6")
+
+  isPublished Boolean     @default(false)
+  viewCount   Int         @default(0)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  links       DjSiteLink[]
+  events      DjSiteEvent[]
+
+  @@index([slug])
+  @@index([workspaceId])
+  @@index([isPublished])
+}
+
+model DjSiteLink {
+  id        String   @id @default(cuid())
+  siteId    String
+  label     String
+  url       String
+  position  Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site DjSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, position])
+  @@index([siteId, isActive])
+}
+
+model DjSiteEvent {
+  id        String    @id @default(cuid())
+  siteId    String
+  title     String
+  venue     String?
+  city      String?
+  eventDate DateTime?
+  ticketUrl String?
+  flyerUrl  String?
+  position  Int       @default(0)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  site DjSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, eventDate])
+  @@index([siteId, position])
+  @@index([siteId, isActive])
+}
+
 
 model Asset {
   id              String    @id @default(cuid())

@@ -96,6 +96,15 @@ export const ProfessionalImageJobStatus = {
 export type ProfessionalImageJobStatus = (typeof ProfessionalImageJobStatus)[keyof typeof ProfessionalImageJobStatus]
 
 
+export const DjSiteTheme = {
+  NEON_DARK: 'NEON_DARK',
+  LUXURY_BLACK: 'LUXURY_BLACK',
+  CLEAN_WHITE: 'CLEAN_WHITE'
+} as const
+
+export type DjSiteTheme = (typeof DjSiteTheme)[keyof typeof DjSiteTheme]
+
+
 export const MotionPreset = {
   NEON_PULSE: 'NEON_PULSE',
   CLUB_FLASH: 'CLUB_FLASH',

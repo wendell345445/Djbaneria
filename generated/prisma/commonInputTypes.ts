@@ -372,6 +372,23 @@ export type EnumProfessionalImageJobStatusWithAggregatesFilter<$PrismaModel = ne
   _max?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel>
 }
 
+export type EnumDjSiteThemeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DjSiteTheme | Prisma.EnumDjSiteThemeFieldRefInput<$PrismaModel>
+  in?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDjSiteThemeFilter<$PrismaModel> | $Enums.DjSiteTheme
+}
+
+export type EnumDjSiteThemeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DjSiteTheme | Prisma.EnumDjSiteThemeFieldRefInput<$PrismaModel>
+  in?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDjSiteThemeWithAggregatesFilter<$PrismaModel> | $Enums.DjSiteTheme
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDjSiteThemeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDjSiteThemeFilter<$PrismaModel>
+}
+
 export type EnumUsageEventTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.UsageEventType | Prisma.EnumUsageEventTypeFieldRefInput<$PrismaModel>
   in?: $Enums.UsageEventType[] | Prisma.ListEnumUsageEventTypeFieldRefInput<$PrismaModel>
@@ -809,6 +826,23 @@ export type NestedEnumProfessionalImageJobStatusWithAggregatesFilter<$PrismaMode
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProfessionalImageJobStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumDjSiteThemeFilter<$PrismaModel = never> = {
+  equals?: $Enums.DjSiteTheme | Prisma.EnumDjSiteThemeFieldRefInput<$PrismaModel>
+  in?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDjSiteThemeFilter<$PrismaModel> | $Enums.DjSiteTheme
+}
+
+export type NestedEnumDjSiteThemeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DjSiteTheme | Prisma.EnumDjSiteThemeFieldRefInput<$PrismaModel>
+  in?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DjSiteTheme[] | Prisma.ListEnumDjSiteThemeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDjSiteThemeWithAggregatesFilter<$PrismaModel> | $Enums.DjSiteTheme
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDjSiteThemeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDjSiteThemeFilter<$PrismaModel>
 }
 
 export type NestedEnumUsageEventTypeFilter<$PrismaModel = never> = {

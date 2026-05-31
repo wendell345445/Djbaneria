@@ -58,6 +58,9 @@ export const ModelName = {
   BannerMotion: 'BannerMotion',
   SeedanceVideo: 'SeedanceVideo',
   ProfessionalImageJob: 'ProfessionalImageJob',
+  DjSite: 'DjSite',
+  DjSiteLink: 'DjSiteLink',
+  DjSiteEvent: 'DjSiteEvent',
   Asset: 'Asset',
   UsageEvent: 'UsageEvent',
   RateLimitBucket: 'RateLimitBucket'
@@ -250,6 +253,66 @@ export const ProfessionalImageJobScalarFieldEnum = {
 } as const
 
 export type ProfessionalImageJobScalarFieldEnum = (typeof ProfessionalImageJobScalarFieldEnum)[keyof typeof ProfessionalImageJobScalarFieldEnum]
+
+
+export const DjSiteScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  slug: 'slug',
+  artistName: 'artistName',
+  headline: 'headline',
+  bio: 'bio',
+  location: 'location',
+  profileImageUrl: 'profileImageUrl',
+  coverImageUrl: 'coverImageUrl',
+  instagramUrl: 'instagramUrl',
+  tiktokUrl: 'tiktokUrl',
+  soundcloudUrl: 'soundcloudUrl',
+  spotifyUrl: 'spotifyUrl',
+  youtubeUrl: 'youtubeUrl',
+  whatsappUrl: 'whatsappUrl',
+  bookingEmail: 'bookingEmail',
+  theme: 'theme',
+  accentColor: 'accentColor',
+  isPublished: 'isPublished',
+  viewCount: 'viewCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DjSiteScalarFieldEnum = (typeof DjSiteScalarFieldEnum)[keyof typeof DjSiteScalarFieldEnum]
+
+
+export const DjSiteLinkScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  label: 'label',
+  url: 'url',
+  position: 'position',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DjSiteLinkScalarFieldEnum = (typeof DjSiteLinkScalarFieldEnum)[keyof typeof DjSiteLinkScalarFieldEnum]
+
+
+export const DjSiteEventScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  title: 'title',
+  venue: 'venue',
+  city: 'city',
+  eventDate: 'eventDate',
+  ticketUrl: 'ticketUrl',
+  flyerUrl: 'flyerUrl',
+  position: 'position',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DjSiteEventScalarFieldEnum = (typeof DjSiteEventScalarFieldEnum)[keyof typeof DjSiteEventScalarFieldEnum]
 
 
 export const AssetScalarFieldEnum = {

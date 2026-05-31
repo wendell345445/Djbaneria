@@ -53,6 +53,21 @@ export type SeedanceVideo = Prisma.SeedanceVideoModel
  */
 export type ProfessionalImageJob = Prisma.ProfessionalImageJobModel
 /**
+ * Model DjSite
+ * 
+ */
+export type DjSite = Prisma.DjSiteModel
+/**
+ * Model DjSiteLink
+ * 
+ */
+export type DjSiteLink = Prisma.DjSiteLinkModel
+/**
+ * Model DjSiteEvent
+ * 
+ */
+export type DjSiteEvent = Prisma.DjSiteEventModel
+/**
  * Model Asset
  * 
  */
