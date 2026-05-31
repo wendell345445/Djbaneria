@@ -172,6 +172,113 @@ export async function generateMetadata({
   };
 }
 
+type PublicColorPalette = {
+  id: string;
+  theme: string;
+  accent: string;
+  paper: string;
+  ink: string;
+  inkSoft: string;
+  line: string;
+  solid: string;
+  solidText: string;
+};
+
+const PUBLIC_COLOR_PALETTES: PublicColorPalette[] = [
+  {
+    id: "editorial-light",
+    theme: "CLEAN_WHITE",
+    accent: "#102A9E",
+    paper: "#ECE8DF",
+    ink: "#0C0C0C",
+    inkSoft: "rgba(12,12,12,0.55)",
+    line: "rgba(12,12,12,0.16)",
+    solid: "#0C0C0C",
+    solidText: "#ECE8DF",
+  },
+  {
+    id: "cyberpunk-night",
+    theme: "NEON_DARK",
+    accent: "#00E5FF",
+    paper: "#050613",
+    ink: "#F5F7FF",
+    inkSoft: "rgba(245,247,255,0.62)",
+    line: "rgba(245,247,255,0.15)",
+    solid: "#01020A",
+    solidText: "#F5F7FF",
+  },
+  {
+    id: "rave-magenta",
+    theme: "NEON_DARK",
+    accent: "#FF2BD6",
+    paper: "#09020F",
+    ink: "#FFF4FE",
+    inkSoft: "rgba(255,244,254,0.62)",
+    line: "rgba(255,244,254,0.15)",
+    solid: "#150018",
+    solidText: "#FFF4FE",
+  },
+  {
+    id: "ultra-violet",
+    theme: "NEON_DARK",
+    accent: "#8B5CF6",
+    paper: "#070515",
+    ink: "#F4F0FF",
+    inkSoft: "rgba(244,240,255,0.62)",
+    line: "rgba(244,240,255,0.15)",
+    solid: "#120A2A",
+    solidText: "#F4F0FF",
+  },
+  {
+    id: "laser-green",
+    theme: "NEON_DARK",
+    accent: "#39FF88",
+    paper: "#020B08",
+    ink: "#EFFFF5",
+    inkSoft: "rgba(239,255,245,0.62)",
+    line: "rgba(239,255,245,0.15)",
+    solid: "#00130B",
+    solidText: "#EFFFF5",
+  },
+  {
+    id: "luxury-gold",
+    theme: "LUXURY_BLACK",
+    accent: "#C49A3A",
+    paper: "#090805",
+    ink: "#F7EED7",
+    inkSoft: "rgba(247,238,215,0.62)",
+    line: "rgba(247,238,215,0.16)",
+    solid: "#171006",
+    solidText: "#F7EED7",
+  },
+  {
+    id: "infrared-club",
+    theme: "NEON_DARK",
+    accent: "#FF3B1F",
+    paper: "#100303",
+    ink: "#FFF1ED",
+    inkSoft: "rgba(255,241,237,0.62)",
+    line: "rgba(255,241,237,0.15)",
+    solid: "#1A0504",
+    solidText: "#FFF1ED",
+  },
+  {
+    id: "arctic-blue",
+    theme: "CLEAN_WHITE",
+    accent: "#006B8F",
+    paper: "#EAF3F6",
+    ink: "#06131A",
+    inkSoft: "rgba(6,19,26,0.58)",
+    line: "rgba(6,19,26,0.16)",
+    solid: "#06131A",
+    solidText: "#EAF3F6",
+  },
+];
+
+function normalizeColor(value: string | null | undefined) {
+  return (value || "").trim().toUpperCase();
+}
+
 function getAccentColor(site: PublishedDjSite) {
   if (
     typeof site.accentColor === "string" &&
@@ -180,12 +287,47 @@ function getAccentColor(site: PublishedDjSite) {
     return site.accentColor;
   }
 
-  if (site.theme === "LUXURY_BLACK") return "#111111";
-  if (site.theme === "CLEAN_WHITE") return "#1B36FF";
-  return "#FF4222";
+  if (site.theme === "LUXURY_BLACK") return "#C49A3A";
+  if (site.theme === "CLEAN_WHITE") return "#102A9E";
+  return "#00E5FF";
+}
+
+function getPublicColorPalette(site: PublishedDjSite) {
+  const accentColor = getAccentColor(site);
+  const normalizedAccent = normalizeColor(accentColor);
+
+  const matchedByAccent = PUBLIC_COLOR_PALETTES.find(
+    (palette) => normalizeColor(palette.accent) === normalizedAccent,
+  );
+
+  if (matchedByAccent) {
+    return matchedByAccent;
+  }
+
+  const fallbackPalette =
+    site.theme === "LUXURY_BLACK"
+      ? PUBLIC_COLOR_PALETTES.find((palette) => palette.id === "luxury-gold")!
+      : site.theme === "CLEAN_WHITE"
+        ? PUBLIC_COLOR_PALETTES.find((palette) => palette.id === "editorial-light")!
+        : PUBLIC_COLOR_PALETTES.find((palette) => palette.id === "cyberpunk-night")!;
+
+  return {
+    ...fallbackPalette,
+    accent: accentColor,
+  };
 }
 
 function getPublicUrl(slug: string) {
+  const rootDomain = (process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN || "djvisuals.site")
+    .replace(/^https?:\/\//i, "")
+    .replace(/^\*\./, "")
+    .replace(/\/$/, "")
+    .toLowerCase();
+
+  if (rootDomain) {
+    return `https://${slug}.${rootDomain}`;
+  }
+
   const base = process.env.NEXT_PUBLIC_APP_URL || "https://djproia.com";
   return `${base.replace(/\/$/, "")}/s/${slug}`;
 }
@@ -556,7 +698,7 @@ function MixCard({
       rel="noreferrer"
       className="group block min-w-[230px] max-w-[230px] shrink-0 snap-start"
     >
-      <div className="relative aspect-[4/5] overflow-hidden border border-[var(--ink)] bg-[var(--ink)]">
+      <div className="relative aspect-[4/5] overflow-hidden border border-[var(--ink)] bg-[var(--solid)]">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -564,7 +706,7 @@ function MixCard({
             className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="absolute inset-0 bg-[var(--ink)]" />
+          <div className="absolute inset-0 bg-[var(--solid)]" />
         )}
         <span className="absolute bottom-3 right-3 grid h-11 w-11 place-items-center rounded-full border border-[var(--paper)] bg-black/30 text-[var(--paper)] backdrop-blur-sm transition group-hover:bg-[var(--paper)] group-hover:text-[var(--ink)]">
           <Play size={16} fill="currentColor" className="ml-0.5" />
@@ -595,7 +737,7 @@ function GigRow({ event }: { event: PublicEvent }) {
       className="dj-gig group grid grid-cols-[64px_1fr_auto] items-center gap-4 border-b border-[var(--line)] py-5 transition-colors"
     >
       <div className="text-center leading-none">
-        <p className="dj-mono text-[10px] font-bold uppercase tracking-[0.06em] text-[#000] transition-colors group-hover:text-[var(--paper)]">
+        <p className="dj-mono text-[10px] font-bold uppercase tracking-[0.06em] text-[var(--ink)] transition-colors group-hover:text-[var(--paper)]">
           {eventMonth(event.eventDate)}
         </p>
         <p className="dj-display mt-1 text-[30px] leading-none text-[var(--ink)] transition-colors group-hover:text-[var(--paper)]">
@@ -776,7 +918,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
     notFound();
   }
 
-  const accentColor = getAccentColor(site);
+  const colorPalette = getPublicColorPalette(site);
   const links = Array.isArray(site.links) ? site.links : [];
   const events =
     site.showAgenda === false ? [] : Array.isArray(site.events) ? site.events : [];
@@ -805,7 +947,17 @@ export default async function PublicDjSitePage({ params }: PageProps) {
   return (
     <main
       className="dj-profile-page min-h-screen overflow-x-hidden bg-[var(--paper)] text-[var(--ink)]"
-      style={{ "--accent": accentColor } as CSSProperties}
+      style={
+        {
+          "--accent": colorPalette.accent,
+          "--paper": colorPalette.paper,
+          "--ink": colorPalette.ink,
+          "--ink-soft": colorPalette.inkSoft,
+          "--line": colorPalette.line,
+          "--solid": colorPalette.solid,
+          "--solid-text": colorPalette.solidText,
+        } as CSSProperties
+      }
     >
       <style
         dangerouslySetInnerHTML={{
@@ -815,10 +967,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
             .dj-profile-page {
               font-family: 'Archivo', system-ui, sans-serif;
               -webkit-font-smoothing: antialiased;
-              --paper: #ECE8DF;
-              --ink: #0C0C0C;
-              --ink-soft: rgba(12,12,12,0.55);
-              --line: rgba(12,12,12,0.16);
+              /* Palette variables come from the selected palette in the inline style. */
             }
             .dj-display { font-family: 'Anton', 'Archivo', sans-serif; font-weight: 400; }
             .dj-mono { font-family: 'Space Mono', monospace; }
@@ -905,7 +1054,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
         </header>
 
         {/* ── HERO ──────────────────────────────────────────── */}
-        <section className="relative h-[68vh] min-h-[480px] max-h-[640px] overflow-hidden bg-[var(--ink)]">
+        <section className="relative h-[68vh] min-h-[480px] max-h-[640px] overflow-hidden bg-[var(--solid)]">
           {site.coverImageUrl ? (
             <img
               src={site.coverImageUrl}
@@ -913,7 +1062,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               className="absolute inset-0 h-full w-full object-cover grayscale-[0.35]"
             />
           ) : (
-            <div className="absolute inset-0 bg-[var(--ink)]" />
+            <div className="absolute inset-0 bg-[var(--solid)]" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)]/85 via-transparent to-[var(--ink)]/30" />
 
@@ -929,7 +1078,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
         </section>
 
         {/* ── TICKER ────────────────────────────────────────── */}
-        <div className="overflow-hidden border-y border-[var(--ink)] bg-[var(--ink)] py-2.5">
+        <div className="overflow-hidden border-y border-[var(--ink)] bg-[var(--solid)] py-2.5">
           <div className="hide-scrollbar overflow-hidden">
             <div className="dj-ticker-track flex w-max items-center will-change-transform">
               {ticker.map((tag, i) => (
@@ -1010,7 +1159,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                 href={bookingUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="group flex h-[58px] items-center justify-between border border-[var(--ink)] bg-[var(--ink)] px-5 text-[var(--paper)] transition hover:bg-[var(--accent)] hover:border-[var(--accent)]"
+                className="group flex h-[58px] items-center justify-between border border-[var(--ink)] bg-[var(--solid)] px-5 text-[var(--paper)] transition hover:bg-[var(--accent)] hover:border-[var(--accent)]"
               >
                 <span className="dj-mono text-[13px] font-bold uppercase tracking-[0.12em]">
                   Request Booking
@@ -1027,7 +1176,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                   href={messageUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+                  className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--solid)] hover:text-[var(--paper)]"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1051,7 +1200,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                 href={shareUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--ink)] hover:text-[var(--paper)]"
+                className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--solid)] hover:text-[var(--paper)]"
               >
                 <Share2 size={15} />
                 Share
@@ -1192,7 +1341,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               href={bookingUrl}
               target="_blank"
               rel="noreferrer"
-              className="group flex h-[54px] items-center justify-between border border-[var(--ink)] bg-[var(--ink)] px-5 text-[var(--paper)] transition hover:bg-[var(--accent)] hover:border-[var(--accent)]"
+              className="group flex h-[54px] items-center justify-between border border-[var(--ink)] bg-[var(--solid)] px-5 text-[var(--paper)] transition hover:bg-[var(--accent)] hover:border-[var(--accent)]"
             >
               <span className="dj-mono text-[13px] font-bold uppercase tracking-[0.12em]">
                 Book {site.artistName}

@@ -90,10 +90,10 @@ type DjSiteEditorProps = {
 function getCopy(locale: SupportedLocale) {
   if (locale === "pt-BR") {
     return {
-      eyebrow: "Novo produto",
-      title: "Seu link bio de DJ",
+      eyebrow: "DJ Website",
+      title: "Seu perfil oficial de DJ",
       subtitle:
-        "Monte um site público com agenda, links, booking e presença profissional. A primeira versão publica em /s/slug e já prepara o futuro subdomínio slug.djvisuals.site.",
+        "Crie uma página profissional para DJs com booking, links de música, datas ao vivo, redes sociais e uma presença premium para clubs, promoters, agências e fãs.",
       save: "Publicar site",
       saving: "Publicando...",
       saved: "Site salvo como rascunho.",
@@ -164,8 +164,8 @@ function getCopy(locale: SupportedLocale) {
 
   if (locale === "es") {
     return {
-      eyebrow: "Nuevo producto",
-      title: "Tu link bio de DJ",
+      eyebrow: "DJ Website",
+      title: "Tu perfil oficial de DJ",
       subtitle:
         "Crea un sitio público con agenda, enlaces, booking y presencia profesional. La primera versión publica en /s/slug y prepara el futuro subdominio slug.djvisuals.site.",
       save: "Publicar sitio",
@@ -237,10 +237,10 @@ function getCopy(locale: SupportedLocale) {
   }
 
   return {
-    eyebrow: "New product",
-    title: "Your DJ link bio",
+    eyebrow: "DJ Website",
+    title: "Your official DJ profile",
     subtitle:
-      "Build a public DJ site with agenda, links, booking and a professional presence. This first version publishes at /s/slug and prepares the future slug.djvisuals.site subdomain.",
+      "Build a professional DJ page with booking, music links, live dates, social channels, and a polished presence for clubs, promoters, agencies, and fans.",
     save: "Publish site",
     saving: "Publishing...",
     saved: "Site saved as draft.",
@@ -1136,9 +1136,9 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                 {events.map((event, index) => (
                   <div
                     key={event.clientId}
-                    className="space-y-3 border border-white/10 bg-white/[0.025] p-3"
+                    className="dj-site-agenda-card space-y-3 overflow-hidden border border-white/10 bg-white/[0.025] p-3"
                   >
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="dj-site-agenda-grid grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
                       <input
                         value={event.title}
                         onChange={(item) =>
@@ -1334,14 +1334,35 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
 
       <style>{`
         .dj-site-input {
+          box-sizing: border-box;
           min-height: 44px;
           width: 100%;
+          max-width: 100%;
+          min-width: 0;
           border: 1px solid rgba(255,255,255,0.1);
           background: rgba(255,255,255,0.035);
           padding: 0.75rem 0.875rem;
           color: white;
           outline: none;
           transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+        }
+        input[type="date"].dj-site-input {
+          display: block;
+          max-width: 100%;
+          min-width: 0;
+          -webkit-appearance: none;
+          appearance: none;
+        }
+        .dj-site-agenda-card {
+          max-width: 100%;
+        }
+        .dj-site-agenda-grid {
+          width: 100%;
+          max-width: 100%;
+        }
+        .dj-site-agenda-grid > * {
+          min-width: 0;
+          max-width: 100%;
         }
         .dj-site-input::placeholder { color: rgba(255,255,255,0.28); }
         .dj-site-input:focus {
@@ -1553,6 +1574,22 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
           .dj-site-editor-page .dashboard-hud,
           .dj-site-editor-page .dashboard-hud-v {
             padding: 1.25rem;
+          }
+        }
+
+        @media (max-width: 639px) {
+          .dj-site-agenda-card {
+            padding: 0.75rem;
+          }
+
+          .dj-site-agenda-grid {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+
+          input[type="date"].dj-site-input {
+            font-size: 14px;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
           }
         }
 
