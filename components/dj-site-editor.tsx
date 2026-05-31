@@ -113,6 +113,12 @@ function getCopy(locale: SupportedLocale) {
       links: "Links principais",
       events: "Agenda",
       design: "Design",
+      paletteTitle: "Paletas de cores",
+      paletteHelper:
+        "Escolha uma paleta completa para alterar fundo, textos, bordas, botões e destaque visual do site.",
+      paletteSelect: "Selecione",
+      changeImage: "Trocar imagem",
+      onlineHelper: "O link público já pode ser compartilhado.",
       security: "Segurança aplicada",
       securityText:
         "Links aceitam somente HTTPS, o slug é reservado/validado e o site só aparece quando publicado.",
@@ -178,6 +184,12 @@ function getCopy(locale: SupportedLocale) {
       links: "Enlaces principales",
       events: "Agenda",
       design: "Diseño",
+      paletteTitle: "Paletas de colores",
+      paletteHelper:
+        "Elige una paleta completa para cambiar fondo, textos, bordes, botones y el acento visual del sitio.",
+      paletteSelect: "Seleccionar",
+      changeImage: "Cambiar imagen",
+      onlineHelper: "El enlace público ya se puede compartir.",
       security: "Seguridad aplicada",
       securityText:
         "Los enlaces aceptan solo HTTPS, el slug se valida y el sitio solo aparece publicado.",
@@ -186,9 +198,9 @@ function getCopy(locale: SupportedLocale) {
       headline: "Headline corta",
       bio: "Bio",
       location: "Ubicación",
-      profileImageUrl: "URL de foto de perfil",
+      profileImageUrl: "URL del logo del DJ",
       coverImageUrl: "URL de portada",
-      uploadProfileImage: "Subir foto de perfil",
+      uploadProfileImage: "Subir logo del DJ",
       uploadCoverImage: "Subir portada",
       uploadingImage: "Subiendo imagen...",
       imageUploadHint:
@@ -242,6 +254,12 @@ function getCopy(locale: SupportedLocale) {
     links: "Main links",
     events: "Agenda",
     design: "Design",
+    paletteTitle: "Color palettes",
+    paletteHelper:
+      "Choose a complete palette to change the background, text, borders, buttons and visual accent of the site.",
+    paletteSelect: "Select",
+    changeImage: "Change image",
+    onlineHelper: "The public link is ready to share.",
     security: "Security applied",
     securityText:
       "Links accept HTTPS only, the slug is reserved/validated and the site only appears when published.",
@@ -464,6 +482,116 @@ function getEditorColorPalette(accentColor: string, theme: string) {
     ? { ...fallbackPalette, accent: accentColor }
     : fallbackPalette;
 }
+function getPaletteText(locale: SupportedLocale, paletteId: string) {
+  const dictionary: Record<string, Record<string, { name: string; description: string }>> = {
+    "pt-BR": {
+      "editorial-light": {
+        name: "Editorial claro",
+        description: "Claro, limpo e premium para press kit.",
+      },
+      "cyberpunk-night": {
+        name: "Cyberpunk noturno",
+        description: "Preto, ciano e atmosfera futurista.",
+      },
+      "Rave Magenta": {
+        name: "Rave magenta",
+        description: "Magenta, club e nightlife forte.",
+      },
+      "ultra-violet": {
+        name: "Ultra violeta",
+        description: "Roxo neon, festival e techno.",
+      },
+      "laser-green": {
+        name: "Laser verde",
+        description: "Verde laser, rave e eletrônico.",
+      },
+      "luxury-gold": {
+        name: "Luxo dourado",
+        description: "Preto e dourado para eventos VIP.",
+      },
+      "infrared-club": {
+        name: "Clube infravermelho",
+        description: "Vermelho profundo, quente e agressivo.",
+      },
+      "arctic-blue": {
+        name: "Azul ártico",
+        description: "Claro frio, moderno e clean.",
+      },
+    },
+    es: {
+      "editorial-light": {
+        name: "Editorial claro",
+        description: "Claro, limpio y premium para press kit.",
+      },
+      "cyberpunk-night": {
+        name: "Cyberpunk nocturno",
+        description: "Negro, cian y atmósfera futurista.",
+      },
+      "Rave Magenta": {
+        name: "Rave magenta",
+        description: "Magenta, club y nightlife potente.",
+      },
+      "ultra-violet": {
+        name: "Ultra violeta",
+        description: "Morado neón, festival y techno.",
+      },
+      "laser-green": {
+        name: "Láser verde",
+        description: "Verde láser, rave y electrónica.",
+      },
+      "luxury-gold": {
+        name: "Lujo dorado",
+        description: "Negro y dorado para eventos VIP.",
+      },
+      "infrared-club": {
+        name: "Club infrarrojo",
+        description: "Rojo profundo, cálido y agresivo.",
+      },
+      "arctic-blue": {
+        name: "Azul ártico",
+        description: "Claro frío, moderno y clean.",
+      },
+    },
+    en: {
+      "editorial-light": {
+        name: "Editorial Light",
+        description: "Clean, bright and premium for press kits.",
+      },
+      "cyberpunk-night": {
+        name: "Cyberpunk Night",
+        description: "Black, cyan and futuristic atmosphere.",
+      },
+      "Rave Magenta": {
+        name: "Rave Magenta",
+        description: "Magenta, club energy and strong nightlife.",
+      },
+      "ultra-violet": {
+        name: "Ultra Violet",
+        description: "Neon purple, festival and techno.",
+      },
+      "laser-green": {
+        name: "Laser Green",
+        description: "Laser green, rave and electronic.",
+      },
+      "luxury-gold": {
+        name: "Luxury Gold",
+        description: "Black and gold for VIP events.",
+      },
+      "infrared-club": {
+        name: "Infrared Club",
+        description: "Deep red, warm and aggressive.",
+      },
+      "arctic-blue": {
+        name: "Arctic Blue",
+        description: "Cool, bright, modern and clean.",
+      },
+    },
+  };
+
+  const normalizedLocale = locale === "pt-BR" || locale === "es" ? locale : "en";
+  return dictionary[normalizedLocale]?.[paletteId];
+}
+
 
 export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
   const copy = useMemo(() => getCopy(locale), [locale]);
@@ -535,6 +663,9 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
   const selectedColorPalette = DJ_SITE_COLOR_PALETTES.find(
     (palette) => normalizePaletteColor(palette.accent) === normalizePaletteColor(accentColor),
   );
+  const selectedColorPaletteText = selectedColorPalette
+    ? getPaletteText(locale, selectedColorPalette.id)
+    : null;
 
   function updateLink(clientId: string, patch: Partial<EditableLink>) {
     setLinks((current) =>
@@ -670,7 +801,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
+    <div className="dj-site-editor-page relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(0,245,255,0.16),transparent_34%),radial-gradient(circle_at_top_right,rgba(191,95,255,0.14),transparent_32%),linear-gradient(180deg,#050712,#03040a)]" />
 
       <div className="mx-auto max-w-7xl space-y-6">
@@ -687,7 +818,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row lg:items-center">
+            <div className="dj-site-action-group flex flex-col gap-3 sm:flex-row lg:items-center">
               <button
                 type="submit"
                 form="dj-site-editor-form"
@@ -742,7 +873,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                 </span>
                 {isPublished ? (
                   <span className="mt-1 block text-xs font-semibold normal-case tracking-normal text-emerald-100/62">
-                    O link público já pode ser compartilhado.
+                    {copy.onlineHelper}
                   </span>
                 ) : null}
               </span>
@@ -753,9 +884,9 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
         <form
           id="dj-site-editor-form"
           onSubmit={handleSubmit}
-          className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]"
+          className="dj-site-editor-form grid gap-6 lg:grid-cols-[1.05fr_0.95fr]"
         >
-          <div className="space-y-6">
+          <div className="dj-site-editor-primary space-y-6">
             <Panel title={copy.basic} icon={<Music2 className="h-4 w-4" />}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={copy.artistName}>
@@ -819,6 +950,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                   uploadingText={copy.uploadingImage}
                   hint={copy.imageUploadHint}
                   removeLabel={copy.removeImage}
+                  changeLabel={copy.changeImage}
                   onUpload={(file) => handleImageUpload(file, "profile")}
                   onRemove={() => setProfileImageUrl("")}
                 />
@@ -830,6 +962,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                   uploadingText={copy.uploadingImage}
                   hint={copy.imageUploadHint}
                   removeLabel={copy.removeImage}
+                  changeLabel={copy.changeImage}
                   onUpload={(file) => handleImageUpload(file, "cover")}
                   onRemove={() => setCoverImageUrl("")}
                   widePreview
@@ -1049,7 +1182,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
             </Panel>
           </div>
 
-          <aside className="space-y-6 lg:sticky lg:top-6 lg:self-start">
+          <aside className="dj-site-editor-side space-y-6 lg:sticky lg:top-6 lg:self-start">
             <LiveDjSitePreview
               locale={locale}
               artistName={artistName}
@@ -1078,20 +1211,20 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-black uppercase tracking-[0.12em] text-white">
-                      Paletas de cores
+                      {copy.paletteTitle}
                     </p>
                     <p className="mt-1 text-xs leading-5 text-white/45">
-                      Escolha uma paleta completa para alterar fundo, textos, bordas, botões e destaque visual do site.
+                      {copy.paletteHelper}
                     </p>
                   </div>
 
                   {selectedColorPalette ? (
                     <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/58">
-                      {selectedColorPalette.name}
+                      {selectedColorPaletteText?.name || selectedColorPalette.name}
                     </span>
                   ) : (
                     <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/45">
-                      Selecione
+                      {copy.paletteSelect}
                     </span>
                   )}
                 </div>
@@ -1100,6 +1233,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                   {DJ_SITE_COLOR_PALETTES.map((palette) => {
                     const isActive =
                       normalizePaletteColor(accentColor) === normalizePaletteColor(palette.accent);
+                    const paletteText = getPaletteText(locale, palette.id);
 
                     return (
                       <button
@@ -1123,10 +1257,10 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-black text-white">
-                            {palette.name}
+                            {paletteText?.name || palette.name}
                           </span>
                           <span className="mt-1 block text-xs leading-5 text-white/45">
-                            {palette.description}
+                            {paletteText?.description || palette.description}
                           </span>
                         </span>
                       </button>
@@ -1218,6 +1352,231 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
             animation: none !important;
           }
         }
+
+        @media (max-width: 1023px) {
+          .dj-site-editor-page {
+            overflow-x: hidden;
+            padding: 1rem 0.75rem 1.25rem;
+          }
+
+          .dj-site-editor-page * {
+            min-width: 0;
+          }
+
+          .dj-site-editor-form {
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 1rem !important;
+          }
+
+          .dj-site-editor-side {
+            order: -1;
+            position: static !important;
+          }
+
+          .dj-site-editor-primary {
+            order: 2;
+          }
+          .dj-site-editor-page .dashboard-hud,
+          .dj-site-editor-page .dashboard-hud-v {
+            padding: 1rem;
+          }
+
+          .dj-site-editor-page .dashboard-chip-cx {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+          }
+
+          .dj-site-editor-page .dashboard-orb {
+            line-height: 1;
+            overflow-wrap: anywhere;
+          }
+
+          .dj-site-editor-page .dashboard-hud > div > div > div > .dashboard-orb {
+            font-size: clamp(24px, 6.6vw, 36px);
+            line-height: 0.96;
+          }
+
+          .dj-site-editor-page .dashboard-hud p,
+          .dj-site-editor-page .dashboard-hud-v p {
+            font-size: 13px;
+            line-height: 1.55;
+          }
+
+          .dj-site-editor-page .dashboard-hud-v h2 {
+            font-size: 12px;
+            letter-spacing: 0.1em;
+          }
+
+          .dj-site-editor-page label,
+          .dj-site-editor-page .dashboard-mono {
+            font-size: 9px;
+            letter-spacing: 0.14em;
+          }
+
+          .dj-site-action-group {
+            width: 100%;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0.5rem !important;
+          }
+
+          .dj-site-action-group > * {
+            width: 100%;
+            min-height: 44px;
+            font-size: 12px;
+          }
+
+          .publish-site-button {
+            width: 100%;
+            min-height: 50px;
+            font-size: 12px;
+            letter-spacing: 0.12em;
+          }
+
+          .dj-site-input {
+            min-height: 46px;
+            font-size: 15px;
+            line-height: 1.35;
+          }
+
+          textarea.dj-site-input {
+            min-height: 112px;
+          }
+
+          .dj-site-preview-frame {
+            max-width: min(100%, 370px);
+          }
+
+          .dj-site-preview-shell {
+            border-radius: 26px;
+            padding: 8px;
+          }
+
+          .dj-site-preview-screen {
+            max-height: min(640px, calc(100dvh - 165px)) !important;
+            border-radius: 22px;
+          }
+
+          .dj-site-preview-hero {
+            height: 410px !important;
+          }
+
+          .dj-site-preview-title {
+            max-width: 270px !important;
+            font-size: clamp(26px, 8.2vw, 40px) !important;
+            line-height: 0.98 !important;
+          }
+
+          .dj-site-preview-mono {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+          }
+
+          .dj-site-preview-body p {
+            font-size: 14px;
+            line-height: 1.5;
+          }
+
+          .dj-site-preview-body a,
+          .dj-site-preview-body button {
+            font-size: 11px;
+          }
+
+          .dj-site-upload-preview {
+            height: 128px !important;
+          }
+        }
+
+        @media (min-width: 640px) and (max-width: 1023px) {
+          .dj-site-action-group {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+
+          .dj-site-preview-frame {
+            max-width: 390px;
+          }
+
+          .dj-site-preview-screen {
+            max-height: 760px !important;
+          }
+
+          .dj-site-preview-hero {
+            height: 500px !important;
+          }
+
+          .dj-site-preview-title {
+            font-size: clamp(32px, 7vw, 48px) !important;
+          }
+          .dj-site-editor-page .dashboard-hud,
+          .dj-site-editor-page .dashboard-hud-v {
+            padding: 1.25rem;
+          }
+        }
+
+        @media (max-width: 639px) {
+          .dj-site-editor-page {
+            padding-inline: 0.75rem;
+          }
+
+          .dj-site-editor-page .dashboard-hud {
+            padding: 0.9rem;
+          }
+
+          .dj-site-editor-page .dashboard-hud-v {
+            padding: 0.85rem;
+          }
+
+          .dj-site-editor-page .dashboard-hud > div > div > div > .dashboard-orb {
+            font-size: clamp(22px, 6.4vw, 31px);
+          }
+
+          .dj-site-editor-page .dashboard-hud p,
+          .dj-site-editor-page .dashboard-hud-v p {
+            font-size: 12px;
+            line-height: 1.5;
+          }
+
+          .dj-site-editor-page .dashboard-hud-v h2 {
+            font-size: 11.5px;
+          }
+
+          .dj-site-preview-frame {
+            max-width: min(100%, 350px);
+          }
+
+          .dj-site-preview-shell {
+            border-radius: 24px;
+            padding: 7px;
+          }
+
+          .dj-site-preview-screen {
+            max-height: min(590px, calc(100dvh - 155px)) !important;
+            border-radius: 20px;
+          }
+
+          .dj-site-preview-hero {
+            height: 350px !important;
+          }
+
+          .dj-site-preview-title {
+            max-width: 235px !important;
+            font-size: clamp(24px, 7.5vw, 34px) !important;
+            line-height: 1 !important;
+          }
+
+          .dj-site-preview-body p {
+            font-size: 13px;
+          }
+
+          .dj-site-preview-body h4 {
+            font-size: 28px !important;
+          }
+
+          .dj-site-upload-preview {
+            height: 118px !important;
+          }
+        }
+
       `}</style>
     </div>
   );
@@ -1252,53 +1611,98 @@ function getPreviewCopy(locale: SupportedLocale) {
   if (locale === "pt-BR") {
     return {
       title: "Preview ao vivo",
-      subtitle: "Veja como o site aparece para o público.",
+      subtitle: "As alterações aparecem em tempo real no mobile.",
       draft: "Rascunho",
       published: "Publicado",
       noCover: "Capa do DJ",
       noLogo: "Logo",
-      bookNow: "Book this DJ",
-      socialLinks: "Links sociais",
-      extraLinks: "Links em destaque",
-      upcomingShows: "Próximos eventos",
-      noLinks: "Adicione redes e links para aparecerem aqui.",
+      defaultArtistName: "Artista DJ",
+      defaultHeadline: "DJ profissional",
+      requestBooking: "Solicitar booking",
+      message: "Mensagem",
+      share: "Compartilhar",
+      selectedSets: "Sets selecionados",
+      all: "Todos",
+      liveDates: "Próximas datas",
+      venueTba: "Local a confirmar",
+      connect: "Conectar",
+      forBookings: "Para bookings",
+      press: "imprensa",
       noEvents: "Adicione eventos para montar sua agenda pública.",
       openPreview: "Abrir página pública",
+      tickerItems: [
+        "Clubes",
+        "Festivais",
+        "Eventos privados",
+        "Ativações de marca",
+        "Corporativo",
+        "VIP",
+      ],
     };
   }
 
   if (locale === "es") {
     return {
       title: "Preview en vivo",
-      subtitle: "Mira cómo aparece el sitio para el público.",
+      subtitle: "Los cambios aparecen en tiempo real en mobile.",
       draft: "Borrador",
       published: "Publicado",
       noCover: "Portada del DJ",
       noLogo: "Logo",
-      bookNow: "Book this DJ",
-      socialLinks: "Redes sociales",
-      extraLinks: "Links destacados",
-      upcomingShows: "Próximos eventos",
-      noLinks: "Añade redes y enlaces para que aparezcan aquí.",
+      defaultArtistName: "Artista DJ",
+      defaultHeadline: "DJ profesional",
+      requestBooking: "Solicitar booking",
+      message: "Mensaje",
+      share: "Compartir",
+      selectedSets: "Sets seleccionados",
+      all: "Todos",
+      liveDates: "Próximas fechas",
+      venueTba: "Venue por confirmar",
+      connect: "Conectar",
+      forBookings: "Para bookings",
+      press: "prensa",
       noEvents: "Añade eventos para crear tu agenda pública.",
       openPreview: "Abrir página pública",
+      tickerItems: [
+        "Clubs",
+        "Festivales",
+        "Eventos privados",
+        "Activaciones de marca",
+        "Corporativo",
+        "VIP",
+      ],
     };
   }
 
   return {
     title: "Live preview",
-    subtitle: "See how the public site will look.",
+    subtitle: "Changes update in real time on mobile.",
     draft: "Draft",
     published: "Published",
     noCover: "DJ cover",
     noLogo: "Logo",
-    bookNow: "Book this DJ",
-    socialLinks: "Social links",
-    extraLinks: "Featured links",
-    upcomingShows: "Upcoming shows",
-    noLinks: "Add social profiles and links to show them here.",
+    defaultArtistName: "DJ Artist",
+    defaultHeadline: "Professional DJ",
+    requestBooking: "Request Booking",
+    message: "Message",
+    share: "Share",
+    selectedSets: "Selected Sets",
+    all: "All",
+    liveDates: "Live Dates",
+    venueTba: "Venue TBA",
+    connect: "Connect",
+    forBookings: "For Bookings",
+    press: "Press",
     noEvents: "Add events to build your public agenda.",
     openPreview: "Open public page",
+    tickerItems: [
+      "Clubs",
+      "Festivals",
+      "Private Events",
+      "Brand Activations",
+      "Corporate",
+      "VIP",
+    ],
   };
 }
 
@@ -1348,8 +1752,8 @@ function LiveDjSitePreview({
   const previewCopy = getPreviewCopy(locale);
   const palette = getEditorColorPalette(accentColor, theme);
   const accent = palette.accent;
-  const artistLabel = artistName.trim() || "DJ Artist";
-  const headlineLabel = headline.trim() || "Professional DJ";
+  const artistLabel = artistName.trim() || previewCopy.defaultArtistName;
+  const headlineLabel = headline.trim() || previewCopy.defaultHeadline;
   const locationLabel = location.trim();
   const bookingUrl = bookingEmail ? `mailto:${bookingEmail}` : whatsappUrl || fallbackPath;
   const shareUrl = fallbackPath;
@@ -1379,7 +1783,7 @@ function LiveDjSitePreview({
     .filter((event) => event.isActive && event.title.trim())
     .slice(0, 4);
 
-  const tickerItems = ["Clubs", "Festivals", "Private Events", "Brand Activations", "Corporate", "VIP"];
+  const tickerItems = previewCopy.tickerItems;
   const ticker = [...tickerItems, ...tickerItems];
 
   function formatPreviewMonth(value: string) {
@@ -1447,7 +1851,7 @@ function LiveDjSitePreview({
               {previewCopy.title}
             </h2>
             <p className="mt-1 text-xs text-white/42">
-              Preview mobile atualizado em tempo real
+              {previewCopy.subtitle}
             </p>
           </div>
         </div>
@@ -1463,8 +1867,8 @@ function LiveDjSitePreview({
         </span>
       </div>
 
-      <div className="mx-auto w-full max-w-[390px]">
-        <div className="rounded-[34px] border border-white/12 bg-[#0b0d14] p-2.5 shadow-[0_28px_90px_rgba(0,0,0,0.42)]">
+      <div className="dj-site-preview-frame mx-auto w-full max-w-[390px]">
+        <div className="dj-site-preview-shell rounded-[34px] border border-white/12 bg-[#0b0d14] p-2.5 shadow-[0_28px_90px_rgba(0,0,0,0.42)]">
           <div className="dj-site-preview-body dj-site-preview-scroll relative max-h-[760px] overflow-y-auto rounded-[28px] bg-[var(--preview-solid)] text-[var(--preview-ink)]"
             style={
               {
@@ -1505,7 +1909,7 @@ function LiveDjSitePreview({
               </span>
             </header>
 
-            <section className="relative h-[520px] overflow-hidden bg-[var(--preview-solid)]">
+            <section className="dj-site-preview-hero relative h-[520px] overflow-hidden bg-[var(--preview-solid)]">
               {coverImageUrl ? (
                 <img
                   src={coverImageUrl}
@@ -1594,7 +1998,7 @@ function LiveDjSitePreview({
                   className="group flex h-[58px] items-center justify-between border border-[var(--preview-solid)] bg-[var(--preview-solid)] px-5 text-[var(--preview-solid-text)] transition"
                 >
                   <span className="dj-site-preview-mono text-[13px] font-bold uppercase tracking-[0.12em]">
-                    Request Booking
+                    {previewCopy.requestBooking}
                   </span>
                   <ExternalLink className="h-5 w-5" />
                 </a>
@@ -1621,7 +2025,7 @@ function LiveDjSitePreview({
                         d="M392.19 156.054 211.268 281.667 22.032 218.58C8.823 214.168-.076 201.775 0 187.852c.077-13.923 9.078-26.24 22.338-30.498L506.15 1.549c11.5-3.697 24.123-.663 32.666 7.88 8.542 8.543 11.577 21.165 7.879 32.666L390.89 525.906c-4.258 13.26-16.575 22.261-30.498 22.338-13.923.076-26.316-8.823-30.728-22.032l-63.393-190.153z"
                       />
                     </svg>
-                    Message
+                    {previewCopy.message}
                   </a>
 
                   <a
@@ -1631,7 +2035,7 @@ function LiveDjSitePreview({
                     className="dj-site-preview-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--preview-solid)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--preview-ink)]"
                   >
                     <Share2 className="h-4 w-4" />
-                    Share
+                    {previewCopy.share}
                   </a>
                 </div>
               </div>
@@ -1642,10 +2046,10 @@ function LiveDjSitePreview({
                 <section>
                   <div className="mb-6 flex items-baseline justify-between gap-4 border-t border-[var(--preview-line)] pt-4">
                     <h4 className="dj-site-preview-display text-[32px] uppercase leading-[0.88] text-[var(--preview-ink)]">
-                      Selected Sets
+                      {previewCopy.selectedSets}
                     </h4>
                     <span className="dj-site-preview-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--preview-soft)]">
-                      All ↗
+                      {previewCopy.all} ↗
                     </span>
                   </div>
 
@@ -1704,7 +2108,7 @@ function LiveDjSitePreview({
                             {event.title}
                           </p>
                           <p className="dj-site-preview-mono mt-1 line-clamp-1 text-[9px] font-bold uppercase tracking-[0.06em] text-[var(--preview-soft)]">
-                            {[event.city, event.venue].filter(Boolean).join(" — ") || "Venue TBA"}
+                            {[event.city, event.venue].filter(Boolean).join(" — ") || previewCopy.venueTba}
                           </p>
                         </div>
 
@@ -1723,7 +2127,7 @@ function LiveDjSitePreview({
                 <section>
                   <div className="mb-6 flex items-baseline justify-between gap-4 border-t border-[var(--preview-line)] pt-4">
                     <h4 className="dj-site-preview-display text-[32px] uppercase leading-[0.88] text-[var(--preview-ink)]">
-                      Connect
+                      {previewCopy.connect}
                     </h4>
                   </div>
 
@@ -1767,6 +2171,7 @@ function ImageUploadField({
   uploadingText,
   hint,
   removeLabel,
+  changeLabel,
   onUpload,
   onRemove,
   widePreview = false,
@@ -1777,6 +2182,7 @@ function ImageUploadField({
   uploadingText: string;
   hint: string;
   removeLabel: string;
+  changeLabel: string;
   onUpload: (file: File | null) => void;
   onRemove: () => void;
   widePreview?: boolean;
@@ -1792,7 +2198,7 @@ function ImageUploadField({
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
         <div
           className={
-            widePreview ? "relative h-40 w-full" : "relative h-36 w-full"
+            widePreview ? "dj-site-upload-preview relative h-40 w-full" : "dj-site-upload-preview relative h-36 w-full"
           }
         >
           {value ? (
