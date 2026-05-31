@@ -20,10 +20,8 @@ import {
   Trash2,
 } from "lucide-react";
 
-import {
-  buildDjSitePublicUrl,
-  buildFallbackDjSitePublicPath,
-} from "@/lib/dj-site-validation";
+import { buildFallbackDjSitePublicPath } from "@/lib/dj-site-validation";
+import { buildDjSitePublicUrl } from "@/lib/dj-site-public-url";
 import { uploadDjSiteImageToR2 } from "@/lib/dj-site-upload-client";
 import type { SupportedLocale } from "@/lib/i18n";
 
@@ -483,7 +481,7 @@ function getEditorColorPalette(accentColor: string, theme: string) {
     : fallbackPalette;
 }
 function getPaletteText(locale: SupportedLocale, paletteId: string) {
-  const dictionary: Record<string, Record<string, { name: string; description: string }>> = {
+  const dictionary = {
     "pt-BR": {
       "editorial-light": {
         name: "Editorial claro",
@@ -586,10 +584,10 @@ function getPaletteText(locale: SupportedLocale, paletteId: string) {
         description: "Cool, bright, modern and clean.",
       },
     },
-  };
+  } as const;
 
   const normalizedLocale = locale === "pt-BR" || locale === "es" ? locale : "en";
-  return dictionary[normalizedLocale]?.[paletteId];
+  return dictionary[normalizedLocale][paletteId as keyof typeof dictionary[typeof normalizedLocale]];
 }
 
 
