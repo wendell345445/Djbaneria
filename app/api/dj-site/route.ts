@@ -113,6 +113,7 @@ export async function PUT(request: Request) {
           theme: data.theme,
           accentColor: data.accentColor,
           isPublished: data.isPublished,
+          showAgenda: data.showAgenda ?? true,
         },
         update: {
           slug: data.slug,
@@ -132,6 +133,7 @@ export async function PUT(request: Request) {
           theme: data.theme,
           accentColor: data.accentColor,
           isPublished: data.isPublished,
+          showAgenda: data.showAgenda ?? true,
         },
       });
 

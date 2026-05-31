@@ -2,7 +2,7 @@ function normalizeSlugValue(slug: string) {
   return slug.trim().toLowerCase().replace(/^\/+|\/+$/g, "");
 }
 
-const DEFAULT_DJ_SITE_ROOT_DOMAIN = "djvisuals.ai";
+const DEFAULT_DJ_SITE_ROOT_DOMAIN = "djvisuals.site";
 
 function getCleanRootDomain() {
   const raw =

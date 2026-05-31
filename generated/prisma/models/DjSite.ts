@@ -54,6 +54,7 @@ export type DjSiteMinAggregateOutputType = {
   theme: $Enums.DjSiteTheme | null
   accentColor: string | null
   isPublished: boolean | null
+  showAgenda: boolean | null
   viewCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -79,6 +80,7 @@ export type DjSiteMaxAggregateOutputType = {
   theme: $Enums.DjSiteTheme | null
   accentColor: string | null
   isPublished: boolean | null
+  showAgenda: boolean | null
   viewCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -104,6 +106,7 @@ export type DjSiteCountAggregateOutputType = {
   theme: number
   accentColor: number
   isPublished: number
+  showAgenda: number
   viewCount: number
   createdAt: number
   updatedAt: number
@@ -139,6 +142,7 @@ export type DjSiteMinAggregateInputType = {
   theme?: true
   accentColor?: true
   isPublished?: true
+  showAgenda?: true
   viewCount?: true
   createdAt?: true
   updatedAt?: true
@@ -164,6 +168,7 @@ export type DjSiteMaxAggregateInputType = {
   theme?: true
   accentColor?: true
   isPublished?: true
+  showAgenda?: true
   viewCount?: true
   createdAt?: true
   updatedAt?: true
@@ -189,6 +194,7 @@ export type DjSiteCountAggregateInputType = {
   theme?: true
   accentColor?: true
   isPublished?: true
+  showAgenda?: true
   viewCount?: true
   createdAt?: true
   updatedAt?: true
@@ -301,6 +307,7 @@ export type DjSiteGroupByOutputType = {
   theme: $Enums.DjSiteTheme
   accentColor: string | null
   isPublished: boolean
+  showAgenda: boolean
   viewCount: number
   createdAt: Date
   updatedAt: Date
@@ -349,6 +356,7 @@ export type DjSiteWhereInput = {
   theme?: Prisma.EnumDjSiteThemeFilter<"DjSite"> | $Enums.DjSiteTheme
   accentColor?: Prisma.StringNullableFilter<"DjSite"> | string | null
   isPublished?: Prisma.BoolFilter<"DjSite"> | boolean
+  showAgenda?: Prisma.BoolFilter<"DjSite"> | boolean
   viewCount?: Prisma.IntFilter<"DjSite"> | number
   createdAt?: Prisma.DateTimeFilter<"DjSite"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DjSite"> | Date | string
@@ -377,6 +385,7 @@ export type DjSiteOrderByWithRelationInput = {
   theme?: Prisma.SortOrder
   accentColor?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublished?: Prisma.SortOrder
+  showAgenda?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -408,6 +417,7 @@ export type DjSiteWhereUniqueInput = Prisma.AtLeast<{
   theme?: Prisma.EnumDjSiteThemeFilter<"DjSite"> | $Enums.DjSiteTheme
   accentColor?: Prisma.StringNullableFilter<"DjSite"> | string | null
   isPublished?: Prisma.BoolFilter<"DjSite"> | boolean
+  showAgenda?: Prisma.BoolFilter<"DjSite"> | boolean
   viewCount?: Prisma.IntFilter<"DjSite"> | number
   createdAt?: Prisma.DateTimeFilter<"DjSite"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DjSite"> | Date | string
@@ -436,6 +446,7 @@ export type DjSiteOrderByWithAggregationInput = {
   theme?: Prisma.SortOrder
   accentColor?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublished?: Prisma.SortOrder
+  showAgenda?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -469,6 +480,7 @@ export type DjSiteScalarWhereWithAggregatesInput = {
   theme?: Prisma.EnumDjSiteThemeWithAggregatesFilter<"DjSite"> | $Enums.DjSiteTheme
   accentColor?: Prisma.StringNullableWithAggregatesFilter<"DjSite"> | string | null
   isPublished?: Prisma.BoolWithAggregatesFilter<"DjSite"> | boolean
+  showAgenda?: Prisma.BoolWithAggregatesFilter<"DjSite"> | boolean
   viewCount?: Prisma.IntWithAggregatesFilter<"DjSite"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DjSite"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DjSite"> | Date | string
@@ -493,6 +505,7 @@ export type DjSiteCreateInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -521,6 +534,7 @@ export type DjSiteUncheckedCreateInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -547,6 +561,7 @@ export type DjSiteUpdateInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -575,6 +590,7 @@ export type DjSiteUncheckedUpdateInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -602,6 +618,7 @@ export type DjSiteCreateManyInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -626,6 +643,7 @@ export type DjSiteUpdateManyMutationInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -651,6 +669,7 @@ export type DjSiteUncheckedUpdateManyInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -681,6 +700,7 @@ export type DjSiteCountOrderByAggregateInput = {
   theme?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
+  showAgenda?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -710,6 +730,7 @@ export type DjSiteMaxOrderByAggregateInput = {
   theme?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
+  showAgenda?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -735,6 +756,7 @@ export type DjSiteMinOrderByAggregateInput = {
   theme?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
   isPublished?: Prisma.SortOrder
+  showAgenda?: Prisma.SortOrder
   viewCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -832,6 +854,7 @@ export type DjSiteCreateWithoutWorkspaceInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -858,6 +881,7 @@ export type DjSiteUncheckedCreateWithoutWorkspaceInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -900,6 +924,7 @@ export type DjSiteUpdateWithoutWorkspaceInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -926,6 +951,7 @@ export type DjSiteUncheckedUpdateWithoutWorkspaceInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -952,6 +978,7 @@ export type DjSiteCreateWithoutLinksInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -979,6 +1006,7 @@ export type DjSiteUncheckedCreateWithoutLinksInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1020,6 +1048,7 @@ export type DjSiteUpdateWithoutLinksInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1047,6 +1076,7 @@ export type DjSiteUncheckedUpdateWithoutLinksInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1072,6 +1102,7 @@ export type DjSiteCreateWithoutEventsInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1099,6 +1130,7 @@ export type DjSiteUncheckedCreateWithoutEventsInput = {
   theme?: $Enums.DjSiteTheme
   accentColor?: string | null
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1140,6 +1172,7 @@ export type DjSiteUpdateWithoutEventsInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1167,6 +1200,7 @@ export type DjSiteUncheckedUpdateWithoutEventsInput = {
   theme?: Prisma.EnumDjSiteThemeFieldUpdateOperationsInput | $Enums.DjSiteTheme
   accentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublished?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showAgenda?: Prisma.BoolFieldUpdateOperationsInput | boolean
   viewCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1233,6 +1267,7 @@ export type DjSiteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   theme?: boolean
   accentColor?: boolean
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1262,6 +1297,7 @@ export type DjSiteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   theme?: boolean
   accentColor?: boolean
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1288,6 +1324,7 @@ export type DjSiteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   theme?: boolean
   accentColor?: boolean
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1314,12 +1351,13 @@ export type DjSiteSelectScalar = {
   theme?: boolean
   accentColor?: boolean
   isPublished?: boolean
+  showAgenda?: boolean
   viewCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DjSiteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "slug" | "artistName" | "headline" | "bio" | "location" | "profileImageUrl" | "coverImageUrl" | "instagramUrl" | "tiktokUrl" | "soundcloudUrl" | "spotifyUrl" | "youtubeUrl" | "whatsappUrl" | "bookingEmail" | "theme" | "accentColor" | "isPublished" | "viewCount" | "createdAt" | "updatedAt", ExtArgs["result"]["djSite"]>
+export type DjSiteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "slug" | "artistName" | "headline" | "bio" | "location" | "profileImageUrl" | "coverImageUrl" | "instagramUrl" | "tiktokUrl" | "soundcloudUrl" | "spotifyUrl" | "youtubeUrl" | "whatsappUrl" | "bookingEmail" | "theme" | "accentColor" | "isPublished" | "showAgenda" | "viewCount" | "createdAt" | "updatedAt", ExtArgs["result"]["djSite"]>
 export type DjSiteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   links?: boolean | Prisma.DjSite$linksArgs<ExtArgs>
@@ -1360,6 +1398,7 @@ export type $DjSitePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     theme: $Enums.DjSiteTheme
     accentColor: string | null
     isPublished: boolean
+    showAgenda: boolean
     viewCount: number
     createdAt: Date
     updatedAt: Date
@@ -1808,6 +1847,7 @@ export interface DjSiteFieldRefs {
   readonly theme: Prisma.FieldRef<"DjSite", 'DjSiteTheme'>
   readonly accentColor: Prisma.FieldRef<"DjSite", 'String'>
   readonly isPublished: Prisma.FieldRef<"DjSite", 'Boolean'>
+  readonly showAgenda: Prisma.FieldRef<"DjSite", 'Boolean'>
   readonly viewCount: Prisma.FieldRef<"DjSite", 'Int'>
   readonly createdAt: Prisma.FieldRef<"DjSite", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DjSite", 'DateTime'>

@@ -1610,6 +1610,7 @@ export const DjSiteScalarFieldEnum = {
   theme: 'theme',
   accentColor: 'accentColor',
   isPublished: 'isPublished',
+  showAgenda: 'showAgenda',
   viewCount: 'viewCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

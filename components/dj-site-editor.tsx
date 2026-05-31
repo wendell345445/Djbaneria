@@ -63,6 +63,7 @@ type DjSiteEditorSite = {
   theme: string;
   accentColor: string | null;
   isPublished: boolean;
+  showAgenda?: boolean | null;
   links: Array<{
     label: string;
     url: string;
@@ -110,6 +111,9 @@ function getCopy(locale: SupportedLocale) {
       basic: "Identidade",
       links: "Links principais",
       events: "Agenda",
+      showAgendaLabel: "Mostrar agenda no site",
+      showAgendaHelper:
+        "Quando desativado, a seção Live Dates fica oculta no site público.",
       design: "Design",
       paletteTitle: "Paletas de cores",
       paletteHelper:
@@ -181,6 +185,9 @@ function getCopy(locale: SupportedLocale) {
       basic: "Identidad",
       links: "Enlaces principales",
       events: "Agenda",
+      showAgendaLabel: "Mostrar agenda en el sitio",
+      showAgendaHelper:
+        "Cuando está desactivado, la sección Live Dates queda oculta en el sitio público.",
       design: "Diseño",
       paletteTitle: "Paletas de colores",
       paletteHelper:
@@ -251,6 +258,9 @@ function getCopy(locale: SupportedLocale) {
     basic: "Identity",
     links: "Main links",
     events: "Agenda",
+    showAgendaLabel: "Show agenda on site",
+    showAgendaHelper:
+      "When disabled, the Live Dates section is hidden from the public site.",
     design: "Design",
     paletteTitle: "Color palettes",
     paletteHelper:
@@ -473,12 +483,8 @@ function getEditorColorPalette(accentColor: string, theme: string) {
     theme === "LUXURY_BLACK"
       ? DJ_SITE_COLOR_PALETTES.find((palette) => palette.id === "luxury-gold")!
       : theme === "NEON_DARK"
-        ? DJ_SITE_COLOR_PALETTES.find(
-            (palette) => palette.id === "cyberpunk-night",
-          )!
-        : DJ_SITE_COLOR_PALETTES.find(
-            (palette) => palette.id === "editorial-light",
-          )!;
+        ? DJ_SITE_COLOR_PALETTES.find((palette) => palette.id === "cyberpunk-night")!
+        : DJ_SITE_COLOR_PALETTES.find((palette) => palette.id === "editorial-light")!;
 
   return /^#[0-9A-Fa-f]{6}$/.test(accentColor)
     ? { ...fallbackPalette, accent: accentColor }
@@ -590,12 +596,10 @@ function getPaletteText(locale: SupportedLocale, paletteId: string) {
     },
   } as const;
 
-  const normalizedLocale =
-    locale === "pt-BR" || locale === "es" ? locale : "en";
-  return dictionary[normalizedLocale][
-    paletteId as keyof (typeof dictionary)[typeof normalizedLocale]
-  ];
+  const normalizedLocale = locale === "pt-BR" || locale === "es" ? locale : "en";
+  return dictionary[normalizedLocale][paletteId as keyof typeof dictionary[typeof normalizedLocale]];
 }
+
 
 export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
   const copy = useMemo(() => getCopy(locale), [locale]);
@@ -629,6 +633,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
     initialSite.accentColor || "#00F5FF",
   );
   const [isPublished, setIsPublished] = useState(initialSite.isPublished);
+  const [showAgenda, setShowAgenda] = useState(initialSite.showAgenda ?? true);
   const [links, setLinks] = useState<EditableLink[]>(
     initialSite.links.length > 0
       ? initialSite.links.map((link, index) => ({
@@ -665,9 +670,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
     normalizedSlug || "your-slug",
   );
   const selectedColorPalette = DJ_SITE_COLOR_PALETTES.find(
-    (palette) =>
-      normalizePaletteColor(palette.accent) ===
-      normalizePaletteColor(accentColor),
+    (palette) => normalizePaletteColor(palette.accent) === normalizePaletteColor(accentColor),
   );
   const selectedColorPaletteText = selectedColorPalette
     ? getPaletteText(locale, selectedColorPalette.id)
@@ -756,6 +759,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
       theme,
       accentColor,
       isPublished: true,
+      showAgenda,
       links: links
         .map((link, index) => ({
           label: link.label,
@@ -1066,8 +1070,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       onClick={() =>
                         setLinks((current) =>
                           current.filter(
-                            (currentLink) =>
-                              currentLink.clientId !== link.clientId,
+                            (currentLink) => currentLink.clientId !== link.clientId,
                           ),
                         )
                       }
@@ -1100,7 +1103,36 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
               title={copy.events}
               icon={<CalendarPlus className="h-4 w-4" />}
             >
-              <div className="space-y-3">
+              <div className="mb-4 flex flex-col gap-3 border border-white/10 bg-white/[0.025] p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[0.12em] text-white">
+                    {copy.showAgendaLabel}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-white/45">
+                    {copy.showAgendaHelper}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAgenda((current) => !current)}
+                  className={`relative h-8 w-14 shrink-0 rounded-full border transition ${
+                    showAgenda
+                      ? "border-cyan-300/40 bg-cyan-300/25"
+                      : "border-white/15 bg-white/[0.06]"
+                  }`}
+                  aria-pressed={showAgenda}
+                >
+                  <span
+                    className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-lg transition ${
+                      showAgenda ? "left-7" : "left-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {showAgenda ? (
+                <div className="space-y-3">
                 {events.map((event, index) => (
                   <div
                     key={event.clientId}
@@ -1110,9 +1142,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       <input
                         value={event.title}
                         onChange={(item) =>
-                          updateEvent(event.clientId, {
-                            title: item.target.value,
-                          })
+                          updateEvent(event.clientId, { title: item.target.value })
                         }
                         placeholder={copy.eventTitle}
                         className="dj-site-input"
@@ -1120,9 +1150,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       <input
                         value={event.eventDate}
                         onChange={(item) =>
-                          updateEvent(event.clientId, {
-                            eventDate: item.target.value,
-                          })
+                          updateEvent(event.clientId, { eventDate: item.target.value })
                         }
                         type="date"
                         className="dj-site-input"
@@ -1130,9 +1158,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       <input
                         value={event.venue}
                         onChange={(item) =>
-                          updateEvent(event.clientId, {
-                            venue: item.target.value,
-                          })
+                          updateEvent(event.clientId, { venue: item.target.value })
                         }
                         placeholder={copy.venue}
                         className="dj-site-input"
@@ -1140,9 +1166,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       <input
                         value={event.city}
                         onChange={(item) =>
-                          updateEvent(event.clientId, {
-                            city: item.target.value,
-                          })
+                          updateEvent(event.clientId, { city: item.target.value })
                         }
                         placeholder={copy.city}
                         className="dj-site-input"
@@ -1150,9 +1174,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       <input
                         value={event.ticketUrl}
                         onChange={(item) =>
-                          updateEvent(event.clientId, {
-                            ticketUrl: item.target.value,
-                          })
+                          updateEvent(event.clientId, { ticketUrl: item.target.value })
                         }
                         placeholder={copy.ticketUrl}
                         className="dj-site-input"
@@ -1160,9 +1182,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       <input
                         value={event.flyerUrl}
                         onChange={(item) =>
-                          updateEvent(event.clientId, {
-                            flyerUrl: item.target.value,
-                          })
+                          updateEvent(event.clientId, { flyerUrl: item.target.value })
                         }
                         placeholder={copy.flyerUrl}
                         className="dj-site-input"
@@ -1173,8 +1193,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                       onClick={() =>
                         setEvents((current) =>
                           current.filter(
-                            (currentEvent) =>
-                              currentEvent.clientId !== event.clientId,
+                            (currentEvent) => currentEvent.clientId !== event.clientId,
                           ),
                         )
                       }
@@ -1201,6 +1220,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                   </button>
                 ) : null}
               </div>
+              ) : null}
             </Panel>
           </div>
 
@@ -1222,6 +1242,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
               bookingEmail={bookingEmail}
               links={links}
               events={events}
+              showAgenda={showAgenda}
               theme={theme}
               accentColor={accentColor}
               isPublished={isPublished}
@@ -1242,8 +1263,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
 
                   {selectedColorPalette ? (
                     <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/58">
-                      {selectedColorPaletteText?.name ||
-                        selectedColorPalette.name}
+                      {selectedColorPaletteText?.name || selectedColorPalette.name}
                     </span>
                   ) : (
                     <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white/45">
@@ -1255,8 +1275,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                 <div className="grid gap-3 sm:grid-cols-2">
                   {DJ_SITE_COLOR_PALETTES.map((palette) => {
                     const isActive =
-                      normalizePaletteColor(accentColor) ===
-                      normalizePaletteColor(palette.accent);
+                      normalizePaletteColor(accentColor) === normalizePaletteColor(palette.accent);
                     const paletteText = getPaletteText(locale, palette.id);
 
                     return (
@@ -1308,6 +1327,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
                 {error}
               </div>
             ) : null}
+
           </aside>
         </form>
       </div>
@@ -1616,6 +1636,7 @@ function Panel({
 }) {
   return (
     <section className="dashboard-hud-v relative overflow-hidden border border-white/10 bg-white/[0.032] p-4 shadow-[0_18px_70px_rgba(0,0,0,0.32)] sm:p-5">
+
       <div className="mb-5 flex items-center gap-3">
         <span className="inline-flex h-9 w-9 items-center justify-center border border-cyan-300/18 bg-cyan-300/10 text-cyan-100">
           {icon}
@@ -1745,6 +1766,7 @@ function LiveDjSitePreview({
   bookingEmail,
   links,
   events,
+  showAgenda,
   theme,
   accentColor,
   isPublished,
@@ -1766,6 +1788,7 @@ function LiveDjSitePreview({
   bookingEmail: string;
   links: EditableLink[];
   events: EditableEvent[];
+  showAgenda: boolean;
   theme: string;
   accentColor: string;
   isPublished: boolean;
@@ -1777,20 +1800,14 @@ function LiveDjSitePreview({
   const artistLabel = artistName.trim() || previewCopy.defaultArtistName;
   const headlineLabel = headline.trim() || previewCopy.defaultHeadline;
   const locationLabel = location.trim();
-  const bookingUrl = bookingEmail
-    ? `mailto:${bookingEmail}`
-    : whatsappUrl || fallbackPath;
+  const bookingUrl = bookingEmail ? `mailto:${bookingEmail}` : whatsappUrl || fallbackPath;
   const shareUrl = fallbackPath;
 
   const musicLinks = [
     { label: "Spotify", url: spotifyUrl },
     { label: "SoundCloud", url: soundcloudUrl },
     { label: "YouTube", url: youtubeUrl },
-    ...links.filter((link) =>
-      /music|mix|listen|spotify|soundcloud|youtube|set|live|track|playlist/i.test(
-        link.label,
-      ),
-    ),
+    ...links.filter((link) => /music|mix|listen|spotify|soundcloud|youtube|set|live|track|playlist/i.test(link.label)),
   ]
     .filter((item) => item.url.trim())
     .slice(0, 4);
@@ -1807,9 +1824,9 @@ function LiveDjSitePreview({
     .filter((item) => item.url.trim())
     .slice(0, 5);
 
-  const visibleEvents = events
-    .filter((event) => event.isActive && event.title.trim())
-    .slice(0, 4);
+  const visibleEvents = showAgenda
+    ? events.filter((event) => event.isActive && event.title.trim()).slice(0, 4)
+    : [];
 
   const tickerItems = previewCopy.tickerItems;
   const ticker = [...tickerItems, ...tickerItems];
@@ -1878,7 +1895,9 @@ function LiveDjSitePreview({
             <h2 className="dashboard-orb text-sm font-black uppercase tracking-[0.12em] text-white">
               {previewCopy.title}
             </h2>
-            <p className="mt-1 text-xs text-white/42">{previewCopy.subtitle}</p>
+            <p className="mt-1 text-xs text-white/42">
+              {previewCopy.subtitle}
+            </p>
           </div>
         </div>
 
@@ -1895,8 +1914,7 @@ function LiveDjSitePreview({
 
       <div className="dj-site-preview-frame mx-auto w-full max-w-[390px]">
         <div className="dj-site-preview-shell rounded-[34px] border border-white/12 bg-[#0b0d14] p-2.5 shadow-[0_28px_90px_rgba(0,0,0,0.42)]">
-          <div
-            className="dj-site-preview-body dj-site-preview-scroll relative max-h-[760px] overflow-y-auto rounded-[28px] bg-[var(--preview-solid)] text-[var(--preview-ink)]"
+          <div className="dj-site-preview-body dj-site-preview-scroll relative max-h-[760px] overflow-y-auto rounded-[28px] bg-[var(--preview-solid)] text-[var(--preview-ink)]"
             style={
               {
                 "--preview-paper": palette.paper,
@@ -1907,8 +1925,7 @@ function LiveDjSitePreview({
                 "--preview-solid-text": palette.solidText,
                 "--preview-accent": accent,
               } as CSSProperties
-            }
-          >
+            }>
             <div className="pointer-events-none sticky top-0 z-30 h-0">
               <div className="mx-auto mt-2 h-5 w-28 rounded-full bg-black/70" />
             </div>
@@ -1918,7 +1935,7 @@ function LiveDjSitePreview({
                 ← Index
               </span>
 
-              <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-full bg-black/35 p-1 backdrop-blur-sm">
+              <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-black/35 p-1 backdrop-blur-sm">
                 {profileImageUrl ? (
                   <img
                     src={profileImageUrl}
@@ -2136,9 +2153,7 @@ function LiveDjSitePreview({
                             {event.title}
                           </p>
                           <p className="dj-site-preview-mono mt-1 line-clamp-1 text-[9px] font-bold uppercase tracking-[0.06em] text-[var(--preview-soft)]">
-                            {[event.city, event.venue]
-                              .filter(Boolean)
-                              .join(" — ") || previewCopy.venueTba}
+                            {[event.city, event.venue].filter(Boolean).join(" — ") || previewCopy.venueTba}
                           </p>
                         </div>
 
@@ -2192,6 +2207,8 @@ function LiveDjSitePreview({
   );
 }
 
+
+
 function ImageUploadField({
   label,
   value,
@@ -2226,9 +2243,7 @@ function ImageUploadField({
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
         <div
           className={
-            widePreview
-              ? "dj-site-upload-preview relative h-40 w-full"
-              : "dj-site-upload-preview relative h-36 w-full"
+            widePreview ? "dj-site-upload-preview relative h-40 w-full" : "dj-site-upload-preview relative h-36 w-full"
           }
         >
           {value ? (
@@ -2262,12 +2277,12 @@ function ImageUploadField({
           <input
             id={inputId}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
-            disabled={uploading}
-            onChange={(event) => {
-              onUpload(event.target.files?.[0] ?? null);
-              event.currentTarget.value = "";
-            }}
+              accept="image/jpeg,image/png,image/webp"
+              disabled={uploading}
+              onChange={(event) => {
+                onUpload(event.target.files?.[0] ?? null);
+                event.currentTarget.value = "";
+              }}
             className="sr-only"
           />
           <label

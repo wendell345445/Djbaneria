@@ -87,6 +87,7 @@ type PublishedDjSite = {
   rating?: number | null;
   reviewsCount?: number | null;
   testimonials?: PublicTestimonial[] | null;
+  showAgenda?: boolean | null;
   links: PublicLink[];
   events: PublicEvent[];
 };
@@ -765,7 +766,8 @@ export default async function PublicDjSitePage({ params }: PageProps) {
 
   const accentColor = getAccentColor(site);
   const links = Array.isArray(site.links) ? site.links : [];
-  const events = Array.isArray(site.events) ? site.events : [];
+  const events =
+    site.showAgenda === false ? [] : Array.isArray(site.events) ? site.events : [];
   const bookingUrl = getBookingUrl(site);
   const messageUrl = getMessageUrl(site);
   const listenUrl = getListenUrl(site, links);
@@ -862,19 +864,10 @@ export default async function PublicDjSitePage({ params }: PageProps) {
       <div className="relative mx-auto min-h-screen w-full max-w-none overflow-hidden pb-24 min-[480px]:max-w-[460px] md:my-6 md:max-w-[460px] md:border md:border-[var(--ink)] lg:max-w-[480px]">
         {/* ── TOP BAR ───────────────────────────────────────── */}
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pt-6 text-[var(--paper)] mix-blend-difference">
-          <a
-            href="/"
-            aria-label="Back"
-            className="inline-flex items-center gap-2"
-          >
-            <ArrowLeft size={18} />
-            <span className="dj-mono text-[11px] font-bold uppercase tracking-[0.14em]">
-              Index
-            </span>
-          </a>
+          <span className="w-[64px]" aria-hidden="true" />
 
           <div className="flex min-w-0 items-center justify-center">
-            <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-black/35 p-1 backdrop-blur-sm">
+            <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-black/35 p-2.5 backdrop-blur-sm">
               {site.profileImageUrl ? (
                 <img
                   src={site.profileImageUrl}
@@ -1064,7 +1057,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                 actionLabel={listenUrl ? "All" : undefined}
                 actionUrl={listenUrl}
               />
-              <div className="hide-scrollbar -mx-5 flex snap-x gap-4 overflow-x-auto px-5 pb-1">
+              <div className="hide-scrollbar -mx-5 flex snap-x gap-4 overflow-x-auto pb-1 pl-7 pr-5 sm:px-5">
                 {primaryMusicLinks.map((link, index) => {
                   const externalImage =
                     externalMusicImages[
@@ -1085,24 +1078,20 @@ export default async function PublicDjSitePage({ params }: PageProps) {
           ) : null}
 
           {/* ── LIVE DATES ──────────────────────────────────── */}
-          <section className="dj-scroll">
-            <SectionHead
-              title="Live Dates"
-              actionLabel={events.length > 2 ? "All" : undefined}
-              actionUrl={bookingUrl}
-            />
-            {events.length > 0 ? (
+          {events.length > 0 ? (
+            <section className="dj-scroll">
+              <SectionHead
+                title="Live Dates"
+                actionLabel={events.length > 2 ? "All" : undefined}
+                actionUrl={bookingUrl}
+              />
               <div className="border-t border-[var(--line)]">
                 {events.slice(0, 5).map((event) => (
                   <GigRow key={event.id} event={event} />
                 ))}
               </div>
-            ) : (
-              <p className="dj-mono border-t border-[var(--line)] pt-5 text-[12px] font-bold uppercase leading-relaxed tracking-[0.06em] text-[var(--ink-soft)]">
-                No public shows listed — available for private bookings.
-              </p>
-            )}
-          </section>
+            </section>
+          ) : null}
 
           {/* ── PRESS / TESTIMONIALS ────────────────────────── */}
           {testimonials.length > 0 ? (
