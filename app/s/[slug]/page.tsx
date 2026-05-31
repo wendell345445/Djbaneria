@@ -287,32 +287,22 @@ function getAccentColor(site: PublishedDjSite) {
     return site.accentColor;
   }
 
-  if (site.theme === "LUXURY_BLACK") return "#C49A3A";
-  if (site.theme === "CLEAN_WHITE") return "#102A9E";
-  return "#00E5FF";
+  return PUBLIC_COLOR_PALETTES[0].accent;
 }
 
 function getPublicColorPalette(site: PublishedDjSite) {
   const accentColor = getAccentColor(site);
-  const normalizedAccent = normalizeColor(accentColor);
-
-  const matchedByAccent = PUBLIC_COLOR_PALETTES.find(
-    (palette) => normalizeColor(palette.accent) === normalizedAccent,
+  const matchedPalette = PUBLIC_COLOR_PALETTES.find(
+    (palette) => normalizeColor(palette.accent) === normalizeColor(accentColor),
   );
 
-  if (matchedByAccent) {
-    return matchedByAccent;
+  if (matchedPalette) {
+    return matchedPalette;
   }
 
-  const fallbackPalette =
-    site.theme === "LUXURY_BLACK"
-      ? PUBLIC_COLOR_PALETTES.find((palette) => palette.id === "luxury-gold")!
-      : site.theme === "CLEAN_WHITE"
-        ? PUBLIC_COLOR_PALETTES.find((palette) => palette.id === "editorial-light")!
-        : PUBLIC_COLOR_PALETTES.find((palette) => palette.id === "cyberpunk-night")!;
-
+  // Default principal: mantém o primeiro design aprovado, com fundo claro.
   return {
-    ...fallbackPalette,
+    ...PUBLIC_COLOR_PALETTES[0],
     accent: accentColor,
   };
 }
@@ -749,7 +739,7 @@ function GigRow({ event }: { event: PublicEvent }) {
         <h3 className="line-clamp-1 text-[19px] font-extrabold tracking-[-0.02em] text-[var(--ink)] transition-colors group-hover:text-[var(--paper)]">
           {event.title}
         </h3>
-        <p className="dj-mono mt-1 line-clamp-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--ink-soft)] transition-colors group-hover:text-[var(--paper)]/70">
+        <p className="dj-mono mt-1 line-clamp-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--ink-soft)] transition-colors group-hover:text-white/70">
           <MapPin size={12} /> {place}
           {meta ? <span className="opacity-60">· {meta}</span> : null}
         </p>
@@ -967,7 +957,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
             .dj-profile-page {
               font-family: 'Archivo', system-ui, sans-serif;
               -webkit-font-smoothing: antialiased;
-              /* Palette variables come from the selected palette in the inline style. */
+              /* Palette variables are applied inline from the selected palette. */
             }
             .dj-display { font-family: 'Anton', 'Archivo', sans-serif; font-weight: 400; }
             .dj-mono { font-family: 'Space Mono', monospace; }
@@ -1024,7 +1014,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
 
       <div className="relative mx-auto min-h-screen w-full max-w-none overflow-hidden pb-24 min-[480px]:max-w-[460px] md:my-6 md:max-w-[460px] md:border md:border-[var(--ink)] lg:max-w-[480px]">
         {/* ── TOP BAR ───────────────────────────────────────── */}
-        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pt-6 text-[var(--paper)] mix-blend-difference">
+        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pt-6 text-[var(--solid-text)] mix-blend-difference">
           <span className="w-[64px]" aria-hidden="true" />
 
           <div className="flex min-w-0 items-center justify-center">
@@ -1064,27 +1054,27 @@ export default async function PublicDjSitePage({ params }: PageProps) {
           ) : (
             <div className="absolute inset-0 bg-[var(--solid)]" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--ink)]/85 via-transparent to-[var(--ink)]/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/30" />
 
           <div className="absolute inset-x-0 bottom-0 p-5">
-            <p className="dj-mono mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--paper)]/70">
+            <p className="dj-mono mb-3 text-[11px] font-bold uppercase tracking-[0.16em] text-white/70">
               {site.headline || "Professional DJ"}
               {site.location ? `  /  ${site.location}` : ""}
             </p>
-            <h1 className="dj-display text-[clamp(54px,17vw,86px)] uppercase leading-[0.84] tracking-[-0.02em] text-[var(--paper)]">
+            <h1 className="dj-display text-[clamp(54px,17vw,86px)] uppercase leading-[0.84] tracking-[-0.02em] text-white">
               {site.artistName}
             </h1>
           </div>
         </section>
 
         {/* ── TICKER ────────────────────────────────────────── */}
-        <div className="overflow-hidden border-y border-[var(--ink)] bg-[var(--solid)] py-2.5">
+        <div className="overflow-hidden border-y border-[var(--solid)] bg-[var(--solid)] py-2.5">
           <div className="hide-scrollbar overflow-hidden">
             <div className="dj-ticker-track flex w-max items-center will-change-transform">
               {ticker.map((tag, i) => (
                 <span
                   key={`${tag}-${i}`}
-                  className="dj-mono flex items-center text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--paper)]"
+                  className="dj-mono flex items-center text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--solid-text)]"
                 >
                   <span className="px-5 text-[var(--accent)]">✦</span>
                   {tag}
@@ -1159,7 +1149,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                 href={bookingUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="group flex h-[58px] items-center justify-between border border-[var(--ink)] bg-[var(--solid)] px-5 text-[var(--paper)] transition hover:bg-[var(--accent)] hover:border-[var(--accent)]"
+                className="group flex h-[58px] items-center justify-between border border-[var(--solid)] bg-[var(--solid)] px-5 text-[var(--solid-text)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]"
               >
                 <span className="dj-mono text-[13px] font-bold uppercase tracking-[0.12em]">
                   Request Booking
@@ -1176,7 +1166,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                   href={messageUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--solid)] hover:text-[var(--paper)]"
+                  className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--ink)] hover:text-[var(--paper)]"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1200,7 +1190,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
                 href={shareUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--solid)] hover:text-[var(--paper)]"
+                className="dj-mono flex h-[52px] items-center justify-center gap-2 border border-[var(--ink)] text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--ink)] hover:text-[var(--paper)]"
               >
                 <Share2 size={15} />
                 Share
@@ -1341,7 +1331,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               href={bookingUrl}
               target="_blank"
               rel="noreferrer"
-              className="group flex h-[54px] items-center justify-between border border-[var(--ink)] bg-[var(--solid)] px-5 text-[var(--paper)] transition hover:bg-[var(--accent)] hover:border-[var(--accent)]"
+              className="group flex h-[54px] items-center justify-between border border-[var(--solid)] bg-[var(--solid)] px-5 text-[var(--solid-text)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)]"
             >
               <span className="dj-mono text-[13px] font-bold uppercase tracking-[0.12em]">
                 Book {site.artistName}

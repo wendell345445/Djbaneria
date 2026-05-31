@@ -386,7 +386,7 @@ const DJ_SITE_COLOR_PALETTES = [
     solidText: "#F5F7FF",
   },
   {
-    id: "Rave Magenta",
+    id: "rave-magenta",
     name: "Rave Magenta",
     description: "Magenta, club e nightlife forte",
     accent: "#FF2BD6",
@@ -479,12 +479,9 @@ function getEditorColorPalette(accentColor: string, theme: string) {
     return matchedPalette;
   }
 
-  const fallbackPalette =
-    theme === "LUXURY_BLACK"
-      ? DJ_SITE_COLOR_PALETTES.find((palette) => palette.id === "luxury-gold")!
-      : theme === "NEON_DARK"
-        ? DJ_SITE_COLOR_PALETTES.find((palette) => palette.id === "cyberpunk-night")!
-        : DJ_SITE_COLOR_PALETTES.find((palette) => palette.id === "editorial-light")!;
+  const fallbackPalette = DJ_SITE_COLOR_PALETTES.find(
+    (palette) => palette.id === "editorial-light",
+  )!;
 
   return /^#[0-9A-Fa-f]{6}$/.test(accentColor)
     ? { ...fallbackPalette, accent: accentColor }
@@ -501,7 +498,7 @@ function getPaletteText(locale: SupportedLocale, paletteId: string) {
         name: "Cyberpunk noturno",
         description: "Preto, ciano e atmosfera futurista.",
       },
-      "Rave Magenta": {
+      "rave-magenta": {
         name: "Rave magenta",
         description: "Magenta, club e nightlife forte.",
       },
@@ -535,7 +532,7 @@ function getPaletteText(locale: SupportedLocale, paletteId: string) {
         name: "Cyberpunk nocturno",
         description: "Negro, cian y atmósfera futurista.",
       },
-      "Rave Magenta": {
+      "rave-magenta": {
         name: "Rave magenta",
         description: "Magenta, club y nightlife potente.",
       },
@@ -569,7 +566,7 @@ function getPaletteText(locale: SupportedLocale, paletteId: string) {
         name: "Cyberpunk Night",
         description: "Black, cyan and futuristic atmosphere.",
       },
-      "Rave Magenta": {
+      "rave-magenta": {
         name: "Rave Magenta",
         description: "Magenta, club energy and strong nightlife.",
       },
@@ -630,7 +627,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
   );
   const [theme, setTheme] = useState(initialSite.theme || "NEON_DARK");
   const [accentColor, setAccentColor] = useState(
-    initialSite.accentColor || "#00F5FF",
+    initialSite.accentColor || "#102A9E",
   );
   const [isPublished, setIsPublished] = useState(initialSite.isPublished);
   const [showAgenda, setShowAgenda] = useState(initialSite.showAgenda ?? true);
