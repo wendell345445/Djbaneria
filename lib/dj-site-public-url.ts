@@ -2,12 +2,12 @@ function normalizeSlugValue(slug: string) {
   return slug.trim().toLowerCase().replace(/^\/+|\/+$/g, "");
 }
 
-function getCleanRootDomain() {
-  const raw = process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN?.trim();
+const DEFAULT_DJ_SITE_ROOT_DOMAIN = "djvisuals.ai";
 
-  if (!raw) {
-    return null;
-  }
+function getCleanRootDomain() {
+  const raw =
+    process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN?.trim() ||
+    DEFAULT_DJ_SITE_ROOT_DOMAIN;
 
   return raw
     .replace(/^https?:\/\//i, "")

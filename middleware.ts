@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const ROOT_DOMAIN = (
-  process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN || "djvisuals.ai"
-)
+const ROOT_DOMAIN = (process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN || "djvisuals.ai")
   .replace(/^https?:\/\//i, "")
   .replace(/^\*\./, "")
   .replace(/\/$/, "")

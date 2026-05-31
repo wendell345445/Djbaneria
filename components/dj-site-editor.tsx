@@ -839,6 +839,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
               <button
                 type="button"
                 onClick={handleCopyUrl}
+                title={futurePublicUrl}
                 className="inline-flex min-h-11 items-center justify-center gap-2 border border-white/10 bg-white/[0.04] px-4 text-sm font-bold text-white/78 transition hover:border-cyan-300/30 hover:bg-cyan-300/10"
               >
                 {copied ? (
@@ -850,7 +851,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
               </button>
 
               <Link
-                href={fallbackPath}
+                href={futurePublicUrl}
                 target="_blank"
                 className="inline-flex min-h-11 items-center justify-center gap-2 border border-cyan-300/24 bg-cyan-300/10 px-4 text-sm font-bold text-cyan-100 transition hover:border-cyan-200/45 hover:bg-cyan-300/16"
               >
