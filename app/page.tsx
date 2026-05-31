@@ -1499,21 +1499,6 @@ function FirstPurchaseGiftPopup({
 }
 
 function DjWebsiteFeatureSection() {
-  const websiteFeatures = [
-    {
-      label: "Official public profile",
-      copy: "A polished DJ page with your artist name, logo, cover image, short bio, and professional positioning.",
-    },
-    {
-      label: "Booking-ready contact",
-      copy: "Send promoters to one page with booking email, WhatsApp or Instagram contact, and a shareable public URL.",
-    },
-    {
-      label: "Music links + agenda",
-      copy: "Show selected sets, social channels, Spotify, SoundCloud, YouTube, and upcoming live dates when you have them.",
-    },
-  ];
-
   return (
     <section
       id="dj-website"
@@ -1607,33 +1592,6 @@ function DjWebsiteFeatureSection() {
               <ArrowRight size={12} />
             </a>
           </div>
-
-          <div className="grid gap-3">
-            {websiteFeatures.map((item, index) => (
-              <div
-                key={item.label}
-                className="border border-[rgba(255,255,255,0.08)] bg-white/[0.025] p-4"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="mono mt-1 text-[10px] font-bold text-[var(--cx)]">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h4 className="orb text-[12px] font-bold uppercase tracking-[0.12em] text-white">
-                      {item.label}
-                    </h4>
-                    <p className="sans mt-2 text-sm leading-6 text-[rgba(255,255,255,0.58)]">
-                      {item.copy}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="mono mt-5 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.42)]">
-            Built for DJs, promoters, agencies, clubs, and booking inquiries.
-          </p>
         </div>
       </div>
     </section>
