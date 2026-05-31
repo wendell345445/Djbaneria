@@ -15,13 +15,7 @@ import {
   Camera,
   ArrowRight,
   Quote,
-  CheckCircle2,
-  DollarSign,
-  Hourglass,
-  MousePointerClick,
-  Timer,
-  XCircle,
-  Music2,
+  CheckCircle2,  Music2,
   Pause,
   Play,
 } from "lucide-react";
@@ -53,6 +47,12 @@ const advantages = [
     title: "DJ photo upgrade",
     description:
       "Upload a casual or low-quality DJ photo and get back a sharper, cleaner, more professional image for profiles, ads, and press kits.",
+  },
+  {
+    icon: BadgeCheck,
+    title: "Official DJ website",
+    description:
+      "Publish a clean booking-ready DJ profile with your music links, upcoming dates, social channels, and contact options under one professional public page.",
   },
   {
     icon: Layers3,
@@ -101,6 +101,11 @@ const faqs = [
       "You upload a casual or lower-quality photo and the AI cleans it up — improving sharpness, lighting, and overall quality — producing a more professional-looking image for your profiles, ads, and press kits.",
   },
   {
+    question: "Can I publish my own DJ website?",
+    answer:
+      "Yes. DJ Visuals AI now includes a public DJ website feature where you can publish your official profile with booking contact, music links, social channels, and upcoming live dates.",
+  },
+  {
     question: "What happens after I sign up?",
     answer:
       "After checkout, you receive a secure email link to create your password. Then you access the dashboard and can start generating right away.",
@@ -125,6 +130,7 @@ const pricingPlans = [
       "Static flyer creation",
       "Animate flyers generated here or uploaded by you",
       "AI DJ photo enhancement",
+      "Public DJ website with booking, links, and agenda",
       "Feed and story formats",
     ],
   },
@@ -145,6 +151,7 @@ const pricingPlans = [
       "Premium flyers + upload-your-own flyer animation",
       "High-quality image & video generation",
       "Professional DJ photo enhancement",
+      "Public DJ website with booking, links, and agenda",
       "Built for paid ads and social media",
     ],
   },
@@ -164,6 +171,7 @@ const pricingPlans = [
       "80 AI generations per month",
       "Full access: AI flyers, own-flyer animation, and photos",
       "High-quality image & video output",
+      "Public DJ website for artists, agencies, and promoters",
       "Ideal for teams and high-volume promo",
       "Priority creative output",
     ],
@@ -297,6 +305,13 @@ const WHATSAPP_PHONE =
   process.env.NEXT_PUBLIC_WHATSAPP_PHONE || "5538984175013";
 
 const WHATSAPP_MESSAGE = "Hi! I need help with DJ Visuals AI.";
+
+const DJ_SITE_DEMO_URL =
+  process.env.NEXT_PUBLIC_DJ_SITE_DEMO_URL || "https://alok.djvisuals.site";
+
+const DJ_SITE_DEMO_VIDEO_SRC =
+  process.env.NEXT_PUBLIC_DJ_SITE_DEMO_VIDEO_SRC ||
+  "/landing/dj-site-demo/site-dj-demo.mp4";
 
 function WhatsAppIcon({ className = "" }: { className?: string }) {
   return (
@@ -1482,159 +1497,145 @@ function FirstPurchaseGiftPopup({
   );
 }
 
-function HeroCostComparisonSection() {
-  const oldWorkflowItems = [
+function DjWebsiteFeatureSection() {
+  const websiteFeatures = [
     {
-      icon: Timer,
-      value: "2h+",
-      label: "in Canva, Photoshop, or back-and-forth edits per flyer",
+      label: "Official public profile",
+      copy: "A polished DJ page with your artist name, logo, cover image, short bio, and professional positioning.",
     },
     {
-      icon: DollarSign,
-      value: "$80–$100+",
-      label: "for one designer-made event flyer or revision cycle",
+      label: "Booking-ready contact",
+      copy: "Send promoters to one page with booking email, WhatsApp or Instagram contact, and a shareable public URL.",
     },
     {
-      icon: Hourglass,
-      value: "8h+",
-      label: "to turn one static flyer into a motion promo manually",
-    },
-  ];
-
-  const aiWorkflowItems = [
-    {
-      icon: Zap,
-      value: "< 60s",
-      label: "to create a promo visual you can post today",
-    },
-    {
-      icon: DollarSign,
-      value: "$0 designer fee",
-      label: "AI does the heavy lifting inside your monthly plan",
-    },
-    {
-      icon: MousePointerClick,
-      value: "1 click",
-      label: "to animate a flyer into a social-ready MP4 promo",
+      label: "Music links + agenda",
+      copy: "Show selected sets, social channels, Spotify, SoundCloud, YouTube, and upcoming live dates when you have them.",
     },
   ];
 
   return (
-    <section className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 sm:px-8 sm:pb-24 lg:px-10">
-      <div className="mx-auto max-w-5xl text-center">
-        <div className="mb-3 flex justify-center">
-          <span className="chip-v">● THE REAL COST</span>
-        </div>
-        <h2 className="orb text-[24px] font-black leading-tight tracking-[-0.04em] text-white sm:text-[42px]">
-          DO THE MATH: HOW MUCH
-          <br className="hidden sm:block" />
-          <span
-            style={{
-              color: "var(--cv)",
-              textShadow: "0 0 28px rgba(191,95,255,0.62)",
-            }}
-          >
-            TIME AND MONEY
-          </span>{" "}
-          ARE YOU LOSING?
-        </h2>
-        <p className="sans mx-auto mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.64)] sm:text-[15px]">
-          Compare the old workflow with DJ Visuals AI — flyers, animated promos,
-          and pro photos from one AI-powered creative dashboard.
-        </p>
-      </div>
+    <section
+      id="dj-website"
+      className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
+    >
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+        <div className="hud-box-v relative overflow-hidden border-[rgba(0,245,255,0.28)] bg-[rgba(0,245,255,0.045)] p-5 sm:p-7">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[rgba(0,245,255,0.15)] blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-20 h-56 w-56 rounded-full bg-[rgba(191,95,255,0.14)] blur-3xl" />
 
-      <div className="relative mx-auto mt-8 grid max-w-6xl gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-6">
-        <div className="hud-box border-[rgba(255,45,107,0.28)] bg-[rgba(255,45,107,0.045)] p-4 sm:p-6">
-          <div className="mb-5 flex items-center gap-3 border-b border-[rgba(255,45,107,0.16)] pb-4">
-            <span className="grid h-10 w-10 shrink-0 place-items-center border border-[rgba(255,45,107,0.35)] bg-[rgba(255,45,107,0.1)] text-[var(--ce)] shadow-[0_0_24px_rgba(255,45,107,0.16)]">
-              <XCircle size={20} />
+          <div className="relative z-10">
+            <div className="sect-label">
+              <span className="chip-cx">● NEW: DJ WEBSITE</span>
+            </div>
+
+            <h2 className="orb mt-4 text-[22px] font-black uppercase leading-tight text-white sm:text-[42px]">
+              Your official DJ profile,
+              <br />
+              <span
+                style={{
+                  color: "var(--cx)",
+                  textShadow: "0 0 26px rgba(0,245,255,0.55)",
+                }}
+              >
+                ready for bookings.
+              </span>
+            </h2>
+
+            <p className="sans mt-4 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.64)] sm:text-base">
+              Publish a premium public DJ site with your music links, agenda,
+              social channels, booking contact, and professional presence — all
+              inside DJ Visuals AI.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <a
+                href="#pricing"
+                className="btn-cx-solid inline-flex items-center justify-center gap-2.5 px-6 py-4 text-[11px] uppercase"
+              >
+                CREATE MY DJ WEBSITE
+                <ArrowRight size={13} />
+              </a>
+              <a
+                href="#vantagens"
+                className="btn-cx inline-flex items-center justify-center gap-2.5 px-6 py-4 text-[11px]"
+              >
+                SEE ALL FEATURES
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="hud-box relative overflow-hidden p-5 sm:p-7">
+          <div className="mb-5 flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.08)] pb-4">
+            <div>
+              <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.72)]">
+                PUBLIC PROFILE MODULE
+              </p>
+              <h3 className="orb mt-2 text-[15px] font-black uppercase tracking-[0.08em] text-white">
+                What your DJ site includes
+              </h3>
+            </div>
+            <span className="grid h-11 w-11 shrink-0 place-items-center border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.08)] text-[var(--cx)] shadow-[0_0_26px_rgba(0,245,255,0.16)]">
+              <BadgeCheck size={20} />
             </span>
-            <div className="text-left">
-              <p className="orb text-sm font-bold uppercase tracking-[0.1em] text-white">
-                The old way
-              </p>
-              <p className="sans mt-1 text-xs text-white/50">
-                Manual design, revisions, and waiting.
-              </p>
+          </div>
+
+          <div className="mb-5 overflow-hidden border border-[rgba(0,245,255,0.18)] bg-black/35 p-2 shadow-[0_0_42px_rgba(0,245,255,0.12)]">
+            <div className="relative aspect-[9/16] overflow-hidden bg-[#03040A]">
+              <video
+                src={DJ_SITE_DEMO_VIDEO_SRC}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster="/landing/dj-site-demo/site-dj-demo-poster.webp"
+                className="h-full w-full object-cover"
+              />
+
             </div>
           </div>
 
-          <div className="grid gap-4">
-            {oldWorkflowItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.value}
-                  className="flex items-start gap-3 border-b border-[rgba(255,45,107,0.1)] pb-4 last:border-0 last:pb-0"
-                >
-                  <Icon className="mt-1 shrink-0 text-[var(--ce)]" size={18} />
-                  <div className="text-left">
-                    <p className="sans text-[19px] font-black leading-none text-[var(--ce)] sm:text-[22px]">
-                      {item.value}
-                    </p>
-                    <p className="sans mt-1 text-xs leading-5 text-white/58 sm:text-sm">
+          <div className="mb-5 flex justify-center">
+            <a
+              href={DJ_SITE_DEMO_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-cx-solid inline-flex items-center justify-center gap-2.5 px-5 py-3 text-[10px] uppercase"
+            >
+              CLICK HERE AND SEE HOW YOUR SITE WILL LOOK
+              <ArrowRight size={12} />
+            </a>
+          </div>
+
+          <div className="grid gap-3">
+            {websiteFeatures.map((item, index) => (
+              <div
+                key={item.label}
+                className="border border-[rgba(255,255,255,0.08)] bg-white/[0.025] p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="mono mt-1 text-[10px] font-bold text-[var(--cx)]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h4 className="orb text-[12px] font-bold uppercase tracking-[0.12em] text-white">
                       {item.label}
+                    </h4>
+                    <p className="sans mt-2 text-sm leading-6 text-[rgba(255,255,255,0.58)]">
+                      {item.copy}
                     </p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-xs font-black uppercase tracking-[0.12em] text-white shadow-[0_0_35px_rgba(0,245,255,0.14)] lg:h-14 lg:w-14">
-          VS
-        </div>
-
-        <div className="hud-box-v relative border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.055)] p-4 shadow-[0_0_52px_rgba(0,245,255,0.12)] sm:p-6">
-          <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 border border-[rgba(0,245,255,0.38)] bg-[#03040A] px-3 py-1 text-[7px] font-bold uppercase tracking-[0.16em] text-[var(--cx)] shadow-[0_0_22px_rgba(0,245,255,0.22)]">
-            Recommended
+              </div>
+            ))}
           </div>
 
-          <div className="mb-5 flex items-center gap-3 border-b border-[rgba(0,245,255,0.16)] pb-4">
-            <span className="grid h-10 w-10 shrink-0 place-items-center border border-[rgba(0,245,255,0.42)] bg-[rgba(0,245,255,0.12)] text-[var(--cx)] shadow-[0_0_26px_rgba(0,245,255,0.22)]">
-              <CheckCircle2 size={20} />
-            </span>
-            <div className="text-left">
-              <p className="orb text-sm font-bold uppercase tracking-[0.1em] text-white">
-                With DJ Visuals AI
-              </p>
-              <p className="sans mt-1 text-xs text-white/55">
-                Create, animate, and export faster.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-4">
-            {aiWorkflowItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.value}
-                  className="flex items-start gap-3 border-b border-[rgba(0,245,255,0.1)] pb-4 last:border-0 last:pb-0"
-                >
-                  <Icon className="mt-1 shrink-0 text-[var(--cx)]" size={18} />
-                  <div className="text-left">
-                    <p className="sans text-[19px] font-black leading-none text-[var(--cx)] sm:text-[22px]">
-                      {item.value}
-                    </p>
-                    <p className="sans mt-1 text-xs leading-5 text-white/64 sm:text-sm">
-                      {item.label}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <p className="mono mt-5 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.42)]">
+            Built for DJs, promoters, agencies, clubs, and booking inquiries.
+          </p>
         </div>
       </div>
-
-      <p className="sans mx-auto mt-8 max-w-3xl text-center text-sm leading-7 text-white/64 sm:text-base">
-        While you wait on revisions, another DJ can already publish flyers,
-        animated promos, and booking-ready visuals for Reels, TikTok, Stories,
-        and ads.
-      </p>
     </section>
   );
 }
@@ -2761,6 +2762,7 @@ export default function HomePage() {
             {[
               ["What you get", "#vantagens"],
               ["Examples", "#exemplos"],
+              ["DJ Website", "#dj-website"],
               ["How it works", "#como-funciona"],
               ["Pricing", "#pricing"],
             ].map(([label, href]) => (
@@ -2800,6 +2802,7 @@ export default function HomePage() {
           {[
             ["What you get", "#vantagens"],
             ["Examples", "#exemplos"],
+            ["DJ Website", "#dj-website"],
             ["How it works", "#como-funciona"],
             ["Pricing", "#pricing"],
           ].map(([label, href]) => (
@@ -2851,7 +2854,7 @@ export default function HomePage() {
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
             <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.000em] text-white sm:text-[56px] lg:text-[70px] uppercase">
-              Design Studio-Quality
+              Build Your Complete DJ Brand
               <br />
               <span
                 style={{
@@ -2859,7 +2862,7 @@ export default function HomePage() {
                   textShadow: "0 0 40px rgba(0,245,255,0.62)",
                 }}
               >
-                VIDEOS & FLYERS
+                AI FLYERS, VIDEOS, PHOTOS & WEBSITE
               </span>
               <br />
               <span
@@ -2874,8 +2877,8 @@ export default function HomePage() {
             </h1>
 
             <p className="sans mt-5 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
-              Instant professional designs in under 60 seconds. Ditch Canva,
-              Photoshop, and expensive designers. AI handles it all
+              Create premium flyers, animated promos, pro DJ photos, and a
+              booking-ready DJ website from one AI-powered dashboard.
             </p>
 
             <div className="mx-auto mt-5 w-full max-w-[260px] sm:max-w-[320px] lg:max-w-[340px]">
@@ -2964,7 +2967,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      <HeroCostComparisonSection />
+
+      <div className="glow-divider" />
+
+      {/* ── DJ WEBSITE FEATURE ── */}
+      <DjWebsiteFeatureSection />
 
       <div className="glow-divider" />
 
@@ -3293,7 +3300,7 @@ export default function HomePage() {
             <span className="chip-v">● SYSTEM FEATURES</span>
           </div>
           <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-            THREE TOOLS. ONE{" "}
+            FOUR TOOLS. ONE{" "}
             <span
               style={{
                 color: "var(--cx)",
@@ -3304,9 +3311,9 @@ export default function HomePage() {
             </span>
           </h2>
           <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base sm:mt-4">
-            DJ Visuals AI gives you everything you need to create, animate, and
-            present your brand — without designers, video editors, or expensive
-            agencies.
+            DJ Visuals AI gives you everything you need to create, animate,
+            publish, and present your brand — without designers, video editors,
+            or expensive agencies.
           </p>
         </div>
 
@@ -3341,74 +3348,6 @@ export default function HomePage() {
 
       <div className="glow-divider" />
 
-      {/* ── HOW IT WORKS ── */}
-      <section
-        id="como-funciona"
-        className="relative z-10"
-        style={{ background: "rgba(191,95,255,0.02)" }}
-      >
-        <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
-            <div>
-              <div className="sect-label">
-                <span className="chip-cx">● WORKFLOW PROTOCOL</span>
-              </div>
-              <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-                THREE STEPS TO A{" "}
-                <span
-                  style={{
-                    color: "var(--cg)",
-                    textShadow: "0 0 20px rgba(0,255,159,0.5)",
-                  }}
-                >
-                  COMPLETE
-                </span>
-                <br />
-                PROMO DROP.
-              </h2>
-              <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base sm:mt-4">
-                Generate your flyer, animate it into a video, and polish your DJ
-                photo — three tools in one workflow, built to get you from idea
-                to posted content fast.
-              </p>
-            </div>
-            <div className="hud-box-v p-5 sm:p-7">
-              <p
-                className="mono mb-5 text-[9px] text-[rgba(191,95,255,0.7)]"
-                style={{ letterSpacing: "0.18em" }}
-              >
-                // WORKFLOW: FLYER → ANIMATION → PHOTO
-              </p>
-              <div className="space-y-0">
-                {[
-                  "Generate a premium event flyer with AI in minutes",
-                  "Animate the flyer with VFX and export as MP4",
-                  "Enhance your DJ photo for profiles and ads",
-                  "Post across Instagram, TikTok, and Stories",
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start gap-4 border-b border-[rgba(255,255,255,0.05)] py-4 last:border-0"
-                  >
-                    <span
-                      className="orb text-[20px] font-black shrink-0"
-                      style={{ color: "rgba(191,95,255,0.3)", lineHeight: 1.2 }}
-                    >
-                      0{i + 1}
-                    </span>
-                    <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.62)]">
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="glow-divider" />
-
       <ExclusiveMusicBonusSection />
 
       <div className="glow-divider" />
@@ -3421,20 +3360,29 @@ export default function HomePage() {
               <span className="chip-cx">● ACCESS TIERS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              FULL ACCESS.{" "}
+              YOUR COMPLETE DJ{" "}
               <span
                 style={{
                   color: "var(--cx)",
                   textShadow: "0 0 24px rgba(0,245,255,0.5)",
                 }}
               >
-                THREE TIERS.
+                PROMO SYSTEM.
               </span>
             </h2>
-            <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base sm:mt-4">
-              Every plan includes flyer generation, animated MP4 export, and DJ
-              photo enhancement. Pick the volume that fits your promo schedule.
+            <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.66)] sm:text-base sm:mt-4">
+              Everything you need to look professional online: AI flyers,
+              animated MP4 promos, upgraded DJ photos, and your own public DJ
+              website for bookings, music links, social channels, and live
+              dates. Choose your plan and turn attention into real inquiries.
             </p>
+          </div>
+
+          <div className="mx-auto mt-5 flex max-w-3xl flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-3">
+            <span className="chip-v">WELCOME20 ACTIVE</span>
+            <span className="mono text-center text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.42)]">
+              A launch-ready toolkit for DJs, promoters, agencies, and clubs
+            </span>
           </div>
 
           <div className="mt-8 grid gap-5 sm:mt-12 lg:grid-cols-3">
