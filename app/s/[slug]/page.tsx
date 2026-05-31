@@ -87,6 +87,7 @@ type PublishedDjSite = {
   rating?: number | null;
   reviewsCount?: number | null;
   testimonials?: PublicTestimonial[] | null;
+  showAgenda?: boolean | null;
   links: PublicLink[];
   events: PublicEvent[];
 };
@@ -223,14 +224,26 @@ function getSocialLinks(site: PublishedDjSite): CompactLink[] {
 }
 
 function getBookingUrl(site: PublishedDjSite) {
+  if (site.bookingEmail) {
+    const subject = encodeURIComponent(`Booking request for ${site.artistName}`);
+    return `mailto:${site.bookingEmail}?subject=${subject}`;
+  }
+
   if (site.whatsappUrl) return site.whatsappUrl;
-  if (site.bookingEmail) return `mailto:${site.bookingEmail}`;
+  if (site.instagramUrl) return site.instagramUrl;
+
   return null;
 }
 
 function getMessageUrl(site: PublishedDjSite) {
   if (site.whatsappUrl) return site.whatsappUrl;
-  if (site.bookingEmail) return `mailto:${site.bookingEmail}`;
+  if (site.instagramUrl) return site.instagramUrl;
+
+  if (site.bookingEmail) {
+    const subject = encodeURIComponent(`Message for ${site.artistName}`);
+    return `mailto:${site.bookingEmail}?subject=${subject}`;
+  }
+
   return null;
 }
 
@@ -765,7 +778,8 @@ export default async function PublicDjSitePage({ params }: PageProps) {
 
   const accentColor = getAccentColor(site);
   const links = Array.isArray(site.links) ? site.links : [];
-  const events = Array.isArray(site.events) ? site.events : [];
+  const events =
+    site.showAgenda === false ? [] : Array.isArray(site.events) ? site.events : [];
   const bookingUrl = getBookingUrl(site);
   const messageUrl = getMessageUrl(site);
   const listenUrl = getListenUrl(site, links);
@@ -1076,24 +1090,20 @@ export default async function PublicDjSitePage({ params }: PageProps) {
           ) : null}
 
           {/* ── LIVE DATES ──────────────────────────────────── */}
-          <section className="dj-scroll">
-            <SectionHead
-              title="Live Dates"
-              actionLabel={events.length > 2 ? "All" : undefined}
-              actionUrl={bookingUrl}
-            />
-            {events.length > 0 ? (
+          {events.length > 0 ? (
+            <section className="dj-scroll">
+              <SectionHead
+                title="Live Dates"
+                actionLabel={events.length > 2 ? "All" : undefined}
+                actionUrl={bookingUrl}
+              />
               <div className="border-t border-[var(--line)]">
                 {events.slice(0, 5).map((event) => (
                   <GigRow key={event.id} event={event} />
                 ))}
               </div>
-            ) : (
-              <p className="dj-mono border-t border-[var(--line)] pt-5 text-[12px] font-bold uppercase leading-relaxed tracking-[0.06em] text-[var(--ink-soft)]">
-                No public shows listed — available for private bookings.
-              </p>
-            )}
-          </section>
+            </section>
+          ) : null}
 
           {/* ── PRESS / TESTIMONIALS ────────────────────────── */}
           {testimonials.length > 0 ? (
