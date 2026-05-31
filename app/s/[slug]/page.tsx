@@ -345,7 +345,9 @@ function getPublicColorPalette(site: PublishedDjSite) {
 }
 
 function getPublicUrl(slug: string) {
-  const rootDomain = (process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN || "djvisuals.site")
+  const rootDomain = (
+    process.env.NEXT_PUBLIC_DJ_SITE_ROOT_DOMAIN || "djvisuals.site"
+  )
     .replace(/^https?:\/\//i, "")
     .replace(/^\*\./, "")
     .replace(/\/$/, "")
@@ -423,9 +425,12 @@ function getListenUrl(site: PublishedDjSite, links: PublicLink[]) {
     safeExternalHref(site.soundcloudUrl) ||
     safeExternalHref(site.spotifyUrl) ||
     safeExternalHref(site.youtubeUrl) ||
-    safeExternalHref(links.find((link) => musicLabelPattern.test(link.label))?.url, {
-      allowMailto: true,
-    }) ||
+    safeExternalHref(
+      links.find((link) => musicLabelPattern.test(link.label))?.url,
+      {
+        allowMailto: true,
+      },
+    ) ||
     null
   );
 }
@@ -624,7 +629,9 @@ function getFeaturedLinks(
       ...link,
       url: safeExternalHref(link.url, { allowMailto: true }) || "",
     })),
-  ].filter((link) => typeof link.url === "string" && link.url.trim().length > 0);
+  ].filter(
+    (link) => typeof link.url === "string" && link.url.trim().length > 0,
+  );
 
   const seen = new Set<string>();
   return combined
@@ -956,7 +963,11 @@ export default async function PublicDjSitePage({ params }: PageProps) {
   const colorPalette = getPublicColorPalette(site);
   const links = Array.isArray(site.links) ? site.links : [];
   const events =
-    site.showAgenda === false ? [] : Array.isArray(site.events) ? site.events : [];
+    site.showAgenda === false
+      ? []
+      : Array.isArray(site.events)
+        ? site.events
+        : [];
   const bookingUrl = getBookingUrl(site);
   const messageUrl = getMessageUrl(site);
   const listenUrl = getListenUrl(site, links);
@@ -1106,7 +1117,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               {site.headline || "Professional DJ"}
               {site.location ? `  /  ${site.location}` : ""}
             </p>
-            <h1 className="dj-display text-[clamp(54px,17vw,86px)] uppercase leading-[0.84] tracking-[-0.02em] text-white">
+            <h1 className="dj-display text-[clamp(38px,11vw,58px)] uppercase leading-[0.84] tracking-[-0.02em] text-white">
               {site.artistName}
             </h1>
           </div>
