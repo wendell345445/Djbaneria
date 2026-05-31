@@ -19,6 +19,27 @@ function getApiErrorMessage(error: unknown) {
   return "Unknown error";
 }
 
+function toPrismaEventDate(value: string | Date | null | undefined) {
+  if (!value) return null;
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  const cleanValue = value.trim();
+
+  if (!cleanValue) {
+    return null;
+  }
+
+  const date =
+    /^\d{4}-\d{2}-\d{2}$/.test(cleanValue)
+      ? new Date(`${cleanValue}T12:00:00.000Z`)
+      : new Date(cleanValue);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export async function GET() {
   const workspace = await getCurrentWorkspace();
 
@@ -164,7 +185,7 @@ export async function PUT(request: Request) {
             title: event.title,
             venue: event.venue,
             city: event.city,
-            eventDate: event.eventDate,
+            eventDate: toPrismaEventDate(event.eventDate),
             ticketUrl: event.ticketUrl,
             flyerUrl: event.flyerUrl,
             position: event.position ?? index,

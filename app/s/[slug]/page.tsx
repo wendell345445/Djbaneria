@@ -87,7 +87,6 @@ type PublishedDjSite = {
   rating?: number | null;
   reviewsCount?: number | null;
   testimonials?: PublicTestimonial[] | null;
-  showAgenda?: boolean | null;
   links: PublicLink[];
   events: PublicEvent[];
 };
@@ -766,8 +765,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
 
   const accentColor = getAccentColor(site);
   const links = Array.isArray(site.links) ? site.links : [];
-  const events =
-    site.showAgenda === false ? [] : Array.isArray(site.events) ? site.events : [];
+  const events = Array.isArray(site.events) ? site.events : [];
   const bookingUrl = getBookingUrl(site);
   const messageUrl = getMessageUrl(site);
   const listenUrl = getListenUrl(site, links);
@@ -1078,26 +1076,30 @@ export default async function PublicDjSitePage({ params }: PageProps) {
           ) : null}
 
           {/* ── LIVE DATES ──────────────────────────────────── */}
-          {events.length > 0 ? (
-            <section className="dj-scroll">
-              <SectionHead
-                title="Live Dates"
-                actionLabel={events.length > 2 ? "All" : undefined}
-                actionUrl={bookingUrl}
-              />
+          <section className="dj-scroll">
+            <SectionHead
+              title="Live Dates"
+              actionLabel={events.length > 2 ? "All" : undefined}
+              actionUrl={bookingUrl}
+            />
+            {events.length > 0 ? (
               <div className="border-t border-[var(--line)]">
                 {events.slice(0, 5).map((event) => (
                   <GigRow key={event.id} event={event} />
                 ))}
               </div>
-            </section>
-          ) : null}
+            ) : (
+              <p className="dj-mono border-t border-[var(--line)] pt-5 text-[12px] font-bold uppercase leading-relaxed tracking-[0.06em] text-[var(--ink-soft)]">
+                No public shows listed — available for private bookings.
+              </p>
+            )}
+          </section>
 
           {/* ── PRESS / TESTIMONIALS ────────────────────────── */}
           {testimonials.length > 0 ? (
             <section className="dj-scroll">
               <SectionHead title="Press" />
-              <div className="hide-scrollbar -mx-5 flex snap-x items-stretch gap-4 overflow-x-auto px-5 pb-1">
+              <div className="hide-scrollbar -mx-5 flex snap-x items-stretch gap-4 overflow-x-auto pb-1 pl-7 pr-5 sm:px-5">
                 {testimonials.map((item, index) => (
                   <TestimonialCard key={item.id || index} item={item} />
                 ))}
