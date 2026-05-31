@@ -15,7 +15,8 @@ import {
   Camera,
   ArrowRight,
   Quote,
-  CheckCircle2,  Music2,
+  CheckCircle2,
+  Music2,
   Pause,
   Play,
 } from "lucide-react";
@@ -1592,7 +1593,6 @@ function DjWebsiteFeatureSection() {
                 poster="/landing/dj-site-demo/site-dj-demo-poster.webp"
                 className="h-full w-full object-cover"
               />
-
             </div>
           </div>
 
@@ -2853,8 +2853,8 @@ export default function HomePage() {
 
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
-            <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.000em] text-white sm:text-[56px] lg:text-[70px] uppercase">
-              Build Your Complete DJ Brand
+            <h1 className="hero-h1 orb text-[24px] font-black leading-[1] tracking-[-0.000em] text-white sm:text-[46px] lg:text-[58px] uppercase">
+              Build Your DJ Brand
               <br />
               <span
                 style={{
@@ -2966,7 +2966,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
 
       <div className="glow-divider" />
 
