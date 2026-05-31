@@ -837,16 +837,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
       <div className="relative mx-auto min-h-screen w-full max-w-none overflow-hidden pb-24 min-[480px]:max-w-[460px] md:my-6 md:max-w-[460px] md:border md:border-[var(--ink)] lg:max-w-[480px]">
         {/* ── TOP BAR ───────────────────────────────────────── */}
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-5 pt-6 text-[var(--paper)] mix-blend-difference">
-          <a
-            href="/"
-            aria-label="Back"
-            className="inline-flex items-center gap-2"
-          >
-            <ArrowLeft size={18} />
-            <span className="dj-mono text-[11px] font-bold uppercase tracking-[0.14em]">
-              Index
-            </span>
-          </a>
+          <span className="w-[64px]" aria-hidden="true" />
 
           <div className="flex min-w-0 items-center justify-center">
             <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full bg-black/35 p-1 backdrop-blur-sm">
@@ -892,7 +883,7 @@ export default async function PublicDjSitePage({ params }: PageProps) {
               {site.headline || "Professional DJ"}
               {site.location ? `  /  ${site.location}` : ""}
             </p>
-            <h1 className="dj-display text-[clamp(54px,17vw,86px)] uppercase leading-[0.84] tracking-[-0.02em] text-[var(--paper)]">
+            <h1 className="dj-display text-[clamp(34px,10vw,52px)] uppercase leading-[0.84] tracking-[-0.02em] text-[var(--paper)]">
               {site.artistName}
             </h1>
           </div>

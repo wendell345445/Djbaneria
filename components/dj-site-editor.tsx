@@ -92,7 +92,7 @@ function getCopy(locale: SupportedLocale) {
       eyebrow: "Novo produto",
       title: "Seu link bio de DJ",
       subtitle:
-        "Monte um site público com agenda, links, booking e presença profissional. A primeira versão publica em /s/slug e já prepara o futuro subdomínio slug.djvisuals.ai.",
+        "Monte um site público com agenda, links, booking e presença profissional. A primeira versão publica em /s/slug e já prepara o futuro subdomínio slug.djvisuals.site.",
       save: "Publicar site",
       saving: "Publicando...",
       saved: "Site salvo como rascunho.",
@@ -163,7 +163,7 @@ function getCopy(locale: SupportedLocale) {
       eyebrow: "Nuevo producto",
       title: "Tu link bio de DJ",
       subtitle:
-        "Crea un sitio público con agenda, enlaces, booking y presencia profesional. La primera versión publica en /s/slug y prepara el futuro subdominio slug.djvisuals.ai.",
+        "Crea un sitio público con agenda, enlaces, booking y presencia profesional. La primera versión publica en /s/slug y prepara el futuro subdominio slug.djvisuals.site.",
       save: "Publicar sitio",
       saving: "Publicando...",
       saved: "Sitio guardado como borrador.",
@@ -233,7 +233,7 @@ function getCopy(locale: SupportedLocale) {
     eyebrow: "New product",
     title: "Your DJ link bio",
     subtitle:
-      "Build a public DJ site with agenda, links, booking and a professional presence. This first version publishes at /s/slug and prepares the future slug.djvisuals.ai subdomain.",
+      "Build a public DJ site with agenda, links, booking and a professional presence. This first version publishes at /s/slug and prepares the future slug.djvisuals.site subdomain.",
     save: "Publish site",
     saving: "Publishing...",
     saved: "Site saved as draft.",
@@ -747,7 +747,7 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
       bookingEmail,
       theme,
       accentColor,
-      isPublished,
+      isPublished: true,
       links: links
         .map((link, index) => ({
           label: link.label,
@@ -788,7 +788,8 @@ export function DjSiteEditor({ initialSite, locale }: DjSiteEditorProps) {
     }
 
     setSlug(normalizedSlug);
-    setSuccess(isPublished ? copy.online : copy.saved);
+    setIsPublished(true);
+    setSuccess(copy.online);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
