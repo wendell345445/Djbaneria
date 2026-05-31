@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
-type RemotePattern = NonNullable<NextConfig["images"]>["remotePatterns"] extends
-  | Array<infer Pattern>
-  | undefined
+type RemotePattern = NonNullable<
+  NextConfig["images"]
+>["remotePatterns"] extends Array<infer Pattern> | undefined
   ? Pattern
   : never;
 
-function normalizeRemoteImagePattern(value?: string | null): RemotePattern | null {
+function normalizeRemoteImagePattern(
+  value?: string | null,
+): RemotePattern | null {
   if (!value) return null;
 
   const trimmed = value.trim();
@@ -60,8 +62,35 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+
   images: {
     remotePatterns: buildRemoteImagePatterns(),
+  },
+
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
   },
 };
 
