@@ -1709,7 +1709,7 @@ function BonusMusicPlayer() {
   }
 
   return (
-    <div className="mt-6 border border-[rgba(0,245,255,0.14)] bg-black/25 p-4 sm:p-5">
+    <div className="mt-6 p-0">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.72)]">
@@ -1723,9 +1723,7 @@ function BonusMusicPlayer() {
           </p>
         </div>
 
-        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.26)] bg-[rgba(0,245,255,0.09)] text-[var(--cx)] shadow-[0_0_24px_rgba(0,245,255,0.16)]">
-          <Music2 size={19} />
-        </div>
+
       </div>
 
       <div className="mt-5 grid gap-2.5">
@@ -1884,14 +1882,22 @@ function ExclusiveMusicBonusSection() {
             </a>
           </div>
 
-          <div className="hud-box-v relative overflow-hidden p-4 sm:p-6">
+          <div className="relative overflow-hidden p-0">
             <div className="absolute right-4 top-4 border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.08)] px-2.5 py-1 text-[7px] font-bold uppercase tracking-[0.16em] text-[var(--cg)]">
               Included
             </div>
 
             <div className="flex items-center gap-4 border-b border-[rgba(0,245,255,0.14)] pb-5 pr-20">
-              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.1)] text-[var(--cx)] shadow-[0_0_32px_rgba(0,245,255,0.18)]">
-                <Sparkles size={25} />
+              <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.1)] text-[var(--cx)]">
+                <svg
+                  viewBox="0 0 55 55"
+                  aria-hidden="true"
+                  className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,245,255,0.45)]"
+                  fill="currentColor"
+                >
+                  <path d="M45.465 9.321h-16.8a5.277 5.277 0 0 0-4.88-3.28H8.925a5.27 5.27 0 0 0-5.27 5.27v4.6a7.86 7.86 0 0 1 5.88-2.64h35.93a7.86 7.86 0 0 1 5.88 2.64v-.7c0-3.25-2.63-5.89-5.88-5.89z" />
+                  <path d="M45.463 15.27H9.54a5.882 5.882 0 0 0-5.882 5.882v21.925a5.882 5.882 0 0 0 5.882 5.882h35.923a5.882 5.882 0 0 0 5.882-5.882V21.152a5.882 5.882 0 0 0-5.882-5.882zM35.645 26.89l-.3 9.56v.13h-.01c-.09 1.01-1.27 1.86-2.75 1.94-1.953.118-3.404-1.302-3.45-2.23-.06-1.1 1.18-2.07 2.76-2.15.38-.02.75.01 1.09.08l.21-6.96-8.21 1.22-.32 10.31v.13h-.01c-.09 1.04-1.29 1.91-2.82 1.99-1.393.073-3.451-1.03-3.52-2.27-.06-1.14 1.21-2.12 2.83-2.21.41-.02.8.01 1.16.1.367-11.81.297-9.204.33-10.24.02-.8.62-1.47 1.41-1.59 9.667-1.434 9.315-1.4 9.52-1.4.823 0 2.165.97 2.13 2.1z" />
+                </svg>
               </div>
               <div>
                 <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.72)]">
