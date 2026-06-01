@@ -15,8 +15,7 @@ import {
   Camera,
   ArrowRight,
   Quote,
-  CheckCircle2,
-  Music2,
+  CheckCircle2,  Music2,
   Pause,
   Play,
 } from "lucide-react";
@@ -1578,6 +1577,7 @@ function DjWebsiteFeatureSection() {
                 poster="/landing/dj-site-demo/site-dj-demo-poster.webp"
                 className="h-full w-full object-cover"
               />
+
             </div>
           </div>
 
@@ -1592,6 +1592,8 @@ function DjWebsiteFeatureSection() {
               <ArrowRight size={12} />
             </a>
           </div>
+
+
         </div>
       </div>
     </section>
@@ -1616,6 +1618,8 @@ function BonusMusicPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
+    audio.pause();
+    audio.currentTime = 0;
     setProgress(0);
     setDuration(0);
     setLoadError(false);
@@ -1629,32 +1633,38 @@ function BonusMusicPlayer() {
     }
   }, [activeTrackId, isPlaying]);
 
-  async function togglePlayback() {
+  async function playTrack(trackId: (typeof bonusMusicTracks)[number]["id"]) {
     const audio = audioRef.current;
-    if (!audio) return;
 
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-
-    setLoadError(false);
-
-    try {
-      await audio.play();
-      setIsPlaying(true);
-    } catch {
-      setIsPlaying(false);
-    }
-  }
-
-  function selectTrack(trackId: (typeof bonusMusicTracks)[number]["id"]) {
     if (trackId === activeTrackId) {
-      void togglePlayback();
+      if (!audio) return;
+
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+        return;
+      }
+
+      setLoadError(false);
+
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch {
+        setIsPlaying(false);
+      }
+
       return;
     }
 
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setProgress(0);
+    setDuration(0);
+    setLoadError(false);
     setActiveTrackId(trackId);
     setIsPlaying(true);
   }
@@ -1673,9 +1683,12 @@ function BonusMusicPlayer() {
     setDuration(audio.duration);
   }
 
-  function handleSeek(event: MouseEvent<HTMLButtonElement>) {
+  function handleSeek(
+    event: MouseEvent<HTMLButtonElement>,
+    trackId: (typeof bonusMusicTracks)[number]["id"],
+  ) {
     const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
+    if (!audio || !audio.duration || trackId !== activeTrackId) return;
 
     const bounds = event.currentTarget.getBoundingClientRect();
     const ratio = Math.min(
@@ -1715,110 +1728,107 @@ function BonusMusicPlayer() {
         </div>
       </div>
 
-      <div className="mt-5 border border-[rgba(191,95,255,0.18)] bg-[rgba(191,95,255,0.055)] p-3 sm:p-4">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={togglePlayback}
-            className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--cx)] text-[#03040A] shadow-[0_0_34px_rgba(0,245,255,0.32)] transition hover:scale-105"
-            aria-label={
-              isPlaying
-                ? "Pause bonus music preview"
-                : "Play bonus music preview"
-            }
-          >
-            {isPlaying ? (
-              <Pause size={18} fill="currentColor" />
-            ) : (
-              <Play size={18} fill="currentColor" />
-            )}
-          </button>
-
-          <div className="min-w-0 flex-1">
-            <p className="orb truncate text-sm font-bold uppercase tracking-[0.08em] text-white">
-              {activeTrack.title}
-            </p>
-            <p className="sans mt-1 truncate text-xs text-[rgba(255,255,255,0.58)]">
-              {activeTrack.vibe}
-            </p>
-          </div>
-
-          <span className="mono hidden text-[8px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.48)] sm:block">
-            {formatTime(duration)}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleSeek}
-          className="mt-4 h-2 w-full overflow-hidden bg-white/[0.08] text-left"
-          aria-label="Seek bonus music preview"
-        >
-          <span
-            className="block h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] shadow-[0_0_18px_rgba(0,245,255,0.34)] transition-[width] duration-150"
-            style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-          />
-        </button>
-
-        {loadError ? (
-          <p className="sans mt-3 text-xs leading-5 text-rose-300">
-            Preview unavailable right now. Please try again later.
-          </p>
-        ) : null}
-
-        <audio
-          ref={audioRef}
-          src={activeTrack.src}
-          preload="none"
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onEnded={() => setIsPlaying(false)}
-          onError={() => {
-            setIsPlaying(false);
-            setLoadError(true);
-          }}
-        />
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="mt-5 grid gap-2.5">
         {bonusMusicTracks.map((track, index) => {
           const selected = track.id === activeTrack.id;
+          const playingThisTrack = selected && isPlaying;
+          const trackProgress = selected ? progress : 0;
 
           return (
-            <button
+            <div
               key={track.id}
-              type="button"
-              onClick={() => selectTrack(track.id)}
-              className={`group border p-3 text-left transition ${
+              className={`group overflow-hidden border transition ${
                 selected
-                  ? "border-[rgba(0,245,255,0.56)] bg-[rgba(0,245,255,0.09)] shadow-[0_0_22px_rgba(0,245,255,0.12)]"
+                  ? "border-[rgba(0,245,255,0.56)] bg-[rgba(0,245,255,0.08)] shadow-[0_0_24px_rgba(0,245,255,0.13)]"
                   : "border-white/10 bg-white/[0.025] hover:border-[rgba(0,245,255,0.28)] hover:bg-[rgba(0,245,255,0.045)]"
               }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.42)]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className={`grid h-5 w-5 place-items-center rounded-full border text-[9px] ${
+              <div className="flex items-center gap-3 p-3 sm:p-3.5">
+                <button
+                  type="button"
+                  onClick={() => void playTrack(track.id)}
+                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border transition sm:h-11 sm:w-11 ${
                     selected
-                      ? "border-[rgba(0,245,255,0.45)] text-[var(--cx)]"
-                      : "border-white/10 text-white/38 group-hover:text-[var(--cx)]"
+                      ? "border-[rgba(0,245,255,0.46)] bg-[var(--cx)] text-[#03040A] shadow-[0_0_28px_rgba(0,245,255,0.28)]"
+                      : "border-white/10 bg-white/[0.04] text-white/72 group-hover:border-[rgba(0,245,255,0.35)] group-hover:text-[var(--cx)]"
                   }`}
+                  aria-label={
+                    playingThisTrack
+                      ? `Pause ${track.title}`
+                      : `Play ${track.title}`
+                  }
                 >
-                  {selected && isPlaying ? "Ⅱ" : "▶"}
-                </span>
+                  {playingThisTrack ? (
+                    <Pause size={15} fill="currentColor" />
+                  ) : (
+                    <Play size={15} fill="currentColor" />
+                  )}
+                </button>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="mono text-[7px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.42)]">
+                        Sample {String(index + 1).padStart(2, "0")}
+                      </p>
+                      <p className="sans mt-1 truncate text-xs font-bold text-white/84 sm:text-sm">
+                        {track.title}
+                      </p>
+                    </div>
+
+                    <span
+                      className={`mono shrink-0 text-[8px] uppercase tracking-[0.14em] ${
+                        selected
+                          ? "text-[var(--cx)]"
+                          : "text-[rgba(255,255,255,0.38)]"
+                      }`}
+                    >
+                      {selected ? formatTime(duration) : "Preview"}
+                    </span>
+                  </div>
+
+                  <p className="sans mt-1 truncate text-[10px] leading-4 text-[rgba(255,255,255,0.52)] sm:text-xs">
+                    {track.vibe}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={(event) => handleSeek(event, track.id)}
+                    className="mt-2.5 h-1.5 w-full overflow-hidden bg-white/[0.08] text-left"
+                    aria-label={`Seek ${track.title}`}
+                  >
+                    <span
+                      className="block h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] shadow-[0_0_18px_rgba(0,245,255,0.34)] transition-[width] duration-150"
+                      style={{
+                        width: `${Math.min(100, Math.max(0, trackProgress))}%`,
+                      }}
+                    />
+                  </button>
+                </div>
               </div>
-              <p className="sans mt-2 truncate text-xs font-bold text-white/80">
-                {track.title}
-              </p>
-              <p className="sans mt-1 line-clamp-2 text-[10px] leading-4 text-[rgba(255,255,255,0.52)]">
-                {track.vibe}
-              </p>
-            </button>
+            </div>
           );
         })}
       </div>
+
+      {loadError ? (
+        <p className="sans mt-3 text-xs leading-5 text-rose-300">
+          Preview unavailable right now. Please try another sample.
+        </p>
+      ) : null}
+
+      <audio
+        ref={audioRef}
+        src={activeTrack.src}
+        preload="none"
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={() => setIsPlaying(false)}
+        onError={() => {
+          setIsPlaying(false);
+          setLoadError(true);
+        }}
+      />
     </div>
   );
 }
@@ -2811,7 +2821,7 @@ export default function HomePage() {
 
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
-            <h1 className="hero-h1 orb text-[24px] font-black leading-[1] tracking-[-0.000em] text-white sm:text-[46px] lg:text-[58px] uppercase">
+            <h1 className="hero-h1 orb text-[29px] font-black leading-[0.94] tracking-[-0.000em] text-white sm:text-[56px] lg:text-[70px] uppercase">
               Build Your DJ Brand
               <br />
               <span
@@ -2924,6 +2934,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
 
       <div className="glow-divider" />
 
