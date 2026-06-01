@@ -15,8 +15,7 @@ import {
   Camera,
   ArrowRight,
   Quote,
-  CheckCircle2,
-  Music2,
+  CheckCircle2,  Music2,
   Pause,
   Play,
 } from "lucide-react";
@@ -1578,6 +1577,7 @@ function DjWebsiteFeatureSection() {
                 poster="/landing/dj-site-demo/site-dj-demo-poster.webp"
                 className="h-full w-full object-cover"
               />
+
             </div>
           </div>
 
@@ -1592,6 +1592,8 @@ function DjWebsiteFeatureSection() {
               <ArrowRight size={12} />
             </a>
           </div>
+
+
         </div>
       </div>
     </section>
@@ -1720,6 +1722,8 @@ function BonusMusicPlayer() {
             Play 6 sample house remixes from the exclusive subscriber pack.
           </p>
         </div>
+
+
       </div>
 
       <div className="mt-5 grid gap-2.5">
@@ -2036,6 +2040,55 @@ export default function HomePage() {
         }
 
         /* ── ANIMATIONS ── */
+        .hero-mockup-reveal {
+          opacity: 0;
+          transform: translateY(28px) scale(0.94);
+          filter: saturate(0.86) brightness(0.82);
+          animation: heroMockupReveal 950ms cubic-bezier(.16,1,.3,1) 180ms forwards;
+          will-change: opacity, transform, filter;
+        }
+
+        .hero-mockup-image {
+          animation: heroMockupFloat 5.8s ease-in-out 1.2s infinite;
+          will-change: transform;
+        }
+
+        @keyframes heroMockupReveal {
+          0% {
+            opacity: 0;
+            transform: translateY(28px) scale(0.94);
+            filter: saturate(0.86) brightness(0.82) blur(4px);
+          }
+          62% {
+            opacity: 1;
+            transform: translateY(-4px) scale(1.015);
+            filter: saturate(1.12) brightness(1.08) blur(0);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: saturate(1) brightness(1) blur(0);
+          }
+        }
+
+        @keyframes heroMockupFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-mockup-reveal,
+          .hero-mockup-image {
+            animation: none !important;
+          }
+
+          .hero-mockup-reveal {
+            opacity: 1;
+            transform: none;
+            filter: none;
+          }
+        }
+
         @keyframes pulseX {
           0%, 100% { box-shadow: 0 0 18px rgba(0,245,255,0.25), 0 0 40px rgba(0,245,255,0.10); }
           50% { box-shadow: 0 0 28px rgba(0,245,255,0.45), 0 0 70px rgba(0,245,255,0.20); }
@@ -2851,8 +2904,23 @@ export default function HomePage() {
               booking-ready DJ website from one AI-powered dashboard.
             </p>
 
-            <div className="mx-auto mt-5 w-full max-w-[260px] sm:max-w-[320px] lg:max-w-[340px]">
-              <HeroVimeoCard vimeoId="1192995365" />
+            <div className="hero-mockup-reveal relative mx-auto mt-6 w-full max-w-[320px] sm:max-w-[420px] lg:max-w-[520px]">
+              <div
+                className="pointer-events-none absolute left-1/2 top-1/2 h-[72%] w-[88%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,245,255,0.18)] blur-3xl"
+                style={{ animation: "heroMockupGlow 4.5s ease-in-out infinite" }}
+              />
+              <div
+                className="pointer-events-none absolute left-[42%] top-[52%] h-[64%] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(191,95,255,0.18)] blur-3xl"
+                style={{ animation: "heroMockupGlow 5.6s ease-in-out infinite reverse" }}
+              />
+
+              <img
+                src="/LAPTOP AND PHONE SCREEN MOCKUP.png"
+                alt="DJ Visuals AI laptop and phone platform mockup"
+                className="hero-mockup-image relative z-10 h-auto w-full select-none object-contain drop-shadow-[0_28px_70px_rgba(0,0,0,0.62)]"
+                loading="eager"
+                decoding="async"
+              />
             </div>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
@@ -2936,6 +3004,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
 
       <div className="glow-divider" />
 
