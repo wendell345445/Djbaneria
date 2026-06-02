@@ -2904,7 +2904,7 @@ export default function HomePage() {
               booking-ready DJ website from one AI-powered dashboard.
             </p>
 
-            <div className="hero-mockup-reveal relative mx-auto mt-6 w-full max-w-[320px] sm:max-w-[420px] lg:max-w-[520px]">
+            <div className="hero-mockup-reveal relative mx-auto mt-6 w-full max-w-[380px] sm:max-w-[540px] lg:max-w-[680px]">
               <div
                 className="pointer-events-none absolute left-1/2 top-1/2 h-[72%] w-[88%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,245,255,0.18)] blur-3xl"
                 style={{ animation: "heroMockupGlow 4.5s ease-in-out infinite" }}
