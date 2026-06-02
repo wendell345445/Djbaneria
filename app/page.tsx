@@ -15,7 +15,8 @@ import {
   Camera,
   ArrowRight,
   Quote,
-  CheckCircle2,  Music2,
+  CheckCircle2,
+  Music2,
   Pause,
   Play,
 } from "lucide-react";
@@ -1577,7 +1578,6 @@ function DjWebsiteFeatureSection() {
                 poster="/landing/dj-site-demo/site-dj-demo-poster.webp"
                 className="h-full w-full object-cover"
               />
-
             </div>
           </div>
 
@@ -1592,8 +1592,6 @@ function DjWebsiteFeatureSection() {
               <ArrowRight size={12} />
             </a>
           </div>
-
-
         </div>
       </div>
     </section>
@@ -1722,8 +1720,6 @@ function BonusMusicPlayer() {
             Play 6 sample house remixes from the exclusive subscriber pack.
           </p>
         </div>
-
-
       </div>
 
       <div className="mt-5 grid gap-2.5">
@@ -2876,8 +2872,8 @@ export default function HomePage() {
 
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div>
-            <h1 className="hero-h1 orb text-[24px] font-black leading-[1] tracking-[-0.000em] text-white sm:text-[46px] lg:text-[58px] uppercase">
-              Build Your DJ Brand
+            <h1 className="hero-h1 orb text-[30px] font-black leading-[0.98] tracking-[-0.015em] text-white sm:text-[58px] sm:leading-[0.86] lg:text-[76px] lg:leading-[0.88] uppercase">
+              Pro Sound.
               <br />
               <span
                 style={{
@@ -2885,7 +2881,7 @@ export default function HomePage() {
                   textShadow: "0 0 40px rgba(0,245,255,0.62)",
                 }}
               >
-                AI FLYERS, VIDEOS, PHOTOS & WEBSITE
+                Amateur Look?
               </span>
               <br />
               <span
@@ -2894,24 +2890,34 @@ export default function HomePage() {
                   textShadow: "0 0 40px rgba(191,95,255,0.62)",
                 }}
               >
-                in Under a Minute
+                Not Anymore.
               </span>
               <span className="cursor" />
             </h1>
 
             <p className="sans mt-5 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.62)] sm:text-[16px] sm:leading-7">
-              Create premium flyers, animated promos, pro DJ photos, and a
-              booking-ready DJ website from one AI-powered dashboard.
+              Flyers, promo videos, photos, and a booking-ready site — in under
+              a minute.
             </p>
 
             <div className="hero-mockup-reveal relative mx-auto mt-6 w-full max-w-[380px] sm:max-w-[540px] lg:max-w-[680px]">
               <div
-                className="pointer-events-none absolute left-1/2 top-1/2 h-[72%] w-[88%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,245,255,0.18)] blur-3xl"
-                style={{ animation: "heroMockupGlow 4.5s ease-in-out infinite" }}
+                className="pointer-events-none absolute left-1/2 top-1/2 h-[88%] w-[110%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,245,255,0.24)] blur-3xl"
+                style={{
+                  animation: "heroMockupGlow 4.2s ease-in-out infinite",
+                }}
               />
               <div
-                className="pointer-events-none absolute left-[42%] top-[52%] h-[64%] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(191,95,255,0.18)] blur-3xl"
-                style={{ animation: "heroMockupGlow 5.6s ease-in-out infinite reverse" }}
+                className="pointer-events-none absolute left-[42%] top-[52%] h-[78%] w-[96%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(191,95,255,0.24)] blur-3xl"
+                style={{
+                  animation: "heroMockupGlow 5.3s ease-in-out infinite reverse",
+                }}
+              />
+              <div
+                className="pointer-events-none absolute left-[58%] top-[44%] h-[54%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,255,159,0.10)] blur-3xl"
+                style={{
+                  animation: "heroMockupGlow 6.2s ease-in-out infinite",
+                }}
               />
 
               <img
@@ -3004,7 +3010,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
 
       <div className="glow-divider" />
 
