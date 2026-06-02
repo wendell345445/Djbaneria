@@ -668,8 +668,8 @@ function StaticVsAnimatedSection() {
           </span>
         </h2>
         <p className="sans mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
-          Show the result before the pricing: DJs can use an AI-made flyer or
-          upload their own finished artwork, then export a social-ready MP4.
+          DJs can use an AI-made flyer or upload their own finished artwork,
+          then export a social-ready MP4.
         </p>
       </div>
 
