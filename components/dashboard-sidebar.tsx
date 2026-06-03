@@ -519,6 +519,11 @@ export function DashboardSidebar({
 
         .dashboard-orb { font-family: 'Orbitron', monospace; }
         .dashboard-mono { font-family: 'Space Mono', monospace; }
+        .dashboard-number {
+          font-variant-numeric: tabular-nums;
+          font-feature-settings: 'tnum' 1, 'kern' 0;
+          letter-spacing: 0.05em;
+        }
 
         .dashboard-grid {
           background-image:
@@ -810,7 +815,7 @@ export function DashboardSidebar({
                         {mobileCreditCopy.shortLabel}
                       </span>
                       <span className="mt-0.5 flex items-baseline gap-1.5">
-                        <span className="dashboard-orb max-w-[58px] truncate text-[16px] font-black uppercase leading-none text-white">
+                        <span className="dashboard-orb dashboard-number max-w-[58px] truncate text-[16px] font-black uppercase leading-none text-white">
                           {displayCreditInfo.value}
                         </span>
                         <span className="hidden dashboard-mono text-[7px] font-bold uppercase tracking-[0.12em] text-white/38 min-[380px]:inline">
@@ -1190,7 +1195,7 @@ function CollapsedCreditsPill({
       title={`${creditInfo.label}: ${creditInfo.value} · ${creditInfo.usage}`}
     >
       <CircleDollarSign className="h-5 w-5" />
-      <span className="absolute -right-1 -top-1 min-w-5 border border-cyan-200/30 bg-[#03040a] px-1 text-center dashboard-mono text-[8px] font-black uppercase leading-4 text-white shadow-[0_0_16px_rgba(0,245,255,0.16)]">
+      <span className="absolute -right-1 -top-1 min-w-5 border border-cyan-200/30 bg-[#03040a] px-1 text-center dashboard-mono dashboard-number text-[8px] font-black uppercase leading-4 text-white shadow-[0_0_16px_rgba(0,245,255,0.16)]">
         {creditInfo.isUnlimited ? "∞" : creditInfo.value}
       </span>
     </div>
@@ -1230,7 +1235,7 @@ function CreditsPanel({
         </div>
 
         <div className="shrink-0 text-right">
-          <p className="dashboard-orb text-[18px] font-black uppercase leading-none tracking-[-0.04em] text-white">
+          <p className="dashboard-orb dashboard-number text-[18px] font-black uppercase leading-none text-white">
             {creditInfo.isUnlimited ? "∞" : creditInfo.value}
           </p>
           <p className="dashboard-mono mt-0.5 max-w-[92px] truncate text-[7px] font-bold uppercase tracking-[0.12em] text-white/62">

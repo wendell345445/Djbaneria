@@ -883,7 +883,7 @@ function CreditPanel({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="dashboard-eyebrow text-white/48">{copy.plan.creditsLeft}</p>
-            <strong className="dashboard-title mt-3 block text-[48px] font-black leading-none text-white sm:text-[58px]">
+            <strong className="dashboard-title dashboard-number mt-3 block text-[48px] font-black leading-none text-white sm:text-[58px]">
               {remainingLabel}
             </strong>
           </div>
@@ -1208,6 +1208,12 @@ function DashboardStyle() {
 
           .dashboard-title {
             font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          }
+
+          .dashboard-number {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum" 1, "kern" 0;
+            letter-spacing: 0.05em;
           }
 
           .dashboard-eyebrow {

@@ -610,6 +610,11 @@ export default async function BillingPage() {
             }
             .billing-orb { font-family: 'Orbitron', monospace; }
             .billing-mono { font-family: 'Space Mono', monospace; }
+            .billing-number {
+              font-variant-numeric: tabular-nums;
+              font-feature-settings: 'tnum' 1, 'kern' 0;
+              letter-spacing: 0.05em;
+            }
             .billing-grid {
               background-image:
                 linear-gradient(rgba(0,245,255,0.052) 1px, transparent 1px),
@@ -1034,7 +1039,7 @@ function UsageCard({
       <p className="billing-mono text-[8px] font-bold uppercase tracking-[0.16em] text-white/36">
         {title}
       </p>
-      <h3 className="billing-orb mt-2 text-2xl font-black tracking-[-0.04em] text-white">
+      <h3 className="billing-orb billing-number mt-2 text-2xl font-black text-white">
         {value}
       </h3>
       <p className="mt-2 text-xs leading-5 text-white/46">{helper}</p>
