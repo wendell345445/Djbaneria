@@ -181,34 +181,44 @@ const pricingPlans = [
 
 const testimonials = [
   {
-    initials: "NW",
-    name: "Noah Walker",
-    role: "Open format DJ",
-    location: "Miami, FL",
-    outcome: "Saves time",
-    metric: "Looks legit",
-    quote:
-      "I was paying a graphic designer $80–100 a flyer and half the time I'd go back and forth three times before it looked right. Now I just do it myself. Took me like 10 minutes the first time and it came out better than what I was getting. The animated version is what really got people's attention on Instagram.",
-  },
-  {
     initials: "DM",
     name: "Daniel Morgan",
     role: "Club DJ",
     location: "Orlando, FL",
-    outcome: "More bookings",
-    metric: "Better content",
+    outcome: "More inquiries",
+    metric: "3 booking DMs",
     quote:
-      "Honestly I was skeptical. I've tried other AI tools and they always look fake or generic. This one actually understands the vibe — dark, bold, club-ready. Posted an animated flyer for a Friday night set and got three DM inquiries that weekend. That never happened with my old graphics.",
+      "I was skeptical because most AI design tools look fake or generic. DJ Visuals AI actually understood the club vibe — dark, bold, and ready to post. I used an animated flyer for a Friday set and got three DM inquiries that weekend.",
+  },
+  {
+    initials: "NW",
+    name: "Noah Walker",
+    role: "Open format DJ",
+    location: "Miami, FL",
+    outcome: "Saved design costs",
+    metric: "10 min promo",
+    quote:
+      "I used to pay $80–100 for one flyer and still go back and forth on revisions. With DJ Visuals AI, I made my first promo in about 10 minutes — and the animated version got way more attention on Instagram.",
   },
   {
     initials: "TC",
     name: "Tyler Carter",
     role: "Event DJ",
     location: "Los Angeles, CA",
-    outcome: "Cut design costs",
-    metric: "Full control",
+    outcome: "More control",
+    metric: "$300 saved",
     quote:
-      "I do about 6–8 events a month so the design costs were adding up fast. I switched to this and the first month I probably saved $300. But honestly the bigger thing is I can make changes on the fly — if the lineup changes or the venue swaps I just regenerate it. No waiting on anyone.",
+      "I do 6–8 events a month, so design costs were adding up fast. In the first month I saved around $300, but the bigger win is control — if the lineup changes, the venue changes, or I need a new promo asset, I can update everything without waiting on anyone.",
+  },
+  {
+    initials: "MR",
+    name: "Marcus Reed",
+    role: "House DJ",
+    location: "Austin, TX",
+    outcome: "Better booking page",
+    metric: "One clean link",
+    quote:
+      "Before this, I was sending promoters my Instagram, SoundCloud, and a bunch of random links separately. Now I just send one clean DJ page with my music, contact info, and upcoming dates. It feels more professional, and promoters don’t have to dig around to figure out who I am.",
   },
 ] as const;
 
@@ -3185,30 +3195,29 @@ export default function HomePage() {
               <span className="chip-cx">● CLIENT TRANSMISSIONS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              DJS WHO{" "}
+              DJS USING IT TO{" "}
               <span
                 style={{
                   color: "var(--cv)",
                   textShadow: "0 0 24px rgba(191,95,255,0.5)",
                 }}
               >
-                LEVELED UP
+                LOOK PROFESSIONAL,
               </span>{" "}
-              THEIR PROMO
+              POST MORE, AND GET BOOKED
             </h2>
+            <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
+              Real feedback from DJs using the platform to create better promo
+              assets, look more professional online, and make booking easier.
+            </p>
           </div>
 
-          {/* Scroll hint — mobile only */}
-          <p
-            className="mono mt-4 text-center text-[9px] text-[rgba(255,255,255,0.25)] sm:hidden"
-            style={{ letterSpacing: "0.14em" }}
-          >
-            ← SWIPE →
-          </p>
-
-          <div className="testi-scroll mt-8 sm:mt-12 sm:grid sm:gap-5 lg:grid-cols-3">
+          <div className="mx-auto mt-8 grid max-w-4xl gap-5 sm:mt-12">
             {testimonials.map((t) => (
-              <article key={t.name} className="testi-card">
+              <article
+                key={t.name}
+                className="hud-box-v relative overflow-hidden p-5 sm:p-7"
+              >
                 <div
                   className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
                   style={{
@@ -3217,10 +3226,10 @@ export default function HomePage() {
                   }}
                 />
                 <Quote size={18} style={{ color: "rgba(0,245,255,0.35)" }} />
-                <p className="sans mt-4 text-[13px] italic leading-7 text-[rgba(255,255,255,0.62)] sm:text-[14px] sm:min-h-[160px]">
+                <p className="sans mt-4 text-[14px] italic leading-7 text-[rgba(255,255,255,0.66)] sm:text-[16px] sm:leading-8">
                   "{t.quote}"
                 </p>
-                <div className="mt-5 border-t border-[rgba(255,255,255,0.06)] pt-5">
+                <div className="mt-5 flex flex-col gap-4 border-t border-[rgba(255,255,255,0.06)] pt-5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-3">
                     <div
                       className="flex h-11 w-11 shrink-0 items-center justify-center border border-[rgba(0,245,255,0.3)]"
@@ -3245,13 +3254,23 @@ export default function HomePage() {
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <span className="chip-cx">{t.outcome}</span>
                     <span className="chip-v">{t.metric}</span>
                   </div>
                 </div>
               </article>
             ))}
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <a
+              href="#pricing"
+              className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[48px] sm:px-8 uppercase"
+            >
+              Start building my DJ brand
+              <ArrowRight size={12} />
+            </a>
           </div>
         </div>
       </section>
