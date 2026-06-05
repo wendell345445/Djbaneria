@@ -218,7 +218,7 @@ const testimonials = [
     outcome: "Better booking page",
     metric: "One clean link",
     quote:
-      "Before this, I was sending promoters my Instagram, SoundCloud, and a bunch of random links separately. Now I just send one clean DJ page with my music, contact info, and upcoming dates. It feels more professional, and promoters don’t have to dig around to figure out who I am.",
+      "Before this, I was sending promoters my Instagram, SoundCloud, and random links separately. Now I have one clean DJ page with my music, booking contact, and upcoming dates. It makes me look way more professional when I pitch gigs.",
   },
 ] as const;
 
@@ -1172,7 +1172,7 @@ function FirstPurchaseGiftPopup({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-black/72 px-2 py-3 backdrop-blur-xl sm:items-center sm:p-6"
+      className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/72 px-2 py-3 backdrop-blur-xl sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="first-purchase-gift-title"
@@ -1212,18 +1212,18 @@ function FirstPurchaseGiftPopup({
             </div>
 
             <div className="mb-3 flex justify-center">
-              <span className="chip-cx">● GIFT UNLOCKED</span>
+              <span className="chip-cx">● WELCOME DISCOUNT</span>
             </div>
 
             <h2
               id="first-purchase-gift-title"
               className="orb text-[22px] font-black leading-tight text-white sm:text-[27px]"
             >
-              You just received 20% off today.
+              Get 20% off your first subscription.
             </h2>
 
             <p className="sans mx-auto mt-3 max-w-[320px] text-sm leading-6 text-[rgba(255,255,255,0.58)]">
-              Enter your name to reveal your exclusive first-subscription gift.
+              Enter your name to unlock the discount and upgrade your DJ career today.
             </p>
 
             <label className="mt-5 grid gap-2 text-left">
@@ -1250,7 +1250,7 @@ function FirstPurchaseGiftPopup({
               onClick={handleClaimGift}
               className="btn-cx-solid mt-4 inline-flex min-h-[52px] w-full items-center justify-center gap-2 px-5 py-4 text-[11px]"
             >
-              REDEEM MY GIFT
+              CLAIM 20% OFF
               <ArrowRight size={13} />
             </button>
 
@@ -1290,13 +1290,13 @@ function FirstPurchaseGiftPopup({
                 <div className="min-w-0">
                   <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.7)]">
                     {countdownFinished
-                      ? "Gift window ended"
-                      : "Gift reserved for"}
+                      ? "Discount window ended"
+                      : "Discount reserved for"}
                   </p>
                   <p className="sans mt-1 text-xs leading-5 text-white/62 text-[13px]">
                     {countdownFinished
-                      ? "Checkout now to see if your first-subscription gift is still available."
-                      : "Your 20% first-subscription gift is reserved while you choose a plan."}
+                      ? "Checkout now to see if your 20% discount is still available."
+                      : "Your 20% discount is reserved while you choose your plan."}
                   </p>
                 </div>
 
@@ -3214,10 +3214,7 @@ export default function HomePage() {
 
           <div className="mx-auto mt-8 grid max-w-4xl gap-5 sm:mt-12">
             {testimonials.map((t) => (
-              <article
-                key={t.name}
-                className="hud-box-v relative overflow-hidden p-5 sm:p-7"
-              >
+              <article key={t.name} className="hud-box-v relative overflow-hidden p-5 sm:p-7">
                 <div
                   className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
                   style={{
