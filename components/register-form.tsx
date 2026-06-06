@@ -13,6 +13,9 @@ import {
 import { Eye, EyeOff } from "lucide-react";
 import {
   createMetaEventId,
+  getMetaNameParts,
+  getMetaPixelId,
+  initMetaPixel,
   trackMetaCompleteRegistration,
   trackMetaLead,
 } from "@/lib/meta-pixel";
@@ -292,6 +295,14 @@ export function RegisterForm({
         resetTurnstile();
         throw new Error(data?.error || copy.genericCreateError);
       }
+
+      const metaNameParts = getMetaNameParts(form.name);
+
+      initMetaPixel(getMetaPixelId(), {
+        em: form.email,
+        fn: metaNameParts.firstName,
+        ln: metaNameParts.lastName,
+      });
 
       trackMetaLead(
         {

@@ -19,6 +19,18 @@ type MetaEventParams = Record<
   string | number | boolean | null | undefined
 >;
 
+export type MetaAdvancedMatchingParams = {
+  em?: string | null;
+  ph?: string | null;
+  fn?: string | null;
+  ln?: string | null;
+  ct?: string | null;
+  st?: string | null;
+  zp?: string | null;
+  country?: string | null;
+  external_id?: string | null;
+};
+
 type MetaPurchaseParams = {
   eventId: string;
   plan?: string | null;
@@ -32,7 +44,7 @@ declare global {
     fbq?: (
       command: "init" | "track" | "trackCustom",
       eventNameOrPixelId: string,
-      params?: MetaEventParams,
+      params?: MetaEventParams | MetaAdvancedMatchingParams,
       options?: { eventID?: string },
     ) => void;
     _fbq?: Window["fbq"];
@@ -43,6 +55,10 @@ export function isMetaPixelEnabled() {
   return Boolean(process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim());
 }
 
+export function getMetaPixelId() {
+  return process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "";
+}
+
 export function createMetaEventId(eventName: string) {
   const cryptoApi = globalThis.crypto;
   const randomPart =
@@ -51,6 +67,30 @@ export function createMetaEventId(eventName: string) {
       : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
   return `${eventName.toLowerCase()}_${randomPart}`;
+}
+
+export function initMetaPixel(
+  pixelId: string,
+  advancedMatching: MetaAdvancedMatchingParams = {},
+) {
+  if (
+    !pixelId ||
+    typeof window === "undefined" ||
+    typeof window.fbq !== "function"
+  ) {
+    return;
+  }
+
+  const cleanAdvancedMatching = removeEmptyMetaParams(
+    normalizeAdvancedMatchingParams(advancedMatching),
+  );
+
+  if (Object.keys(cleanAdvancedMatching).length > 0) {
+    window.fbq("init", pixelId, cleanAdvancedMatching);
+    return;
+  }
+
+  window.fbq("init", pixelId);
 }
 
 export function trackMetaEvent(
@@ -138,6 +178,23 @@ export function trackMetaPurchase({
   );
 }
 
+export function getMetaNameParts(name?: string | null) {
+  const normalized = normalizeMetaValue(name);
+  if (!normalized) {
+    return {
+      firstName: undefined,
+      lastName: undefined,
+    };
+  }
+
+  const parts = normalized.split(/\s+/).filter(Boolean);
+
+  return {
+    firstName: parts[0],
+    lastName: parts.length > 1 ? parts.slice(1).join(" ") : undefined,
+  };
+}
+
 function getMetaPlanValue(plan: string) {
   const prices: Record<string, number> = {
     PRO: 12.99,
@@ -148,10 +205,45 @@ function getMetaPlanValue(plan: string) {
   return prices[plan] ?? 0;
 }
 
-function removeEmptyMetaParams(params: MetaEventParams) {
+function removeEmptyMetaParams<
+  T extends Record<string, string | number | boolean | null | undefined>,
+>(params: T) {
   return Object.fromEntries(
     Object.entries(params).filter(
-      ([, value]) => value !== undefined && value !== null,
+      ([, value]) =>
+        value !== undefined &&
+        value !== null &&
+        String(value).trim().length > 0,
     ),
   );
+}
+
+function normalizeAdvancedMatchingParams(
+  params: MetaAdvancedMatchingParams,
+): MetaAdvancedMatchingParams {
+  return {
+    em: normalizeMetaValue(params.em),
+    ph: normalizePhone(params.ph),
+    fn: normalizeMetaValue(params.fn),
+    ln: normalizeMetaValue(params.ln),
+    ct: normalizeMetaValue(params.ct),
+    st: normalizeMetaValue(params.st),
+    zp: normalizeMetaValue(params.zp),
+    country: normalizeMetaValue(params.country),
+    external_id: normalizeMetaValue(params.external_id),
+  };
+}
+
+function normalizeMetaValue(value?: string | null) {
+  if (!value) return undefined;
+
+  const normalized = value.trim().toLowerCase().replace(/\s+/g, " ");
+  return normalized || undefined;
+}
+
+function normalizePhone(value?: string | null) {
+  if (!value) return undefined;
+
+  const normalized = value.replace(/\D/g, "");
+  return normalized || undefined;
 }

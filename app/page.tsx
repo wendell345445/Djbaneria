@@ -729,7 +729,13 @@ function StaticVsAnimatedSection() {
 }
 
 // ── PRICING BUTTONS ──────────────────────────────────────────────
-import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
+import {
+  createMetaEventId,
+  getMetaNameParts,
+  getMetaPixelId,
+  initMetaPixel,
+  trackMetaInitiateCheckout,
+} from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
 
@@ -743,6 +749,13 @@ async function openPublicCheckout(
   options: CheckoutOptions = {},
 ) {
   const metaEventId = createMetaEventId("InitiateCheckout");
+  const metaNameParts = getMetaNameParts(options.customerName);
+
+  initMetaPixel(getMetaPixelId(), {
+    fn: metaNameParts.firstName,
+    ln: metaNameParts.lastName,
+  });
+
   const response = await fetch("/api/public/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

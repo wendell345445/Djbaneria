@@ -2,8 +2,12 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { trackMetaPageView, trackMetaViewContent } from "@/lib/meta-pixel";
+import { useEffect, useRef } from "react";
+import {
+  initMetaPixel,
+  trackMetaPageView,
+  trackMetaViewContent,
+} from "@/lib/meta-pixel";
 
 const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
 
@@ -13,6 +17,7 @@ function isLandingPath(pathname: string | null) {
 
 export function MetaPixelProvider() {
   const pathname = usePathname();
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     if (!pixelId) return;
@@ -25,6 +30,11 @@ export function MetaPixelProvider() {
 
       if (typeof window.fbq === "function") {
         window.clearInterval(timer);
+
+        if (!initializedRef.current) {
+          initMetaPixel(pixelId);
+          initializedRef.current = true;
+        }
 
         trackMetaPageView();
 
@@ -59,7 +69,6 @@ export function MetaPixelProvider() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '${pixelId}');
         `}
       </Script>
 
