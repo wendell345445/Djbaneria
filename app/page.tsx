@@ -267,7 +267,7 @@ const popupBonusMusicTracks = [
   {
     id: "flashback-popup-01",
     title: "Its A Heartache (Pop-House RMX).mp3",
-    vibe: "Selected-user bonus preview",
+    vibe: "Included today preview",
     src: "/bonus-music/Its A Heartache (Pop-House RMX).mp3",
   },
   {
@@ -729,13 +729,7 @@ function StaticVsAnimatedSection() {
 }
 
 // ── PRICING BUTTONS ──────────────────────────────────────────────
-import {
-  createMetaEventId,
-  getMetaNameParts,
-  getMetaPixelId,
-  initMetaPixel,
-  trackMetaInitiateCheckout,
-} from "@/lib/meta-pixel";
+import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
 
@@ -749,13 +743,6 @@ async function openPublicCheckout(
   options: CheckoutOptions = {},
 ) {
   const metaEventId = createMetaEventId("InitiateCheckout");
-  const metaNameParts = getMetaNameParts(options.customerName);
-
-  initMetaPixel(getMetaPixelId(), {
-    fn: metaNameParts.firstName,
-    ln: metaNameParts.lastName,
-  });
-
   const response = await fetch("/api/public/checkout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -888,10 +875,10 @@ function PopupBonusMusicPreview() {
       <div className="mb-2 flex items-center justify-between gap-2 sm:mb-3 sm:gap-3">
         <div className="min-w-0">
           <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cv)] sm:tracking-[0.16em]">
-            Listen to 3 samples
+            Preview 3 of the 100 remixes
           </p>
           <p className="sans mt-0.5 text-[13px] leading-4 text-white/54 sm:mt-1 sm:text-[11px]">
-            Preview exclusive remixes before checkout.
+            These are 3 samples from the 100 remix tracks you receive as a bonus.
           </p>
         </div>
 
@@ -1294,8 +1281,11 @@ function FirstPurchaseGiftPopup({
               </div>
 
               <h2 className="orb text-[20px] font-black leading-tight text-white sm:text-[26px]">
-                {name.trim()}, choose your plan.
+                {name.trim()}, your 20% discount is ready.
               </h2>
+              <p className="sans mt-2 max-w-[420px] text-[12px] leading-5 text-white/58 sm:text-[13px] sm:leading-6">
+                Choose your plan below and start building your DJ brand today.
+              </p>
             </div>
 
             <div className="mt-3 min-w-0 overflow-hidden sm:mt-4">
@@ -1360,7 +1350,7 @@ function FirstPurchaseGiftPopup({
                           </span>
                           {plan.highlighted ? (
                             <span className="mono border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.08)] px-2 py-0.5 text-[7px] uppercase tracking-[0.12em] text-[var(--cx)]">
-                              popular
+                              BEST VALUE
                             </span>
                           ) : null}
                         </div>
@@ -1382,7 +1372,7 @@ function FirstPurchaseGiftPopup({
 
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <span className="mono text-[7px] uppercase tracking-[0.14em] text-[rgba(255,255,255,0.46)]">
-                        20% gift applied
+                        Welcome discount applied
                       </span>
 
                       {selected ? (
@@ -1396,14 +1386,32 @@ function FirstPurchaseGiftPopup({
               })}
             </div>
 
+            <div className="mt-3 border border-[rgba(0,245,255,0.16)] bg-[rgba(0,245,255,0.055)] px-3 py-3 text-center shadow-[0_0_24px_rgba(0,245,255,0.08)] sm:mt-4">
+              <p className="sans text-[12px] leading-5 text-white/70 sm:text-[13px]">
+                Secure checkout. Once your payment is approved, your login
+                access is sent immediately to your email.
+              </p>
+
+              <button
+                type="button"
+                onClick={handleCheckout}
+                disabled={loading}
+                className="btn-cx-solid mt-3 inline-flex min-h-[44px] w-full items-center justify-center gap-2 px-5 py-3 text-[9px] disabled:cursor-wait disabled:opacity-70"
+              >
+                {loading
+                  ? "OPENING CHECKOUT..."
+                  : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
+                <ArrowRight size={12} />
+              </button>
+            </div>
+
             <div className="mt-2 grid min-w-0 gap-2 sm:mt-3 sm:gap-3">
               <div className="w-full max-w-full  px-2.5 py-2 sm:px-3 sm:py-2.5">
                 <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cx)] sm:tracking-[0.16em]">
-                  Selected-user bonus
+                  Included today
                 </p>
                 <p className="sans mt-1 text-[13px] leading-4 text-white/62 sm:text-xs sm:leading-5">
-                  This exclusive remix bonus is only available to selected users
-                  for a short time. Access may close soon.
+                  Your subscription includes this bonus today at no extra cost.
                 </p>
               </div>
 
@@ -1435,19 +1443,19 @@ function FirstPurchaseGiftPopup({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="mono border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.08)] px-2 py-1 text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cg)]">
-                        Free bonus
+                        Included bonus
                       </span>
                       <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/42">
-                        Optional add-on
+                        No extra cost
                       </span>
                     </div>
 
                     <p className="orb mt-2 text-[12px] font-black uppercase leading-tight text-white sm:text-[15px]">
-                      100 Flashback Remix Music
+                      100 Flashback Remix Tracks
                     </p>
 
                     <p className="sans mt-1 text-[12px] leading-4 text-white/58 sm:text-xs sm:leading-5">
-                      Add this bonus today at no extra cost.
+                      Included with your subscription today.
                     </p>
 
                     <div className="mt-2 grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
@@ -1466,7 +1474,7 @@ function FirstPurchaseGiftPopup({
 
                       <div className="flex items-center justify-between gap-2 sm:justify-end">
                         <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/42">
-                          Today only
+                          Included today
                         </span>
                         <span className="sans rounded-full border border-[rgba(0,255,159,0.34)] bg-[rgba(0,255,159,0.12)] px-2.5 py-1 text-sm font-black text-[var(--cg)] shadow-[0_0_22px_rgba(0,255,159,0.16)]">
                           $0 today
@@ -3346,6 +3354,75 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       <ExclusiveMusicBonusSection />
+
+      <div className="glow-divider" />
+
+      {/* ── WHAT YOU GET TODAY ── */}
+      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-20 lg:px-10">
+        <div className="relative overflow-hidden border border-[rgba(0,245,255,0.18)] bg-[radial-gradient(circle_at_top_left,rgba(0,245,255,0.10),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(191,95,255,0.10),transparent_34%),rgba(255,255,255,0.025)] p-5 shadow-[0_0_70px_rgba(0,245,255,0.08)] sm:p-8 lg:p-10">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[rgba(0,245,255,0.10)] blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-[rgba(191,95,255,0.11)] blur-3xl" />
+
+          <div className="relative z-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <div className="sect-label">
+                <span className="chip-cx">● WHAT YOU GET TODAY</span>
+              </div>
+
+              <h2 className="orb mt-4 text-[22px] font-black uppercase leading-tight text-white sm:text-[42px]">
+                Everything you need to{" "}
+                <span
+                  style={{
+                    color: "var(--cx)",
+                    textShadow: "0 0 26px rgba(0,245,255,0.55)",
+                  }}
+                >
+                  promote your DJ brand.
+                </span>
+              </h2>
+
+              <p className="sans mt-4 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.64)] sm:text-base">
+                One dashboard to create visuals, publish faster, look more
+                professional, and make it easier for promoters to take you
+                seriously.
+              </p>
+
+              <a
+                href="#pricing"
+                className="btn-cx-solid mt-6 inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] uppercase sm:w-auto sm:min-h-[48px] sm:px-8"
+              >
+                Choose my plan
+                <ArrowRight size={12} />
+              </a>
+            </div>
+
+            <div className="grid gap-3">
+              {[
+                "Create premium AI flyers for events, releases, and parties",
+                "Animate flyers into social-ready MP4 promo videos",
+                "Upgrade casual DJ photos into professional artist images",
+                "Publish a clean DJ website with music, links, dates, and booking contact",
+                "Export content for Reels, Stories, TikTok, ads, and flyers",
+                "Get instant access by email after payment approval",
+                "Unlock your 20% welcome discount today",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-start gap-3 border border-[rgba(0,245,255,0.14)] bg-black/20 px-4 py-3"
+                >
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center border border-[rgba(0,245,255,0.38)] text-[10px] font-black text-[var(--cx)]">
+                    ✓
+                  </span>
+                  <p className="sans text-sm leading-6 text-[rgba(255,255,255,0.70)]">
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="glow-divider" />
 
