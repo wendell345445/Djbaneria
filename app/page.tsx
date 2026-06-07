@@ -1172,16 +1172,16 @@ function FirstPurchaseGiftPopup({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/72 px-2 py-3 backdrop-blur-xl sm:p-6"
+      className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-black/72 px-2 py-4 backdrop-blur-xl sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="first-purchase-gift-title"
     >
       <div
-        className={`hud-box relative w-full max-w-[calc(100vw-16px)] overflow-x-hidden overflow-y-auto rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] sm:max-w-[560px] ${
+        className={`hud-box relative w-full max-w-[calc(100vw-24px)] overflow-x-hidden overflow-y-auto rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] transition-[max-width,max-height] duration-200 ease-out sm:max-w-[560px] ${
           step === "intro"
-            ? "max-h-[calc(100dvh-24px)] sm:max-w-[420px] sm:max-h-[calc(100dvh-48px)]"
-            : "max-h-[calc(100dvh-16px)] sm:max-h-[calc(100dvh-64px)]"
+            ? "max-h-[calc(100dvh-56px)] sm:max-w-[420px] sm:max-h-[calc(100dvh-48px)]"
+            : "max-h-[calc(100dvh-56px)] sm:max-h-[calc(100dvh-64px)]"
         }`}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
@@ -1234,7 +1234,7 @@ function FirstPurchaseGiftPopup({
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Enter your name"
-                className="min-h-12 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)]"
+                className="min-h-12 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-[16px] text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)] sm:text-sm"
                 autoFocus
               />
             </label>
@@ -1263,7 +1263,7 @@ function FirstPurchaseGiftPopup({
             </button>
           </div>
         ) : (
-          <div className="relative z-10 min-w-0 p-3 pb-[calc(14px+env(safe-area-inset-bottom))] sm:p-5">
+          <div className="relative z-10 min-w-0 p-3 pb-[calc(18px+env(safe-area-inset-bottom))] sm:p-5">
             <div className="pr-10">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span
