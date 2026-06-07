@@ -874,10 +874,10 @@ function PopupBonusMusicPreview() {
     <div className="w-full max-w-full overflow-hidden border border-[rgba(191,95,255,0.18)] bg-[rgba(191,95,255,0.052)] p-2.5 sm:p-3">
       <div className="mb-2 flex items-center justify-between gap-2 sm:mb-3 sm:gap-3">
         <div className="min-w-0">
-          <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cv)] sm:tracking-[0.16em]">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.10em] text-[var(--cv)] sm:tracking-[0.12em]">
             Preview 3 of the 100 remixes
           </p>
-          <p className="sans mt-0.5 text-[13px] leading-4 text-white/54 sm:mt-1 sm:text-[11px]">
+          <p className="mt-1 text-[12px] font-medium leading-5 text-white/64 sm:text-[13px]">
             These are 3 samples from the 100 remix tracks you receive as a bonus.
           </p>
         </div>
@@ -1178,7 +1178,7 @@ function FirstPurchaseGiftPopup({
       aria-labelledby="first-purchase-gift-title"
     >
       <div
-        className={`hud-box relative w-full max-w-[calc(100vw-24px)] overflow-x-hidden overflow-y-auto rounded-none border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] transition-[max-width,max-height] duration-200 ease-out sm:max-w-[560px] ${
+        className={`popup-inter hud-box relative w-full max-w-[calc(100vw-24px)] overflow-x-hidden overflow-y-auto rounded-[22px] border border-[rgba(0,245,255,0.28)] bg-[#050713] shadow-[0_0_80px_rgba(0,245,255,0.22),0_30px_110px_rgba(0,0,0,0.72)] transition-[max-width,max-height] duration-200 ease-out sm:max-w-[560px] sm:rounded-[24px] ${
           step === "intro"
             ? "max-h-[calc(100dvh-56px)] sm:max-w-[420px] sm:max-h-[calc(100dvh-48px)]"
             : "max-h-[calc(100dvh-56px)] sm:max-h-[calc(100dvh-64px)]"
@@ -1217,24 +1217,24 @@ function FirstPurchaseGiftPopup({
 
             <h2
               id="first-purchase-gift-title"
-              className="orb text-[22px] font-black leading-tight text-white sm:text-[27px]"
+              className="text-[24px] font-black leading-tight text-white sm:text-[30px]"
             >
               Get 20% off your first subscription.
             </h2>
 
-            <p className="sans mx-auto mt-3 max-w-[320px] text-sm leading-6 text-[rgba(255,255,255,0.58)]">
+            <p className="mx-auto mt-3 max-w-[340px] text-[15px] font-medium leading-6 text-[rgba(255,255,255,0.68)]">
               Enter your name to unlock the discount and upgrade your DJ career today.
             </p>
 
             <label className="mt-5 grid gap-2 text-left">
-              <span className="mono text-[9px] uppercase tracking-[0.18em] text-[rgba(255,255,255,0.56)]">
+              <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[rgba(255,255,255,0.62)]">
                 Your name
               </span>
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Enter your name"
-                className="min-h-12 border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-[16px] text-white outline-none transition placeholder:text-white/25 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)] sm:text-sm"
+                className="min-h-12 rounded-[14px] border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-[16px] font-medium text-white outline-none transition placeholder:text-white/32 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)] sm:text-[16px]"
                 autoFocus
               />
             </label>
@@ -1280,10 +1280,10 @@ function FirstPurchaseGiftPopup({
                 </span>
               </div>
 
-              <h2 className="orb text-[20px] font-black leading-tight text-white sm:text-[26px]">
+              <h2 className="text-[22px] font-black leading-tight text-white sm:text-[28px]">
                 {name.trim()}, your 20% discount is ready.
               </h2>
-              <p className="sans mt-2 max-w-[420px] text-[12px] leading-5 text-white/58 sm:text-[13px] sm:leading-6">
+              <p className="mt-2 max-w-[440px] text-[14px] font-medium leading-6 text-white/66 sm:text-[15px] sm:leading-6">
                 Choose your plan below and start building your DJ brand today.
               </p>
             </div>
@@ -1291,12 +1291,12 @@ function FirstPurchaseGiftPopup({
             <div className="mt-3 min-w-0 overflow-hidden sm:mt-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.7)]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[rgba(0,245,255,0.78)]">
                     {countdownFinished
                       ? "Discount window ended"
                       : "Discount reserved for"}
                   </p>
-                  <p className="sans mt-1 text-xs leading-5 text-white/62 text-[13px]">
+                  <p className="mt-1 text-[13px] font-medium leading-5 text-white/66">
                     {countdownFinished
                       ? "Checkout now to see if your 20% discount is still available."
                       : "Your 20% discount is reserved while you choose your plan."}
@@ -1345,7 +1345,7 @@ function FirstPurchaseGiftPopup({
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="orb block text-xs font-bold uppercase tracking-[0.14em] text-white">
+                          <span className="block text-[13px] font-extrabold uppercase tracking-[0.08em] text-white">
                             {plan.name}
                           </span>
                           {plan.highlighted ? (
@@ -1355,16 +1355,16 @@ function FirstPurchaseGiftPopup({
                           ) : null}
                         </div>
 
-                        <p className="sans mt-1 text-[11px] leading-4 text-[rgba(255,255,255,0.56)]">
+                        <p className="mt-1 text-[12px] font-medium leading-4 text-[rgba(255,255,255,0.62)]">
                           {plan.credits}
                         </p>
                       </div>
 
                       <div className="shrink-0 text-right">
-                        <span className="sans block text-[11px] text-[rgba(255,255,255,0.50)] line-through">
+                        <span className="block text-[12px] font-medium text-[rgba(255,255,255,0.50)] line-through">
                           {plan.price}
                         </span>
-                        <span className="sans block text-[17px] font-bold leading-tight text-[var(--cx)]">
+                        <span className="block text-[19px] font-extrabold leading-tight text-[var(--cx)]">
                           {plan.checkoutPrice}
                         </span>
                       </div>
@@ -1387,7 +1387,7 @@ function FirstPurchaseGiftPopup({
             </div>
 
             <div className="mt-3 border border-[rgba(0,245,255,0.16)] bg-[rgba(0,245,255,0.055)] px-3 py-3 text-center shadow-[0_0_24px_rgba(0,245,255,0.08)] sm:mt-4">
-              <p className="sans text-[12px] leading-5 text-white/70 sm:text-[13px]">
+              <p className="text-[13px] font-medium leading-5 text-white/74 sm:text-[14px]">
                 Secure checkout. Once your payment is approved, your login
                 access is sent immediately to your email.
               </p>
@@ -1410,7 +1410,7 @@ function FirstPurchaseGiftPopup({
                 <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cx)] sm:tracking-[0.16em]">
                   Included today
                 </p>
-                <p className="sans mt-1 text-[13px] leading-4 text-white/62 sm:text-xs sm:leading-5">
+                <p className="mt-1 text-[13px] font-medium leading-5 text-white/66 sm:text-[13px]">
                   Your subscription includes this bonus today at no extra cost.
                 </p>
               </div>
@@ -1450,11 +1450,11 @@ function FirstPurchaseGiftPopup({
                       </span>
                     </div>
 
-                    <p className="orb mt-2 text-[12px] font-black uppercase leading-tight text-white sm:text-[15px]">
+                    <p className="mt-2 text-[14px] font-black uppercase leading-tight text-white sm:text-[16px]">
                       100 Flashback Remix Tracks
                     </p>
 
-                    <p className="sans mt-1 text-[12px] leading-4 text-white/58 sm:text-xs sm:leading-5">
+                    <p className="mt-1 text-[13px] font-medium leading-5 text-white/64 sm:text-[13px]">
                       Included with your subscription today.
                     </p>
 
@@ -2042,7 +2042,7 @@ export default function HomePage() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
         :root {
           --cx: #00F5FF;
@@ -2062,6 +2062,20 @@ export default function HomePage() {
         .orb { font-family: 'Orbitron', monospace; }
         .mono { font-family: 'Space Mono', monospace; }
         .sans { font-family: 'DM Sans', sans-serif; }
+
+        .popup-inter,
+        .popup-inter .sans,
+        .popup-inter .mono,
+        .popup-inter .orb,
+        .popup-inter input,
+        .popup-inter button {
+          font-family: 'Inter', sans-serif !important;
+        }
+
+        .popup-inter {
+          letter-spacing: -0.01em;
+        }
+
 
         /* ── GRID NOISE OVERLAY ── */
         body::before {
