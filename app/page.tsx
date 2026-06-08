@@ -1583,35 +1583,34 @@ function DjWebsiteFeatureSection() {
   return (
     <section
       id="dj-website"
-      className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
+      className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-20 lg:px-10"
     >
-      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
-        <div className="hud-box-v relative overflow-hidden border-[rgba(0,245,255,0.28)] bg-[rgba(0,245,255,0.045)] p-5 sm:p-7">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-[rgba(0,245,255,0.15)] blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-20 h-56 w-56 rounded-full bg-[rgba(191,95,255,0.14)] blur-3xl" />
+      <div className="relative overflow-hidden border border-[rgba(0,245,255,0.18)] bg-[radial-gradient(circle_at_top_left,rgba(0,245,255,0.10),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(191,95,255,0.10),transparent_34%),rgba(255,255,255,0.025)] p-5 shadow-[0_0_70px_rgba(0,245,255,0.08)] sm:p-8 lg:p-10">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[rgba(0,245,255,0.10)] blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-[rgba(191,95,255,0.11)] blur-3xl" />
 
-          <div className="relative z-10">
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
             <div className="sect-label">
-              <span className="chip-cx">● NEW: DJ WEBSITE</span>
+              <span className="chip-cx">● DJ WEBSITE</span>
             </div>
 
             <h2 className="orb mt-4 text-[22px] font-black uppercase leading-tight text-white sm:text-[42px]">
-              Your official DJ profile,
-              <br />
+              Stop sending random links.{" "}
               <span
                 style={{
                   color: "var(--cx)",
                   textShadow: "0 0 26px rgba(0,245,255,0.55)",
                 }}
               >
-                ready for bookings.
+                Send one clean DJ page.
               </span>
             </h2>
 
             <p className="sans mt-4 max-w-xl text-[14px] leading-7 text-[rgba(255,255,255,0.64)] sm:text-base">
-              Publish a premium public DJ site with your music links, agenda,
-              social channels, booking contact, and professional presence — all
-              inside DJ Visuals AI.
+              Give promoters one professional page with your music, socials,
+              dates, and booking contact — ready to share after checkout.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -1619,7 +1618,7 @@ function DjWebsiteFeatureSection() {
                 href="#pricing"
                 className="btn-cx-solid inline-flex items-center justify-center gap-2.5 px-6 py-4 text-[11px] uppercase"
               >
-                CREATE MY DJ WEBSITE
+                CREATE MY DJ PAGE
                 <ArrowRight size={13} />
               </a>
               <a
@@ -1633,24 +1632,8 @@ function DjWebsiteFeatureSection() {
               </a>
             </div>
           </div>
-        </div>
 
-        <div className="hud-box relative overflow-hidden p-5 sm:p-7">
-          <div className="mb-5 flex items-center justify-between gap-3 border-b border-[rgba(255,255,255,0.08)] pb-4">
-            <div>
-              <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.72)]">
-                PUBLIC PROFILE MODULE
-              </p>
-              <h3 className="orb mt-2 text-[15px] font-black uppercase tracking-[0.08em] text-white">
-                What your DJ site includes
-              </h3>
-            </div>
-            <span className="grid h-11 w-11 shrink-0 place-items-center border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.08)] text-[var(--cx)] shadow-[0_0_26px_rgba(0,245,255,0.16)]">
-              <BadgeCheck size={20} />
-            </span>
-          </div>
-
-          <div className="mb-5">
+          <div>
             <div className="relative mx-auto w-full max-w-[330px] sm:max-w-[420px]">
               <div className="pointer-events-none absolute -inset-8 rounded-[42px] bg-[rgba(0,245,255,0.13)] blur-3xl" />
               <div className="pointer-events-none absolute -inset-7 rounded-[42px] bg-[rgba(191,95,255,0.12)] blur-3xl" />
@@ -1682,18 +1665,6 @@ function DjWebsiteFeatureSection() {
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="mb-5 flex justify-center">
-            <a
-              href={DJ_SITE_DEMO_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-cx-solid inline-flex items-center justify-center gap-2.5 px-5 py-3 text-[10px] uppercase"
-            >
-              CLICK HERE AND SEE HOW YOUR SITE WILL LOOK
-              <ArrowRight size={12} />
-            </a>
           </div>
         </div>
       </div>
@@ -3053,13 +3024,13 @@ export default function HomePage() {
 
       <div className="glow-divider" />
 
-      {/* ── DJ WEBSITE FEATURE ── */}
-      <DjWebsiteFeatureSection />
+      {/* ── STATIC vs ANIMATED COMPARISON ── */}
+      <StaticVsAnimatedSection />
 
       <div className="glow-divider" />
 
-      {/* ── STATIC vs ANIMATED COMPARISON ── */}
-      <StaticVsAnimatedSection />
+      {/* ── DJ WEBSITE FEATURE ── */}
+      <DjWebsiteFeatureSection />
 
       <div className="glow-divider" />
 
