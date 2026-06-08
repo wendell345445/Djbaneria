@@ -3047,11 +3047,12 @@ export default function HomePage() {
 
       {/* ── HEADER ── */}
       <header
-        className="sticky top-0 z-40"
+        className="fixed inset-x-0 top-0 z-50"
         style={{
-          background: "rgba(3,4,10,0.88)",
-          borderBottom: "1px solid rgba(0,245,255,0.1)",
+          background: "rgba(3,4,10,0.92)",
+          borderBottom: "1px solid rgba(0,245,255,0.12)",
           backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
         }}
       >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8 lg:px-10">
@@ -3095,15 +3096,12 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="nav-link hidden sm:block px-4 py-2 border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.62)] hover:border-[var(--border-x)] hover:text-[var(--cx)] transition-all"
+              className="inline-flex items-center justify-center border border-[rgba(0,245,255,0.22)] bg-[rgba(0,245,255,0.055)] px-3 py-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[rgba(255,255,255,0.78)] transition-all hover:border-[var(--border-x)] hover:text-[var(--cx)] sm:px-4"
               style={{
-                fontSize: "10px",
-                letterSpacing: "0.15em",
                 fontFamily: "Space Mono, monospace",
-                textTransform: "uppercase",
               }}
             >
-              LOG IN
+              LOGIN
             </Link>
             <a
               href="#pricing"
@@ -3157,7 +3155,7 @@ export default function HomePage() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="dj-hero-bg relative z-10 mx-auto w-full max-w-7xl overflow-hidden px-4 pb-14 pt-10 sm:px-8 sm:pb-28 sm:pt-20 lg:px-10 lg:pb-36 lg:pt-44">
+      <section className="dj-hero-bg relative z-10 mx-auto w-full max-w-7xl overflow-hidden px-4 pb-14 pt-28 sm:px-8 sm:pb-28 sm:pt-32 lg:px-10 lg:pb-36 lg:pt-44">
         <div className="dj-hero-lights" />
         <div className="dj-hero-particles" />
         <div className="relative z-10">

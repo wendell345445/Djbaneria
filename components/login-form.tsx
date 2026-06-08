@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
@@ -127,14 +126,6 @@ export function LoginForm() {
         {error ? <p className="text-sm text-rose-300">{error}</p> : null}
       </form>
 
-      <div className="mt-6 grid gap-3 border-t border-white/10 pt-5">
-        <Link
-          href="/register"
-          className="text-sm font-medium text-sky-200 transition hover:text-sky-100"
-        >
-          Don&apos;t have an account yet? Create one
-        </Link>
-      </div>
     </div>
   );
 }

@@ -11,14 +11,14 @@ export default function LoginPage() {
           <div className="relative z-10 flex h-full flex-col justify-between gap-8">
             <div className="max-w-2xl">
               <p className="text-[11px] uppercase tracking-[0.24em] text-white/45">
-                DJ Banner AI
+                DJ Visuals AI
               </p>
               <h1 className="mt-4 text-[42px] font-semibold leading-[1.02] text-white">
-                Sign in and create professional AI banners for your events
+                Sign in and create professional DJ visuals for your events
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-7 text-white/68">
                 A workflow designed for DJs and creators who want to generate
-                artwork quickly, request AI adjustments, and download final
+                flyers, promo videos, and visuals quickly, request AI adjustments, and download final
                 versions without friction.
               </p>
             </div>
@@ -37,7 +37,7 @@ export default function LoginPage() {
               <FeatureCard
                 number="03"
                 title="Fast edits"
-                description="Request artwork changes and create refined versions."
+                description="Request visual changes and create refined versions."
               />
             </div>
           </div>
