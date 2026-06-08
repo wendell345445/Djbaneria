@@ -2059,6 +2059,169 @@ export default function HomePage() {
           letter-spacing: -0.01em;
         }
 
+        .dj-hero-bg {
+          isolation: isolate;
+          background:
+            radial-gradient(circle at 50% 22%, rgba(0, 245, 255, 0.08), transparent 28%),
+            radial-gradient(circle at 18% 74%, rgba(0, 85, 255, 0.12), transparent 32%),
+            radial-gradient(circle at 86% 72%, rgba(124, 58, 237, 0.12), transparent 34%),
+            linear-gradient(180deg, #01020A 0%, #02030A 48%, #000000 100%);
+        }
+
+        .dj-hero-bg::before {
+          content: "";
+          position: absolute;
+          inset: -24%;
+          z-index: 0;
+          pointer-events: none;
+          background:
+            linear-gradient(72deg, transparent 0%, transparent 43%, rgba(0, 245, 255, 0.10) 48%, transparent 54%, transparent 100%),
+            linear-gradient(108deg, transparent 0%, transparent 44%, rgba(191, 95, 255, 0.09) 49%, transparent 55%, transparent 100%),
+            repeating-linear-gradient(
+              90deg,
+              rgba(0, 245, 255, 0.030) 0px,
+              rgba(0, 245, 255, 0.030) 1px,
+              transparent 1px,
+              transparent 96px
+            );
+          opacity: 0.58;
+          transform: rotate(-5deg);
+          animation: djHeroLaserSweep 10s ease-in-out infinite alternate;
+        }
+
+        .dj-hero-bg::after {
+          content: "";
+          position: absolute;
+          inset: auto 0 0 0;
+          z-index: 0;
+          height: 42%;
+          pointer-events: none;
+          background:
+            repeating-linear-gradient(
+              90deg,
+              transparent 0px,
+              transparent 20px,
+              rgba(0, 245, 255, 0.16) 20px,
+              rgba(0, 245, 255, 0.16) 23px,
+              transparent 23px,
+              transparent 52px
+            );
+          mask-image: linear-gradient(to top, rgba(0,0,0,0.88), transparent 78%);
+          -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.88), transparent 78%);
+          opacity: 0.38;
+          transform-origin: bottom;
+          animation: djHeroEqualizerDark 2.1s ease-in-out infinite alternate;
+        }
+
+        .dj-hero-lights {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          overflow: hidden;
+          background:
+            radial-gradient(circle at 50% 64%, rgba(0,0,0,0.10), rgba(0,0,0,0.62) 62%, rgba(0,0,0,0.86) 100%),
+            linear-gradient(180deg, rgba(0,0,0,0.24), rgba(0,0,0,0.72));
+        }
+
+        .dj-hero-lights::before,
+        .dj-hero-lights::after {
+          content: "";
+          position: absolute;
+          top: -18%;
+          width: 24%;
+          height: 92%;
+          filter: blur(20px);
+          opacity: 0.24;
+          mix-blend-mode: screen;
+          transform-origin: top center;
+          clip-path: polygon(46% 0, 56% 0, 100% 100%, 0 100%);
+        }
+
+        .dj-hero-lights::before {
+          left: 12%;
+          background: linear-gradient(180deg, rgba(0,245,255,0.54), transparent 78%);
+          animation: djHeroSpotLeft 7s ease-in-out infinite alternate;
+        }
+
+        .dj-hero-lights::after {
+          right: 12%;
+          background: linear-gradient(180deg, rgba(191,95,255,0.50), transparent 78%);
+          animation: djHeroSpotRight 8s ease-in-out infinite alternate;
+        }
+
+        .dj-hero-particles {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          opacity: 0.26;
+          background-image:
+            radial-gradient(circle, rgba(0,245,255,0.38) 0 1px, transparent 1.4px),
+            radial-gradient(circle, rgba(191,95,255,0.28) 0 1px, transparent 1.4px);
+          background-size: 110px 110px, 150px 150px;
+          background-position: 0 0, 42px 36px;
+          animation: djHeroParticlesDark 14s linear infinite;
+        }
+
+        @keyframes djHeroLaserSweep {
+          0% {
+            transform: translateX(-5%) rotate(-5deg);
+            opacity: 0.36;
+          }
+          100% {
+            transform: translateX(5%) rotate(-5deg);
+            opacity: 0.62;
+          }
+        }
+
+        @keyframes djHeroEqualizerDark {
+          0% {
+            opacity: 0.20;
+            transform: scaleY(0.46);
+          }
+          50% {
+            opacity: 0.46;
+            transform: scaleY(0.88);
+          }
+          100% {
+            opacity: 0.32;
+            transform: scaleY(0.62);
+          }
+        }
+
+        @keyframes djHeroSpotLeft {
+          0% {
+            transform: rotate(-17deg) translateY(0) scaleX(0.82);
+            opacity: 0.14;
+          }
+          100% {
+            transform: rotate(-4deg) translateY(4%) scaleX(1.04);
+            opacity: 0.32;
+          }
+        }
+
+        @keyframes djHeroSpotRight {
+          0% {
+            transform: rotate(17deg) translateY(2%) scaleX(0.86);
+            opacity: 0.13;
+          }
+          100% {
+            transform: rotate(4deg) translateY(5%) scaleX(1.08);
+            opacity: 0.30;
+          }
+        }
+
+        @keyframes djHeroParticlesDark {
+          0% {
+            background-position: 0 0, 42px 36px;
+          }
+          100% {
+            background-position: 110px 110px, 192px 186px;
+          }
+        }
+
+
 
         /* ── GRID NOISE OVERLAY ── */
         body::before {
@@ -2911,7 +3074,10 @@ export default function HomePage() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 pt-10 sm:px-8 sm:pb-28 sm:pt-20 lg:px-10 lg:pb-36 lg:pt-44">
+      <section className="dj-hero-bg relative z-10 mx-auto w-full max-w-7xl overflow-hidden px-4 pb-14 pt-10 sm:px-8 sm:pb-28 sm:pt-20 lg:px-10 lg:pb-36 lg:pt-44">
+        <div className="dj-hero-lights" />
+        <div className="dj-hero-particles" />
+        <div className="relative z-10">
         {/* Hero promise line */}
         <div
           className="mono mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-[9px] text-[rgba(255,255,255,0.34)] sm:text-[10px]"
@@ -3019,6 +3185,7 @@ export default function HomePage() {
 
             {/* Conversion benefits row */}
           </div>
+        </div>
         </div>
       </section>
 
