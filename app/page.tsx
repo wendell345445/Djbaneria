@@ -19,6 +19,7 @@ import {
   Music2,
   Pause,
   Play,
+  LogIn,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
 
@@ -2764,6 +2765,27 @@ export default function HomePage() {
         .hamburger.open span:nth-child(2) { opacity: 0; }
         .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: var(--cx); }
 
+        /* ── TESTIMONIAL CAROUSEL ── */
+        .testi-scroll {
+          display: flex;
+          gap: 18px;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          padding: 2px 2px 18px;
+          scrollbar-width: none;
+        }
+        .testi-scroll::-webkit-scrollbar { display: none; }
+        .testi-scroll > * {
+          flex: 0 0 min(420px, 86vw);
+          scroll-snap-align: start;
+        }
+        @media (min-width: 1024px) {
+          .testi-scroll > * {
+            flex-basis: calc((100% - 36px) / 3);
+          }
+        }
+
         /* ── PRICING SCROLL MOBILE ── */
         @media (max-width: 767px) {
           .testi-scroll {
@@ -3058,11 +3080,6 @@ export default function HomePage() {
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8 lg:px-10">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 items-end gap-[2px]">
-              {Array.from({ length: 7 }).map((_, i) => (
-                <span key={i} className="wave-bar" style={{ height: "8px" }} />
-              ))}
-            </div>
             <p
               className="orb text-[13px] font-bold tracking-[0.18em] uppercase sm:text-[15px]"
               style={{ color: "#fff" }}
@@ -3096,11 +3113,12 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="inline-flex items-center justify-center border border-[rgba(0,245,255,0.22)] bg-[rgba(0,245,255,0.055)] px-3 py-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[rgba(255,255,255,0.78)] transition-all hover:border-[var(--border-x)] hover:text-[var(--cx)] sm:px-4"
+              className="inline-flex min-h-[40px] items-center justify-center gap-2 border border-[rgba(0,245,255,0.48)] bg-[linear-gradient(135deg,rgba(0,245,255,0.18),rgba(191,95,255,0.12))] px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-[0_0_24px_rgba(0,245,255,0.16)] transition-all hover:-translate-y-0.5 hover:border-[var(--cx)] hover:text-[var(--cx)] hover:shadow-[0_0_34px_rgba(0,245,255,0.28)] sm:px-5"
               style={{
                 fontFamily: "Space Mono, monospace",
               }}
             >
+              <LogIn size={14} />
               LOGIN
             </Link>
             <a
@@ -3130,19 +3148,22 @@ export default function HomePage() {
           <Link
             href="/login"
             onClick={() => setMenuOpen(false)}
+            className="inline-flex items-center justify-center gap-2"
             style={{
               fontFamily: "Orbitron, monospace",
               fontSize: 13,
-              fontWeight: 700,
+              fontWeight: 800,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
-              color: "rgba(255,255,255,0.55)",
+              color: "#ffffff",
               padding: "18px 0",
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
+              borderBottom: "1px solid rgba(0,245,255,0.18)",
               textDecoration: "none",
+              textShadow: "0 0 18px rgba(0,245,255,0.45)",
             }}
           >
-            LOG IN
+            <LogIn size={15} />
+            LOGIN
           </Link>
           <a
             href="#pricing"
@@ -3478,9 +3499,15 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-8 grid max-w-4xl gap-5 sm:mt-12">
+          <p
+            className="mono mt-5 text-center text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.32)]"
+          >
+            Drag to read more customer stories
+          </p>
+
+          <div className="testi-scroll mt-6 sm:mt-10">
             {testimonials.map((t) => (
-              <article key={t.name} className="hud-box-v relative overflow-hidden p-5 sm:p-7">
+              <article key={t.name} className="testi-card hud-box-v relative overflow-hidden p-5 sm:p-7">
                 <div
                   className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
                   style={{
