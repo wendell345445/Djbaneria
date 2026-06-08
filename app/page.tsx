@@ -2221,6 +2221,89 @@ export default function HomePage() {
           }
         }
 
+        @media (max-width: 640px) {
+          .dj-hero-bg {
+            background:
+              radial-gradient(circle at 50% 16%, rgba(0, 245, 255, 0.18), transparent 38%),
+              radial-gradient(circle at 14% 70%, rgba(191, 95, 255, 0.18), transparent 38%),
+              radial-gradient(circle at 88% 72%, rgba(255, 45, 107, 0.13), transparent 36%),
+              linear-gradient(180deg, #02030A 0%, #010108 52%, #000000 100%);
+          }
+
+          .dj-hero-bg::before {
+            inset: -18%;
+            opacity: 0.78;
+            background:
+              linear-gradient(112deg, transparent 0%, transparent 42%, rgba(0, 245, 255, 0.18) 48%, transparent 58%, transparent 100%),
+              linear-gradient(68deg, transparent 0%, transparent 46%, rgba(191, 95, 255, 0.14) 51%, transparent 60%, transparent 100%),
+              repeating-linear-gradient(
+                90deg,
+                rgba(0, 245, 255, 0.055) 0px,
+                rgba(0, 245, 255, 0.055) 1px,
+                transparent 1px,
+                transparent 54px
+              );
+            animation: djHeroLaserSweep 6s ease-in-out infinite alternate;
+          }
+
+          .dj-hero-bg::after {
+            height: 36%;
+            opacity: 0.58;
+            background:
+              repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 13px,
+                rgba(0, 245, 255, 0.24) 13px,
+                rgba(0, 245, 255, 0.24) 16px,
+                transparent 16px,
+                transparent 34px
+              );
+            animation: djHeroEqualizerDark 1.55s ease-in-out infinite alternate;
+          }
+
+          .dj-hero-lights {
+            background:
+              radial-gradient(circle at 50% 58%, rgba(0,0,0,0.08), rgba(0,0,0,0.54) 58%, rgba(0,0,0,0.78) 100%),
+              linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.58));
+          }
+
+          .dj-hero-lights::before,
+          .dj-hero-lights::after {
+            width: 44%;
+            height: 78%;
+            top: -10%;
+            filter: blur(22px);
+            opacity: 0.36;
+          }
+
+          .dj-hero-lights::before {
+            left: 2%;
+          }
+
+          .dj-hero-lights::after {
+            right: 2%;
+          }
+
+          .dj-hero-particles {
+            opacity: 0.42;
+            background-image:
+              radial-gradient(circle, rgba(0,245,255,0.48) 0 1px, transparent 1.4px),
+              radial-gradient(circle, rgba(191,95,255,0.40) 0 1px, transparent 1.4px);
+            background-size: 70px 70px, 96px 96px;
+            animation: djHeroParticlesDarkMobile 9s linear infinite;
+          }
+        }
+
+        @keyframes djHeroParticlesDarkMobile {
+          0% {
+            background-position: 0 0, 28px 24px;
+          }
+          100% {
+            background-position: 70px 70px, 124px 120px;
+          }
+        }
+
 
 
         /* ── GRID NOISE OVERLAY ── */
