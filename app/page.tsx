@@ -874,11 +874,11 @@ function PopupBonusMusicPreview() {
     <div className="w-full max-w-full overflow-hidden border border-[rgba(191,95,255,0.18)] bg-[rgba(191,95,255,0.052)] p-2.5 sm:p-3">
       <div className="mb-2 flex items-center justify-between gap-2 sm:mb-3 sm:gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.10em] text-[var(--cv)] sm:tracking-[0.12em]">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.10em] text-[var(--cv)] sm:tracking-[0.12em]">
             Preview 3 of the 100 remixes
           </p>
-          <p className="mt-1 text-[12px] font-medium leading-5 text-white/64 sm:text-[13px]">
-            These are 3 samples from the 100 remix tracks you receive as a bonus.
+          <p className="mt-1 text-[13px] font-medium leading-5 text-white/68 sm:text-[14px]">
+            These are 3 samples from one of the 100-track remix bonus packs you receive today.
           </p>
         </div>
 
@@ -1217,12 +1217,12 @@ function FirstPurchaseGiftPopup({
 
             <h2
               id="first-purchase-gift-title"
-              className="text-[24px] font-black leading-tight text-white sm:text-[30px]"
+              className="text-[26px] font-black leading-tight text-white sm:text-[32px]"
             >
               Get 20% off your first subscription.
             </h2>
 
-            <p className="mx-auto mt-3 max-w-[340px] text-[15px] font-medium leading-6 text-[rgba(255,255,255,0.68)]">
+            <p className="mx-auto mt-3 max-w-[360px] text-[16px] font-medium leading-7 text-[rgba(255,255,255,0.72)]">
               Enter your name to unlock the discount and upgrade your DJ career today.
             </p>
 
@@ -1280,47 +1280,12 @@ function FirstPurchaseGiftPopup({
                 </span>
               </div>
 
-              <h2 className="text-[22px] font-black leading-tight text-white sm:text-[28px]">
+              <h2 className="text-[24px] font-black leading-tight text-white sm:text-[30px]">
                 {name.trim()}, your 20% discount is ready.
               </h2>
-              <p className="mt-2 max-w-[440px] text-[14px] font-medium leading-6 text-white/66 sm:text-[15px] sm:leading-6">
+              <p className="mt-2 max-w-[460px] text-[15px] font-medium leading-6 text-white/70 sm:text-[16px] sm:leading-7">
                 Choose your plan below and start building your DJ brand today.
               </p>
-            </div>
-
-            <div className="mt-3 min-w-0 overflow-hidden sm:mt-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[rgba(0,245,255,0.78)]">
-                    {countdownFinished
-                      ? "Discount window ended"
-                      : "Discount reserved for"}
-                  </p>
-                  <p className="mt-1 text-[13px] font-medium leading-5 text-white/66">
-                    {countdownFinished
-                      ? "Checkout now to see if your 20% discount is still available."
-                      : "Your 20% discount is reserved while you choose your plan."}
-                  </p>
-                </div>
-
-                <div className="shrink-0 border border-[rgba(0,245,255,0.28)] bg-black/35 px-3 py-2 text-right shadow-[0_0_24px_rgba(0,245,255,0.12)]">
-                  <span className="mono block text-[18px] font-black leading-none text-[var(--cx)] sm:text-[22px]">
-                    {formattedCountdown}
-                  </span>
-                  <span className="mono mt-1 block text-[7px] uppercase tracking-[0.16em] text-white/46">
-                    minutes
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-3 h-1 overflow-hidden bg-white/[0.06]">
-                <div
-                  className="h-full bg-gradient-to-r from-[var(--cx)] to-[var(--cv)] transition-all duration-500"
-                  style={{
-                    width: `${Math.max(0, Math.min(100, (countdownMs / WELCOME_GIFT_TIMER_MS) * 100))}%`,
-                  }}
-                />
-              </div>
             </div>
 
             <div className="mt-3 grid min-w-0 gap-2 sm:mt-4">
@@ -1345,7 +1310,7 @@ function FirstPurchaseGiftPopup({
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="block text-[13px] font-extrabold uppercase tracking-[0.08em] text-white">
+                          <span className="block text-[14px] font-extrabold uppercase tracking-[0.08em] text-white">
                             {plan.name}
                           </span>
                           {plan.highlighted ? (
@@ -1355,16 +1320,16 @@ function FirstPurchaseGiftPopup({
                           ) : null}
                         </div>
 
-                        <p className="mt-1 text-[12px] font-medium leading-4 text-[rgba(255,255,255,0.62)]">
+                        <p className="mt-1 text-[13px] font-medium leading-5 text-[rgba(255,255,255,0.66)]">
                           {plan.credits}
                         </p>
                       </div>
 
                       <div className="shrink-0 text-right">
-                        <span className="block text-[12px] font-medium text-[rgba(255,255,255,0.50)] line-through">
+                        <span className="block text-[13px] font-medium text-[rgba(255,255,255,0.50)] line-through">
                           {plan.price}
                         </span>
-                        <span className="block text-[19px] font-extrabold leading-tight text-[var(--cx)]">
+                        <span className="block text-[21px] font-extrabold leading-tight text-[var(--cx)]">
                           {plan.checkoutPrice}
                         </span>
                       </div>
@@ -1386,32 +1351,13 @@ function FirstPurchaseGiftPopup({
               })}
             </div>
 
-            <div className="mt-3 border border-[rgba(0,245,255,0.16)] bg-[rgba(0,245,255,0.055)] px-3 py-3 text-center shadow-[0_0_24px_rgba(0,245,255,0.08)] sm:mt-4">
-              <p className="text-[13px] font-medium leading-5 text-white/74 sm:text-[14px]">
-                Secure checkout. Once your payment is approved, your login
-                access is sent immediately to your email.
-              </p>
-
-              <button
-                type="button"
-                onClick={handleCheckout}
-                disabled={loading}
-                className="btn-cx-solid mt-3 inline-flex min-h-[44px] w-full items-center justify-center gap-2 px-5 py-3 text-[9px] disabled:cursor-wait disabled:opacity-70"
-              >
-                {loading
-                  ? "OPENING CHECKOUT..."
-                  : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
-                <ArrowRight size={12} />
-              </button>
-            </div>
-
-            <div className="mt-2 grid min-w-0 gap-2 sm:mt-3 sm:gap-3">
+            <div className="mt-3 grid min-w-0 gap-2 sm:mt-4 sm:gap-3">
               <div className="w-full max-w-full  px-2.5 py-2 sm:px-3 sm:py-2.5">
                 <p className="mono text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cx)] sm:tracking-[0.16em]">
                   Included today
                 </p>
-                <p className="mt-1 text-[13px] font-medium leading-5 text-white/66 sm:text-[13px]">
-                  Your subscription includes this bonus today at no extra cost.
+                <p className="mt-1 text-[14px] font-medium leading-6 text-white/70 sm:text-[14px]">
+                  Your subscription includes these bonus packs today at no extra cost.
                 </p>
               </div>
 
@@ -1450,13 +1396,25 @@ function FirstPurchaseGiftPopup({
                       </span>
                     </div>
 
-                    <p className="mt-2 text-[14px] font-black uppercase leading-tight text-white sm:text-[16px]">
-                      100 Flashback Remix Tracks
-                    </p>
+                    <div className="mt-2 flex items-center gap-3">
+                      <img
+                        src="/mokup.webp"
+                        alt="100 Flashback Remix Tracks bonus pack"
+                        className="h-16 w-16 shrink-0 rounded-[14px] object-cover shadow-[0_0_24px_rgba(0,255,159,0.12)] sm:h-20 sm:w-20"
+                        loading="lazy"
+                        decoding="async"
+                      />
 
-                    <p className="mt-1 text-[13px] font-medium leading-5 text-white/64 sm:text-[13px]">
-                      Included with your subscription today.
-                    </p>
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-black uppercase leading-tight text-white sm:text-[17px]">
+                          100 Flashback Remix Tracks
+                        </p>
+
+                        <p className="mt-1 text-[14px] font-medium leading-6 text-white/68 sm:text-[14px]">
+                          Included with your subscription today.
+                        </p>
+                      </div>
+                    </div>
 
                     <div className="mt-2 grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
                       <div className="flex min-w-0 items-center gap-2">
@@ -1484,6 +1442,94 @@ function FirstPurchaseGiftPopup({
                   </div>
                 </div>
               </button>
+
+
+              <div className="relative w-full max-w-full overflow-hidden border border-[rgba(0,245,255,0.16)] bg-white/[0.035] p-2.5 text-left sm:p-3">
+                <span className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
+
+                <div className="flex items-start gap-2.5 sm:gap-3">
+                  <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center border border-[rgba(0,245,255,0.55)] bg-[rgba(0,245,255,0.12)] text-[10px] font-black text-[var(--cx)] sm:h-5 sm:w-5 sm:text-[11px]">
+                    ✓
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="mono border border-[rgba(0,245,255,0.24)] bg-[rgba(0,245,255,0.08)] px-2 py-1 text-[7px] font-bold uppercase tracking-[0.14em] text-[var(--cx)]">
+                        Included bonus
+                      </span>
+                      <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/42">
+                        No extra cost
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex items-center gap-3">
+                      <img
+                        src="/mokup1.webp"
+                        alt="100 House Remix Tracks bonus pack"
+                        className="h-16 w-16 shrink-0 rounded-[14px] object-cover shadow-[0_0_24px_rgba(0,245,255,0.12)] sm:h-20 sm:w-20"
+                        loading="lazy"
+                        decoding="async"
+                      />
+
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-black uppercase leading-tight text-white sm:text-[17px]">
+                          100 House Remix Tracks
+                        </p>
+
+                        <p className="mt-1 text-[14px] font-medium leading-6 text-white/68 sm:text-[14px]">
+                          Also included with your subscription today.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="mono rounded-full border border-white/10 bg-white/[0.035] px-2 py-1 text-[7px] uppercase tracking-[0.14em] text-white/42">
+                          Normally{" "}
+                          <span className="line-through decoration-[rgba(255,255,255,0.55)]">
+                            $29
+                          </span>
+                        </span>
+
+                        <span className="mono rounded-full px-2 py-1 text-[12px] font-black uppercase tracking-[0.14em] text-[#009632]">
+                          Save $29
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 sm:justify-end">
+                        <span className="mono text-[7px] uppercase tracking-[0.14em] text-white/42">
+                          Included today
+                        </span>
+                        <span className="sans rounded-full border border-[rgba(0,255,159,0.34)] bg-[rgba(0,255,159,0.12)] px-2.5 py-1 text-sm font-black text-[var(--cg)] shadow-[0_0_22px_rgba(0,255,159,0.16)]">
+                          $0 today
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            <div className="mt-4 border border-[rgba(0,245,255,0.22)] bg-[linear-gradient(135deg,rgba(0,245,255,0.085),rgba(191,95,255,0.055))] px-3 py-4 text-center shadow-[0_0_28px_rgba(0,245,255,0.10)]">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--cx)]">
+                Ready to start?
+              </p>
+              <p className="mt-2 text-[14px] font-medium leading-6 text-white/76 sm:text-[15px]">
+                Secure checkout. Once your payment is approved, your login
+                access is sent immediately to your email.
+              </p>
+
+              <button
+                type="button"
+                onClick={handleCheckout}
+                disabled={loading}
+                className="btn-cx-solid mt-3 inline-flex min-h-[46px] w-full items-center justify-center gap-2 px-5 py-3 text-[10px] disabled:cursor-wait disabled:opacity-70"
+              >
+                {loading
+                  ? "OPENING CHECKOUT..."
+                  : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
+                <ArrowRight size={12} />
+              </button>
+            </div>
 
               <PopupBonusMusicPreview />
             </div>
