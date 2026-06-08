@@ -1931,12 +1931,6 @@ function BonusMusicPlayer() {
 }
 
 function ExclusiveMusicBonusSection() {
-  const bonusItems = [
-    "100 house remix tracks included as a subscriber bonus",
-    "Built to add more energy to your DJ workflow and promo planning",
-    "Unlocked after checkout with any active paid subscription",
-  ];
-
   return (
     <section
       id="bonus"
@@ -1964,7 +1958,7 @@ function ExclusiveMusicBonusSection() {
                 100 House Remix
               </span>
               <br />
-              Music Pack.
+              Music Pack
             </h2>
             <p className="sans mt-4 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.68)] sm:text-[16px]">
               Subscribe and unlock an exclusive remix pack as a launch bonus:
@@ -1982,50 +1976,22 @@ function ExclusiveMusicBonusSection() {
           </div>
 
           <div className="relative overflow-hidden p-0">
-            <div className="absolute right-4 top-4 border border-[rgba(0,255,159,0.24)] bg-[rgba(0,255,159,0.08)] px-2.5 py-1 text-[7px] font-bold uppercase tracking-[0.16em] text-[var(--cg)]">
-              Included
-            </div>
+            <div className="grid gap-5 lg:grid-cols-[0.72fr_1fr] lg:items-center">
+              <div className="relative mx-auto w-full max-w-[260px]">
+                <div className="pointer-events-none absolute -inset-5 rounded-[30px] bg-[rgba(0,245,255,0.12)] blur-3xl" />
+                <div className="pointer-events-none absolute -inset-4 rounded-[30px] bg-[rgba(191,95,255,0.10)] blur-3xl" />
 
-            <div className="flex items-center gap-4 border-b border-[rgba(0,245,255,0.14)] pb-5 pr-20">
-              <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border border-[rgba(0,245,255,0.34)] bg-[rgba(0,245,255,0.1)] text-[var(--cx)]">
-                <svg
-                  viewBox="0 0 55 55"
-                  aria-hidden="true"
-                  className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,245,255,0.45)]"
-                  fill="currentColor"
-                >
-                  <path d="M45.465 9.321h-16.8a5.277 5.277 0 0 0-4.88-3.28H8.925a5.27 5.27 0 0 0-5.27 5.27v4.6a7.86 7.86 0 0 1 5.88-2.64h35.93a7.86 7.86 0 0 1 5.88 2.64v-.7c0-3.25-2.63-5.89-5.88-5.89z" />
-                  <path d="M45.463 15.27H9.54a5.882 5.882 0 0 0-5.882 5.882v21.925a5.882 5.882 0 0 0 5.882 5.882h35.923a5.882 5.882 0 0 0 5.882-5.882V21.152a5.882 5.882 0 0 0-5.882-5.882zM35.645 26.89l-.3 9.56v.13h-.01c-.09 1.01-1.27 1.86-2.75 1.94-1.953.118-3.404-1.302-3.45-2.23-.06-1.1 1.18-2.07 2.76-2.15.38-.02.75.01 1.09.08l.21-6.96-8.21 1.22-.32 10.31v.13h-.01c-.09 1.04-1.29 1.91-2.82 1.99-1.393.073-3.451-1.03-3.52-2.27-.06-1.14 1.21-2.12 2.83-2.21.41-.02.8.01 1.16.1.367-11.81.297-9.204.33-10.24.02-.8.62-1.47 1.41-1.59 9.667-1.434 9.315-1.4 9.52-1.4.823 0 2.165.97 2.13 2.1z" />
-                </svg>
-              </div>
-              <div>
-                <p className="mono text-[8px] uppercase tracking-[0.18em] text-[rgba(0,245,255,0.72)]">
-                  BONUS PACK
-                </p>
-                <p className="sans mt-1 text-[32px] font-black leading-none text-white sm:text-[44px]">
-                  100
-                </p>
-                <p className="orb mt-1 text-[12px] font-bold uppercase tracking-[0.14em] text-white/78">
-                  House Remix Tracks
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-3">
-              {bonusItems.map((item) => (
-                <div
-                  key={item}
-                  className="flex items-start gap-3 border border-[rgba(0,245,255,0.12)] bg-black/20 px-4 py-3"
-                >
-                  <CheckCircle2
-                    size={16}
-                    className="mt-1 shrink-0 text-[var(--cg)]"
+                <div className="relative overflow-hidden rounded-[24px] border border-[rgba(0,245,255,0.20)] bg-black/30 p-2 shadow-[0_26px_80px_rgba(0,0,0,0.55),0_0_46px_rgba(0,245,255,0.12)]">
+                  <img
+                    src="/mokup1.webp"
+                    alt="100 House Remix Music Pack"
+                    className="h-auto w-full rounded-[18px] object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
-                  <span className="sans text-sm leading-6 text-[rgba(255,255,255,0.68)]">
-                    {item}
-                  </span>
                 </div>
-              ))}
+              </div>
+
             </div>
 
             <BonusMusicPlayer />
@@ -3356,62 +3322,7 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       {/* ── ADVANTAGES ── */}
-      <section
-        id="vantagens"
-        className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 sm:py-24 lg:px-10"
-      >
-        <div className="max-w-3xl">
-          <div className="sect-label">
-            <span className="chip-v">● SYSTEM FEATURES</span>
-          </div>
-          <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-            FOUR TOOLS. ONE{" "}
-            <span
-              style={{
-                color: "var(--cx)",
-                textShadow: "0 0 24px rgba(0,245,255,0.5)",
-              }}
-            >
-              PLATFORM.
-            </span>
-          </h2>
-          <p className="sans mt-3 text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-base sm:mt-4">
-            DJ Visuals AI gives you everything you need to create, animate,
-            publish, and present your brand — without designers, video editors,
-            or expensive agencies.
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-px bg-[rgba(0,245,255,0.06)] sm:mt-14 md:grid-cols-2 xl:grid-cols-3">
-          {advantages.map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <div key={item.title} className="adv-card">
-                <span
-                  className="orb absolute right-4 top-3 text-[44px] font-black"
-                  style={{ color: "rgba(0,245,255,0.05)", lineHeight: 1 }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div
-                  className="inline-flex h-10 w-10 items-center justify-center border border-[rgba(0,245,255,0.25)]"
-                  style={{ background: "rgba(0,245,255,0.07)" }}
-                >
-                  <Icon size={18} style={{ color: "var(--cx)" }} />
-                </div>
-                <h3 className="orb mt-4 text-[12px] font-bold tracking-wider text-white uppercase sm:mt-5 sm:text-[13px]">
-                  {item.title}
-                </h3>
-                <p className="sans mt-2 text-sm leading-7 text-[rgba(255,255,255,0.60)] sm:mt-3">
-                  {item.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      <div className="glow-divider" />
+      
 
       <ExclusiveMusicBonusSection />
 
@@ -3494,21 +3405,20 @@ export default function HomePage() {
               <span className="chip-cx">● ACCESS TIERS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              ONE PLATFORM TO{" "}
+              CHOOSE THE PLAN THAT FITS{" "}
               <span
                 style={{
                   color: "var(--cx)",
                   textShadow: "0 0 24px rgba(0,245,255,0.5)",
                 }}
               >
-                PROMOTE YOUR DJ BRAND.
+                YOUR PROMO VOLUME.
               </span>
             </h2>
             <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.66)] sm:text-base sm:mt-4">
-              Pick the monthly creative system that matches your promo schedule:
-              flyers, animated MP4s, pro photos, and a booking-ready DJ website
-              designed to help you look serious, post consistently, and turn
-              attention into real inquiries.
+              Every plan includes the DJ Visuals AI platform. Pick the monthly
+              credit volume that matches how often you create flyers, videos,
+              photos, and promo assets.
             </p>
           </div>
 
