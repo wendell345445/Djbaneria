@@ -3483,20 +3483,19 @@ export default function HomePage() {
               <span className="chip-cx">● CLIENT TRANSMISSIONS</span>
             </div>
             <h2 className="orb text-[22px] font-bold leading-tight text-white sm:text-[42px]">
-              DJS USING IT TO{" "}
+              READ OUR{" "}
               <span
                 style={{
                   color: "var(--cv)",
                   textShadow: "0 0 24px rgba(191,95,255,0.5)",
                 }}
               >
-                LOOK PROFESSIONAL,
+                USERS' TESTIMONIALS
               </span>{" "}
-              POST MORE, AND GET BOOKED
             </h2>
             <p className="sans mx-auto mt-3 max-w-2xl text-[14px] leading-7 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
-              Real feedback from DJs using the platform to create better promo
-              assets, look more professional online, and make booking easier.
+              Success stories: how real DJs are using the platform to level up
+              their brand and fill their calendar.
             </p>
           </div>
 
