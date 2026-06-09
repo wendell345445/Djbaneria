@@ -879,7 +879,8 @@ function PopupBonusMusicPreview() {
             Preview 3 of the 100 remixes
           </p>
           <p className="mt-1 text-[13px] font-medium leading-5 text-white/68 sm:text-[14px]">
-            These are 3 samples from one of the 100-track remix bonus packs you receive today.
+            These are 3 samples from one of the 100-track remix bonus packs you
+            receive today.
           </p>
         </div>
 
@@ -1220,11 +1221,11 @@ function FirstPurchaseGiftPopup({
               id="first-purchase-gift-title"
               className="text-[26px] font-black leading-tight text-white sm:text-[32px]"
             >
-              Get 20% off your first subscription.
+              YOU RECEIVED A 20% DISCOUNT
             </h2>
 
             <p className="mx-auto mt-3 max-w-[360px] text-[16px] font-medium leading-7 text-[rgba(255,255,255,0.72)]">
-              Enter your name to unlock the discount and upgrade your DJ career today.
+              Enter your name to redeem
             </p>
 
             <label className="mt-5 grid gap-2 text-left">
@@ -1234,7 +1235,7 @@ function FirstPurchaseGiftPopup({
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Enter your name"
+                placeholder="Name"
                 className="min-h-12 rounded-[14px] border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-[16px] font-medium text-white outline-none transition placeholder:text-white/32 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)] sm:text-[16px]"
                 autoFocus
               />
@@ -1251,7 +1252,7 @@ function FirstPurchaseGiftPopup({
               onClick={handleClaimGift}
               className="btn-cx-solid mt-4 inline-flex min-h-[52px] w-full items-center justify-center gap-2 px-5 py-4 text-[11px]"
             >
-              CLAIM 20% OFF
+              I WOULD LIKE THIS DISCOUNT
               <ArrowRight size={13} />
             </button>
 
@@ -1358,7 +1359,8 @@ function FirstPurchaseGiftPopup({
                   Included today
                 </p>
                 <p className="mt-1 text-[14px] font-medium leading-6 text-white/70 sm:text-[14px]">
-                  Your subscription includes these bonus packs today at no extra cost.
+                  Your subscription includes these bonus packs today at no extra
+                  cost.
                 </p>
               </div>
 
@@ -1444,7 +1446,6 @@ function FirstPurchaseGiftPopup({
                 </div>
               </button>
 
-
               <div className="relative w-full max-w-full overflow-hidden border border-[rgba(0,245,255,0.16)] bg-white/[0.035] p-2.5 text-left sm:p-3">
                 <span className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--cx)] to-transparent" />
 
@@ -1510,27 +1511,27 @@ function FirstPurchaseGiftPopup({
                 </div>
               </div>
 
-            <div className="mt-4 border border-[rgba(0,245,255,0.22)] bg-[linear-gradient(135deg,rgba(0,245,255,0.085),rgba(191,95,255,0.055))] px-3 py-4 text-center shadow-[0_0_28px_rgba(0,245,255,0.10)]">
-              <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--cx)]">
-                Ready to start?
-              </p>
-              <p className="mt-2 text-[14px] font-medium leading-6 text-white/76 sm:text-[15px]">
-                Secure checkout. Once your payment is approved, your login
-                access is sent immediately to your email.
-              </p>
+              <div className="mt-4 border border-[rgba(0,245,255,0.22)] bg-[linear-gradient(135deg,rgba(0,245,255,0.085),rgba(191,95,255,0.055))] px-3 py-4 text-center shadow-[0_0_28px_rgba(0,245,255,0.10)]">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--cx)]">
+                  Ready to start?
+                </p>
+                <p className="mt-2 text-[14px] font-medium leading-6 text-white/76 sm:text-[15px]">
+                  Secure checkout. Once your payment is approved, your login
+                  access is sent immediately to your email.
+                </p>
 
-              <button
-                type="button"
-                onClick={handleCheckout}
-                disabled={loading}
-                className="btn-cx-solid mt-3 inline-flex min-h-[46px] w-full items-center justify-center gap-2 px-5 py-3 text-[10px] disabled:cursor-wait disabled:opacity-70"
-              >
-                {loading
-                  ? "OPENING CHECKOUT..."
-                  : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
-                <ArrowRight size={12} />
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={handleCheckout}
+                  disabled={loading}
+                  className="btn-cx-solid mt-3 inline-flex min-h-[46px] w-full items-center justify-center gap-2 px-5 py-3 text-[10px] disabled:cursor-wait disabled:opacity-70"
+                >
+                  {loading
+                    ? "OPENING CHECKOUT..."
+                    : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
+                  <ArrowRight size={12} />
+                </button>
+              </div>
 
               <PopupBonusMusicPreview />
             </div>
@@ -1963,7 +1964,6 @@ function ExclusiveMusicBonusSection() {
                   />
                 </div>
               </div>
-
             </div>
 
             <BonusMusicPlayer />
@@ -3180,114 +3180,115 @@ export default function HomePage() {
         <div className="dj-hero-lights" />
         <div className="dj-hero-particles" />
         <div className="relative z-10">
-        {/* Hero promise line */}
-        <div
-          className="mono mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-[9px] text-[rgba(255,255,255,0.34)] sm:text-[10px]"
-          style={{ letterSpacing: "0.12em" }}
-        >
-          <span style={{ color: "var(--cg)" }}>● DJ PROMO SYSTEM</span>
-          <span className="hidden sm:inline">|</span>
-          <span>FLYERS · VIDEOS · PHOTOS · BOOKING SITE</span>
-        </div>
-
-        <div className="mx-auto grid max-w-5xl gap-10 text-center">
-          <div>
-            <h1 className="hero-h1 orb text-[30px] font-black leading-[0.98] tracking-[-0.015em] text-white sm:text-[58px] sm:leading-[0.86] lg:text-[76px] lg:leading-[0.88] uppercase">
-              Pro Sound.
-              <br />
-              <span
-                style={{
-                  color: "var(--cx)",
-                  textShadow: "0 0 40px rgba(0,245,255,0.62)",
-                }}
-              >
-                Amateur Look?
-              </span>
-              <br />
-              <span
-                style={{
-                  color: "var(--cv)",
-                  textShadow: "0 0 40px rgba(191,95,255,0.62)",
-                }}
-              >
-                Not Anymore.
-              </span>
-              <span className="cursor" />
-            </h1>
-
-            <p className="sans mx-auto mt-5 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.66)] sm:text-[16px] sm:leading-7">
-              Flyers, promo videos, photos, and a booking-ready site — in under
-              a minute.
-            </p>
-
-            <div className="hero-mockup-reveal relative mx-auto mt-6 w-full max-w-[380px] sm:max-w-[540px] lg:max-w-[680px]">
-              <div
-                className="pointer-events-none absolute left-1/2 top-1/2 h-[88%] w-[110%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,245,255,0.24)] blur-3xl"
-                style={{
-                  animation: "heroMockupGlow 4.2s ease-in-out infinite",
-                }}
-              />
-              <div
-                className="pointer-events-none absolute left-[42%] top-[52%] h-[78%] w-[96%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(191,95,255,0.24)] blur-3xl"
-                style={{
-                  animation: "heroMockupGlow 5.3s ease-in-out infinite reverse",
-                }}
-              />
-              <div
-                className="pointer-events-none absolute left-[58%] top-[44%] h-[54%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,255,159,0.10)] blur-3xl"
-                style={{
-                  animation: "heroMockupGlow 6.2s ease-in-out infinite",
-                }}
-              />
-
-              <img
-                src="/LAPTOP AND PHONE SCREEN MOCKUP.png"
-                alt="DJ Visuals AI laptop and phone platform mockup"
-                className="hero-mockup-image relative z-10 h-auto w-full select-none object-contain drop-shadow-[0_28px_70px_rgba(0,0,0,0.62)]"
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-              <a
-                href="#pricing"
-                className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8 uppercase"
-              >
-                Get Instant Access
-                <ArrowRight size={13} />
-              </a>
-            </div>
-
-            <p className="sans mx-auto mt-5 max-w-2xl text-[13px] leading-6 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
-              You already have the sound. Now build the visual brand that gets
-              you noticed, followed, and booked.
-            </p>
-
-            <div className="mx-auto mt-4 grid max-w-2xl grid-cols-1 gap-2 sm:grid-cols-3">
-              {[
-                "Look professional",
-                "Post more content",
-                "Get booked faster",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="border border-[rgba(0,245,255,0.16)] bg-white/[0.025] px-4 py-3"
-                >
-                  <p className="orb text-[10px] font-bold uppercase tracking-[0.12em] text-white">
-                    {item}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <p className="mono mt-4 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.46)]">
-              Full promo system for DJs. Cancel anytime.
-            </p>
-
-            {/* Conversion benefits row */}
+          {/* Hero promise line */}
+          <div
+            className="mono mx-auto mb-6 flex max-w-3xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-[9px] text-[rgba(255,255,255,0.34)] sm:text-[10px]"
+            style={{ letterSpacing: "0.12em" }}
+          >
+            <span style={{ color: "var(--cg)" }}>● DJ PROMO SYSTEM</span>
+            <span className="hidden sm:inline">|</span>
+            <span>FLYERS · VIDEOS · PHOTOS · BOOKING SITE</span>
           </div>
-        </div>
+
+          <div className="mx-auto grid max-w-5xl gap-10 text-center">
+            <div>
+              <h1 className="hero-h1 orb text-[30px] font-black leading-[0.98] tracking-[-0.015em] text-white sm:text-[58px] sm:leading-[0.86] lg:text-[76px] lg:leading-[0.88] uppercase">
+                Pro Sound.
+                <br />
+                <span
+                  style={{
+                    color: "var(--cx)",
+                    textShadow: "0 0 40px rgba(0,245,255,0.62)",
+                  }}
+                >
+                  Amateur Look?
+                </span>
+                <br />
+                <span
+                  style={{
+                    color: "var(--cv)",
+                    textShadow: "0 0 40px rgba(191,95,255,0.62)",
+                  }}
+                >
+                  Not Anymore.
+                </span>
+                <span className="cursor" />
+              </h1>
+
+              <p className="sans mx-auto mt-5 max-w-2xl text-[14px] leading-5 text-[rgba(255,255,255,0.66)] sm:text-[16px] sm:leading-7">
+                Flyers, promo videos, photos, and a booking-ready site — in
+                under a minute.
+              </p>
+
+              <div className="hero-mockup-reveal relative mx-auto mt-6 w-full max-w-[380px] sm:max-w-[540px] lg:max-w-[680px]">
+                <div
+                  className="pointer-events-none absolute left-1/2 top-1/2 h-[88%] w-[110%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,245,255,0.24)] blur-3xl"
+                  style={{
+                    animation: "heroMockupGlow 4.2s ease-in-out infinite",
+                  }}
+                />
+                <div
+                  className="pointer-events-none absolute left-[42%] top-[52%] h-[78%] w-[96%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(191,95,255,0.24)] blur-3xl"
+                  style={{
+                    animation:
+                      "heroMockupGlow 5.3s ease-in-out infinite reverse",
+                  }}
+                />
+                <div
+                  className="pointer-events-none absolute left-[58%] top-[44%] h-[54%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,255,159,0.10)] blur-3xl"
+                  style={{
+                    animation: "heroMockupGlow 6.2s ease-in-out infinite",
+                  }}
+                />
+
+                <img
+                  src="/LAPTOP AND PHONE SCREEN MOCKUP.png"
+                  alt="DJ Visuals AI laptop and phone platform mockup"
+                  className="hero-mockup-image relative z-10 h-auto w-full select-none object-contain drop-shadow-[0_28px_70px_rgba(0,0,0,0.62)]"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+
+              <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+                <a
+                  href="#pricing"
+                  className="btn-cx-solid inline-flex w-full items-center justify-center gap-2.5 py-4 text-[11px] sm:w-auto sm:min-h-[52px] sm:px-8 uppercase"
+                >
+                  Get Instant Access
+                  <ArrowRight size={13} />
+                </a>
+              </div>
+
+              <p className="sans mx-auto mt-5 max-w-2xl text-[13px] leading-6 text-[rgba(255,255,255,0.62)] sm:text-[15px]">
+                You already have the sound. Now build the visual brand that gets
+                you noticed, followed, and booked.
+              </p>
+
+              <div className="mx-auto mt-4 grid max-w-2xl grid-cols-1 gap-2 sm:grid-cols-3">
+                {[
+                  "Look professional",
+                  "Post more content",
+                  "Get booked faster",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="border border-[rgba(0,245,255,0.16)] bg-white/[0.025] px-4 py-3"
+                  >
+                    <p className="orb text-[10px] font-bold uppercase tracking-[0.12em] text-white">
+                      {item}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mono mt-4 text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.46)]">
+                Full promo system for DJs. Cancel anytime.
+              </p>
+
+              {/* Conversion benefits row */}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -3499,15 +3500,16 @@ export default function HomePage() {
             </p>
           </div>
 
-          <p
-            className="mono mt-5 text-center text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.32)]"
-          >
+          <p className="mono mt-5 text-center text-[9px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.32)]">
             Drag to read more customer stories
           </p>
 
           <div className="testi-scroll mt-6 sm:mt-10">
             {testimonials.map((t) => (
-              <article key={t.name} className="testi-card hud-box-v relative overflow-hidden p-5 sm:p-7">
+              <article
+                key={t.name}
+                className="testi-card hud-box-v relative overflow-hidden p-5 sm:p-7"
+              >
                 <div
                   className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full"
                   style={{
@@ -3568,7 +3570,6 @@ export default function HomePage() {
       <div className="glow-divider" />
 
       {/* ── ADVANTAGES ── */}
-      
 
       <ExclusiveMusicBonusSection />
 
