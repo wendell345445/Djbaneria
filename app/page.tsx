@@ -22,7 +22,6 @@ import {
   LogIn,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
-import { getMetaBrowserTrackingPayload } from "@/lib/meta-browser";
 
 const LandingBannerCarousel = dynamic(
   () =>
@@ -735,10 +734,42 @@ import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
 
-type CheckoutOptions = {
-  customerName?: string;
-  source?: string;
+type BrowserTrackingPayload = {
+  fbp?: string;
+  fbc?: string;
+  fbclid?: string;
+  eventSourceUrl?: string;
 };
+
+function readCookieValue(name: string) {
+  if (typeof document === "undefined") return undefined;
+
+  const cookie = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+
+  if (!cookie) return undefined;
+
+  return decodeURIComponent(cookie.split("=").slice(1).join("="));
+}
+
+function getCheckoutBrowserTrackingPayload(): BrowserTrackingPayload {
+  if (typeof window === "undefined") return {};
+
+  const url = new URL(window.location.href);
+  const fbclid = url.searchParams.get("fbclid") || undefined;
+  const fbp = readCookieValue("_fbp");
+  const cookieFbc = readCookieValue("_fbc");
+
+  return {
+    fbp,
+    fbc:
+      cookieFbc ||
+      (fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined),
+    fbclid,
+    eventSourceUrl: window.location.href,
+  };
+}
 
 async function openPublicCheckout(
   plan: PlanVariant,
@@ -753,7 +784,7 @@ async function openPublicCheckout(
       metaEventId,
       customerName: options.customerName,
       source: options.source,
-      ...getMetaBrowserTrackingPayload(),
+      ...getCheckoutBrowserTrackingPayload(),
     }),
   });
 
