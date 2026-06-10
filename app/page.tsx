@@ -734,6 +734,11 @@ import { createMetaEventId, trackMetaInitiateCheckout } from "@/lib/meta-pixel";
 
 type PlanVariant = "PRO" | "PROFESSIONAL" | "STUDIO";
 
+type CheckoutOptions = {
+  customerName?: string;
+  source?: string;
+};
+
 type BrowserTrackingPayload = {
   fbp?: string;
   fbc?: string;
