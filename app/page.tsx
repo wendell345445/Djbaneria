@@ -22,6 +22,7 @@ import {
   LogIn,
 } from "lucide-react";
 import { landingBannerExamples } from "@/lib/landing-banner-examples";
+import { getMetaBrowserTrackingPayload } from "@/lib/meta-browser";
 
 const LandingBannerCarousel = dynamic(
   () =>
@@ -752,6 +753,7 @@ async function openPublicCheckout(
       metaEventId,
       customerName: options.customerName,
       source: options.source,
+      ...getMetaBrowserTrackingPayload(),
     }),
   });
 
