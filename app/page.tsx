@@ -1286,7 +1286,6 @@ function FirstPurchaseGiftPopup({
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Name"
                 className="min-h-12 rounded-[14px] border border-[rgba(0,245,255,0.18)] bg-black/30 px-4 text-[16px] font-medium text-white outline-none transition placeholder:text-white/32 focus:border-[rgba(0,245,255,0.65)] focus:shadow-[0_0_28px_rgba(0,245,255,0.16)] sm:text-[16px]"
-                autoFocus
               />
             </label>
 
