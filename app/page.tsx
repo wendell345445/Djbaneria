@@ -1590,18 +1590,6 @@ function FirstPurchaseGiftPopup({
               </p>
             ) : null}
 
-            <button
-              type="button"
-              onClick={handleCheckout}
-              disabled={loading}
-              className="btn-cx-solid mt-3 inline-flex min-h-[50px] w-full items-center justify-center gap-2 px-5 py-3 text-[10px] disabled:cursor-wait disabled:opacity-70"
-            >
-              {loading
-                ? "OPENING CHECKOUT..."
-                : `CONTINUE WITH ${selectedPlanData?.name?.toUpperCase() || "PLAN"}`}
-              <ArrowRight size={13} />
-            </button>
-
             <div className="mt-3 grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -3143,7 +3131,7 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="inline-flex min-h-[40px] items-center justify-center gap-2 border border-[rgba(0,245,255,0.48)] bg-[linear-gradient(135deg,rgba(0,245,255,0.18),rgba(191,95,255,0.12))] px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-[0_0_24px_rgba(0,245,255,0.16)] transition-all hover:-translate-y-0.5 hover:border-[var(--cx)] hover:text-[var(--cx)] hover:shadow-[0_0_34px_rgba(0,245,255,0.28)] sm:px-5"
+              className="hidden min-h-[40px] items-center justify-center gap-2 border border-[rgba(0,245,255,0.48)] bg-[linear-gradient(135deg,rgba(0,245,255,0.18),rgba(191,95,255,0.12))] px-4 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-[0_0_24px_rgba(0,245,255,0.16)] transition-all hover:-translate-y-0.5 hover:border-[var(--cx)] hover:text-[var(--cx)] hover:shadow-[0_0_34px_rgba(0,245,255,0.28)] sm:inline-flex sm:px-5"
               style={{
                 fontFamily: "Space Mono, monospace",
               }}
@@ -3153,9 +3141,9 @@ export default function HomePage() {
             </Link>
             <a
               href="#pricing"
-              className="btn-cx-solid hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-none"
+              className="btn-cx-solid inline-flex items-center gap-2 rounded-none px-4 py-2.5 text-[9px] sm:px-5 sm:text-[10px]"
             >
-              CHOOSE PLAN
+              CHOOSE YOUR PLAN
               <ArrowRight size={12} />
             </a>
             {/* Hamburger — mobile only */}
@@ -3175,26 +3163,6 @@ export default function HomePage() {
               {label}
             </a>
           ))}
-          <Link
-            href="/login"
-            onClick={() => setMenuOpen(false)}
-            className="inline-flex items-center justify-center gap-2"
-            style={{
-              fontFamily: "Orbitron, monospace",
-              fontSize: 13,
-              fontWeight: 800,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "#ffffff",
-              padding: "18px 0",
-              borderBottom: "1px solid rgba(0,245,255,0.18)",
-              textDecoration: "none",
-              textShadow: "0 0 18px rgba(0,245,255,0.45)",
-            }}
-          >
-            <LogIn size={15} />
-            LOGIN
-          </Link>
           <a
             href="#pricing"
             onClick={() => setMenuOpen(false)}
