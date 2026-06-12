@@ -768,9 +768,7 @@ function getCheckoutBrowserTrackingPayload(): BrowserTrackingPayload {
 
   return {
     fbp,
-    fbc:
-      cookieFbc ||
-      (fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined),
+    fbc: cookieFbc || (fbclid ? `fb.1.${Date.now()}.${fbclid}` : undefined),
     fbclid,
     eventSourceUrl: window.location.href,
   };
@@ -1022,20 +1020,22 @@ function PopupBonusMusicPreview() {
   );
 }
 
-function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
+function PricingButton({
+  plan,
+  label,
+  onSelectPlan,
+}: {
+  plan: PlanVariant;
+  label: string;
+  onSelectPlan: (plan: PlanVariant) => void;
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleClick() {
+  function handleClick() {
     if (loading) return;
-    setLoading(true);
     setError("");
-    try {
-      await openPublicCheckout(plan, { source: "pricing_card" });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Payment error.");
-      setLoading(false);
-    }
+    onSelectPlan(plan);
   }
 
   const labelText = loading ? "OPENING..." : label;
@@ -1136,19 +1136,30 @@ function PricingButton({ plan, label }: { plan: PlanVariant; label: string }) {
 function FirstPurchaseGiftPopup({
   open,
   onClose,
+  initialPlan = "PROFESSIONAL",
 }: {
   open: boolean;
   onClose: () => void;
+  initialPlan?: PlanVariant;
 }) {
   const [name, setName] = useState("");
   const [step, setStep] = useState<"intro" | "plans">("intro");
-  const [selectedPlan, setSelectedPlan] = useState<PlanVariant>("PROFESSIONAL");
+  const [selectedPlan, setSelectedPlan] = useState<PlanVariant>(initialPlan);
   const [bonusSelected, setBonusSelected] = useState(false);
   const [giftLeadNotified, setGiftLeadNotified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [giftExpiresAt, setGiftExpiresAt] = useState<number | null>(null);
   const [countdownMs, setCountdownMs] = useState(WELCOME_GIFT_TIMER_MS);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setSelectedPlan(initialPlan);
+    setStep("intro");
+    setError("");
+    setLoading(false);
+  }, [initialPlan, open]);
 
   useEffect(() => {
     if (!open || step !== "plans" || giftExpiresAt === null) return;
@@ -2015,39 +2026,17 @@ function ExclusiveMusicBonusSection() {
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [giftPopupOpen, setGiftPopupOpen] = useState(false);
-  const [giftPopupDismissed, setGiftPopupDismissed] = useState(false);
+  const [giftPopupPlan, setGiftPopupPlan] =
+    useState<PlanVariant>("PROFESSIONAL");
   const [heroPlayingId, setHeroPlayingId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (giftPopupDismissed) return;
-
-    const pricingSection = document.getElementById("pricing");
-    if (!pricingSection) return;
-
-    const alreadyShown = window.sessionStorage.getItem(
-      "first-subscription-gift-seen",
-    );
-    if (alreadyShown) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-
-        setGiftPopupOpen(true);
-        window.sessionStorage.setItem("first-subscription-gift-seen", "true");
-        observer.disconnect();
-      },
-      { threshold: 0.28 },
-    );
-
-    observer.observe(pricingSection);
-
-    return () => observer.disconnect();
-  }, [giftPopupDismissed]);
+  function openGiftPopupForPlan(plan: PlanVariant) {
+    setGiftPopupPlan(plan);
+    setGiftPopupOpen(true);
+  }
 
   function closeGiftPopup() {
     setGiftPopupOpen(false);
-    setGiftPopupDismissed(true);
   }
 
   return (
@@ -2059,7 +2048,11 @@ export default function HomePage() {
         fontFamily: "'DM Sans', sans-serif",
       }}
     >
-      <FirstPurchaseGiftPopup open={giftPopupOpen} onClose={closeGiftPopup} />
+      <FirstPurchaseGiftPopup
+        open={giftPopupOpen}
+        onClose={closeGiftPopup}
+        initialPlan={giftPopupPlan}
+      />
       <WhatsAppFloatingButton />
       <style
         dangerouslySetInnerHTML={{
@@ -3766,7 +3759,11 @@ export default function HomePage() {
                 </div>
 
                 <div className="mt-5">
-                  <PricingButton plan={plan.plan} label={plan.cta} />
+                  <PricingButton
+                    plan={plan.plan}
+                    label={plan.cta}
+                    onSelectPlan={openGiftPopupForPlan}
+                  />
                 </div>
 
                 <div className="mt-6 space-y-3">
