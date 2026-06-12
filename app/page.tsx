@@ -3141,10 +3141,11 @@ export default function HomePage() {
             </Link>
             <a
               href="#pricing"
-              className="btn-cx-solid inline-flex items-center gap-2 rounded-none px-4 py-2.5 text-[9px] sm:px-5 sm:text-[10px]"
+              className="btn-cx-solid inline-flex min-h-[30px] items-center rounded-none px-2.5 py-1.5 text-[7px] sm:min-h-[40px] sm:gap-2 sm:px-5 sm:py-2.5 sm:text-[10px]"
             >
-              CHOOSE YOUR PLAN
-              <ArrowRight size={12} />
+              <span className="sm:hidden">PLANS</span>
+              <span className="hidden sm:inline">CHOOSE PLAN</span>
+              <ArrowRight size={12} className="hidden sm:block" />
             </a>
             {/* Hamburger — mobile only */}
           </div>
